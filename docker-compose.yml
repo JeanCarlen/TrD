@@ -1,0 +1,42 @@
+version: '3.9'
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    networks:
+      - tr
+    ports:
+      - "80:3000"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    networks:
+      - tr
+    ports:
+      - "3000:3000"
+
+  database:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test123
+      POSTGRES_DB: pong_data
+    ports:
+      - "5432:5432"
+    networks:
+      - tr
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+networks:
+  tr:
+
+volumes:
+  db_data:
