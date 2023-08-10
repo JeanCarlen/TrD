@@ -15,6 +15,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
     depends_on:
       - database
     networks:
@@ -24,16 +26,14 @@ services:
 
   database:
     image: postgres:latest
-    environment:
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: test123
-      POSTGRES_DB: pong_data
     ports:
       - "5432:5432"
     networks:
       - tr
+    env_file:
+      - ./backend/.env
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 networks:
   tr:
