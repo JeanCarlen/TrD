@@ -53,3 +53,30 @@ code {
   background-color: #0056b3;
 }
 
+/* .chat {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #f5f5f5;
+} */
+
+.chat-container {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.messages-container {
+  color: blue;
+  text-decoration: none;
+  text-align: center;
+  margin-left: 10px;
+}
+
+.chat-start {
+  width: 200px;
+  height: 150px;
+  padding: 10px;
+  margin: 10px;
+  max-width: 300px;
+  max-height: 200px;
+}
