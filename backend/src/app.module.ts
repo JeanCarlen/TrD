@@ -4,6 +4,8 @@ import { User } from './user/user.entity';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { AppController } from './app.controller';
+import { UserService } from './user/user.service';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -17,8 +19,9 @@ import { AppController } from './app.controller';
       entities: [User],
       synchronize: true, // in development, set to false in production
     }),
+	UserModule,
   ],
-  controllers: [AuthController, AppController],
-  providers: [AuthService, AuthService],
+  controllers: [AuthController],
+  providers: [AuthService],
 })
 export class AppModule {}

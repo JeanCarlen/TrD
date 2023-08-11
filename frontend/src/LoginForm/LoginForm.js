@@ -18,9 +18,9 @@ function LoginForm() {
     const data = await response.json();
 
     if (data.success) {
-		console.log("ok");
+		console.log(1);
 	  } else {
-		console.log("not ok");
+		console.log(2);
 	  }
   };
 
