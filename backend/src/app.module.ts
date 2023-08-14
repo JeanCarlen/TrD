@@ -4,6 +4,7 @@ import { Users } from './user/user.entity';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { UserService } from './user/user.service';
 import { UserModule } from './user/user.module';
 import { LoginModule } from './login/login.module';
@@ -23,7 +24,7 @@ import { LoginModule } from './login/login.module';
 	UserModule,
   LoginModule,
   ],
-  controllers: [AuthController],
-  providers: [AuthService],
+  controllers: [AppController, AuthController],
+  providers: [AppService, AuthService],
 })
 export class AppModule {}

@@ -8,7 +8,7 @@ function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch('/login', {
+    const response = await fetch('http://localhost:3001/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -16,13 +16,13 @@ function LoginForm() {
       body: JSON.stringify({ username, password }),
     });
 
-    const data = await response.json();
+    const data = await response.text();
 
-    if (data.success) {
-		console.log(1);
-	  } else {
-		console.log(2);
-	  }
+    //if (data.success) {
+		//console.log(1);
+	  //} else {
+		//console.log(2);
+	  //}
   };
 
   return (
@@ -41,7 +41,7 @@ function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
         />
         <button className='login-button'
-        type="submit">Log In</button>
+        type="submit">Log in with your 42 account</button>
       </form>
     </div>
   );

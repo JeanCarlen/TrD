@@ -22,7 +22,7 @@ services:
     networks:
       - tr
     ports:
-      - "3000:3000"
+      - "3001:3001"
 
   database:
     image: postgres:latest

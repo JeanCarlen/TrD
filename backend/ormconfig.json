@@ -8,4 +8,3 @@
 	"entities": ["dist/**/*.entity.js"],
 	"synchronize": true
   }
-  

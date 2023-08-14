@@ -13,7 +13,7 @@ RUN npm install
 # Copy the rest of the application source code
 COPY . .
 
-EXPOSE 3000
+EXPOSE 3001
 
 # Set the command to start the Nestjs app
 CMD ["npm", "start"]

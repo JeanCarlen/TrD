@@ -17,13 +17,6 @@ function App() {
         <div>
           <LoginForm/>
           </div>
-        {/* <div className="login-container">
-          {/* <form className="login-form">
-            <input className="login-input" type="text" placeholder="Username" />
-            <input className="login-input" type="password" placeholder="Password" />
-            <button className="login-button">Log In</button>
-        </form> */}
-        {/* </div> */}
       </header>
     </div>
   );
