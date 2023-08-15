@@ -20,3 +20,4 @@ EXPOSE 80
 
 # Set the command to start the React app
 CMD ["npm", "start"]
+# CMD [ "npm", "run", "dev" ]

@@ -39,7 +39,7 @@ code {
 
 /* Styling for login button */
 .login-button {
-  background-color: #007bff;
+  background-color: #a2246e;
   color: #fff;
   border: none;
   border-radius: 3px;
@@ -48,6 +48,6 @@ code {
 }
 
 .login-button:hover {
-  background-color: #0056b3;
+  background-color: #310c22;
 }
 

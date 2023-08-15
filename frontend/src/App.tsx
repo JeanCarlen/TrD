@@ -3,6 +3,12 @@ import logo from './cow.svg';
 import './App.css';
 import './index.css';
 import LoginForm from './LoginForm/LoginForm';
+import Sidebar from './Components/Sidebar';
+import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
+import Home from './pages/Home';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import Users from './pages/Users';
+
 
 function App() {
   return (
@@ -16,6 +22,17 @@ function App() {
         </a>
         <div>
           <LoginForm/>
+          <>
+           <Router>
+            <Sidebar/>
+            <div>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/users" element={<Users />} />
+              </Routes>
+            </div>
+           </Router>
+          </>
           </div>
       </header>
     </div>

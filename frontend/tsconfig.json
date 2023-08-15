@@ -22,5 +22,5 @@
   },
   "include": [
     "src"
-  ]
+, "../savedfile/Users.tsx", "../savedfile/LetsPlay.tsx"  ]
 }
