@@ -7,14 +7,14 @@ CREATE DATABASE pong_data;
 \c pong_data;
 
 -- Create a table for users
-CREATE TABLE users (
+CREATE TABLE Users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) NOT NULL,
     password VARCHAR(100) NOT NULL
 );
 
 -- Create a table for posts
-CREATE TABLE posts (
+CREATE TABLE Posts (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     content TEXT,

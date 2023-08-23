@@ -1,17 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { UserService } from '../user/user.service'; // Make sure the import path is correct
+import { Inject, Injectable } from '@nestjs/common';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { UpdateUserDto } from '../users/dto/update-user.dto';
+import { Users } from '../users/entities/users.entity';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  @Inject(UsersService)
+  private readonly usersService: UsersService;
 
-  async login(loginData: { username: string; password: string }): Promise<boolean> {
-    // Implement your authentication logic here
-    // Check the username and password against the database using the userService
-    // Return true if authenticated, otherwise return false
-
-    // Example (replace with your actual logic):
-    console.log('signed up bitches!');
-    return true;
+  public create(createUserDto: CreateUserDto) : Promise<Users>{
+	return this.usersService.create(createUserDto);
   }
 }
