@@ -8,7 +8,7 @@ async function bootstrap() {
   //app.setGlobalPrefix('api')
 
   app.enableCors({
-    origin: process.env.URL_FRONTEND,
+    origin: "http://localhost:8000",
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Accept, Cookie, Set-Cookie',
     credentials: true,

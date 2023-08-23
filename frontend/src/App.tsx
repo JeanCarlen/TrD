@@ -8,6 +8,9 @@ import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import Home from './pages/Home';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Users from './pages/Users';
+import Game from './pages/LetsPlay';
+import Chat from './pages/Chat';
+import Stats from './pages/Stats';
 
 
 function App() {
@@ -21,21 +24,24 @@ function App() {
           Hello loosers
         </a>
         <div>
-          <LoginForm/>
           <>
            <Router>
             <Sidebar/>
-            <div>
+            <div className='loginTest'>
+              <LoginForm/>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/users" element={<Users />} />
+                <Route path="/game" element={<Game />} />
+                <Route path="/chats" element={<Chat />} />
+                <Route path="/statistics" element={<Stats />} />
               </Routes>
             </div>
            </Router>
           </>
           </div>
       </header>
-    </div>
+     </div>
   );
 }
 

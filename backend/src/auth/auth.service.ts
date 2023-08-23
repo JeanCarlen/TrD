@@ -11,6 +11,7 @@ export class AuthService {
     // Return true if authenticated, otherwise return false
 
     // Example (replace with your actual logic):
+    console.log('signed up bitches!');
     return true;
   }
 }

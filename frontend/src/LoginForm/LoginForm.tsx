@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom'
+
 // import './index.css';
 
 function LoginForm() {
+  const [isActive, setIsActive] = useState<boolean>(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -16,7 +19,8 @@ function LoginForm() {
       body: JSON.stringify({ username, password }),
     });
 
-    const data = await response.text();
+    const data = await response.json();
+    // return data;
 
     //if (data.success) {
 		//console.log(1);

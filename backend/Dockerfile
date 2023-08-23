@@ -8,6 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
+RUN npm install -g npm@9.8.1
 RUN npm install
 
 # Copy the rest of the application source code
