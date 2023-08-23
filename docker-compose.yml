@@ -40,9 +40,20 @@ services:
       - "5432:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/postgresql/data
 
 networks:
   tr:
 
 volumes:
   db_data:
+    name: db_data
+    driver: local
+    driver_opts:
+      device: ./data
+      type: none
+      o: bind
+
+
+
+# <host>:/var/lib/postgresql/data
