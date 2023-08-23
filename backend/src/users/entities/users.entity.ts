@@ -8,6 +8,12 @@ export class Users {
   @Column({ type: 'varchar', length: 100 })
   username: string;
 
-  @Column({ type: 'varchar', length: 100 })
-  password: string;
+  @Column({ type: 'varchar', length: 256 })
+  refreshtoken: string;
+
+  @Column({ type: 'boolean'})
+  twofaenabled: boolean;
+
+  @Column({ type: 'varchar', length: 256})
+  avatar: string;
 }

@@ -15,23 +15,26 @@ export class UsersService {
   public create(createUserDto: CreateUserDto): Promise<Users> {
     const user: Users = new Users();
     user.username = createUserDto.username;
-    user.password = createUserDto.password;
+	user.avatar = '/path/to/avatar.png';
+	user.refreshtoken = 'refresh1234';
+	user.twofaenabled = false;
     return this.usersRepository.save(user);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  public findAll() {
+	return this.usersRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  public findOne(id: number) {
+	return this.usersRepository.findOne({ where: { id: id } });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  public async update(id: number, updateUserDto: UpdateUserDto) {
+	return this.usersRepository.update({id: id}, updateUserDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  public async remove(id: number) {
+	const user = await this.usersRepository.findOne({ where: { id: id } });
+	return this.usersRepository.remove(user);
   }
 }

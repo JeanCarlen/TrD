@@ -1,4 +1,6 @@
 export class CreateUserDto {
-  username: string;
-  password: string;
+	username: string;
+	refreshtoken: string;
+	twofaenable: boolean;
+	avatar: string;
 }
