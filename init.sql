@@ -6,7 +6,8 @@ CREATE DATABASE pong_data;
 
 CREATE TABLE users (
 	"id" serial NOT NULL,
-	"username" varchar(100) NOT NULL UNIQUE,
+	"login42" varchar(100) NOT NULL UNIQUE,
+	"username" varchar(100) NOT NULL,
 	"refreshtoken" varchar(256) NOT NULL,
 	"twofaenabled" BOOLEAN NOT NULL DEFAULT false,
 	"avatar" varchar(256) NOT NULL,
