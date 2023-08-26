@@ -1,0 +1,11 @@
+.CusRect
+{
+    width: 300px;
+    height: 150px;
+    background: pink;
+	border: black;
+	border-width: medium;
+	border-radius: 20px;
+	margin:auto;
+	padding: 10px;
+}
