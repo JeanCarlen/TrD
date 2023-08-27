@@ -5,8 +5,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Users } from './entities/users.entity';
 
-import { HttpException, HttpStatus } from '@nestjs/common';
-
 @Injectable()
 export class UsersService {
   constructor(
@@ -35,7 +33,7 @@ export class UsersService {
 	return this.usersRepository.findOne({ where: { id: id } });
   }
 
-  public async update(id: number, updateUserDto: UpdateUserDto) {
+  public update(id: number, updateUserDto: UpdateUserDto) {
 	return this.usersRepository.update({id: id}, updateUserDto);
   }
 

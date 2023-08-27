@@ -13,7 +13,10 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Accept, Cookie, Set-Cookie',
     credentials: true,
   });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+	whitelist: true,
+	forbidNonWhitelisted: true
+  }));
   await app.listen(3001);
 }
 bootstrap();
