@@ -44,7 +44,7 @@ const Routes = (props: Props) => {
                   <Route path="/chats" element={<Chat />} />
                   <Route path="/statistics" element={<Stats />} />
                   <Route path="/Logout" element={<Logout />} />
-				  {/* <Route path='*' element={<Navigate to='/login' replace />} /> */}
+				  <Route path='*' element={<Navigate to='/login' replace />} />
                 </Route>
          	</Router>
         </div>

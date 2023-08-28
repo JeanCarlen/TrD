@@ -21,7 +21,7 @@ const MenuIconOpen = styled(Link)`
     justify-content: start;
     font-size: 1.5rem;
     margin-top: -7rem;
-    margin-left: -30rem;
+    margin-left: 10rem;
     color: #ffffff;
 `
 const SidebarMenu = styled.div<{close: boolean}>`

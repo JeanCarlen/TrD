@@ -12,7 +12,7 @@ import Routes from "./PrivateRoute"
 
 function App() {
   return (
-    <div className="App">
+    <div className="App" content="width=device-width">
       <header className="App-header">
         <div>
           {/* <LoginForm /> */}
