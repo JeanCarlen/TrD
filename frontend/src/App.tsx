@@ -9,12 +9,13 @@ import Home from './pages/Home';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Routes from "./PrivateRoute"
+import './LoginForm/PongGame.css'
 
 function App() {
   return (
-    <div className="App" content="width=device-width">
+    <div className="App">
       <header className="App-header">
-        <div>
+        <div className='App'>
           {/* <LoginForm /> */}
           <BrowserRouter>
             <Routes />

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './PongGame.css';
-import './Game.css'
-import logo from '../cow.svg'
+import './Game.css';
+import cowLogo from '../cow.png';
 
 interface State {
   ballX: number;
@@ -12,6 +12,7 @@ interface State {
   rightPaddleY: number;
   scoreLeft: number;
   scoreRight: number;
+  cowLogo: HTMLImageElement | null;
 }
 
 class PongGame extends Component<{}, State> {
@@ -24,23 +25,30 @@ class PongGame extends Component<{}, State> {
     this.state = {
       ballX: 100,
       ballY: 100,
-      ballSpeedX: 5,
-      ballSpeedY: 3,
+      ballSpeedX: 3,
+      ballSpeedY: 5,
       leftPaddleY: 150,
       rightPaddleY: 150,
       scoreLeft: 0,
       scoreRight: 0,
-	 };
+      cowLogo: null,
+    };
 
-	this.intervalId = 0;
+    this.intervalId = 0;
     this.canvasRef = React.createRef();
     this.updateGame = this.updateGame.bind(this);
-
   }
 
   componentDidMount() {
     this.intervalId = window.setInterval(this.updateGame, 1000 / 60); // 60 FPS
     window.addEventListener('keydown', this.handleKeyPress);
+
+    // Load cow image
+    const cowLogoImage = new Image();
+    cowLogoImage.src = cowLogo;
+    cowLogoImage.onload = () => {
+      this.setState({ cowLogo: cowLogoImage });
+    };
   }
 
   componentWillUnmount() {
@@ -51,12 +59,10 @@ class PongGame extends Component<{}, State> {
 
   updateGame() {
     const canvas = this.canvasRef.current!;
+    if (!canvas) return;
 
-	if (!canvas)
-		return
     const ctx = canvas.getContext('2d')!;
-
-    const { ballX, ballY, ballSpeedX, ballSpeedY, leftPaddleY, rightPaddleY } = this.state;
+    const { ballX, ballY, ballSpeedX, ballSpeedY, leftPaddleY, rightPaddleY, cowLogo } = this.state;
 
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -87,18 +93,17 @@ class PongGame extends Component<{}, State> {
       this.setState({ ballX: newBallX, ballY: newBallY });
     }
 
-	//const ballImage = new Image();
-	const cowLogo = new Image();
-	cowLogo.src = '../cow.png';
-    // Draw paddles and ball
     ctx.fillStyle = 'pink';
-    // ctx.fillRect(10, leftPaddleY, 10, 80);
     ctx.fillRect(canvas.width - 20, rightPaddleY, 10, 80);
+    if (cowLogo)
+    {
+      ctx.drawImage(cowLogo, ballX -25, ballY -25, 50, 50);
+    }
 	//ctx.drawImage(this.ballImage, ballX -10, ballY -10, 20, 20);
-	ctx.drawImage(cowLogo, ballX - 10, ballY - 10, 20, 20);
+	// ctx.drawImage(cowLogo, ballX - 10, ballY - 10, 20, 20);
     ctx.beginPath();
-	ctx.roundRect(10, leftPaddleY, 10, 115, 5);
-    // ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
+	  ctx.roundRect(10, leftPaddleY, 10, 115, 5);
+    //ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
     ctx.fill();
 
 	console.log("X: ",ballX, " Y: ", ballY);
@@ -136,8 +141,11 @@ class PongGame extends Component<{}, State> {
       <div>
         <canvas ref={this.canvasRef} width={800} height={600}></canvas>
         <div className="score">
-		<img src={logo} className='ball'/>
-          <span>Left Player: {this.state.scoreLeft}</span>
+		<img
+        src="../cow.png"
+        alt="Ball"
+        style={{ display: 'none' }}/>
+                <span>Left Player: {this.state.scoreLeft}</span>
           <span>Right Player: {this.state.scoreRight}</span>
         </div>
       </div>
