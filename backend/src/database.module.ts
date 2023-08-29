@@ -3,6 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Users } from './users/entities/users.entity';
 import { Matches } from './matches/entities/matches.entity';
+import { BannedUsers } from './bannedusers/entities/banneduser.entity';
+import { BlockedUsers } from './blockedusers/entities/blockeduser.entity';
+import { MutedUsers } from './mutedusers/entities/muteduser.entity';
 
 @Module({
   imports: [
@@ -18,7 +21,9 @@ import { Matches } from './matches/entities/matches.entity';
 		database: process.env.POSTGRES_DATABASE,
         entities: [
           Users,
-		  Matches
+		  Matches,
+		  BannedUsers,
+		  BlockedUsers
         ],
         synchronize: true,
       })

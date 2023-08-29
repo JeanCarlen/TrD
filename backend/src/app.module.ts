@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { MatchesModule } from './matches/matches.module';
 import { DatabaseModule } from './database.module';
 import { BannedusersModule } from './bannedusers/bannedusers.module';
+import { BlockedusersModule } from './blockedusers/blockedusers.module';
+import { MutedusersModule } from './mutedusers/mutedusers.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { BannedusersModule } from './bannedusers/bannedusers.module';
     AuthModule,
     MatchesModule,
     BannedusersModule,
+    BlockedusersModule,
+    MutedusersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

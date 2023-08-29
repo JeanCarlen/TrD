@@ -32,7 +32,7 @@ CREATE TABLE chats (
 	CONSTRAINT "chats_pk" PRIMARY KEY ("id")
 );
 
-CREATE TABLE "userchats" (
+CREATE TABLE userchats (
 	"id" serial NOT NULL,
 	"user_id" integer NOT NULL,
 	"chat_id" integer NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE mutedusers (
 	CONSTRAINT "mutedusers_fk1" FOREIGN KEY ("chat_id") REFERENCES "chats"("id")
 );
 
-CREATE TABLE banneduser (
+CREATE TABLE bannedusers (
 	"id" serial NOT NULL,
 	"user_id" integer NOT NULL,
 	"chat_id" integer NOT NULL,
