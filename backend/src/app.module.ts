@@ -10,6 +10,7 @@ import { DatabaseModule } from './database.module';
 import { BannedusersModule } from './bannedusers/bannedusers.module';
 import { BlockedusersModule } from './blockedusers/blockedusers.module';
 import { MutedusersModule } from './mutedusers/mutedusers.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MutedusersModule } from './mutedusers/mutedusers.module';
     BannedusersModule,
     BlockedusersModule,
     MutedusersModule,
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

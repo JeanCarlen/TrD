@@ -6,6 +6,7 @@ import { Matches } from './matches/entities/matches.entity';
 import { BannedUsers } from './bannedusers/entities/banneduser.entity';
 import { BlockedUsers } from './blockedusers/entities/blockeduser.entity';
 import { MutedUsers } from './mutedusers/entities/muteduser.entity';
+import { Messages } from './messages/entities/message.entity';
 
 @Module({
   imports: [
@@ -23,7 +24,9 @@ import { MutedUsers } from './mutedusers/entities/muteduser.entity';
           Users,
 		  Matches,
 		  BannedUsers,
-		  BlockedUsers
+		  BlockedUsers,
+		  MutedUsers,
+		  Messages
         ],
         synchronize: true,
       })

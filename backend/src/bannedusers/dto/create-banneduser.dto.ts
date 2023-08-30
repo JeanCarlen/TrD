@@ -1,4 +1,4 @@
-import { IsInt, IsString } from 'class-validator';
+import { IsInt, IsDateString, MaxLength } from 'class-validator';
 
 export class CreateBanneduserDto {
 	@IsInt({ message: '$property must be an integer value.' })
@@ -7,6 +7,7 @@ export class CreateBanneduserDto {
 	@IsInt({ message: '$property must be an integer value.' })
 	chat_id: number;
 
-	@IsString({ message: '$property must be a stringified date.' })
+	@IsDateString({}, { message: '$property must be a stringified date in format yyyy-mm-dd.' })
+	@MaxLength(10)
 	until: string;
 }

@@ -1,4 +1,4 @@
-import { IsString, IsInt } from "class-validator";
+import { IsDateString, MaxLength, IsInt } from "class-validator";
 
 export class CreateMuteduserDto {
 	@IsInt({ message: '$property must be an integer value.' })
@@ -7,6 +7,7 @@ export class CreateMuteduserDto {
 	@IsInt({ message: '$property must be an integer value.' })
 	chat_id: number;
 
-	@IsString({ message: '$property must be a stringified date.' })
+	@IsDateString({}, { message: '$property must be a stringified date in format yyyy-mm-dd.' })
+	@MaxLength(10)
 	until: string;
 }
