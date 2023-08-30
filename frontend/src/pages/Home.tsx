@@ -11,7 +11,7 @@ const Home = (props: Props) => {
 		<div className='loginTest'>
             <Sidebar/>
         <div className="HomeText">
-			Home
+			My profile
 		</div>
         </div>
     )
