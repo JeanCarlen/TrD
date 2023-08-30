@@ -12,6 +12,7 @@ interface State {
   rightPaddleY: number;
   scoreLeft: number;
   scoreRight: number;
+  paddleSize: number;
   cowLogo: HTMLImageElement | null;
 }
 
@@ -31,6 +32,7 @@ class PongGame extends Component<{}, State> {
       rightPaddleY: 150,
       scoreLeft: 0,
       scoreRight: 0,
+      paddleSize: 120,
       cowLogo: null,
     };
 
@@ -62,7 +64,7 @@ class PongGame extends Component<{}, State> {
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d')!;
-    const { ballX, ballY, ballSpeedX, ballSpeedY, leftPaddleY, rightPaddleY, cowLogo } = this.state;
+    const { ballX, ballY, ballSpeedX, ballSpeedY, leftPaddleY, rightPaddleY, cowLogo, paddleSize} = this.state;
 
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -78,23 +80,27 @@ class PongGame extends Component<{}, State> {
 
     // Check collision with paddles
     if (
-      (newBallX < 15 && newBallY > leftPaddleY && newBallY < leftPaddleY + 80) ||
-      (newBallX > canvas.width - 15 && newBallY > rightPaddleY && newBallY < rightPaddleY + 80)
+      (newBallX < 25 && newBallY > leftPaddleY && newBallY < leftPaddleY + paddleSize) ||
+      (newBallX > canvas.width - 25 && newBallY > rightPaddleY && newBallY < rightPaddleY + paddleSize)
     ) {
-      this.setState({ ballSpeedX: -ballSpeedX });
+      this.setState({ ballSpeedX: -ballSpeedX * 1.1 });
+      //this.setState({ ballSpeedX: ballSpeedX*1.2 });
+      this.setState({ ballSpeedY: ballSpeedY*1.2 });
     }
 
     // Check scoring
     if (newBallX < 0) {
       this.setState((prevState) => ({ ballX: canvas.width / 2, ballY: canvas.height / 2, scoreRight: prevState.scoreRight + 1 }));
+      this.setState({ballSpeedX: -3, ballSpeedY: -5});
     } else if (newBallX > canvas.width) {
-      this.setState((prevState) => ({ ballX: canvas.width / 2, ballY: canvas.height / 2, scoreLeft: prevState.scoreLeft + 1 }));
+      this.setState((prevState) => ({ ballX: canvas.width / 2, ballY: canvas.height / 2, scoreLeft: prevState.scoreLeft + 1}));
+      this.setState({ballSpeedX: 3, ballSpeedY: 5});
     } else {
       this.setState({ ballX: newBallX, ballY: newBallY });
     }
 
     ctx.fillStyle = 'pink';
-    ctx.fillRect(canvas.width - 20, rightPaddleY, 10, 80);
+    //ctx.fillRect(canvas.width - 20, rightPaddleY, 10, paddleSize);
     if (cowLogo)
     {
       ctx.drawImage(cowLogo, ballX -25, ballY -25, 50, 50);
@@ -102,7 +108,8 @@ class PongGame extends Component<{}, State> {
 	//ctx.drawImage(this.ballImage, ballX -10, ballY -10, 20, 20);
 	// ctx.drawImage(cowLogo, ballX - 10, ballY - 10, 20, 20);
     ctx.beginPath();
-	  ctx.roundRect(10, leftPaddleY, 10, 115, 5);
+	ctx.roundRect(10, leftPaddleY, 10, paddleSize, 5);
+    ctx.roundRect(canvas.width - 20, rightPaddleY, 10, paddleSize, 5);
     //ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
     ctx.fill();
 
