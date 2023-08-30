@@ -89,3 +89,21 @@ CREATE TABLE blockedusers (
 	CONSTRAINT "blockedusers_fk0" FOREIGN KEY ("blockinguser_id") REFERENCES "users"("id"),
 	CONSTRAINT "blockedusers_fk1" FOREIGN KEY ("blockeduser_id") REFERENCES "users"("id")
 );
+
+CREATE TABLE achievments (
+	"id" serial NOT NULL,
+	"title" varchar(32),
+	"description" varchar(256),
+	"objective" integer,
+	CONSTRAINT "achievments_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE user_achievments (
+	"id" serial NOT NULL,
+	"current" integer,
+	"user_id" integer NOT NULL,
+	"achievment_id" integer NOT NULL,
+	CONSTRAINT "achievments_id" PRIMARY KEY ("id"),
+	CONSTRAINT "user_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id"),
+	CONSTRAINT "achievment_fk" FOREIGN KEY ("achievment_id") REFERENCES "achievments"("id")
+);
