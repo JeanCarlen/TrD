@@ -22,14 +22,6 @@ import App from '../App';
 
     // const data = await response.json();
 
-    const response = await fetch('http://localhost:3001/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
     // return data;
 
     //if (data.success) {
@@ -45,15 +37,15 @@ const Login = () => {
   const {authenticated, setAuthenticated} = useContext(AuthContext)
 
   const navigate = useNavigate();
-  const handleLogin = () => {
+  const handleLogin = async () => {
       // e.preventDefault(); {
-    //   const response = await fetch('http://localhost:3001/login', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    // });
-    //   body: JSON.stringify({ username, password }),
+      const response = await fetch('http://localhost:3001/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    });
       setAuthenticated(true)
       navigate('/Home')
     //   const data = await response.json();
