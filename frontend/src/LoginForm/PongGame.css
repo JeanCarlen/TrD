@@ -1,0 +1,20 @@
+body {
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	margin: 0;
+	background-color: #111;
+  }
+
+  canvas {
+	border: 1px solid white;
+  }
+
+  .score {
+	display: flex;
+	justify-content: space-between;
+	font-size: 18px;
+	color: white;
+	margin-top: 20px;
+	padding: 0 20px;
+  }

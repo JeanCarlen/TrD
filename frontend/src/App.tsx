@@ -4,41 +4,39 @@ import './App.css';
 import './index.css';
 import LoginForm from './LoginForm/LoginForm';
 import Sidebar from './Components/Sidebar';
-import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
+import { BrowserRouter as Router, Route, BrowserRouter} from "react-router-dom";
 import Home from './pages/Home';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Users from './pages/Users';
-import Game from './pages/LetsPlay';
-import Chat from './pages/Chat';
-import Stats from './pages/Stats';
-
+import { useNavigate } from 'react-router-dom';
+import Routes from "./PrivateRoute"
+import './LoginForm/PongGame.css'
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-        </p>
-        <a>
-          Hello loosers
-        </a>
-        <div>
-          <>
-           <Router>
+        <div className='App'>
+          {/* <LoginForm /> */}
+          <BrowserRouter>
+            <Routes />
+          </BrowserRouter>
+          {/* <> */}
+           {/* <Router>
             <Sidebar/>
             <div className='loginTest'>
-              <LoginForm/>
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/users" element={<Users />} />
-                <Route path="/game" element={<Game />} />
-                <Route path="/chats" element={<Chat />} />
-                <Route path="/statistics" element={<Stats />} />
+                <Route path="/login" element={<SignIn />} />
+                <Route element={<PrivateRoutes />}>
+                  <Route path='/' element={<Home />} />
+                  <Route path="/users" element={<Users />} />
+                  <Route path="/game" element={<Game />} />
+                  <Route path="/chats" element={<Chat />} />
+                  <Route path="/statistics" element={<Stats />} />
+                </Route>
               </Routes>
             </div>
-           </Router>
-          </>
+           </Router> */}
+          {/* </> */}
           </div>
       </header>
      </div>

@@ -5,12 +5,14 @@ import { SidebarData } from './SidebarData'
 import styled from 'styled-components'
 import '../App.css';
 import { useState } from 'react'
+import Logout from '../pages/LogOut'
 
 const MenuIconClose = styled(Link)`
     display: flex;
     justify-content: start;
     font-size: 1.5rem;
     margin-top: 2rem;
+    padding-left: 20px;
     color: #ffffff;
 `
 
@@ -19,7 +21,7 @@ const MenuIconOpen = styled(Link)`
     justify-content: start;
     font-size: 1.5rem;
     margin-top: -7rem;
-    margin-left: -18rem;
+    margin-left: 10rem;
     color: #ffffff;
 `
 const SidebarMenu = styled.div<{close: boolean}>`
@@ -64,34 +66,34 @@ const Sidebar: React.FunctionComponent = () => {
     const showSidebar = () => setClose(!close)
     return (
          <>
-                <div>
-                    <MenuIconOpen to="#" onClick={showSidebar}>
-                        <FaIcons.FaBars />
-                    </MenuIconOpen>
-                </div>
-                <SidebarMenu close={close}>
-                    <MenuIconClose to="#" onClick={showSidebar}>
-                        <FaIcons.FaTimes />
-                    </MenuIconClose>
-                {SidebarData.map((item, index) => {
-                        return (
-                            <MenuItems key={index}>
-                            <MenuItemLinks to={item.path}>
-                                {item.icon}
-                                <span style={{marginLeft: '16px'}}>{item.title}</span>
-                            </MenuItemLinks>
-                            </MenuItems>
-                            // <div className="Menu-bar">
-                            //      <MenuItemLinks to={item.path}>
-                            //     {item.icon}
-                            //         <span className="MenuNames" style={{marginLeft: '16px'}}>{item.title}</span>
-                            //     </MenuItemLinks>
-                            //     <li key={index}>
-                            //     </li>
-                            // </div>
-                        )
-                })}
-                </SidebarMenu>
+            <div>
+                <MenuIconOpen to="#" onClick={showSidebar}>
+                    <FaIcons.FaBars />
+                </MenuIconOpen>
+            </div>
+            <SidebarMenu close={close}>
+                <MenuIconClose to="#" onClick={showSidebar}>
+                    <FaIcons.FaTimes />
+                </MenuIconClose>
+            {SidebarData.map((item, index) => {
+                    return (
+                        <MenuItems key={index}>
+                        <MenuItemLinks to={item.path}>
+                            {item.icon}
+                            <span style={{marginLeft: '16px'}}>{item.title}</span>
+                        </MenuItemLinks>
+                        </MenuItems>
+                        // <div className="Menu-bar">
+                        //      <MenuItemLinks to={item.path}>
+                        //     {item.icon}
+                        //         <span className="MenuNames" style={{marginLeft: '16px'}}>{item.title}</span>
+                        //     </MenuItemLinks>
+                        //     <li key={index}>
+                        //     </li>
+                        // </div>
+                    )
+            })}
+            </SidebarMenu>
        </>
    )
 }
