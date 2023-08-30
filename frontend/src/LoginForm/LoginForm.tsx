@@ -22,6 +22,14 @@ import App from '../App';
 
     // const data = await response.json();
 
+    const response = await fetch('http://localhost:3001/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
     // return data;
 
     //if (data.success) {
