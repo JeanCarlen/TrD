@@ -1,20 +1,18 @@
-# Use the official Node.js image
-FROM node:latest
+FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json to install dependencies
-COPY package*.json ./
+#Entry Point
+COPY ./package.json ./
 
-# Install dependencies
-RUN npm install -g npm@9.8.1
-RUN npm install
-
-# Copy the rest of the application source code
 COPY . .
 
-EXPOSE 3001
+#Rebuild bcrypt After bpm insatll
+RUN apk add --no-cache make gcc g++ python3 && \
+  npm install && \
+  npm rebuild bcrypt --build-from-source && \
+  apk del make gcc g++ python3
 
-# Set the command to start the Nestjs app
-CMD ["npm", "start"]
+EXPOSE 3001  
+
+CMD ["npm","start"]

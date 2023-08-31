@@ -30,6 +30,16 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
+  @Get('/42')
+  fin42Users() {
+	return this.usersService.find42Users();
+  }
+
+  @Get('/non42/')
+  findNon42Users() {
+	return this.usersService.findNon42Users();
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
