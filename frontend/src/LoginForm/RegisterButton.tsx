@@ -10,7 +10,7 @@ import Home from '../pages/Home';
 const RegisterButton: React.FC = () => {
 	const navigate = useNavigate();
 	const [username, setUsername] = useState('');
-  	const [password, setPassword] = useState('');
+	const [password, setPassword] = useState('');
 	const [repassword, confirmPassword] = useState('');
 	const [open, setIsOpen] = useState(false);
 
@@ -28,7 +28,7 @@ const RegisterButton: React.FC = () => {
 	}, []);
 
 	const handleRegisterClick = () => {
-		Cookies.set('registered', 'true', { expires: 0.00496 }); // Expires in 7 days
+		Cookies.set('registered', 'true', { expires: 0.00496 }); // Expires in 5 min days
 		alert('You are now registered!');
 		navigate('/Home');
 	};
@@ -101,7 +101,7 @@ const RegisterButton: React.FC = () => {
           />
 		    <input className='login-input'
           type="text"
-          placeholder="Reconfirm your password"
+          placeholder="Confirm your password"
           value={repassword}
           onChange={(e) => confirmPassword(e.target.value)}
           />

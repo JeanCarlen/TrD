@@ -6,7 +6,7 @@ import Sidebar from "../Components/Sidebar";
 const Stats: React.FunctionComponent = () => {
 	return (
 		<div className="HomeText">
-            <Sidebar/>
+			<Sidebar/>
 			Stats
 		</div>
 	)

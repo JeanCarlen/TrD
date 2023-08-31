@@ -5,12 +5,12 @@ import Sidebar from '../Components/Sidebar'
 
 
 const Users: React.FunctionComponent = () => {
-    return (
-        <div className="HomeText">
-            <Sidebar/>
+	return (
+		<div className="HomeText">
+			<Sidebar/>
 			My Friends
 		</div>
-    )
-}
+	)
+	}
 
 export default Users

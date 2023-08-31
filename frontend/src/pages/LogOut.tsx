@@ -13,7 +13,6 @@ type Props = {}
 const Logout = (props: Props) => {
 	const navigate = useNavigate();
 	Cookies.set('registered', 'false', {expires: 7});
-  // alert('You are now logged out');
 	return <Navigate to='/login' replace />
 }
 
