@@ -1,8 +1,8 @@
 import React from "react";
 import './Home.css'
 import Sidebar from "../Components/Sidebar";
-import GameBox from "../LoginForm/GameTry";
-import PongGame from "../LoginForm/PongGame";
+import GameBox from "../Game/GameTry";
+import PongGame from "../Game/PongGame";
 
 const Game: React.FunctionComponent = () => {
 	return (

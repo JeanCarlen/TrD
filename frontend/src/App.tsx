@@ -9,7 +9,7 @@ import Home from './pages/Home';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Routes from "./PrivateRoute"
-import './LoginForm/PongGame.css'
+import './Game/PongGame.css'
 
 function App() {
   return (

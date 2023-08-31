@@ -8,7 +8,7 @@ const Users: React.FunctionComponent = () => {
     return (
         <div className="HomeText">
             <Sidebar/>
-			Users
+			My Friends
 		</div>
     )
 }
