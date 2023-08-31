@@ -6,11 +6,13 @@ CREATE DATABASE pong_data;
 
 CREATE TABLE users (
 	"id" serial NOT NULL,
-	"login42" varchar(100) NOT NULL UNIQUE,
+	"login42" varchar(100) NULL,
 	"username" varchar(100) NOT NULL,
-	"refreshtoken" varchar(256) NOT NULL,
+	"refreshtoken" varchar(256) NULL,
 	"twofaenabled" BOOLEAN NOT NULL DEFAULT false,
-	"avatar" varchar(256) NOT NULL,
+	"avatar" varchar(256) NOT NULL DEFAULT '/path/to/default.png',
+	"is42" boolean DEFAULT false,
+	"password" varchar(72) NULL,
 	CONSTRAINT "users_pk" PRIMARY KEY ("id")
 );
 
