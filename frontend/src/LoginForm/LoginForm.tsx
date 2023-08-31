@@ -73,6 +73,10 @@ const Login = () => {
           /> */}
         <button className='login-button'
         type="submit" onClick={() => handleLogin()}>Log in with your 42 account</button>
+        <button className='login-button'
+        type="submit" /*onClick={() => handleLogin()}*/>Log in</button>
+        <button className='login-button'
+        type="submit" /*onClick={() => handleLogin()}*/>Create new account</button>
       {/* </form> */}
     {/* </div> */}
   </div>
