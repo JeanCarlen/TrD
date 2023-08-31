@@ -1,27 +1,50 @@
+flex-direction: column;
 .HomeText{
 	/* display: flex; */
-    align-items: top;
-    padding-top: 20px;
+    /* align-items: top; */
+    /* padding-top: 15px; */
+    /* flex-wrap: wrap-reverse; */
     justify-content: center;
     font-size: 50px;
     height: 50px;
 }
 
+
 .displayGrid{
     display: flex;
-    flex-wrap: wrap-reverse;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-left: 20px;
+    margin-right: 20px;
+    column-gap: 10px;
+}
+
+.columnRight{
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+.columnLeft{
+    display: flex;
     flex-direction: column;
     justify-content: space-between;
-    align-items:last baseline
-
+    row-gap: 20px;
+    /*align-items: strech;*/
+    /*align-content: space-around;*/
 }
 
 .profilePic{
-    /* background-color: #c50909; */
+    background-color: #c50909;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
     margin-right: 5px;
     display: inline-block;
+    /*justify-content: center;*/
 }
+
 img{
     width: 70px;
     height: 70px;
@@ -31,6 +54,7 @@ img{
     object-fit: cover;
     margin-left: 50px;
 }
+
 .info{
     background-color: #9a8888;
     border-radius: 7px;
@@ -40,9 +64,8 @@ img{
     box-shadow: rgba(0,0,0,0.1) 0 0 10px;
     width: 300px;
     height: 50px;
-    margin: 0 auto;
     border: 1px solid #ccc;
-    justify-content: space-around;
+    justify-content: center;
 }
 
 .quickGame{
@@ -52,16 +75,22 @@ img{
     box-shadow: rgba(0,0,0,0.1) 0 0 10px;
     width: 300px;
     height: 30px;
-    margin: 0 auto;
     border: 1px solid #ccc;
-    justify-content: space-around;
     font-size: 25px;
 }
 
-/* .matchHistory{
-
+.matchHistory{
+    background-color: #6f0c7c;
+    border-radius: 7px;
+    padding: 25px 40px;
+    box-shadow: rgba(0,0,0,0.1) 0 0 10px;
+    width: 300px;
+    height: 30px;
+    border: 1px solid #ccc;
+    font-size: 25px;
 }
 
+/*
 .achievements{
 
 }

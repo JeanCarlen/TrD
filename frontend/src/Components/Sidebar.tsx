@@ -20,8 +20,8 @@ const MenuIconOpen = styled(Link)`
     display: flex;
     justify-content: start;
     font-size: 1.5rem;
-    margin-top: -7rem;
-    margin-left: 10rem;
+    margin-top: -2rem;
+    margin-left: 15rem;
     color: #ffffff;
 `
 const SidebarMenu = styled.div<{close: boolean}>`

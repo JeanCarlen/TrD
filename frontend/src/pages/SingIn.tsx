@@ -1,7 +1,6 @@
 import React from 'react'
 // import styled from 'styled-components'
 import './Home.css'
-import Login from '../LoginForm/LoginForm'
 import RegisterButton from '../LoginForm/RegisterButton'
 import { useNavigate } from 'react-router-dom'
 import Cookies from 'js-cookie'
