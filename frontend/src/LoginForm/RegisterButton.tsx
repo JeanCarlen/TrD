@@ -23,6 +23,18 @@ const RegisterButton: React.FC = () => {
 		}
 	}
 
+	const handleLogin = async () => {
+		const response = await fetch('http://localhost:8080/api/auth/login', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ username, password }),
+		});
+		const data = await response.json()
+		console.log(data);
+	}
+
 	useEffect(() => {
 		handleWelcome();
 	}, []);
@@ -71,7 +83,7 @@ const RegisterButton: React.FC = () => {
 		</form>
 	<div className="container_row">
 		<button className='login-button'
-			type="submit" /*onClick={() => handleLogin()}*/>Log in</button>
+			type="submit" onClick={() => handleLogin()}>Log in</button>
 			</div>
 		<p style={{fontSize: 18}}>
 			OR

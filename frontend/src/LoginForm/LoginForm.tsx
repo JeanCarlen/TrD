@@ -39,15 +39,17 @@ const Login = () => {
   const navigate = useNavigate();
   const handleLogin = async () => {
       // e.preventDefault(); {
-      const response = await fetch('http://localhost:3001/login', {
+      const response = await fetch('http://localhost:3001/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ username, password }),
     });
-      setAuthenticated(true)
-      navigate('/Home')
+	const data = await response.json();
+	console.log(data);
+	//   setAuthenticated(true)
+    //   navigate('/Home')
     //   const data = await response.json();
     }
 
@@ -71,10 +73,10 @@ const Login = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           /> */}
+    	<button className='login-button'
+        type="submit" /*onClick={() => handleLogin()}*/>Log in with your 42 account</button>
         <button className='login-button'
-        type="submit" onClick={() => handleLogin()}>Log in with your 42 account</button>
-        <button className='login-button'
-        type="submit" /*onClick={() => handleLogin()}*/>Log in</button>
+        type="submit" onClick={() => handleLogin()}>Log in</button>
         <button className='login-button'
         type="submit" /*onClick={() => handleLogin()}*/>Create new account</button>
       {/* </form> */}
