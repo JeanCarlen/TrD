@@ -28,11 +28,11 @@ class PongGame extends Component<{}, State> {
       ballY: 100,
       ballSpeedX: 3,
       ballSpeedY: 5,
-      leftPaddleY: 150,
-      rightPaddleY: 150,
+      leftPaddleY: 1,
+      rightPaddleY: 1,
       scoreLeft: 0,
       scoreRight: 0,
-      paddleSize: 120,
+      paddleSize: 1300,
       cowLogo: null,
     };
 
