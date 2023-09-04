@@ -15,7 +15,7 @@ const Home = (props: Props) => {
         <div className='displayGrid'>
         <span className='columnLeft'>
             {/* <div className='profilePic'> */}
-            <img className='prpfilePic' src='https://multiavatar.com/img/thumb-logo.png'/>
+            <img className='profilePic' src='https://multiavatar.com/img/thumb-logo.png'/>
                 {/* my picture */}
             {/* </div> */}
             <div className='info'>

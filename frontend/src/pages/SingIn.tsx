@@ -4,15 +4,14 @@ import './Home.css'
 import RegisterButton from '../LoginForm/RegisterButton'
 import { useNavigate } from 'react-router-dom'
 import Cookies from 'js-cookie'
+import { useState } from 'react'
 
 
 const SignIn: React.FunctionComponent = () => {
 
     return (
-        <div className="HomeText">
-			<RegisterButton />
-		</div>
-    )
+        <RegisterButton />
+        )
 }
 
 export default SignIn;

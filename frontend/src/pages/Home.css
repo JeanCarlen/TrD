@@ -1,4 +1,4 @@
-flex-direction: column;
+/* flex-direction: column; */
 .HomeText{
 	/* display: flex; */
     /* align-items: top; */
@@ -7,6 +7,7 @@ flex-direction: column;
     justify-content: center;
     font-size: 50px;
     height: 50px;
+    
 }
 
 
@@ -18,6 +19,16 @@ flex-direction: column;
     margin-left: 20px;
     margin-right: 20px;
     column-gap: 10px;
+}
+
+.schoollogo {
+    align-items: center;
+    height: 50px;
+    -webkit-box-pack: end;
+    justify-content: flex-end;
+    border-radius: 35px;
+    object-fit: cover;
+    size: 30px;
 }
 
 .columnRight{
@@ -45,7 +56,7 @@ flex-direction: column;
     /*justify-content: center;*/
 }
 
-img{
+.profilePic{
     width: 70px;
     height: 70px;
     -webkit-box-pack: end;

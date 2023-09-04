@@ -32,7 +32,7 @@ class PongGame extends Component<{}, State> {
       rightPaddleY: 1,
       scoreLeft: 0,
       scoreRight: 0,
-      paddleSize: 1300,
+      paddleSize: 130,
       cowLogo: null,
     };
 
@@ -100,7 +100,7 @@ class PongGame extends Component<{}, State> {
     }
 
     ctx.fillStyle = 'pink';
-    //ctx.fillRect(canvas.width - 20, rightPaddleY, 10, paddleSize);
+    // ctx.fillRect(canvas.width - 20, rightPaddleY, 10, paddleSize);
     if (cowLogo)
     {
       ctx.drawImage(cowLogo, ballX -25, ballY -25, 50, 50);
