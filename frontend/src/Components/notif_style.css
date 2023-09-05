@@ -1,0 +1,21 @@
+.toast-success {
+    background: rgb(0, 139, 9);
+    color: #fff;
+    font-size: 20px;
+    width: 34vw;
+    padding: 30px 20px;
+}
+.toast-error {
+    background: rgb(206, 0, 0);
+    color: #fff;
+    font-size: 20px;
+    width: 34vw;
+    padding: 30px 20px;
+}
+.toast-info {
+    background: darkblue;
+    color: #fff;
+    font-size: 20px;
+    width: 34vw;
+    padding: 30px 20px;
+}
