@@ -13,26 +13,30 @@ body {
 	background-color: #111;
 }
 
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
-/* Styling for the login container */
-.login-container {
+.loginbox
+{
+  background-color: #9a8888;
+  border-radius: 7px;
+  padding: 25px 40px;
+  box-shadow: rgba(0,0,0,0.1) 0 0 10px;
   width: 300px;
   margin: 0 auto;
-  padding: 20px;
   border: 1px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
+  justify-content: space-around;
+
 }
 
 /* Styling for the login form */
 .login-form {
   display: flex;
   flex-direction: column;
+  padding-bottom: 0px;
+  padding-top: 20px;
 }
 
 /* Styling for input fields */
@@ -46,13 +50,38 @@ code {
 /* Styling for login button */
 .login-button {
   background-color: #a2246e;
+  gap: 4px;
   color: #fff;
   border: none;
-  border-radius: 3px;
+  border-radius: 12px;
   padding: 10px;
   cursor: pointer;
 }
 
+
 .login-button:hover {
   background-color: #310c22;
+}
+
+.container_row{
+  display: grid;
+  padding: 5px;
+  grid-auto-columns: 200px;
+  grid-auto-flow: column;
+  justify-content: center;
+
+}
+
+.login-button2 {
+  background-color: #490e30;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  box-shadow: rgba(0,0,0,0.1) 0 0 10px;;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.login-button2:hover {
+  background-color: #1b0512;
 }
