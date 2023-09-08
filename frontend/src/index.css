@@ -6,10 +6,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   	/* display: flex; */
-	justify-content: center;
-	align-items: center;
+	/*justify-content: center;*/
+	/*align-items: center;*/
 	height: 100vh;
 	margin: 0;
+  color:#252323 !important;
 	background-color: #111;
 }
 
@@ -55,6 +56,9 @@ code {
   border: none;
   border-radius: 12px;
   padding: 10px;
+  cursor: pointer;
+  align-items: center;
+
   cursor: pointer;
 }
 

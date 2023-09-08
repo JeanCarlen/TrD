@@ -2,7 +2,6 @@ import React from 'react';
 import logo from './cow.svg';
 import './App.css';
 import './index.css';
-import LoginForm from './LoginForm/LoginForm';
 import Sidebar from './Components/Sidebar';
 import { BrowserRouter as Router, Route, BrowserRouter} from "react-router-dom";
 import Home from './pages/Home';
@@ -13,8 +12,6 @@ import './Game/PongGame.css'
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
         <div className='App'>
           {/* <LoginForm /> */}
           <BrowserRouter>
@@ -38,8 +35,6 @@ function App() {
            </Router> */}
           {/* </> */}
           </div>
-      </header>
-     </div>
   );
 }
 

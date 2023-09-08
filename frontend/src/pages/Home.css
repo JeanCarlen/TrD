@@ -1,71 +1,130 @@
+/* flex-direction: column; */
 .HomeText{
 	/* display: flex; */
-    align-items: top;
-    padding-top: 20px;
+    /* align-items: top; */
+    /* padding-top: 15px; */
+    /* flex-wrap: wrap-reverse; */
     justify-content: center;
     font-size: 50px;
-    height: 50px;
+
 }
+
 
 .displayGrid{
     display: flex;
-    flex-wrap: wrap-reverse;
+    flex-wrap: wrap;
     flex-direction: column;
-    justify-content: space-between;
-    align-items:last baseline
-
+    justify-content: space-around;
+    margin-left: 18vh;
+    margin-right: 1vh;
+    justify-content: flex-end;
+    row-gap: 0.5vh;
 }
 
-.profilePic{
-    /* background-color: #c50909; */
-    border-radius: 50%;
-    margin-right: 5px;
-    display: inline-block;
-}
-img{
-    width: 70px;
-    height: 70px;
+.schoollogo {
+    align-items: center;
+    height: 50px;
     -webkit-box-pack: end;
     justify-content: flex-end;
     border-radius: 35px;
     object-fit: cover;
-    margin-left: 50px;
+    size: 30px;
 }
-.info{
-    background-color: #9a8888;
-    border-radius: 7px;
-    padding: 25px 40px;
-    padding-top: 10px;
-    padding-bottom: 35px;
-    box-shadow: rgba(0,0,0,0.1) 0 0 10px;
-    width: 300px;
-    height: 50px;
-    margin: 0 auto;
-    border: 1px solid #ccc;
-    justify-content: space-around;
+
+.profilePic{
+    border-radius: 100%;
+    margin-right: 5px;
+    margin-left: 200px;
+    margin-top: 20px;
+    padding: 5px;
+    background-color: rgb(171, 156, 156);
+    width: 70px;
+    height: fit-content;
+    -webkit-box-pack: end;
+    justify-content: flex-end;
+    object-fit: cover;
 }
 
 .quickGame{
-    background-color: #cb850c;
+    background-color: rgba(255, 255, 255, 0.30);
     border-radius: 7px;
-    padding: 25px 40px;
-    box-shadow: rgba(0,0,0,0.1) 0 0 10px;
-    width: 300px;
-    height: 30px;
-    margin: 0 auto;
-    border: 1px solid #ccc;
-    justify-content: space-around;
-    font-size: 25px;
+    padding: 5px 5px;
+    box-shadow: rgba(0,0,0,0.1) 0 0 5px;
+    border: 0px solid #ccc;
+    font-size: 15px;
+
+    height: 18vh;
+    width: 26vh;
+    &:hover{
+        background-color: #c27b00;
+        cursor: pointer;
+    }
 }
 
-/* .matchHistory{
+.topBox{
+    display: flex;
+    flex-direction: row;
+    gap: 2vh;
+    justify-content: left;
+    align-items: center;
+    margin-left: 18vh;
+}
 
+.matchHistory{
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(255, 255, 255, 0.30);
+    border-radius: 7px;
+    padding: 25px 40px;
+    box-shadow: rgba(0,0,0,0.1) 0 0 5px;
+    border: 0px solid #a00000;
+    font-size: larger;
+    row-gap: 5px;
 }
 
 .achievements{
-
+    background-color: rgba(255, 255, 255, 0.30);
+    border-radius: 7px;
+    padding: 25px 40px;
+    box-shadow: rgba(0,0,0,0.1) 0 0 5px;
+    border: 0px solid #ccc;
+    font-size: larger;
 }
 
-.single{
+.friends{
+    background-color: rgba(255, 255, 255, 0.30);
+    border-radius: 7px;
+    padding: 10px 10px;
+    box-shadow: rgba(0,0,0,0.1) 0 0 5px;
+    border: 0px solid #ccc;
+    font-size: larger;
+}
 
-} */
+.matchBox{
+    background-color: transparent;
+    border-radius: 7px;
+    padding: 5px 5px;
+    box-shadow: rgba(96, 93, 93, 0.1) 0 0 10px;
+    border: 0px solid #ccc;
+    font-size: larger;
+}
+
+.profile-border{
+
+    box-sizing: content-box;
+    box-shadow: rgba(145, 138, 138, 0.1) 0 0 10px;
+    width: 90vh;
+    background-color:rgba(49, 11, 34, 0.3);
+    overflow: hidden;
+    border-radius: 15px;
+    align-content: center;
+}
+
+.welcome{
+    color: rgb(180, 180, 180);
+    font-weight: 400;
+    line-height: 25.6px !important;
+    padding-top: 18px;
+    margin-right: 5px;
+    margin-left: 50px;
+}

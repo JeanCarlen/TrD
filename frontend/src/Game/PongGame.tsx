@@ -32,7 +32,7 @@ class PongGame extends Component<{}, State> {
       rightPaddleY: 1,
       scoreLeft: 0,
       scoreRight: 0,
-      paddleSize: 1300,
+      paddleSize: 130,
       cowLogo: null,
     };
 
