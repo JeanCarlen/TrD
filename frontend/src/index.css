@@ -10,7 +10,7 @@ body {
 	/*align-items: center;*/
 	height: 100vh;
 	margin: 0;
-  color:#fff;
+  color:#252323 !important;
 	background-color: #111;
 }
 
@@ -58,6 +58,7 @@ code {
   padding: 10px;
   cursor: pointer;
   align-items: center;
+
   cursor: pointer;
 }
 

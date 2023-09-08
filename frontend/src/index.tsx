@@ -3,16 +3,28 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { extendTheme } from '@chakra-ui/react'
 import './Game/PongGame.css'
+
+const customTheme = extendTheme({
+  styles: {
+    global:{
+      body:{
+        fontFamily: null,
+        lineHeight: null
+      }
+    }
+  }
+})
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <div>
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
   </div>
 );
 

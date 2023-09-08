@@ -1,0 +1,48 @@
+
+/* .hidden-name
+{
+	display: none;
+	/* &:hover{
+		color: blue;
+		display: block;
+	} */
+/* } */
+/* .only-links:hover + .hidden-name{
+	/* display: block; */
+	/* color: white;
+} */
+.logo-name {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 45px; /* Adjust the position as needed */
+  }
+
+  .only-links:hover .logo-name {
+	display: block;
+	color: #4b082f;
+	padding-top: 30px;
+	margin: 0 1.5rem;
+	padding-left: 0px;
+  }
+
+.only-links{
+	display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    font-size: 20px;
+    text-decoration: none;
+    color: #ffffff;
+    margin: 0 1rem;
+
+    &:hover {
+        background-color: #ffffff;
+        color: #4b082f;
+        width: 100%;
+        height: 55px;
+        text-align: center;
+		box-sizing: content-box;
+        border-radius: 10px;
+        margin: 0 1.5rem;
+    }
+}

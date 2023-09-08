@@ -100,7 +100,7 @@ class PongGame extends Component<{}, State> {
     }
 
     ctx.fillStyle = 'pink';
-    // ctx.fillRect(canvas.width - 20, rightPaddleY, 10, paddleSize);
+    //ctx.fillRect(canvas.width - 20, rightPaddleY, 10, paddleSize);
     if (cowLogo)
     {
       ctx.drawImage(cowLogo, ballX -25, ballY -25, 50, 50);

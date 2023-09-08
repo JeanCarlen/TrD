@@ -12,10 +12,10 @@ import './RegisterButton.css'
 
 const RegisterButton: React.FC = () => {
 	const navigate = useNavigate();
-	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [confirmpassword, setConfirmPassword] = useState('');
 	const [open, setIsOpen] = useState(false);
+	const [username, setUsername] = useState('');
 	const [passwordsMatch, setPasswordsMatch] = useState(true); // State to track password matching
 
 	const handleWelcome = () => {
