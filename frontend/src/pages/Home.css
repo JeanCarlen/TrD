@@ -118,6 +118,7 @@
     overflow: hidden;
     border-radius: 15px;
     align-content: center;
+    padding-top: 5px;
 }
 
 .welcome{

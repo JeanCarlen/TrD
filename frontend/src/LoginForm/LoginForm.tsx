@@ -46,8 +46,8 @@ const Login = () => {
       },
       body: JSON.stringify({ username, password }),
     });
-	const data = await response.json();
-	console.log(data);
+	    const data = await response.json();
+	    console.log(data);
 	//   setAuthenticated(true)
     //   navigate('/Home')
     //   const data = await response.json();
@@ -55,32 +55,6 @@ const Login = () => {
 
   return (
     <div>
-     <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Welcome to our Trance&Dance
-        </p>
-      {/* <div className='login-container'>
-      <form className ="login-form">
-        <input className='login-input'
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          />
-        <input className='login-input'
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          /> */}
-    	<button className='login-button'
-        type="submit" /*onClick={() => handleLogin()}*/>Log in with your 42 account</button>
-        <button className='login-button'
-        type="submit" onClick={() => handleLogin()}>Log in</button>
-        <button className='login-button'
-        type="submit" /*onClick={() => handleLogin()}*/>Create new account</button>
-      {/* </form> */}
-    {/* </div> */}
   </div>
   );
 }

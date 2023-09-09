@@ -17,6 +17,7 @@ const RegisterButton: React.FC = () => {
 	const [open, setIsOpen] = useState(false);
 	const [username, setUsername] = useState('');
 	const [passwordsMatch, setPasswordsMatch] = useState(true); // State to track password matching
+	const [showPassword, setShowPassword] = useState(false);
 
 	const handleWelcome = () => {
 		const isRegisteredCheck = Cookies.get('registered');
@@ -35,7 +36,7 @@ const RegisterButton: React.FC = () => {
 			body: JSON.stringify({ username, password }),
 		});
 		const data = await response.json()
-		console.log(data);
+		console.log('FETCH DONE');
 	}
 
 	useEffect(() => {
@@ -67,6 +68,9 @@ const RegisterButton: React.FC = () => {
 		// If not empty, call the onLogin callback with the entered values
 		//   RegisterButton(username, password);
 	};
+	const handleTogglePassword = () => {
+		setShowPassword(!showPassword);
+	  };
 
 	const handleRegisterClick = () => {
 		Cookies.set('registered', 'true', { expires: 0.00496 }); // Expires in 5 min days
@@ -104,13 +108,13 @@ const RegisterButton: React.FC = () => {
 	</div>
 		<form className ="login-form">
         <input className='login-input'
-          type="text"
+          type='text'
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           />
 		    <input className='login-input'
-          type="text"
+          type={showPassword ? 'text' : 'password'}
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

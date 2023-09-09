@@ -3,29 +3,31 @@ import React from 'react'
 import { ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
 import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
 import Sidebar from '../Components/Sidebar'
-import './Home.css'
+import '../pages/Home.css'
 import {
     extendTheme,
     VStack,
     HStack,
     IconButton,
     Input,
+    Text,
 } from '@chakra-ui/react';
 import AvatarUpload from '../Components/AvatarUpload'
 import { useState } from 'react'
 import { EditIcon } from '@chakra-ui/icons'
 import { useRef } from 'react'
 import RegisterButton from '../LoginForm/RegisterButton'
-import { useNavigate } from 'react-router-dom'
+import { PhoneIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
+
 
 type Props = {}
 
-const Home = (props: Props) => {
+const Profiles = (props: Props) => {
     const [avatarUrl, setAvatarUrl] = useState<string>(
         'https://multiavatar.com/img/thumb-logo.png'
       );
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-	const navigate = useNavigate();
+
     const handleAvatarChange = (newAvatarUrl: string) => {
         setAvatarUrl(newAvatarUrl);
 
@@ -34,11 +36,6 @@ const Home = (props: Props) => {
         if (fileInputRef.current) {
           fileInputRef.current.click();
         }
-      };
-
-      const handleClick = () => {
-        // Navigate to the "/about" page
-        navigate('/profiles');
       };
     return (
         <ChakraProvider resetCSS={false}>
@@ -83,12 +80,15 @@ const Home = (props: Props) => {
             <AvatarUpload onAvatarChange={handleAvatarChange} />
             )}
             </VStack>
-              <h1 className="welcome">Hello "Username"! </h1>
+              <h1 className="welcome">"Nick name of user" </h1>
              </WrapItem>
             </Wrap>
-            <button className='quickGame'>
-                Take me to the game
-            </button>
+            <div className='profile-border'>
+            <AddIcon boxSize={5} />
+              <Text>
+            "Add as a friend"
+            </Text>
+            </div>
         </div>
         <div className='displayGrid'>
             <div className='matchHistory'>
@@ -116,9 +116,6 @@ const Home = (props: Props) => {
                 <div className='matchBox'>
                   FRIENDS
                 </div>
-                <button onClick={handleClick}>
-                    click for more
-                </button>
             </div>
             </div>
         </div>
@@ -127,5 +124,5 @@ const Home = (props: Props) => {
 )
 }
 
-export default Home;
+export default Profiles;
 

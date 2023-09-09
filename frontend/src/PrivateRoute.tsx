@@ -8,6 +8,7 @@ import Stats from './pages/Stats';
 import SignIn from './pages/SingIn';
 import Home from './pages/Home';
 import Logout from './pages/LogOut';
+import Profiles from './Social/Profiles';
 import { useNavigate } from 'react-router-dom';
 import {Routes as Router, Route, Navigate, Outlet} from 'react-router-dom';
 import RegisterButton from './LoginForm/RegisterButton';
@@ -40,6 +41,7 @@ const Routes = (props: Props) => {
 					<Route path="/game" element={<Game />} />
 					<Route path="/chats" element={<Chat />} />
 					<Route path="/statistics" element={<Stats />} />
+					<Route path="/profiles" element={<Profiles />} />
 					<Route path="/Logout" element={<Logout />} />
 				<Route path='*' element={<Navigate to='/login' replace />} />
 				</Route>
@@ -49,4 +51,3 @@ const Routes = (props: Props) => {
 }
 
 export default Routes
-
