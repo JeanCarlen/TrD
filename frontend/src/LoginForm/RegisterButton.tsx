@@ -52,7 +52,7 @@ const RegisterButton: React.FC = () => {
 		setPasswordsMatch(e.target.value === password); // Check if passwords match
 	  };
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!passwordsMatch)
 			// Passwords don't match, show an error message or take appropriate action
@@ -66,6 +66,15 @@ const RegisterButton: React.FC = () => {
 		}
 		// If not empty, call the onLogin callback with the entered values
 		//   RegisterButton(username, password);
+		const response = await fetch('http://localhost:8080/api/auth/register', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ username, password, confirm_password: confirmpassword }),
+		});
+		const data = await response.json()
+		console.log(data);
 	};
 
 	const handleRegisterClick = () => {
