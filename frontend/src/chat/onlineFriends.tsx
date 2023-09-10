@@ -33,7 +33,10 @@ const OnlineUsersList: React.FC = () => {
 		{
 		name: 'Fabio',
 		status: 'offline',
-
+		},
+		{
+			name: 'Nikki',
+			status: 'online',
 		}
 	])
 

@@ -34,6 +34,9 @@
 {
 	background-color: rgba(9, 174, 0, 0.3);
 	color: white;
+	padding: 10px;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 .offline
@@ -41,6 +44,8 @@
 	display: none;
 	background-color: rgba(174, 0, 0, 0.3);
 	color: white;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 .middleColumn
@@ -90,6 +95,10 @@
 	border-radius: 0 20px 20px 20px;
 	color: white;
 	margin-left: 90px;
+  }
+
+  ul {
+	  list-style: none;
   }
 
   .other {
