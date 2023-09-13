@@ -18,6 +18,7 @@ const RegisterButton: React.FC = () => {
 	const [username, setUsername] = useState('');
 	const [passwordsMatch, setPasswordsMatch] = useState(true); // State to track password matching
 	const [showPassword, setShowPassword] = useState(false);
+	const [valid, setValid] = useState<boolean>(false);
 
 	const handleWelcome = () => {
 		const isRegisteredCheck = Cookies.get('registered');
@@ -35,6 +36,7 @@ const RegisterButton: React.FC = () => {
 			},
 			body: JSON.stringify({ username, password }),
 		});
+		if (response.status === 401) return {};
 		const data = await response.json()
 		console.log('FETCH DONE');
 	}
@@ -42,9 +44,18 @@ const RegisterButton: React.FC = () => {
 	useEffect(() => {
 		handleWelcome();
 	}, []);
+	const validatePassword = (input: string): boolean => {
+		const hasCapitalLetter = /[A-Z]/.test(input);
+		const hasNumber = /\d/.test(input);
+		const isMinimumLength = input.length >= 8;
+		return hasCapitalLetter && hasNumber && isMinimumLength;
+	  };
+
 
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setPassword(e.target.value);
+		const newPassword = e.target.value;
+		setPassword(newPassword);
+		setValid(validatePassword(newPassword))
 		setPasswordsMatch(e.target.value === confirmpassword); // Check if passwords match
 	  };
 
@@ -65,8 +76,6 @@ const RegisterButton: React.FC = () => {
 			Cookies.set('registered', 'true', { expires: 0.00496 }); // Expires in 5 min days
 			navigate('/Home');
 		}
-		// If not empty, call the onLogin callback with the entered values
-		//   RegisterButton(username, password);
 	};
 	const handleTogglePassword = () => {
 		setShowPassword(!showPassword);
@@ -144,15 +153,22 @@ const RegisterButton: React.FC = () => {
           onChange={(e) => setUsername(e.target.value)}
           />
 		    <input className='login-input'
-          type="text"
+		  type={showPassword ? 'text' : 'password'}
           placeholder="Add your password"
           value={password}
           onChange={handlePasswordChange}/>
 		  <input className='login-input'
-          type="text"
+          type={showPassword ? 'text' : 'password'}
           placeholder="Confirm your password"
           value={confirmpassword}
           onChange={handleConfirmPasswordChange} />
+		  <p>Password must meet the following criteria:</p>
+		  <ul>
+		  <li>At least one capital letter (A-Z)</li>
+		  <li>At least one number (0-9)</li>
+		  <li>Minimum length of 8 characters</li>
+		  </ul>
+		  {valid ? <p className='authorized'>Password is valid</p> : <p className='warnings' >Password is not valid.</p>}
      	{!passwordsMatch && <p className='warnings'>Passwords do not match</p>}
 		  <button className='login-button2' disabled={!passwordsMatch} type="submit" onClick={handleSubmit}>Submit</button>
 		{/* {<div>You are logged in!</div>} */}

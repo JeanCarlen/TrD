@@ -46,6 +46,8 @@ const Login = () => {
       },
       body: JSON.stringify({ username, password }),
     });
+      if (response.status === 401) return {};
+
 	    const data = await response.json();
 	    console.log(data);
 	//   setAuthenticated(true)

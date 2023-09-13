@@ -17,6 +17,7 @@ import { EditIcon } from '@chakra-ui/icons'
 import { useRef } from 'react'
 import RegisterButton from '../LoginForm/RegisterButton'
 import { useNavigate } from 'react-router-dom'
+import GoogleAuth from '../Components/googleAuth'
 
 type Props = {}
 
@@ -84,6 +85,7 @@ const Home = (props: Props) => {
             )}
             </VStack>
               <h1 className="welcome">Hello "Username"! </h1>
+              <GoogleAuth/>
              </WrapItem>
             </Wrap>
             <button className='quickGame'>

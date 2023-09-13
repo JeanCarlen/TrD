@@ -14,7 +14,7 @@ const ChatInterface: React.FC = () => {
   const [socket, setSocket] = useState<any>(null);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:3000');
+    const newSocket = io('http://localhost:8080');
 
     newSocket.on('connect', () => {
       console.log('Connected to server!');

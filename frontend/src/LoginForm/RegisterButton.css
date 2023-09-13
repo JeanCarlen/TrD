@@ -2,5 +2,14 @@
 	color:rgb(138, 2, 2);
 	font-weight: bold;
 	text-decoration: underline;
-	font-size: 20px;
+	font-size: 15px;
+	margin: 5px;
+}
+.authorized{
+	color:rgb(5, 89, 45);
+	font-weight: bold;
+	text-decoration: underline;
+	font-size: 15px;
+	margin: 5px;
+
 }
