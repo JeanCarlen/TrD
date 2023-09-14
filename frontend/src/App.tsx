@@ -9,6 +9,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Routes from "./PrivateRoute"
 import './Game/PongGame.css'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function App() {
   return (
@@ -16,6 +19,7 @@ function App() {
           {/* <LoginForm /> */}
           <BrowserRouter>
             <Routes />
+			<ToastContainer />
           </BrowserRouter>
           {/* <> */}
            {/* <Router>

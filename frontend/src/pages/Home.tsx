@@ -18,6 +18,8 @@ import { useRef } from 'react'
 import RegisterButton from '../LoginForm/RegisterButton'
 import { useNavigate } from 'react-router-dom'
 import GoogleAuth from '../Components/googleAuth'
+import decodeToken from '../helpers/helpers'
+import Cookies from 'js-cookie'
 
 type Props = {}
 
@@ -41,6 +43,16 @@ const Home = (props: Props) => {
         // Navigate to the "/about" page
         navigate('/profiles');
       };
+
+	const token: string|undefined = Cookies.get("token");
+		let content: {username: string, user: number};
+	if (token != undefined)
+	{
+		content = decodeToken(token);
+	}
+	else
+		content = { username: 'default', user: 0}
+
     return (
         <ChakraProvider resetCSS={false}>
         <div>
@@ -84,7 +96,7 @@ const Home = (props: Props) => {
             <AvatarUpload onAvatarChange={handleAvatarChange} />
             )}
             </VStack>
-              <h1 className="welcome">Hello "Username"! </h1>
+              <h1 className="welcome">Hello {content.username}! </h1>
               <GoogleAuth/>
              </WrapItem>
             </Wrap>

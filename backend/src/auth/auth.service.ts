@@ -10,7 +10,7 @@ export class AuthService {
   @Inject(UsersService)
   private readonly usersService: UsersService;
 
-  public create(createUserDto: CreateUserDto) : Promise<Users>{
+  public create(createUserDto: CreateUserDto) {
 	return this.usersService.create(createUserDto);
   }
 

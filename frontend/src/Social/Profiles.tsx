@@ -18,6 +18,7 @@ import { EditIcon } from '@chakra-ui/icons'
 import { useRef } from 'react'
 import RegisterButton from '../LoginForm/RegisterButton'
 import { PhoneIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
+import Searchbar from '../Components/Searchbar'
 
 
 type Props = {}
@@ -43,7 +44,6 @@ const Profiles = (props: Props) => {
         <Sidebar/>
         <div>
           <div className='topBox'>
-
         <Wrap>
             <WrapItem className='profile-border'>
             {/* <div className='profilePic'> */}

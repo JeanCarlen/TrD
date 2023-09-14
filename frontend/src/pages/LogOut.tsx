@@ -11,7 +11,11 @@ type Props = {}
 
 const Logout = (props: Props) => {
 	const navigate = useNavigate();
-	Cookies.set('registered', 'false', {expires: 7});
+	// Cookies.set('registered', 'false', {expires: 7});
+	let tokenVal = Cookies.get('token');
+	if (!tokenVal)
+		tokenVal = '';
+	Cookies.set('token', tokenVal, { expires: -7})
 	return <Navigate to='/login' replace />
 }
 
