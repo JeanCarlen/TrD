@@ -7,6 +7,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { Users } from './entities/users.entity';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
 
 @Injectable()
 export class UsersService {
@@ -16,6 +17,8 @@ export class UsersService {
   ) {}
 
   public async login(loginUserDto: LoginUserDto) {
+	const privkey = fs.readFileSync('/app/priv.key', 'utf8');
+
 	const user: Users = await this.usersRepository.findOne({ where: { username: loginUserDto.username } });
 	if (!user)
 		throw new BadRequestException(['Unknown username or password.'], { cause: new Error(), description: `Unknown username or password.` })
@@ -28,7 +31,7 @@ export class UsersService {
 		username: user.username
 	}
 
-	const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d'});
+	const token = jwt.sign(payload, privkey, { expiresIn: '1d', algorithm: 'RS256'});
 
 	// generate JWT and send it back to te frontend as an auth token
 
