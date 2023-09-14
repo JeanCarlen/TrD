@@ -4,10 +4,12 @@ import logo from '../cow.svg';
 import { useNavigate } from 'react-router-dom';
 import '../index.css';
 import { useState } from 'react';
-import Home from '../pages/Home';
 import schoollogo from '../42_Logo.svg';
 import '../pages/Home.css'
 import './RegisterButton.css'
+import decodeToken from '../helpers/helpers'
+import { toast } from 'react-toastify';
+import Notification from '../Components/Notification';
 
 
 const RegisterButton: React.FC = () => {
@@ -21,14 +23,22 @@ const RegisterButton: React.FC = () => {
 	const [valid, setValid] = useState<boolean>(false);
 
 	const handleWelcome = () => {
-		const isRegisteredCheck = Cookies.get('registered');
+		const isRegisteredCheck = Cookies.get('token');
 		// If the user is registered, redirect to the Home page
-		if (isRegisteredCheck === 'true') {
+		if (isRegisteredCheck) {
 			navigate('/Home');
 		}
 	}
 
 	const handleLogin = async () => {
+		if (username.trim() === '' || password.trim() === '')
+		{
+			toast.error('Fields cannot be empty.', {
+				position: toast.POSITION.BOTTOM_RIGHT,
+				className: 'toast-error'
+			})
+			return ;
+		}
 		const response = await fetch('http://localhost:8080/api/auth/login', {
 			method: 'POST',
 			headers: {
@@ -36,9 +46,68 @@ const RegisterButton: React.FC = () => {
 			},
 			body: JSON.stringify({ username, password }),
 		});
-		if (response.status === 401) return {};
 		const data = await response.json()
-		console.log(data);
+		if (response.ok)
+		{
+			const content: {username: string, user: number} = decodeToken(data.token);
+			Cookies.set('token', data.token)
+			navigate('/Home');
+		}
+		else
+		{
+			for (let i = 0; i < data.message.length; i++)
+			{
+				toast.error(data.message[i], {
+					position: toast.POSITION.BOTTOM_RIGHT,
+					className: 'toast-error'
+				})
+			}
+		}
+	}
+
+	const handleRegister = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!passwordsMatch)
+		{
+			toast.error('Passwords do not match.', {
+				position: toast.POSITION.BOTTOM_RIGHT,
+				className: 'toast-error'
+			})
+			return ;
+		}
+		else if (username.trim() === '' || password.trim() === '' || confirmpassword.trim() === '')
+		{
+			toast.error('Fields cannot be empty.', {
+				position: toast.POSITION.BOTTOM_RIGHT,
+				className: 'toast-error'
+			})
+			return ;
+		}
+		const response = await fetch('http://localhost:8080/api/auth/register', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({username, password, confirm_password: confirmpassword})
+		})
+		const data = await response.json()
+		if (response.ok)
+		{
+			const content: {username: string, user: number} = decodeToken(data.token);
+			Cookies.set('token', data.token)
+			navigate('/Home');
+		}
+		else
+		{
+			for (let i = 0; i < data.message.length; i++)
+			{
+				toast.error(data.message[i], {
+					position: toast.POSITION.BOTTOM_RIGHT,
+					className: 'toast-error'
+				})
+			}
+		}
 	}
 
 	useEffect(() => {
@@ -64,25 +133,11 @@ const RegisterButton: React.FC = () => {
 		setPasswordsMatch(e.target.value === password); // Check if passwords match
 	  };
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!passwordsMatch)
-			// Passwords don't match, show an error message or take appropriate action
-			alert('Passwords do not match');
-		else if (username.trim() === '' || password.trim() === '' || confirmpassword.trim() === '') {
-		  	alert('Fields cannot be empty');
-		} else {
-		  // Passwords match, you can proceed with form submission or other actions
-			Cookies.set('registered', 'true', { expires: 0.00496 }); // Expires in 5 min days
-			navigate('/Home');
-		}
-	};
 	const handleTogglePassword = () => {
 		setShowPassword(!showPassword);
 	  };
 
 	const handleRegisterClick = () => {
-		Cookies.set('registered', 'true', { expires: 0.00496 }); // Expires in 5 min days
 		alert('You are now registered!');
 		navigate('/Home');
 	};
@@ -95,7 +150,6 @@ const RegisterButton: React.FC = () => {
 	}
 
 	const closeForm = () => {
-		Cookies.set('registered', 'true', { expires: 0.00496 }); // Expires in 5 min days
 		setIsOpen(false);
 		RegisterButton(username, password);
 		navigate('/Home');
@@ -170,10 +224,13 @@ const RegisterButton: React.FC = () => {
 		  </ul>
 		  {valid ? <p className='authorized'>Password is valid</p> : <p className='warnings' >Password is not valid.</p>}
      	{!passwordsMatch && <p className='warnings'>Passwords do not match</p>}
-		  <button className='login-button2' disabled={!passwordsMatch} type="submit" onClick={handleSubmit}>Submit</button>
+		{(!passwordsMatch || !valid) ? <button className='login-button2' disabled={true} type="submit" onClick={handleRegister}>Submit</button> :
+		<button className='login-button2' disabled={false} type="submit" onClick={handleRegister}>Submit</button>
+		}
 		{/* {<div>You are logged in!</div>} */}
 		</form>
 		</div>}
+		{/* <Notification error={error} success={success} info={info} /> */}
 	</div>
 	</div>
   );

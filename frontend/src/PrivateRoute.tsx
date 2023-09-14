@@ -19,9 +19,10 @@ type Props = {}
 
 const PrivateRoutes = () => {
 	const isRegistered = Cookies.get('registered');
+	const isToken = Cookies.get('token');
 	const { authenticated } = useContext(AuthContext)
 
-	if (isRegistered != 'true'){
+	if (!isToken){
 
 		return <Navigate to='/login' replace />
 	}

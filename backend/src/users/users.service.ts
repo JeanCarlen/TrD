@@ -7,6 +7,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { Users } from './entities/users.entity';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
 
 @Injectable()
 export class UsersService {
@@ -15,7 +16,19 @@ export class UsersService {
     private readonly usersRepository: Repository<Users>,
   ) {}
 
+  getPayload(user) {
+	const payload = {
+		user: user.id,
+		username: user.username,
+		avatar: user.avatar,
+		login42: user.login42 || null
+	}
+	return (payload)
+  }
+
   public async login(loginUserDto: LoginUserDto) {
+	const privkey = fs.readFileSync('/app/priv.key', 'utf8');
+
 	const user: Users = await this.usersRepository.findOne({ where: { username: loginUserDto.username } });
 	if (!user)
 		throw new BadRequestException(['Unknown username or password.'], { cause: new Error(), description: `Unknown username or password.` })
@@ -23,14 +36,9 @@ export class UsersService {
 	if (!match)
 		throw new BadRequestException(['Unknown username or password.'], { cause: new Error(), description: `Unknown username or password.` })
 
-	const payload = {
-		user: user.id,
-		username: user.username
-	}
+	const payload = this.getPayload(user);
 
-	const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d'});
-
-	// generate JWT and send it back to te frontend as an auth token
+	const token = jwt.sign(payload, privkey, { expiresIn: '1d', algorithm: 'RS256'});
 
 	return { message: ['Successfully logged in.'], token: token }
 
@@ -46,12 +54,18 @@ export class UsersService {
 	if (createUserDto.password != createUserDto.confirm_password)
 		throw new BadRequestException(['Passwords don\'t match.'], { cause: new Error(), description: `password and confirm_password don't match.`});
 
+	const privkey = fs.readFileSync('/app/priv.key', 'utf8');
 	const hash = bcrypt.hashSync(createUserDto.password, saltRounds);
 	user.password = hash;
 
+	const inserted = await this.usersRepository.save(user);
+
+	const payload = this.getPayload(inserted);
+
+	const token = jwt.sign(payload, privkey, { expiresIn: '1d', algorithm: 'RS256'});
 	// if (await this.usersRepository.exist({ where: { login42: user.login42 }}))
 	// 	throw new BadRequestException(['login42 should be unique.'], { cause: new Error(), description: `${user.login42} already exists.`})
-    return this.usersRepository.save(user);
+    return { message: ['Successfully registered.'], token: token}
   }
 
   public findAll() {

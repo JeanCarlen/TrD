@@ -15,7 +15,7 @@ const Users: React.FunctionComponent = () => {
 		<div className="HomeText">
 			<Sidebar/>
 			My Friends
-            <Searchbar/>
+            {/* <Searchbar/> */}
 		</div>
 	)
 }

@@ -1,28 +1,37 @@
 import { Input, Stack, Button, InputGroup, InputRightElement } from '@chakra-ui/react'
 import ReactDOM from 'react-dom/client';
 import { useState } from 'react';
+import Cookies from 'js-cookie';
 
 
 function Searchbar() {
 		const [searchTerm, setSearchTerm] = useState('');
 		const [searchHistory, setSearchHistory] = useState<string[]>([]);
 		const [suggestions, setSuggestions] = useState<string[]>([]);
-		const handleSearch = () => {
-			if (searchTerm)
+		
+		const token = Cookies.get('token');
+		const handleSearch = async () => {
+			const response = await fetch('http://localhost:8080/api/users', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer' + token
+				},
+				body: JSON.stringify({}),
+			});
+			const data = await response.json()
+			if (response.ok && searchTerm)
+			{
 				setSearchHistory((prevHistory) => [...prevHistory, searchTerm]);
-		  // Implement your search logic here using the `searchTerm`
+				console.log(data);
+			}
+			//   Implement your search logic here using the `searchTerm`
 		  console.log(`Searching for: ${searchTerm}`);
-		};
+
+		}
 
 		const handleInputChange = (value: string) => {
 			setSearchTerm(value);
-
-			const filteredSuggestions = ['apple', 'banana', 'cherry', 'date'].filter(
-			  (suggestion) =>
-				suggestion.toLowerCase().includes(value.toLowerCase())
-			);
-
-			setSuggestions(filteredSuggestions);
 		  };
 		const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		  if (event.key === 'Enter') {
@@ -42,7 +51,6 @@ return (
         placeholder='Search'
 		value={searchTerm}
 		onChange={(e) => handleInputChange(e.target.value)}
-        onBlur={() => setSuggestions([])}
         onKeyPress={handleKeyPress}
       />
 	</InputRightElement>
