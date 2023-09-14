@@ -38,7 +38,7 @@ const RegisterButton: React.FC = () => {
 		});
 		if (response.status === 401) return {};
 		const data = await response.json()
-		console.log('FETCH DONE');
+		console.log(data);
 	}
 
 	useEffect(() => {

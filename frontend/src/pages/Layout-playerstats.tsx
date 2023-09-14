@@ -10,9 +10,9 @@ const LayoutPLayerstats: React.FunctionComponent = () => {
 	<div className='box'>FUCK</div>
 	<div className='box'>IT</div>
 	<div className='box'>WE</div>
-	<div className='box'>GO</div>
-	<div className='box'>HOME</div>
-	<div className='box'>PLS today</div>
+	<div className='box'>MAKE</div>
+	<div className='box'>IT</div>
+	<div className='box'>WORK today</div>
 	</div>
 	)
 }

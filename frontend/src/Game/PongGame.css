@@ -1,20 +1,32 @@
-body {
+.game {
+	display: flex;
 	justify-content: center;
 	align-items: center;
-	height: 100vh;
-	margin: 0;
-	background-color: #111;
+	height: 90vh;
+	background-color: hsla(0, 21%, 16%, 0);
+	overflow: hidden; /* Prevent scrollbars */
   }
-
+  
   canvas {
 	border: 1px solid white;
+	max-width: 90%; /* Ensure the canvas doesn't exceed the viewport width */
+	max-height: 90%; /* Ensure the canvas doesn't exceed the viewport height */
   }
-
+  
   .score {
 	display: flex;
 	justify-content: space-between;
 	font-size: 18px;
 	color: white;
-	margin-top: 20px;
+	margin-top: 1vh;
 	padding: 0 20px;
   }
+  
+  .canvas-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 90%;
+	height: 90%;
+  }
+  

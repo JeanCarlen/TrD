@@ -34,8 +34,8 @@ const handleFriends = () => {
 
 	return (
 		<div>
-		<div className='HomeText'>
             <Sidebar/>
+		<div className='HomeText'>
 			Chat
 		</div>
 		<div className='grid'>

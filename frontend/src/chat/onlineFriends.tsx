@@ -16,6 +16,20 @@ import '../pages/LetsPlay'
 
 const OnlineUsersList: React.FC = () => {
 	const navigate = useNavigate();
+	const [selectedUser, setSelectedUser] = useState('');
+	const [onlineUsers, setOnlineUsers] = useState([{
+		name: 'Jean',
+		status: 'online',
+		},
+		{
+		name: 'Fabio',
+		status: 'offline',
+		},
+		{
+			name: 'Nikki',
+			status: 'online',
+		}
+	])
 
 	const handleAddUser = (username: string) => {
 		// Implement logic to add the user to your contact list or perform the desired action.
@@ -32,23 +46,13 @@ const OnlineUsersList: React.FC = () => {
 	  const invitePong = (username: string) => {
 		// Implement logic to block the user or perform the desired action.
 		// This could involve making an API request to your server.
+		setSelectedUser(username);
 		console.log(`Inviting ${username} for a game`);
 		navigate('/Game');
 	  };
 
-	const [onlineUsers, setOnlineUsers] = useState([{
-		name: 'Jean',
-		status: 'online',
-		},
-		{
-		name: 'Fabio',
-		status: 'offline',
-		},
-		{
-			name: 'Nikki',
-			status: 'online',
-		}
-	])
+
+
 
 	// useEffect(() => {
 	// 	const socket = new WebSocket('ws://example.com/online-users'); // Replace with your WebSocket server URL
