@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './PongGame.css';
-import './Game.css';
 import cowLogo from '../cow.png';
 
 interface State {
@@ -8,8 +7,8 @@ interface State {
   ballY: number;
   ballSpeedX: number;
   ballSpeedY: number;
-  leftPaddleY: number;
-  rightPaddleY: number;
+  UpPaddle: number;
+  DownPaddle: number;
   scoreLeft: number;
   scoreRight: number;
   paddleSize: number;
@@ -28,11 +27,11 @@ class PongGame extends Component<{}, State> {
       ballY: 100,
       ballSpeedX: 3,
       ballSpeedY: 5,
-      leftPaddleY: 1,
-      rightPaddleY: 1,
+      UpPaddle: 100,
+      DownPaddle: 500,
       scoreLeft: 0,
       scoreRight: 0,
-      paddleSize: 130,
+      paddleSize: 1300,
       cowLogo: null,
     };
 
@@ -58,13 +57,21 @@ class PongGame extends Component<{}, State> {
     window.removeEventListener('keydown', this.handleKeyPress);
   }
 
-
   updateGame() {
     const canvas = this.canvasRef.current!;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d')!;
-    const { ballX, ballY, ballSpeedX, ballSpeedY, leftPaddleY, rightPaddleY, cowLogo, paddleSize} = this.state;
+    const {
+      ballX,
+      ballY,
+      ballSpeedX,
+      ballSpeedY,
+      UpPaddle,
+      DownPaddle,
+      cowLogo,
+      paddleSize,
+    } = this.state;
 
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -74,69 +81,66 @@ class PongGame extends Component<{}, State> {
     const newBallY = ballY + ballSpeedY;
 
     // Check collision with top/bottom walls
-    if (newBallY < 0 || newBallY > canvas.height) {
-      this.setState({ ballSpeedY: -ballSpeedY });
+	if((ballSpeedX > 20 )|| ballSpeedX < -20)
+	{
+		this.setState({ ballSpeedX: 20 });
+		this.setState({ ballSpeedY: 20 });
+	}
+    if (newBallX < 0 || newBallX > canvas.width) {
+      this.setState({ ballSpeedX: -ballSpeedX });
     }
 
-    // Check collision with paddles
     if (
-      (newBallX < 25 && newBallY > leftPaddleY && newBallY < leftPaddleY + paddleSize) ||
-      (newBallX > canvas.width - 25 && newBallY > rightPaddleY && newBallY < rightPaddleY + paddleSize)
-    ) {
-      this.setState({ ballSpeedX: -ballSpeedX * 1.1 });
-      //this.setState({ ballSpeedX: ballSpeedX*1.2 });
-      this.setState({ ballSpeedY: ballSpeedY*1.2 });
+      (newBallY < 10 && (newBallX >= UpPaddle && newBallX <= UpPaddle + paddleSize)) ||
+      (newBallY > canvas.height - 20 && (newBallX >= DownPaddle && newBallX <= DownPaddle + paddleSize))
+    ) 
+    {
+      this.setState({ ballSpeedX: ballSpeedX * 1.05 });
+      this.setState({ ballSpeedY: -ballSpeedY * 1.05 });
     }
 
     // Check scoring
-    if (newBallX < 0) {
+    if (newBallY < 0) {
       this.setState((prevState) => ({ ballX: canvas.width / 2, ballY: canvas.height / 2, scoreRight: prevState.scoreRight + 1 }));
-      this.setState({ballSpeedX: -3, ballSpeedY: -5});
-    } else if (newBallX > canvas.width) {
-      this.setState((prevState) => ({ ballX: canvas.width / 2, ballY: canvas.height / 2, scoreLeft: prevState.scoreLeft + 1}));
-      this.setState({ballSpeedX: 3, ballSpeedY: 5});
+      this.setState({ ballSpeedX: 3, ballSpeedY: 5 });
+    } else if (newBallY > canvas.height) {
+      this.setState((prevState) => ({ ballX: canvas.width / 2, ballY: canvas.height / 2, scoreLeft: prevState.scoreLeft + 1 }));
+      this.setState({ ballSpeedX: -3, ballSpeedY: -5 });
     } else {
       this.setState({ ballX: newBallX, ballY: newBallY });
     }
 
     ctx.fillStyle = 'pink';
-    //ctx.fillRect(canvas.width - 20, rightPaddleY, 10, paddleSize);
-    if (cowLogo)
-    {
-      ctx.drawImage(cowLogo, ballX -25, ballY -25, 50, 50);
+    if (cowLogo) {
+      ctx.drawImage(cowLogo, ballX - 25, ballY - 25, 50, 50);
     }
-	//ctx.drawImage(this.ballImage, ballX -10, ballY -10, 20, 20);
-	// ctx.drawImage(cowLogo, ballX - 10, ballY - 10, 20, 20);
+
+    // Draw paddles and ball
     ctx.beginPath();
-	ctx.roundRect(10, leftPaddleY, 10, paddleSize, 5);
-    ctx.roundRect(canvas.width - 20, rightPaddleY, 10, paddleSize, 5);
-    //ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
+	ctx.roundRect(DownPaddle, canvas.height - 20, paddleSize, 10, 5);
+    ctx.roundRect(UpPaddle, 10, paddleSize, 10, 5);
+    // ctx.rect(UpPaddle - paddleSize, 10, paddleSize, 10);
+    // ctx.rect(DownPaddle - paddleSize, canvas.height - 20, paddleSize, 10);
+    // ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
     ctx.fill();
-
-	console.log("X: ",ballX, " Y: ", ballY);
-
-
-    // Update paddle positions (you can modify this to use keys)
-    this.setState({ leftPaddleY: Math.min(Math.max(leftPaddleY, 0), canvas.height - 80) });
-    this.setState({ rightPaddleY: Math.min(Math.max(rightPaddleY, 0), canvas.height - 80) });
   }
 
   handleKeyPress = (e: KeyboardEvent) => {
-    const { leftPaddleY, rightPaddleY } = this.state;
-    const speed = 50;
+    const { UpPaddle, DownPaddle } = this.state;
+    const speed = 110;
 
     switch (e.key) {
-      case 'ArrowUp':
-        this.setState({ rightPaddleY: rightPaddleY - speed });
+      case 'ArrowLeft':
+        this.setState({ UpPaddle: UpPaddle - speed });
         break;
-      case 'ArrowDown':
-        this.setState({ rightPaddleY: rightPaddleY + speed });
+      case 'ArrowRight':
+        this.setState({ UpPaddle: UpPaddle + speed });
         break;
-      case 'w':
-        this.setState({ leftPaddleY: leftPaddleY - speed });
+      case 'a':
+        this.setState({ DownPaddle: DownPaddle - speed });
         break;
-      case 's':
-        this.setState({ leftPaddleY: leftPaddleY + speed });
+      case 'd':
+        this.setState({ DownPaddle: DownPaddle + speed });
         break;
       default:
         break;
@@ -146,16 +150,16 @@ class PongGame extends Component<{}, State> {
   render() {
     return (
       <div>
-        <canvas ref={this.canvasRef} width={800} height={600}></canvas>
+		<div className="game">
+        <canvas ref={this.canvasRef} width={600} height={800}></canvas>
         <div className="score">
-		<img
-        src="../cow.png"
-        alt="Ball"
-        style={{ display: 'none' }}/>
-                <span>Left Player: {this.state.scoreLeft}</span>
-          <span>Right Player: {this.state.scoreRight}</span>
+          <img src="../cow.png" alt="Ball" style={{ display: 'none' }} />
+          <span>bob: {this.state.scoreLeft}</span>
+          <br/>
+          <span>keenu reeves: {this.state.scoreRight}</span>
         </div>
       </div>
+	  </div>
     );
   }
 }

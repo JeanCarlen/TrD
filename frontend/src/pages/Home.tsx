@@ -16,6 +16,8 @@ import { useState } from 'react'
 import { EditIcon } from '@chakra-ui/icons'
 import { useRef } from 'react'
 import RegisterButton from '../LoginForm/RegisterButton'
+import { useNavigate } from 'react-router-dom'
+import GoogleAuth from '../Components/googleAuth'
 
 type Props = {}
 
@@ -24,7 +26,7 @@ const Home = (props: Props) => {
         'https://multiavatar.com/img/thumb-logo.png'
       );
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-
+	const navigate = useNavigate();
     const handleAvatarChange = (newAvatarUrl: string) => {
         setAvatarUrl(newAvatarUrl);
 
@@ -33,6 +35,11 @@ const Home = (props: Props) => {
         if (fileInputRef.current) {
           fileInputRef.current.click();
         }
+      };
+
+      const handleClick = () => {
+        // Navigate to the "/about" page
+        navigate('/profiles');
       };
     return (
         <ChakraProvider resetCSS={false}>
@@ -78,6 +85,7 @@ const Home = (props: Props) => {
             )}
             </VStack>
               <h1 className="welcome">Hello "Username"! </h1>
+              <GoogleAuth/>
              </WrapItem>
             </Wrap>
             <button className='quickGame'>
@@ -110,6 +118,9 @@ const Home = (props: Props) => {
                 <div className='matchBox'>
                   FRIENDS
                 </div>
+                <button onClick={handleClick}>
+                    click for more
+                </button>
             </div>
             </div>
         </div>
