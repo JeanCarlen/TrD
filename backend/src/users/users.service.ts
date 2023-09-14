@@ -29,6 +29,7 @@ export class UsersService {
 	}
 
 	const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d'});
+
 	// generate JWT and send it back to te frontend as an auth token
 
 	return { message: ['Successfully logged in.'], token: token }
