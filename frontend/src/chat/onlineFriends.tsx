@@ -11,8 +11,11 @@ import {
 	Button,
   } from '@chakra-ui/react'
   import { ChevronDownIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
+import { useNavigate } from 'react-router-dom';
+import '../pages/LetsPlay'
 
 const OnlineUsersList: React.FC = () => {
+	const navigate = useNavigate();
 
 	const handleAddUser = (username: string) => {
 		// Implement logic to add the user to your contact list or perform the desired action.
@@ -24,6 +27,13 @@ const OnlineUsersList: React.FC = () => {
 		// Implement logic to block the user or perform the desired action.
 		// This could involve making an API request to your server.
 		console.log(`Blocking user: ${username}`);
+	  };
+
+	  const invitePong = (username: string) => {
+		// Implement logic to block the user or perform the desired action.
+		// This could involve making an API request to your server.
+		console.log(`Inviting ${username} for a game`);
+		navigate('/Game');
 	  };
 
 	const [onlineUsers, setOnlineUsers] = useState([{
@@ -75,6 +85,7 @@ const OnlineUsersList: React.FC = () => {
 					<MenuList>
 						<MenuItem className='Addfriend' onClick={() => handleAddUser(user.name)}>Add as a friend</MenuItem>
 						<MenuItem className='Addfriend' onClick={() => handleBlockUser(user.name)}> Block User </MenuItem>
+						<MenuItem className='Addfriend' onClick={() => invitePong(user.name)}> Invite for a pong </MenuItem>
 					</MenuList>
 					</Menu>
 			</li>

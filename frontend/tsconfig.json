@@ -18,9 +18,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "preserve"
   },
   "include": [
-    "src"
-, "../savedfile/Users.tsx", "../savedfile/LetsPlay.tsx"  ]
+    "src",
+    "../savedfile/Users.tsx",
+    "../savedfile/LetsPlay.tsx"
+  ]
 }

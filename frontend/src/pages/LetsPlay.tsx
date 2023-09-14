@@ -9,6 +9,9 @@ const Game: React.FunctionComponent = () => {
 		<div className="HomeText">
             <Sidebar/>
 			Game
+			<div>
+				
+			</div>
 			<PongGame/>
 		</div>
 	)
