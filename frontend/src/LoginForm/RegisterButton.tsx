@@ -64,7 +64,7 @@ const RegisterButton: React.FC = () => {
 		setPasswordsMatch(e.target.value === password); // Check if passwords match
 	  };
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!passwordsMatch)
 			// Passwords don't match, show an error message or take appropriate action
