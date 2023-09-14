@@ -9,6 +9,8 @@ import schoollogo from '../42_Logo.svg';
 import '../pages/Home.css'
 import './RegisterButton.css'
 
+import decodeToken from '../helpers/helpers'
+
 
 const RegisterButton: React.FC = () => {
 	const navigate = useNavigate();
@@ -38,7 +40,11 @@ const RegisterButton: React.FC = () => {
 		});
 		if (response.status === 401) return {};
 		const data = await response.json()
-		console.log(data);
+		// console.log(data);
+		const content: {username: string, user: number} = decodeToken(data.token);
+
+		console.log(content.username);
+		console.log(content.user)
 	}
 
 	useEffect(() => {
