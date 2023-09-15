@@ -39,7 +39,8 @@ const Profiles = (props: Props) => {
         }
       };
     return (
-        <ChakraProvider resetCSS={false}>
+      <ChakraProvider resetCSS={false}>
+          <Searchbar/>
         <div>
         <Sidebar/>
         <div>
