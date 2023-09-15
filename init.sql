@@ -12,6 +12,7 @@ CREATE TABLE users (
 	"twofaenabled" BOOLEAN NOT NULL DEFAULT false,
 	"avatar" varchar(256) NOT NULL DEFAULT '/path/to/default.png',
 	"is42" boolean DEFAULT false,
+	"refreshtoken42" varchar(64),
 	"password" varchar(72) NULL,
 	CONSTRAINT "users_pk" PRIMARY KEY ("id")
 );

@@ -65,7 +65,7 @@ const Profiles = (props: Props) => {
           style={{ display: 'none' }}
           onChange={(event) => {
             const file = event.target.files && event.target.files[0];
-
+            
             if (file) {
               const reader = new FileReader();
               reader.onload = (e) => {
@@ -86,6 +86,7 @@ const Profiles = (props: Props) => {
             <div className='profile-border'>
             <AddIcon boxSize={5} />
               <Text>
+            <Searchbar/>
             "Add as a friend"
             </Text>
             </div>
