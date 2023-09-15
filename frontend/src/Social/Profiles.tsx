@@ -19,20 +19,34 @@ import { useRef } from 'react'
 import RegisterButton from '../LoginForm/RegisterButton'
 import { PhoneIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
 import Searchbar from '../Components/Searchbar'
+import Cookies from 'js-cookie'
+import decodeToken from '../helpers/helpers'
+import { useParams } from 'react-router-dom';
 
 
 type Props = {}
 
 const Profiles = (props: Props) => {
-    const [avatarUrl, setAvatarUrl] = useState<string>(
+  const { username } = useParams();
+  const token: string|undefined = Cookies.get("token");
+  let content: {username: string, user: number};
+    if (token != undefined)
+    {
+      content = decodeToken(token);
+    }
+    else
+    content = { username: 'default', user: 0};
+  const [avatarUrl, setAvatarUrl] = useState<string>(
         'https://multiavatar.com/img/thumb-logo.png'
       );
+    // const username = content.username;
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const handleAvatarChange = (newAvatarUrl: string) => {
         setAvatarUrl(newAvatarUrl);
 
     };
+
     const handleAvatarClick = () => {
         if (fileInputRef.current) {
           fileInputRef.current.click();
@@ -66,7 +80,7 @@ const Profiles = (props: Props) => {
           style={{ display: 'none' }}
           onChange={(event) => {
             const file = event.target.files && event.target.files[0];
-            
+
             if (file) {
               const reader = new FileReader();
               reader.onload = (e) => {
@@ -81,14 +95,13 @@ const Profiles = (props: Props) => {
             <AvatarUpload onAvatarChange={handleAvatarChange} />
             )}
             </VStack>
-              <h1 className="welcome">"Nick name of user" </h1>
+              <h1 className="welcome"> {username} </h1>
              </WrapItem>
             </Wrap>
             <div className='profile-border'>
             <AddIcon boxSize={5} />
               <Text>
-            <Searchbar/>
-            "Add as a friend"
+            "Add {username} as a friend"
             </Text>
             </div>
         </div>

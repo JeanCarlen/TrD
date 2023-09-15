@@ -53,7 +53,6 @@ export class UsersService {
 	if (createUserDto.password != createUserDto.confirm_password)
 		throw new BadRequestException(['Passwords don\'t match.'], { cause: new Error(), description: `password and confirm_password don't match.`});
 
-	const privkey = fs.readFileSync('/app/priv.key', 'utf8');
 	const hash = bcrypt.hashSync(createUserDto.password, saltRounds);
 	user.password = hash;
 

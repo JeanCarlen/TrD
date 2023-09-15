@@ -27,10 +27,6 @@ const RegisterButton: React.FC = () => {
 		// If the user is registered, redirect to the Home page
 		if (isRegisteredCheck) {
 			navigate('/Home');
-			toast.achievements('u did it, u are a smart cookie',{
-				position: toast.POSITION.BOTTOM_CENTER,
-				className: 'toast-achievements'
-			})
 		}
 	}
 

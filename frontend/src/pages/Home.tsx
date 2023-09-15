@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom'
 import GoogleAuth from '../Components/googleAuth'
 import decodeToken from '../helpers/helpers'
 import Cookies from 'js-cookie'
+import Searchbar from '../Components/Searchbar'
 
 type Props = {}
 
@@ -28,6 +29,14 @@ const Home = (props: Props) => {
         'https://multiavatar.com/img/thumb-logo.png'
       );
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const token: string|undefined = Cookies.get("token");
+      let content: {username: string, user: number};
+    if (token != undefined)
+    {
+      content = decodeToken(token);
+    }
+    else
+      content = { username: 'default', user: 0}
 	const navigate = useNavigate();
     const handleAvatarChange = (newAvatarUrl: string) => {
         setAvatarUrl(newAvatarUrl);
@@ -41,25 +50,17 @@ const Home = (props: Props) => {
 
       const handleClick = () => {
         // Navigate to the "/about" page
-        navigate('/profiles');
+        navigate(`/profiles/${content.username}`);
       };
 
-	const token: string|undefined = Cookies.get("token");
-		let content: {username: string, user: number};
-	if (token != undefined)
-	{
-		content = decodeToken(token);
-	}
-	else
-		content = { username: 'default', user: 0}
 
     return (
         <ChakraProvider resetCSS={false}>
+        <Searchbar/>
         <div>
         <Sidebar/>
         <div>
           <div className='topBox'>
-
         <Wrap>
             <WrapItem className='profile-border'>
             {/* <div className='profilePic'> */}
