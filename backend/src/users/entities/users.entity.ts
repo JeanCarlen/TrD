@@ -25,4 +25,7 @@ export class Users extends BaseEntity{
   
   @Column({ type: 'varchar', length: 72, nullable: true })
   password: string;
+
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  refreshtoken42: string;
 }

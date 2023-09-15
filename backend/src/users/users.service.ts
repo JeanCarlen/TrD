@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -38,7 +38,7 @@ export class UsersService {
 
 	const payload = this.getPayload(user);
 
-	const token = jwt.sign(payload, privkey, { expiresIn: '1d', algorithm: 'RS256'});
+	const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
 
 	return { message: ['Successfully logged in.'], token: token }
 
@@ -62,7 +62,7 @@ export class UsersService {
 
 	const payload = this.getPayload(inserted);
 
-	const token = jwt.sign(payload, privkey, { expiresIn: '1d', algorithm: 'RS256'});
+	const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
 	// if (await this.usersRepository.exist({ where: { login42: user.login42 }}))
 	// 	throw new BadRequestException(['login42 should be unique.'], { cause: new Error(), description: `${user.login42} already exists.`})
     return { message: ['Successfully registered.'], token: token}
@@ -74,6 +74,10 @@ export class UsersService {
 
   public findOne(id: number) {
 	return this.usersRepository.findOne({ where: { id: id } });
+  }
+
+  public findByUsername(name: string) {
+	return this.usersRepository.findBy({ username: Like(`%${name}%`)});
   }
 
   public update(id: number, updateUserDto: UpdateUserDto) {

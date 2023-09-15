@@ -137,9 +137,8 @@ const RegisterButton: React.FC = () => {
 		setShowPassword(!showPassword);
 	  };
 
-	const handleRegisterClick = () => {
-		alert('You are now registered!');
-		navigate('/Home');
+	const handle42Login = () => {
+		window.location.replace('https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-9ce743a9d6e296d270c36a928c02e3adc101d43c3a7905d66c9a2727b7640ad9&redirect_uri=https%3A%2F%2Ftrd.laendrun.ch%2Fapi%2Fauth%2Fcallback&response_type=code');
 	};
 
 
@@ -165,8 +164,11 @@ const RegisterButton: React.FC = () => {
 		<div className='loginbox'>
 		<div id="id1">
 		<div className="container_row">
-		<button className='login-button' onClick={handleRegisterClick}>
-			<img className='schoollogo' src={schoollogo}/>
+		<button className='login-button'>
+			<a href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-9ce743a9d6e296d270c36a928c02e3adc101d43c3a7905d66c9a2727b7640ad9&redirect_uri=https%3A%2F%2Ftrd.laendrun.ch%2Fapi%2Fauth%2Fcallback&response_type=code"
+				rel="noopener noreferrer">
+				<img className='schoollogo' src={schoollogo}/>
+			</a>
 		</button>
 	</div>
 		<form className ="login-form">
