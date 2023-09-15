@@ -49,6 +49,12 @@ export class AuthService {
 		avatar: user42.image.link
 	}
 
+	// check if user42 in database or not
+	// if not => "register user"
+	// if yes => "login user"
+
+	
+
 	return user;
   }
 }

@@ -27,7 +27,6 @@ export class UsersService {
   }
 
   public async login(loginUserDto: LoginUserDto) {
-	const privkey = fs.readFileSync('/app/priv.key', 'utf8');
 
 	const user: Users = await this.usersRepository.findOne({ where: { username: loginUserDto.username } });
 	if (!user)
