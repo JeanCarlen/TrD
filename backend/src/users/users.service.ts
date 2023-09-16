@@ -32,6 +32,103 @@ export class UsersService {
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
   }
 
+  private validPassword(password: string): boolean {
+    // At least one capital letter (A-Z)
+    // At least one lowercase letter (a-z)
+    // At least one number (0-9)
+    // Minimum length of 8 characters
+
+    if (password.length < 8)
+      throw new BadRequestException(
+        ['Password length must be at least 8 characters.'],
+        {
+          cause: new Error(),
+          description: `Password length must be at least 8 characters, got ${password.length}.`,
+        },
+      );
+    if (!/\d/.test(password))
+      throw new BadRequestException(
+        ['Password must contain at least one number.'],
+        {
+          cause: new Error(),
+          description: `Password must contain at least one number`,
+        },
+      );
+    if (!/[A-Z]/.test(password))
+      throw new BadRequestException(
+        ['Password must contain at least one uppercase letter.'],
+        {
+          cause: new Error(),
+          description: `Password must contain at least one uppercase letter.`,
+        },
+      );
+    if (!/[a-z]/.test(password))
+      throw new BadRequestException(
+        ['Password must contain at least one lowercase letter.'],
+        {
+          cause: new Error(),
+          description: `Password must contain at least one lowercase letter.`,
+        },
+      );
+    return true;
+  }
+
+  private hashPassword(password: string): string {
+    const saltRounds = 10;
+    const hash = bcrypt.hashSync(password, saltRounds);
+    return hash;
+  }
+
+  private async updatePassword(
+    id: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<{ message: string[]; token: string }> {
+    const user = await this.usersRepository.findOne({ where: { id: id } });
+    if (updateUserDto.confirm_password && updateUserDto.password) {
+      if (updateUserDto.password != updateUserDto.confirm_password)
+        throw new BadRequestException(
+          ['Password and confirm password do not match.'],
+          {
+            cause: new Error(),
+            description: `Password and confirm password do not match.`,
+          },
+        );
+      else {
+        this.validPassword(updateUserDto.password);
+        user.password = this.hashPassword(updateUserDto.password);
+        await this.usersRepository.update({ id: id }, user);
+        return { message: ['Password changed.'], token: this.getJWT(user) };
+      }
+    }
+    throw new BadRequestException(
+      ['Confirm password must be present when trying to change password.'],
+      {
+        cause: new Error(),
+        description: `Confirm password must be present when trying to change password.`,
+      },
+    );
+  }
+
+  private async updateUsername(
+    id: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<{ message: string[]; token: string }> {
+    const user: Users = await this.usersRepository.findOne({
+      where: { id: id },
+    });
+    const found: Users | null = await this.usersRepository.findOne({
+      where: { username: updateUserDto.username },
+    });
+    if (found)
+      throw new BadRequestException(['Username already taken.'], {
+        cause: new Error(),
+        description: `Username already taken.`,
+      });
+    user.username = updateUserDto.username;
+
+    return { message: [''], token: this.getJWT(user) };
+  }
+
   public async login(loginUserDto: LoginUserDto) {
     const user: Users = await this.usersRepository.findOne({
       where: { username: loginUserDto.username },
@@ -56,7 +153,6 @@ export class UsersService {
   }
 
   public async create(createUserDto: CreateUserDto) {
-    const saltRounds = 10;
     const user: Users = new Users();
     user.username = createUserDto.username;
     user.avatar = process.env.HOST + 'images/default.png';
@@ -76,11 +172,9 @@ export class UsersService {
         description: `password and confirm_password don't match.`,
       });
 
-    const hash = bcrypt.hashSync(createUserDto.password, saltRounds);
-    user.password = hash;
-
-    const inserted = await this.usersRepository.save(user);
-    const token = this.getJWT(inserted);
+    this.validPassword(createUserDto.password);
+    user.password = this.hashPassword(createUserDto.password);
+    const token = this.getJWT(await this.usersRepository.save(user));
     return { message: ['Successfully registered.'], token: token };
   }
 
@@ -94,8 +188,7 @@ export class UsersService {
     user.login42 = create42User.login42;
     user.is42 = true;
 
-    const inserted = await this.usersRepository.save(user);
-    const token = this.getJWT(inserted);
+    const token = this.getJWT(await this.usersRepository.save(user));
     return { message: ['Successfully registered.'], token: token };
   }
 
@@ -120,7 +213,13 @@ export class UsersService {
   }
 
   public async update(id: number, updateUserDto: UpdateUserDto) {
-    return this.usersRepository.update({ id: id }, updateUserDto);
+    if (updateUserDto.username) return this.updateUsername(id, updateUserDto);
+    else if (updateUserDto.password || updateUserDto.confirm_password)
+      return this.updatePassword(id, updateUserDto);
+    throw new BadRequestException(['Unable to update'], {
+      cause: new Error(),
+      description: 'Unable to update user.',
+    });
   }
 
   public find42Users() {
@@ -150,13 +249,6 @@ export class UsersService {
       select: ['id', 'username', 'login42', 'avatar'],
     });
     return this.usersRepository.remove(user);
-  }
-
-  public async loginTaken(login42: string) {
-    return this.usersRepository.exist({
-      where: { login42: login42 },
-      select: ['id', 'username', 'login42', 'avatar'],
-    });
   }
 
   public async updateUserImage(id: number, imageName: string) {
