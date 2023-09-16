@@ -14,21 +14,18 @@ export class AuthController {
   @Post('login')
   @HttpCode(200)
   async login(@Body() loginUserDto: LoginUserDto) {
-    console.log('Bitch please.');
     return await this.authService.login(loginUserDto);
   }
 
   @Post('register')
   @HttpCode(201)
   async register(@Body() createUserDto: CreateUserDto) {
-	console.log('Registering bitches');
 	return await this.authService.create(createUserDto)
   }
 
   @Get('callback')
   async callback(@Res() response, @Query() query) {
 	const insertedUser = await this.authService.getToken(query.code);
-	// console.log("token:", insertedUser.token);
 	response.cookie('token', insertedUser.token);
 	response.redirect('https://trd.laendrun.ch/login');
   }
