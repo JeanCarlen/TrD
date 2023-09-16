@@ -7,17 +7,17 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserAchievmentsService {
-	constructor (
-		@InjectRepository(UserAchievments)
-		private readonly userachievmentsRepository: Repository<UserAchievments>
-	) {}
+  constructor(
+    @InjectRepository(UserAchievments)
+    private readonly userachievmentsRepository: Repository<UserAchievments>,
+  ) {}
 
   public create(createUserAchievmentDto: CreateUserAchievmentDto) {
-	const userachievment: UserAchievments = new UserAchievments();
-	userachievment.user_id = createUserAchievmentDto.user_id;
-	userachievment.achievment_id = createUserAchievmentDto.achievment_id;
-	userachievment.current = createUserAchievmentDto.current;
-	return this.userachievmentsRepository.save(userachievment);
+    const userachievment: UserAchievments = new UserAchievments();
+    userachievment.user_id = createUserAchievmentDto.user_id;
+    userachievment.achievment_id = createUserAchievmentDto.achievment_id;
+    userachievment.current = createUserAchievmentDto.current;
+    return this.userachievmentsRepository.save(userachievment);
   }
 
   public findAll() {
@@ -25,15 +25,20 @@ export class UserAchievmentsService {
   }
 
   public findOne(id: number) {
-	return this.userachievmentsRepository.findOne({ where: { id: id } });
+    return this.userachievmentsRepository.findOne({ where: { id: id } });
   }
 
   public update(id: number, updateUserAchievmentDto: UpdateUserAchievmentDto) {
-	return this.userachievmentsRepository.update({ id: id }, updateUserAchievmentDto);
+    return this.userachievmentsRepository.update(
+      { id: id },
+      updateUserAchievmentDto,
+    );
   }
 
   public async remove(id: number) {
-	const userachievment = await this.userachievmentsRepository.findOne({ where: { id: id } });
-	return this.userachievmentsRepository.remove(userachievment);
+    const userachievment = await this.userachievmentsRepository.findOne({
+      where: { id: id },
+    });
+    return this.userachievmentsRepository.remove(userachievment);
   }
 }

@@ -7,39 +7,41 @@ import { Matches } from './entities/matches.entity';
 
 @Injectable()
 export class MatchesService {
-	constructor(
-		@InjectRepository(Matches)
-		private readonly matchesRepository: Repository<Matches>
-	) {}
+  constructor(
+    @InjectRepository(Matches)
+    private readonly matchesRepository: Repository<Matches>,
+  ) {}
 
-  public async create(createMatchDto: CreateMatchDto): Promise<Matches>{
-	const match: Matches = new Matches();
-	match.user_1 = createMatchDto.user_1;
-	match.user_2 = createMatchDto.user_2;
-	match.score_1 = 0;
-	match.score_2 = 0;
-	match.status = 0;
-	return this.matchesRepository.save(match);
+  public async create(createMatchDto: CreateMatchDto): Promise<Matches> {
+    const match: Matches = new Matches();
+    match.user_1 = createMatchDto.user_1;
+    match.user_2 = createMatchDto.user_2;
+    match.score_1 = 0;
+    match.score_2 = 0;
+    match.status = 0;
+    return this.matchesRepository.save(match);
   }
 
   public findAll() {
-	return this.matchesRepository.find();
+    return this.matchesRepository.find();
   }
 
   public findOne(id: number) {
-	return this.matchesRepository.findOne({ where: { id: id } })
+    return this.matchesRepository.findOne({ where: { id: id } });
   }
 
   public findByUserId(id: number) {
-	return this.matchesRepository.find({ where: [{ user_1: id }, { user_2: id }] })
+    return this.matchesRepository.find({
+      where: [{ user_1: id }, { user_2: id }],
+    });
   }
 
   public update(id: number, updateMatchDto: UpdateMatchDto) {
-	return this.matchesRepository.update({ id: id }, updateMatchDto);
+    return this.matchesRepository.update({ id: id }, updateMatchDto);
   }
 
   public async remove(id: number) {
-	const match = await this.matchesRepository.findOne({ where: { id: id } });
-	return this.matchesRepository.remove(match);
+    const match = await this.matchesRepository.findOne({ where: { id: id } });
+    return this.matchesRepository.remove(match);
   }
 }

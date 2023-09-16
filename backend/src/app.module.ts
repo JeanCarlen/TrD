@@ -14,7 +14,7 @@ import { UserAchievmentsModule } from './user_achievments/user_achievments.modul
 
 @Module({
   imports: [
-	DatabaseModule,
+    DatabaseModule,
     UsersModule,
     AuthModule,
     MatchesModule,

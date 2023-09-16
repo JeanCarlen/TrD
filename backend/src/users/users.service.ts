@@ -6,9 +6,10 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Users } from './entities/users.entity';
 import { Create42UserDto } from './dto/create-42-user.dto';
+import { USER_USERS_SELECT } from 'src/constants';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const fs = require('fs')
+const fs = require('fs');
 
 @Injectable()
 export class UsersService {
@@ -17,115 +18,160 @@ export class UsersService {
     private readonly usersRepository: Repository<Users>,
   ) {}
 
-  public getJWT(user: { id: string, username: string, avatar: string, login42: string} | Users): string {
-	const payload = {
-		user: user.id,
-		username: user.username,
-		avatar: user.avatar,
-		login42: user.login42 || null
-	}
-	return (jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' }));
+  public getJWT(
+    user:
+      | { id: string; username: string; avatar: string; login42: string }
+      | Users,
+  ): string {
+    const payload = {
+      user: user.id,
+      username: user.username,
+      avatar: user.avatar,
+      login42: user.login42 || null,
+    };
+    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
   }
 
   public async login(loginUserDto: LoginUserDto) {
+    const user: Users = await this.usersRepository.findOne({
+      where: { username: loginUserDto.username },
+    });
+    if (!user)
+      throw new BadRequestException(['Unknown username or password.'], {
+        cause: new Error(),
+        description: `Unknown username or password.`,
+      });
+    const match = await bcrypt.compareSync(
+      loginUserDto.password,
+      user.password,
+    );
+    if (!match)
+      throw new BadRequestException(['Unknown username or password.'], {
+        cause: new Error(),
+        description: `Unknown username or password.`,
+      });
+    const token = this.getJWT(user);
 
-	const user: Users = await this.usersRepository.findOne({ where: { username: loginUserDto.username } });
-	if (!user)
-		throw new BadRequestException(['Unknown username or password.'], { cause: new Error(), description: `Unknown username or password.` })
-	const match = await bcrypt.compareSync(loginUserDto.password, user.password);
-	if (!match)
-		throw new BadRequestException(['Unknown username or password.'], { cause: new Error(), description: `Unknown username or password.` })
-	const token = this.getJWT(user);
-
-	return { message: ['Successfully logged in.'], token: token }
-
+    return { message: ['Successfully logged in.'], token: token };
   }
 
   public async create(createUserDto: CreateUserDto) {
-	const saltRounds = 10;
+    const saltRounds = 10;
     const user: Users = new Users();
     user.username = createUserDto.username;
-	user.avatar = process.env.HOST + 'images/default.png';
-	user.twofaenabled = false;
+    user.avatar = process.env.HOST + 'images/default.png';
+    user.twofaenabled = false;
 
-	// check if username is already taken
-	const found = await this.findByUsername(user.username);
-	if (found.length > 0)
-		throw new BadRequestException(['Username already taken.'], { cause: new Error(), description: `Username ${user.username} already taken.`});
+    // check if username is already taken
+    const found = await this.findByUsername(user.username);
+    if (found.length > 0)
+      throw new BadRequestException(['Username already taken.'], {
+        cause: new Error(),
+        description: `Username ${user.username} already taken.`,
+      });
 
-	if (createUserDto.password != createUserDto.confirm_password)
-		throw new BadRequestException(['Passwords don\'t match.'], { cause: new Error(), description: `password and confirm_password don't match.`});
+    if (createUserDto.password != createUserDto.confirm_password)
+      throw new BadRequestException(["Passwords don't match."], {
+        cause: new Error(),
+        description: `password and confirm_password don't match.`,
+      });
 
-	const hash = bcrypt.hashSync(createUserDto.password, saltRounds);
-	user.password = hash;
+    const hash = bcrypt.hashSync(createUserDto.password, saltRounds);
+    user.password = hash;
 
-	const inserted = await this.usersRepository.save(user);
-	const token = this.getJWT(inserted);
-    return { message: ['Successfully registered.'], token: token}
+    const inserted = await this.usersRepository.save(user);
+    const token = this.getJWT(inserted);
+    return { message: ['Successfully registered.'], token: token };
   }
 
   public async create42User(create42User: Create42UserDto) {
-	// no need to check for uniqueness here, already done in auth.service.ts
+    // no need to check for uniqueness here, already done in auth.service.ts
 
-	const user: Users = new Users();
-	user.username = create42User.username;
-	user.avatar = create42User.avatar;
-	user.twofaenabled = false;
-	user.login42 = create42User.login42;
-	user.is42 = true;
-	
-	const inserted = await this.usersRepository.save(user);
-	const token = this.getJWT(inserted);
-	return { message: ['Successfully registered.'], token: token}
+    const user: Users = new Users();
+    user.username = create42User.username;
+    user.avatar = create42User.avatar;
+    user.twofaenabled = false;
+    user.login42 = create42User.login42;
+    user.is42 = true;
+
+    const inserted = await this.usersRepository.save(user);
+    const token = this.getJWT(inserted);
+    return { message: ['Successfully registered.'], token: token };
   }
 
   public findAll() {
-	return this.usersRepository.find();
+    return this.usersRepository.find({
+      select: ['id', 'username', 'login42', 'avatar'],
+    });
   }
 
   public findOne(id: number) {
-	return this.usersRepository.findOne({ where: { id: id } });
+    return this.usersRepository.findOne({
+      where: { id: id },
+      select: ['id', 'username', 'login42', 'avatar'],
+    });
   }
 
   public findByUsername(name: string) {
-	return this.usersRepository.findBy({ username: Like(`%${name}%`)});
+    return this.usersRepository.find({
+      where: { username: Like(`%${name}%`) },
+      select: ['id', 'username', 'login42', 'avatar'],
+    });
   }
 
-  public update(id: number, updateUserDto: UpdateUserDto) {
-	return this.usersRepository.update({id: id}, updateUserDto);
+  public async update(id: number, updateUserDto: UpdateUserDto) {
+    return this.usersRepository.update({ id: id }, updateUserDto);
   }
 
   public find42Users() {
-	return this.usersRepository.find({ where: { is42: true } });
+    return this.usersRepository.find({
+      where: { is42: true },
+      select: ['id', 'username', 'login42', 'avatar'],
+    });
   }
 
   public find42User(username: string) {
-	return this.usersRepository.find({ where: { login42: username } });
+    return this.usersRepository.find({
+      where: { login42: username },
+      select: ['id', 'username', 'login42', 'avatar'],
+    });
   }
 
   public findNon42Users() {
-	return this.usersRepository.find({ where: { is42: false } });
+    return this.usersRepository.find({
+      where: { is42: false },
+      select: ['id', 'username', 'login42', 'avatar'],
+    });
   }
 
   public async remove(id: number) {
-	const user = await this.usersRepository.findOne({ where: { id: id } });
-	return this.usersRepository.remove(user);
+    const user = await this.usersRepository.findOne({
+      where: { id: id },
+      select: ['id', 'username', 'login42', 'avatar'],
+    });
+    return this.usersRepository.remove(user);
   }
 
   public async loginTaken(login42: string) {
-	return this.usersRepository.exist({ where: { login42: login42 } });
+    return this.usersRepository.exist({
+      where: { login42: login42 },
+      select: ['id', 'username', 'login42', 'avatar'],
+    });
   }
 
   public async updateUserImage(id: number, imageName: string) {
-	const user = await this.usersRepository.findOne({ where: { id: id } });
-	if (!user.avatar.includes('default')) {
-		const image = user.avatar.replace(process.env.HOST + 'images/', '')
-		fs.unlinkSync('/app/uploads/' + image);
-	}
+    const user = await this.usersRepository.findOne({
+      where: { id: id },
+      select: ['id', 'username', 'login42', 'avatar'],
+    });
+    if (!user.avatar.includes('default')) {
+      const image = user.avatar.replace(process.env.HOST + 'images/', '');
+      fs.unlinkSync('/app/uploads/' + image);
+    }
 
-	user.avatar = process.env.HOST + 'images/' + imageName;
-	const inserted = await this.usersRepository.save(user);
-	const token = this.getJWT(inserted);
-	return { message: ['Avatar successfully saved.'], token: token }
+    user.avatar = process.env.HOST + 'images/' + imageName;
+    const inserted = await this.usersRepository.save(user);
+    const token = this.getJWT(inserted);
+    return { message: ['Avatar successfully saved.'], token: token };
   }
 }

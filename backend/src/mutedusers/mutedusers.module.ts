@@ -8,6 +8,6 @@ import { MutedUsers } from './entities/muteduser.entity';
   imports: [TypeOrmModule.forFeature([MutedUsers])],
   controllers: [MutedusersController],
   providers: [MutedusersService],
-  exports: [MutedusersService]
+  exports: [MutedusersService],
 })
 export class MutedusersModule {}
