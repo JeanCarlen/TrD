@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, HttpCode, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, Query, Res, Redirect } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 // import { UsersService } from '../users/users.service';
@@ -26,7 +26,10 @@ export class AuthController {
   }
 
   @Get('callback')
-  async callback(@Query() query) {
-	return (this.authService.getToken(query.code));
+  async callback(@Res() response, @Query() query) {
+	const insertedUser = await this.authService.getToken(query.code);
+	// console.log("token:", insertedUser.token);
+	response.cookie('token', insertedUser.token);
+	response.redirect('https://trd.laendrun.ch/login');
   }
 }
