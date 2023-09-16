@@ -8,6 +8,6 @@ import { Messages } from './entities/message.entity';
   imports: [TypeOrmModule.forFeature([Messages])],
   controllers: [MessagesController],
   providers: [MessagesService],
-  exports: [MessagesService]
+  exports: [MessagesService],
 })
 export class MessagesModule {}

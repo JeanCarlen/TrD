@@ -5,12 +5,12 @@ import { UsersService } from './users/users.service';
 export class AppService {
   @Inject(UsersService)
   private readonly usersService: UsersService;
-  
+
   getHello(): string {
     return 'Hello World!';
   }
 
   updateUserImage(id: number, imageName: string) {
-	return this.usersService.updateUserImage(id, imageName);
+    return this.usersService.updateUserImage(id, imageName);
   }
 }

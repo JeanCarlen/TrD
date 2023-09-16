@@ -8,6 +8,6 @@ import { UserAchievments } from './entities/user_achievment.entity';
   imports: [TypeOrmModule.forFeature([UserAchievments])],
   controllers: [UserAchievmentsController],
   providers: [UserAchievmentsService],
-  exports: [UserAchievmentsService]
+  exports: [UserAchievmentsService],
 })
 export class UserAchievmentsModule {}

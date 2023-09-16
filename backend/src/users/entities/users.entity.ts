@@ -1,7 +1,7 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('users')
-export class Users extends BaseEntity{
+export class Users extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -22,7 +22,7 @@ export class Users extends BaseEntity{
 
   @Column({ type: 'boolean', nullable: true })
   is42: boolean;
-  
+
   @Column({ type: 'varchar', length: 72, nullable: true })
   password: string;
 
