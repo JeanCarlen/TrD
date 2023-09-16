@@ -4,11 +4,20 @@ import { UpdateUserDto } from '../users/dto/update-user.dto';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { Users } from '../users/entities/users.entity';
 import { UsersService } from 'src/users/users.service';
+import { Create42UserDto } from 'src/users/dto/create-42-user.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
   @Inject(UsersService)
   private readonly usersService: UsersService;
+
+  private async getValidUsername(username: string): Promise<string> {
+	const found = await this.usersService.findByUsername(username);
+	if (found.length > 0)
+		return (username + uuidv4());
+	return (username);
+  }
 
   public create(createUserDto: CreateUserDto) {
 	return this.usersService.create(createUserDto);
@@ -18,7 +27,7 @@ export class AuthService {
 	return this.usersService.login(loginUserDto);
   }
 
-  public async getToken(code: string | undefined) {
+  public async getToken(code: string | undefined): Promise<{message: string[], token: string}> {
 	if (!code)
 		throw new BadRequestException(['Unknown username or password.'], { cause: new Error(), description: `Unknown username or password.` })
 	const formData = new FormData();
@@ -32,7 +41,6 @@ export class AuthService {
 		body: formData
 	})
 	const data = await response.json();
-	console.log(data);
 
 	let response2 = await fetch('https://api.intra.42.fr/v2/me', {
 		method: 'GET',
@@ -49,12 +57,22 @@ export class AuthService {
 		avatar: user42.image.link
 	}
 
-	// check if user42 in database or not
-	// if not => "register user"
-	// if yes => "login user"
+	const found = await this.usersService.find42User(user.login42);
+	const validUsername = await this.getValidUsername(user.username);
 
-	
-
-	return user;
+	if (found.length == 0)
+	{
+		const create42UserDto = new Create42UserDto();
+		create42UserDto.avatar = user.avatar;
+		create42UserDto.username = validUsername;
+		create42UserDto.login42 = user.username;
+		const insertedUser = await this.usersService.create42User(create42UserDto);
+		return insertedUser;
+	}
+	else
+	{
+		const token = this.usersService.getJWT(found[0]);
+		return {message: ['Successfully logged in.'], token: token};
+	}
   }
 }

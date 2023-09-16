@@ -27,9 +27,9 @@ const RegisterButton: React.FC = () => {
 		// If the user is registered, redirect to the Home page
 		if (isRegisteredCheck) {
 			navigate('/Home');
-			toast.achievements('u did it, u are a smart cookie',{
+			toast.success('u did it, u are a smart cookie',{
 				position: toast.POSITION.BOTTOM_CENTER,
-				className: 'toast-achievements'
+				className: 'toast-success'
 			})
 		}
 	}
@@ -141,9 +141,9 @@ const RegisterButton: React.FC = () => {
 		setShowPassword(!showPassword);
 	  };
 
-	const handle42Login = () => {
-		window.location.replace('https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-9ce743a9d6e296d270c36a928c02e3adc101d43c3a7905d66c9a2727b7640ad9&redirect_uri=https%3A%2F%2Ftrd.laendrun.ch%2Fapi%2Fauth%2Fcallback&response_type=code');
-	};
+	// const handle42Login = () => {
+	// 	window.location.replace('https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-9ce743a9d6e296d270c36a928c02e3adc101d43c3a7905d66c9a2727b7640ad9&redirect_uri=https%3A%2F%2Ftrd.laendrun.ch%2Fapi%2Fauth%2Fcallback&response_type=code');
+	// };
 
 
 	const openForm = () => {

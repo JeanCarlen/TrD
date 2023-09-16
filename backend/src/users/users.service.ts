@@ -5,9 +5,9 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Users } from './entities/users.entity';
+import { Create42UserDto } from './dto/create-42-user.dto';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
 
 @Injectable()
 export class UsersService {
@@ -16,14 +16,14 @@ export class UsersService {
     private readonly usersRepository: Repository<Users>,
   ) {}
 
-  getPayload(user) {
+  public getJWT(user: { id: string, username: string, avatar: string, login42: string} | Users): string {
 	const payload = {
 		user: user.id,
 		username: user.username,
 		avatar: user.avatar,
 		login42: user.login42 || null
 	}
-	return (payload)
+	return (jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' }));
   }
 
   public async login(loginUserDto: LoginUserDto) {
@@ -34,10 +34,7 @@ export class UsersService {
 	const match = await bcrypt.compareSync(loginUserDto.password, user.password);
 	if (!match)
 		throw new BadRequestException(['Unknown username or password.'], { cause: new Error(), description: `Unknown username or password.` })
-
-	const payload = this.getPayload(user);
-
-	const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+	const token = this.getJWT(user);
 
 	return { message: ['Successfully logged in.'], token: token }
 
@@ -49,22 +46,30 @@ export class UsersService {
     user.username = createUserDto.username;
 	user.avatar = '/path/to/default';
 	user.twofaenabled = false;
-	// check `password` == `confirm_password`
 	if (createUserDto.password != createUserDto.confirm_password)
 		throw new BadRequestException(['Passwords don\'t match.'], { cause: new Error(), description: `password and confirm_password don't match.`});
 
-	const privkey = fs.readFileSync('/app/priv.key', 'utf8');
 	const hash = bcrypt.hashSync(createUserDto.password, saltRounds);
 	user.password = hash;
 
 	const inserted = await this.usersRepository.save(user);
-
-	const payload = this.getPayload(inserted);
-
-	const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+	const token = this.getJWT(inserted);
 	// if (await this.usersRepository.exist({ where: { login42: user.login42 }}))
 	// 	throw new BadRequestException(['login42 should be unique.'], { cause: new Error(), description: `${user.login42} already exists.`})
     return { message: ['Successfully registered.'], token: token}
+  }
+
+  public async create42User(create42User: Create42UserDto) {
+	const user: Users = new Users();
+	user.username = create42User.username;
+	user.avatar = create42User.avatar;
+	user.twofaenabled = false;
+	user.login42 = create42User.login42;
+	user.is42 = true;
+	
+	const inserted = await this.usersRepository.save(user);
+	const token = this.getJWT(inserted);
+	return { message: ['Successfully registered.'], token: token}
   }
 
   public findAll() {
@@ -85,6 +90,10 @@ export class UsersService {
 
   public find42Users() {
 	return this.usersRepository.find({ where: { is42: true } });
+  }
+
+  public find42User(username: string) {
+	return this.usersRepository.find({ where: { login42: username } });
   }
 
   public findNon42Users() {
