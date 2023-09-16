@@ -46,6 +46,12 @@ export class UsersService {
     user.username = createUserDto.username;
 	user.avatar = '/path/to/default';
 	user.twofaenabled = false;
+
+	// check if username is already taken
+	const found = await this.findByUsername(user.username);
+	if (found.length > 0)
+		throw new BadRequestException(['Username already taken.'], { cause: new Error(), description: `Username ${user.username} already taken.`});
+
 	if (createUserDto.password != createUserDto.confirm_password)
 		throw new BadRequestException(['Passwords don\'t match.'], { cause: new Error(), description: `password and confirm_password don't match.`});
 
@@ -54,12 +60,12 @@ export class UsersService {
 
 	const inserted = await this.usersRepository.save(user);
 	const token = this.getJWT(inserted);
-	// if (await this.usersRepository.exist({ where: { login42: user.login42 }}))
-	// 	throw new BadRequestException(['login42 should be unique.'], { cause: new Error(), description: `${user.login42} already exists.`})
     return { message: ['Successfully registered.'], token: token}
   }
 
   public async create42User(create42User: Create42UserDto) {
+	// no need to check for uniqueness here, already done in auth.service.ts
+
 	const user: Users = new Users();
 	user.username = create42User.username;
 	user.avatar = create42User.avatar;
