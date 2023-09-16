@@ -24,8 +24,17 @@ import Cookies from 'js-cookie'
 type Props = {}
 
 const Home = (props: Props) => {
+	const token: string|undefined = Cookies.get("token");
+		let content: {username: string, user: number, avatar: string};
+	if (token != undefined)
+	{
+		content = decodeToken(token);
+	}
+	else
+		content = { username: 'default', user: 0, avatar: 'https://multiavatar.com/img/thumb-logo.png'}
+
     const [avatarUrl, setAvatarUrl] = useState<string>(
-        'https://multiavatar.com/img/thumb-logo.png'
+        content.avatar
       );
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const navigate = useNavigate();
@@ -43,15 +52,6 @@ const Home = (props: Props) => {
         // Navigate to the "/about" page
         navigate('/profiles');
       };
-
-	const token: string|undefined = Cookies.get("token");
-		let content: {username: string, user: number};
-	if (token != undefined)
-	{
-		content = decodeToken(token);
-	}
-	else
-		content = { username: 'default', user: 0}
 
     return (
         <ChakraProvider resetCSS={false}>
@@ -86,7 +86,7 @@ const Home = (props: Props) => {
               const reader = new FileReader();
               reader.onload = (e) => {
                 const dataUrl = e.target?.result as string;
-                setAvatarUrl(dataUrl);
+                // setAvatarUrl(dataUrl);
               };
               reader.readAsDataURL(file);
             }
