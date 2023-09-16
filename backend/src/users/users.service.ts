@@ -120,8 +120,7 @@ export class UsersService {
 	const user = await this.usersRepository.findOne({ where: { id: id } });
 	if (!user.avatar.includes('default')) {
 		const image = user.avatar.replace(process.env.HOST + 'images/', '')
-		console.log(image);
-		// fs.unlink()
+		fs.unlinkSync('/app/uploads/' + image);
 	}
 
 	user.avatar = process.env.HOST + 'images/' + imageName;
