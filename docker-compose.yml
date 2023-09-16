@@ -10,6 +10,8 @@ services:
       tr:
         aliases:
           - nginx
+    volumes:
+      - images_data:/var/www/data/images/
     ports:
       - "8080:80"
 #       - "443:443"
@@ -33,6 +35,8 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./backend/.env
+    volumes:
+      - images_data:/app/uploads
     depends_on:
       - database
     networks:
@@ -64,6 +68,13 @@ volumes:
     name: db_data
     driver: local
     driver_opts:
-      device: ./data
+      device: ./data/db
+      type: none
+      o: bind
+  images_data:
+    name: images_data
+    driver: local
+    driver_opts:
+      device: ./data/images
       type: none
       o: bind

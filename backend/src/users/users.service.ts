@@ -8,6 +8,7 @@ import { Users } from './entities/users.entity';
 import { Create42UserDto } from './dto/create-42-user.dto';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const fs = require('fs')
 
 @Injectable()
 export class UsersService {
@@ -44,7 +45,7 @@ export class UsersService {
 	const saltRounds = 10;
     const user: Users = new Users();
     user.username = createUserDto.username;
-	user.avatar = '/path/to/default';
+	user.avatar = process.env.HOST + 'images/default.png';
 	user.twofaenabled = false;
 
 	// check if username is already taken
@@ -113,5 +114,18 @@ export class UsersService {
 
   public async loginTaken(login42: string) {
 	return this.usersRepository.exist({ where: { login42: login42 } });
+  }
+
+  public async updateUserImage(id: number, imageName: string) {
+	const user = await this.usersRepository.findOne({ where: { id: id } });
+	if (!user.avatar.includes('default')) {
+		const image = user.avatar.replace(process.env.HOST + 'images/', '')
+		fs.unlinkSync('/app/uploads/' + image);
+	}
+
+	user.avatar = process.env.HOST + 'images/' + imageName;
+	const inserted = await this.usersRepository.save(user);
+	const token = this.getJWT(inserted);
+	return { message: ['Avatar successfully saved.'], token: token }
   }
 }
