@@ -6,17 +6,23 @@ import {
   HttpCode,
   Query,
   Res,
-  Redirect,
+  Req,
+  UseGuards,
+  UnauthorizedException,
+  Inject,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-
-// import { UsersService } from '../users/users.service';
+import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginUserDto } from '../users/dto/login-user.dto';
+import { AuthGuard } from 'src/auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Inject(UsersService)
+  private readonly usersService: UsersService;
 
   @Post('login')
   @HttpCode(200)
@@ -36,4 +42,36 @@ export class AuthController {
     response.cookie('token', insertedUser.token);
     response.redirect('https://trd.laendrun.ch/login');
   }
+
+  @Post('2fa/generate')
+  @UseGuards(AuthGuard)
+  async generate(@Req() request) {
+	const user = await this.usersService.findOne(request.user.id)
+	return this.authService.setUp2FA(user);
+  }
+
+  @Post('2fa/turn-on')
+  @UseGuards(AuthGuard)
+  async turnOn2FA(@Req() request, @Body() body) {
+	const isCodeValid = await this.authService.is2FACodeValid(
+		body.twoFACode,
+		request.user.id
+	)
+	if (!isCodeValid)
+		throw new UnauthorizedException('Wrong authentication code.');
+	return await this.authService.turnOn2FA(request.user.id)
+  }
+
+ @Post('2fa/authenticate')
+ @UseGuards(AuthGuard)
+ async authenticate(@Req() request, @Body() body) {
+	const isCodeValid = await this.authService.is2FACodeValid(
+		body.twoFACode,
+		request.user.id
+	)
+	if (!isCodeValid)
+		throw new UnauthorizedException('Wrong authentication code.');
+	return {message: ['Succesffully logged in'], token: this.usersService.getJWT(request.user)};
+} 
+
 }
