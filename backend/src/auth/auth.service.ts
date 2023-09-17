@@ -6,6 +6,8 @@ import { Users } from '../users/entities/users.entity';
 import { UsersService } from 'src/users/users.service';
 import { Create42UserDto } from 'src/users/dto/create-42-user.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { authenticator } from 'otplib';
+import { toDataURL } from 'qrcode'
 
 @Injectable()
 export class AuthService {
@@ -77,5 +79,38 @@ export class AuthService {
       const token = this.usersService.getJWT(found[0]);
       return { message: ['Successfully logged in.'], token: token };
     }
+  }
+
+  public async setUp2FA(user: Users) {
+	const data: {secret: string, otpUri: string} = await this.generate2FASecret(user);
+	return this.generateQRDataURL(data.otpUri);
+}
+
+  private async generate2FASecret(user: Users): Promise<{secret: string, otpUri: string}> {
+	const secret = authenticator.generateSecret();
+	const otpUri = authenticator.keyuri(user.username, 'TRANS&DANCE', secret);
+	await this.usersService.set2FASecret(user.id, secret);
+
+	return {
+		secret,
+		otpUri
+	}
+  }
+
+  private async generateQRDataURL(otpUri: string): Promise<string> {
+	return toDataURL(otpUri);
+  }
+
+  public async is2FACodeValid(code: string, id: number) {
+	const user = await this.usersService.findTwoFaSecret(id)
+	const verif = authenticator.verify({
+		token: code,
+		secret: user.twofasecret.trim()
+	})
+	return verif
+  }
+
+  public async turnOn2FA(id: number) {
+	return await this.usersService.turnOn2FA(id);
   }
 }

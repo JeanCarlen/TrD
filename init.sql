@@ -10,6 +10,7 @@ CREATE TABLE users (
 	"username" varchar(100) NOT NULL,
 	"refreshtoken" varchar(256) NULL,
 	"twofaenabled" BOOLEAN NOT NULL DEFAULT false,
+	"towfasecret" char(256) NULL,
 	"avatar" varchar(256) NOT NULL DEFAULT '/path/to/default.png',
 	"is42" boolean DEFAULT false,
 	"password" varchar(72) NULL,
