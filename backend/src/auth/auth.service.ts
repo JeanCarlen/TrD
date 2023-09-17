@@ -30,7 +30,7 @@ export class AuthService {
 
   public async getToken(
     code: string | undefined,
-  ): Promise<{ message: string[]; token: string }> {
+  ): Promise<{ message: string[]; token: string, twofaenabled?: boolean }> {
     if (!code)
       throw new BadRequestException(['Unknown username or password.'], {
         cause: new Error(),
@@ -77,7 +77,7 @@ export class AuthService {
       return insertedUser;
     } else {
 		if(found[0].twofaenabled)
-		return { message: ['Two Factor Code needed.'], token: this.usersService.getJWT(found[0], true)}
+			return { message: ['Two Factor Code needed.'], token: this.usersService.getJWT(found[0], true), twofaenabled: true}
       return { message: ['Successfully logged in.'], token: this.usersService.getJWT(found[0]) };
     }
   }
