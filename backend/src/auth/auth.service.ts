@@ -76,10 +76,13 @@ export class AuthService {
       );
       return insertedUser;
     } else {
-      const token = this.usersService.getJWT(found[0]);
-      return { message: ['Successfully logged in.'], token: token };
+		if(found[0].twofaenabled)
+		return { message: ['Two Factor Code needed.'], token: this.usersService.getJWT(found[0], true)}
+      return { message: ['Successfully logged in.'], token: this.usersService.getJWT(found[0]) };
     }
   }
+
+  public
 
   public async setUp2FA(user: Users) {
 	const data: {secret: string, otpUri: string} = await this.generate2FASecret(user);
