@@ -40,40 +40,42 @@ export class AuthController {
   async callback(@Res() response, @Query() query) {
     const insertedUser = await this.authService.getToken(query.code);
     response.cookie('token', insertedUser.token);
-	if (insertedUser.twofaenabled)
-		response.redirect('https://trd.laendrun.ch/login'); // redirect to page asking for the code when implemented on the frontend
+    if (insertedUser.twofaenabled)
+      response.redirect('https://trd.laendrun.ch/login'); // redirect to page asking for the code when implemented on the frontend
     response.redirect('https://trd.laendrun.ch/login');
   }
 
   @Post('2fa/generate')
   @UseGuards(AuthGuard)
   async generate(@Req() request) {
-	const user = await this.usersService.findOne(request.user.id)
-	return this.authService.setUp2FA(user);
+    const user = await this.usersService.findOne(request.user.id);
+    return this.authService.setUp2FA(user);
   }
 
   @Post('2fa/turn-on')
   @UseGuards(AuthGuard)
   async turnOn2FA(@Req() request, @Body() body) {
-	const isCodeValid = await this.authService.is2FACodeValid(
-		body.twoFACode,
-		request.user.id
-	)
-	if (!isCodeValid)
-		throw new UnauthorizedException('Wrong authentication code.');
-	return await this.authService.turnOn2FA(request.user.id)
+    const isCodeValid = await this.authService.is2FACodeValid(
+      body.twoFACode,
+      request.user.id,
+    );
+    if (!isCodeValid)
+      throw new UnauthorizedException('Wrong authentication code.');
+    return await this.authService.turnOn2FA(request.user.id);
   }
 
- @Post('2fa/authenticate')
- @UseGuards(AuthGuard)
- async authenticate(@Req() request, @Body() body) {
-	const isCodeValid = await this.authService.is2FACodeValid(
-		body.twoFACode,
-		request.user.id
-	)
-	if (!isCodeValid)
-		throw new UnauthorizedException('Wrong authentication code.');
-	return {message: ['Succesffully logged in'], token: this.usersService.getJWT(request.user)};
-} 
-
+  @Post('2fa/authenticate')
+  @UseGuards(AuthGuard)
+  async authenticate(@Req() request, @Body() body) {
+    const isCodeValid = await this.authService.is2FACodeValid(
+      body.twoFACode,
+      request.user.id,
+    );
+    if (!isCodeValid)
+      throw new UnauthorizedException('Wrong authentication code.');
+    return {
+      message: ['Succesffully logged in'],
+      token: this.usersService.getJWT(request.user),
+    };
+  }
 }
