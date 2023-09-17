@@ -21,25 +21,25 @@ export class UsersService {
     user:
       | { id: string; username: string; avatar: string; login42: string }
       | Users,
-	  twoFaEnabled?: boolean
+    twoFaEnabled?: boolean,
   ): string {
-	let payload;
-	if (twoFaEnabled) {
-		payload = {
-			user: user.id,
-			username: user.username,
-			avatar:user.avatar,
-			login42: user.login42 || null,
-			twofaenabled: true
-		}
-	} else {
-	payload = {
-		user: user.id,
-		username: user.username,
-		avatar: user.avatar,
-		login42: user.login42 || null,
-		};
-	}
+    let payload;
+    if (twoFaEnabled) {
+      payload = {
+        user: user.id,
+        username: user.username,
+        avatar: user.avatar,
+        login42: user.login42 || null,
+        twofaenabled: true,
+      };
+    } else {
+      payload = {
+        user: user.id,
+        username: user.username,
+        avatar: user.avatar,
+        login42: user.login42 || null,
+      };
+    }
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
   }
 
@@ -140,31 +140,37 @@ export class UsersService {
     return { message: [''], token: this.getJWT(user) };
   }
 
-  private async localLogin(loginUserDto: LoginUserDto, user: Users): Promise<{message: string[], token: string}> {
-	const match = await bcrypt.compareSync(
-		loginUserDto.password,
-		user.password
-	)
-	if (!match)
-		throw new BadRequestException(['Unknown username or password.'], {
-      	  cause: new Error(),
-     	   description: `Unknown username or password.`,
-     	});
+  private async localLogin(
+    loginUserDto: LoginUserDto,
+    user: Users,
+  ): Promise<{ message: string[]; token: string }> {
+    const match = await bcrypt.compareSync(
+      loginUserDto.password,
+      user.password,
+    );
+    if (!match)
+      throw new BadRequestException(['Unknown username or password.'], {
+        cause: new Error(),
+        description: `Unknown username or password.`,
+      });
 
-	return { message: ['Successfully logged in.'], token: this.getJWT(user)}
+    return { message: ['Successfully logged in.'], token: this.getJWT(user) };
   }
 
   private async login2FA(loginUserDto: LoginUserDto, user: Users) {
-	const match = await bcrypt.compareSync(
-		loginUserDto.password,
-		user.password
-	)
-	if (!match)
-		throw new BadRequestException(['Unknown username or password.'], {
-			cause: new Error(),
-			description: `Unknown username or password.`,
-		});
-		return { message: ['Two Factor Code needed.'], token: this.getJWT(user, true)}
+    const match = await bcrypt.compareSync(
+      loginUserDto.password,
+      user.password,
+    );
+    if (!match)
+      throw new BadRequestException(['Unknown username or password.'], {
+        cause: new Error(),
+        description: `Unknown username or password.`,
+      });
+    return {
+      message: ['Two Factor Code needed.'],
+      token: this.getJWT(user, true),
+    };
   }
 
   public async login(loginUserDto: LoginUserDto) {
@@ -176,11 +182,10 @@ export class UsersService {
         cause: new Error(),
         description: `Unknown username or password.`,
       });
-	// check if twofaenabled or not
-	console.log(user)
-	if (user.twofaenabled)
-	  return await this.login2FA(loginUserDto, user);
-	return await this.localLogin(loginUserDto, user)
+    // check if twofaenabled or not
+    console.log(user);
+    if (user.twofaenabled) return await this.login2FA(loginUserDto, user);
+    return await this.localLogin(loginUserDto, user);
   }
 
   public async create(createUserDto: CreateUserDto) {
@@ -237,10 +242,10 @@ export class UsersService {
   }
 
   public findTwoFaSecret(id: number) {
-	return this.usersRepository.findOne(({
-		where: { id: id},
-		select: ['twofasecret']
-	}))
+    return this.usersRepository.findOne({
+      where: { id: id },
+      select: ['twofasecret'],
+    });
   }
 
   public findByUsername(name: string) {
@@ -306,15 +311,22 @@ export class UsersService {
   }
 
   public async set2FASecret(id: number, secret: string) {
-	const user: Users = await this.usersRepository.findOne({ where: { id: id }})
-	user.twofasecret = secret.trim();
-	return this.usersRepository.update({id: id}, user);
+    const user: Users = await this.usersRepository.findOne({
+      where: { id: id },
+    });
+    user.twofasecret = secret.trim();
+    return this.usersRepository.update({ id: id }, user);
   }
 
   public async turnOn2FA(id: number) {
-	const user: Users = await this.usersRepository.findOne({where: { id: id}});
-	user.twofaenabled = true
-	await this.usersRepository.save(user);
-	return { message: ['Two factor authentication successfully turned on.'], token: this.getJWT(user)}
+    const user: Users = await this.usersRepository.findOne({
+      where: { id: id },
+    });
+    user.twofaenabled = true;
+    await this.usersRepository.save(user);
+    return {
+      message: ['Two factor authentication successfully turned on.'],
+      token: this.getJWT(user),
+    };
   }
 }
