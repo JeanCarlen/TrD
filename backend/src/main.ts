@@ -7,6 +7,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
+import { LoggingInterceptor } from './logger.interceptor'; 
+import { NumberParamsInterceptor } from './numberparams.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,6 +26,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.useGlobalInterceptors(new LoggingInterceptor())
+  app.useGlobalInterceptors(new NumberParamsInterceptor())
   app.use(cookieParser());
   await app.listen(3001);
 }
