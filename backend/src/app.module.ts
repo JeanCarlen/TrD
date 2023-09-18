@@ -11,6 +11,7 @@ import { MutedusersModule } from './mutedusers/mutedusers.module';
 import { MessagesModule } from './messages/messages.module';
 import { AchievmentsModule } from './achievments/achievments.module';
 import { UserAchievmentsModule } from './user_achievments/user_achievments.module';
+import { FriendsModule } from './friends/friends.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UserAchievmentsModule } from './user_achievments/user_achievments.modul
     MessagesModule,
     AchievmentsModule,
     UserAchievmentsModule,
+    FriendsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,6 +9,7 @@ import { MutedUsers } from './mutedusers/entities/muteduser.entity';
 import { Messages } from './messages/entities/message.entity';
 import { Achievments } from './achievments/entities/achievment.entity';
 import { UserAchievments } from './user_achievments/entities/user_achievment.entity';
+import { Friends } from './friends/entities/friend.entity';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { UserAchievments } from './user_achievments/entities/user_achievment.ent
           Messages,
           Achievments,
           UserAchievments,
+          Friends,
         ],
         synchronize: true,
       }),
