@@ -35,6 +35,16 @@ CREATE TABLE chats (
 	CONSTRAINT "chats_pk" PRIMARY KEY ("id")
 );
 
+CREATE TABLE friends (
+	"id" serial NOT NULL,
+	"requester" integer NOT NULL,
+	"requested" integer NOT NULL,
+	"status" integer NOT NULL
+	CONSTRAINT "friends_pk" PRIMARY KEY ("id"),
+	CONSTRAINT "friends_fk0" FOREIGN KEY ("requester") REFERENCES "users"("id"),
+	CONSTRAINT "friends_fk1" FOREIGN KEY ("requested") REFERENCES "users"("id"),
+);
+
 CREATE TABLE userchats (
 	"id" serial NOT NULL,
 	"user_id" integer NOT NULL,
