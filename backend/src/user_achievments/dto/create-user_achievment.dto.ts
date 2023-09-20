@@ -1,4 +1,4 @@
-import { IsIn, IsInt } from 'class-validator';
+import { IsInt } from 'class-validator';
 
 export class CreateUserAchievmentDto {
   @IsInt({ message: '$property must be an integer value.' })

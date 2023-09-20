@@ -43,47 +43,6 @@ export class UsersService {
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
   }
 
-  private validPassword(password: string): boolean {
-    // At least one capital letter (A-Z)
-    // At least one lowercase letter (a-z)
-    // At least one number (0-9)
-    // Minimum length of 8 characters
-
-    if (password.length < 8)
-      throw new BadRequestException(
-        ['Password length must be at least 8 characters.'],
-        {
-          cause: new Error(),
-          description: `Password length must be at least 8 characters, got ${password.length}.`,
-        },
-      );
-    if (!/\d/.test(password))
-      throw new BadRequestException(
-        ['Password must contain at least one number.'],
-        {
-          cause: new Error(),
-          description: `Password must contain at least one number`,
-        },
-      );
-    if (!/[A-Z]/.test(password))
-      throw new BadRequestException(
-        ['Password must contain at least one uppercase letter.'],
-        {
-          cause: new Error(),
-          description: `Password must contain at least one uppercase letter.`,
-        },
-      );
-    if (!/[a-z]/.test(password))
-      throw new BadRequestException(
-        ['Password must contain at least one lowercase letter.'],
-        {
-          cause: new Error(),
-          description: `Password must contain at least one lowercase letter.`,
-        },
-      );
-    return true;
-  }
-
   private hashPassword(password: string): string {
     const saltRounds = 10;
     const hash = bcrypt.hashSync(password, saltRounds);
@@ -95,29 +54,9 @@ export class UsersService {
     updateUserDto: UpdateUserDto,
   ): Promise<{ message: string[]; token: string }> {
     const user = await this.usersRepository.findOne({ where: { id: id } });
-    if (updateUserDto.confirm_password && updateUserDto.password) {
-      if (updateUserDto.password != updateUserDto.confirm_password)
-        throw new BadRequestException(
-          ['Password and confirm password do not match.'],
-          {
-            cause: new Error(),
-            description: `Password and confirm password do not match.`,
-          },
-        );
-      else {
-        this.validPassword(updateUserDto.password);
         user.password = this.hashPassword(updateUserDto.password);
         await this.usersRepository.update({ id: id }, user);
         return { message: ['Password changed.'], token: this.getJWT(user) };
-      }
-    }
-    throw new BadRequestException(
-      ['Confirm password must be present when trying to change password.'],
-      {
-        cause: new Error(),
-        description: `Confirm password must be present when trying to change password.`,
-      },
-    );
   }
 
   private async updateUsername(
@@ -208,7 +147,6 @@ export class UsersService {
         description: `password and confirm_password don't match.`,
       });
 
-    this.validPassword(createUserDto.password);
     user.password = this.hashPassword(createUserDto.password);
     const token = this.getJWT(await this.usersRepository.save(user));
     return { message: ['Successfully registered.'], token: token };
@@ -251,7 +189,7 @@ export class UsersService {
   public findByUsername(name: string) {
     return this.usersRepository.find({
       where: { username: Like(`%${name}%`) },
-      select: ['id', 'username', 'login42', 'avatar', 'twofasecret'],
+      select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
     });
   }
 

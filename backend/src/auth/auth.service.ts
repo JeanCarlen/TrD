@@ -89,8 +89,6 @@ export class AuthService {
     }
   }
 
-  public;
-
   public async setUp2FA(user: Users) {
     const data: { secret: string; otpUri: string } =
       await this.generate2FASecret(user);
