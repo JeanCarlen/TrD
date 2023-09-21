@@ -21,10 +21,10 @@ export class SocketGateway implements OnModuleInit{
 	@SubscribeMessage('create-something')
 	onCreateSomething(@MessageBody() body) {
 		console.log("Websocket body: ", body)
-		this.server.emit('srv-message', "Message from server")
+		this.server.emit('srv-message', body)
 		// return {
 		// 	event: 'srv-message',
-		// 	data: "Should be a response logged on the frontend console"
+		// 	data: body
 		// }
 	}
 }

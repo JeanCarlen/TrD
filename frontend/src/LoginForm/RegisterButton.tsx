@@ -28,7 +28,7 @@ const RegisterButton: React.FC = () => {
 		if (isRegisteredCheck) {
 			navigate('/Home');
 			toast.success('u did it, u are a smart cookie',{
-				position: toast.POSITION.BOTTOM_CENTER,
+				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-success'
 			})
 		}
@@ -38,7 +38,7 @@ const RegisterButton: React.FC = () => {
 		if (username.trim() === '' || password.trim() === '')
 		{
 			toast.error('Fields cannot be empty.', {
-				position: toast.POSITION.BOTTOM_RIGHT,
+				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-error'
 			})
 			return ;
@@ -62,7 +62,7 @@ const RegisterButton: React.FC = () => {
 			for (let i = 0; i < data.message.length; i++)
 			{
 				toast.error(data.message[i], {
-					position: toast.POSITION.BOTTOM_RIGHT,
+					position: toast.POSITION.BOTTOM_LEFT,
 					className: 'toast-error'
 				})
 			}
@@ -75,7 +75,7 @@ const RegisterButton: React.FC = () => {
 		if (!passwordsMatch)
 		{
 			toast.error('Passwords do not match.', {
-				position: toast.POSITION.BOTTOM_RIGHT,
+				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-error'
 			})
 			return ;
@@ -83,7 +83,7 @@ const RegisterButton: React.FC = () => {
 		else if (username.trim() === '' || password.trim() === '' || confirmpassword.trim() === '')
 		{
 			toast.error('Fields cannot be empty.', {
-				position: toast.POSITION.BOTTOM_RIGHT,
+				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-error'
 			})
 			return ;
@@ -107,7 +107,7 @@ const RegisterButton: React.FC = () => {
 			for (let i = 0; i < data.message.length; i++)
 			{
 				toast.error(data.message[i], {
-					position: toast.POSITION.BOTTOM_RIGHT,
+					position: toast.POSITION.BOTTOM_LEFT,
 					className: 'toast-error'
 				})
 			}
