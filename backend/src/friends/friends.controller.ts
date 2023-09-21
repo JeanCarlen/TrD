@@ -32,19 +32,19 @@ export class FriendsController {
   @Get('active/list/:id')
   @UseGuards(AuthGuard)
   friendsList(@Param('id') id: number) {
-	return this.friendsService.findFriendsList(id);
+    return this.friendsService.findFriendsList(id);
   }
 
   @Get('pending/list/:id')
   @UseGuards(AuthGuard)
   pendingList(@Param('id') id: number) {
-	return this.friendsService.findPendingFriends(id);
+    return this.friendsService.findPendingFriends(id);
   }
 
   @Get('requests/list/:id')
   @UseGuards(AuthGuard)
   requestsList(@Param('id') id: number) {
-	return this.friendsService.findPendingRequests(id);
+    return this.friendsService.findPendingRequests(id);
   }
 
   @Patch(':id')

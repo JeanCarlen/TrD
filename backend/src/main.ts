@@ -7,6 +7,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
+import { LoggingInterceptor } from './logger.interceptor';
+import { useContainer } from 'class-validator';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,7 +26,9 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.useGlobalInterceptors(new LoggingInterceptor());
   app.use(cookieParser());
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
   await app.listen(3001);
 }
 bootstrap();
