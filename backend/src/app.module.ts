@@ -12,6 +12,7 @@ import { MessagesModule } from './messages/messages.module';
 import { AchievmentsModule } from './achievments/achievments.module';
 import { UserAchievmentsModule } from './user_achievments/user_achievments.module';
 import { FriendsModule } from './friends/friends.module';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { FriendsModule } from './friends/friends.module';
     AchievmentsModule,
     UserAchievmentsModule,
     FriendsModule,
+	SocketModule,
   ],
   controllers: [AppController],
   providers: [AppService],
