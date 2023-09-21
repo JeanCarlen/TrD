@@ -9,36 +9,17 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Routes from "./PrivateRoute"
 import './Game/PongGame.css'
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
+import { WebsocketContextProvider, socket } from './context/websocket.context';
 
 function App() {
   return (
-        <div className='App'>
-          {/* <LoginForm /> */}
-          <BrowserRouter>
-            <Routes />
-			<ToastContainer />
-          </BrowserRouter>
-          {/* <> */}
-           {/* <Router>
-            <Sidebar/>
-            <div className='loginTest'>
-              <Routes>
-                <Route path="/login" element={<SignIn />} />
-                <Route element={<PrivateRoutes />}>
-                  <Route path='/' element={<Home />} />
-                  <Route path="/users" element={<Users />} />
-                  <Route path="/game" element={<Game />} />
-                  <Route path="/chats" element={<Chat />} />
-                  <Route path="/statistics" element={<Stats />} />
-                </Route>
-              </Routes>
-            </div>
-           </Router> */}
-          {/* </> */}
-          </div>
+		<div className='App'>
+			<WebsocketContextProvider value={socket}>
+				<BrowserRouter>
+					<Routes />
+				</BrowserRouter>
+			</WebsocketContextProvider>
+		</div>
   );
 }
 

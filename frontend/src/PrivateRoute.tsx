@@ -3,7 +3,7 @@ import { AuthContext } from './AuthContext';
 import Sidebar from './Components/Sidebar';
 import Users from './pages/Users';
 import Game from './pages/LetsPlay';
-import Chat from './pages/Chat';
+import {Chat} from './pages/Chat';
 import Stats from './pages/Stats';
 import SignIn from './pages/SingIn';
 import Home from './pages/Home';
