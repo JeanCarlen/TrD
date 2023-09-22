@@ -40,19 +40,37 @@ const Profiles = (props: Props) => {
   const [avatarUrl, setAvatarUrl] = useState<string>(
         'https://multiavatar.com/img/thumb-logo.png'
       );
+  const [achievementName, setAchievementName] = useState<string>('');
     // const username = content.username;
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const GetUserinfo = async () => {
 
-    const handleAvatarChange = (newAvatarUrl: string) => {
-        setAvatarUrl(newAvatarUrl);
-
-    };
-
-    const handleAvatarClick = () => {
-        if (fileInputRef.current) {
-          fileInputRef.current.click();
+      const response = await fetch(`http://localhost:8080/api/users/username/${username}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+				  'Authorization': 'Bearer ' + token,
         }
-      };
+      });
+      const data = await response.json()
+      if (response.ok)
+      {
+        setAvatarUrl(data[0].avatar);
+      }
+      const response1 = await fetch(`http://localhost:8080/api/achievement/${content.user}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+				  'Authorization': 'Bearer ' + token,
+        }
+      });
+      const achievementData = await response1.json()
+      if (response1.ok)
+      {
+        setAchievementName(achievementData[0].title);
+      }
+    }
+
     return (
       <ChakraProvider resetCSS={false}>
           <Searchbar/>
@@ -66,35 +84,7 @@ const Profiles = (props: Props) => {
             <VStack spacing={4} alignItems="center">
             <Avatar
             size="2xl"
-            src={avatarUrl}
-            onClick={handleAvatarClick}
-            cursor="pointer"/>
-            <EditIcon
-            boxSize={10}
-            cursor="pointer"
-            onClick={handleAvatarClick}
-            style={{ display: 'none' }}/>
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          style={{ display: 'none' }}
-          onChange={(event) => {
-            const file = event.target.files && event.target.files[0];
-
-            if (file) {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                const dataUrl = e.target?.result as string;
-                setAvatarUrl(dataUrl);
-              };
-              reader.readAsDataURL(file);
-            }
-          }}
-          />
-          {avatarUrl && (
-            <AvatarUpload onAvatarChange={handleAvatarChange} />
-            )}
+            src={avatarUrl}/>
             </VStack>
               <h1 className="welcome"> {username} </h1>
              </WrapItem>
@@ -119,7 +109,7 @@ const Profiles = (props: Props) => {
                 </div>
             </div>
             <div className='achievements'>
-                achievements
+                {achievementName}
             </div>
             <div className='friends'>
                 <div className='matchBox'>
