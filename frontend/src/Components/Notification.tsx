@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { toast } from 'react-toastify';
 
-const Notification = ({ error, success, info }: { error: string | null, success: boolean, info: boolean }) => {
+const Notification = ({ error, success, info }: { error: string | null, success: boolean, info: boolean}) => {
   useEffect(() => {
     if (error)
 	{

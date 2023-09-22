@@ -10,9 +10,9 @@ CREATE TABLE users (
 	"username" varchar(100) NOT NULL,
 	"refreshtoken" varchar(256) NULL,
 	"twofaenabled" BOOLEAN NOT NULL DEFAULT false,
+	"towfasecret" char(256) NULL,
 	"avatar" varchar(256) NOT NULL DEFAULT '/path/to/default.png',
 	"is42" boolean DEFAULT false,
-	"refreshtoken42" varchar(64),
 	"password" varchar(72) NULL,
 	CONSTRAINT "users_pk" PRIMARY KEY ("id")
 );
@@ -33,6 +33,16 @@ CREATE TABLE chats (
 	"id" serial NOT NULL,
 	"type" integer NOT NULL,
 	CONSTRAINT "chats_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE friends (
+	"id" serial NOT NULL,
+	"requester" integer NOT NULL,
+	"requested" integer NOT NULL,
+	"status" integer NOT NULL
+	CONSTRAINT "friends_pk" PRIMARY KEY ("id"),
+	CONSTRAINT "friends_fk0" FOREIGN KEY ("requester") REFERENCES "users"("id"),
+	CONSTRAINT "friends_fk1" FOREIGN KEY ("requested") REFERENCES "users"("id"),
 );
 
 CREATE TABLE userchats (

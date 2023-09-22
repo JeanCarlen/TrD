@@ -1,32 +1,81 @@
-import { Controller, Get, Post, Body, HttpCode, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  HttpCode,
+  Query,
+  Res,
+  Req,
+  UseGuards,
+  UnauthorizedException,
+  Inject,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-
-// import { UsersService } from '../users/users.service';
+import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginUserDto } from '../users/dto/login-user.dto';
+import { AuthGuard } from 'src/auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
+
+  @Inject(UsersService)
+  private readonly usersService: UsersService;
 
   @Post('login')
   @HttpCode(200)
   async login(@Body() loginUserDto: LoginUserDto) {
-    console.log('Bitch please.');
     return await this.authService.login(loginUserDto);
   }
 
   @Post('register')
   @HttpCode(201)
   async register(@Body() createUserDto: CreateUserDto) {
-	console.log('Registering bitches');
-	return await this.authService.create(createUserDto)
+    return await this.authService.create(createUserDto);
   }
 
   @Get('callback')
-  async callback(@Query() query) {
-	return (this.authService.getToken(query.code));
+  async callback(@Res() response, @Query() query) {
+    const insertedUser = await this.authService.getToken(query.code);
+    response.cookie('token', insertedUser.token);
+    if (insertedUser.twofaenabled)
+      response.redirect('https://trd.laendrun.ch/login'); // redirect to page asking for the code when implemented on the frontend
+    response.redirect('https://trd.laendrun.ch/login');
+  }
+
+  @Post('2fa/generate')
+  @UseGuards(AuthGuard)
+  async generate(@Req() request) {
+    const user = await this.usersService.findOne(request.user.id);
+    return this.authService.setUp2FA(user);
+  }
+
+  @Post('2fa/turn-on')
+  @UseGuards(AuthGuard)
+  async turnOn2FA(@Req() request, @Body() body) {
+    const isCodeValid = await this.authService.is2FACodeValid(
+      body.twoFACode,
+      request.user.id,
+    );
+    if (!isCodeValid)
+      throw new UnauthorizedException('Wrong authentication code.');
+    return await this.authService.turnOn2FA(request.user.id);
+  }
+
+  @Post('2fa/authenticate')
+  @UseGuards(AuthGuard)
+  async authenticate(@Req() request, @Body() body) {
+    const isCodeValid = await this.authService.is2FACodeValid(
+      body.twoFACode,
+      request.user.id,
+    );
+    if (!isCodeValid)
+      throw new UnauthorizedException('Wrong authentication code.');
+    return {
+      message: ['Succesffully logged in'],
+      token: this.usersService.getJWT(request.user),
+    };
   }
 }

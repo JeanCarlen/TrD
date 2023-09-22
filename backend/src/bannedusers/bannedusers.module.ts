@@ -8,6 +8,6 @@ import { BannedUsers } from './entities/banneduser.entity';
   imports: [TypeOrmModule.forFeature([BannedUsers])],
   controllers: [BannedusersController],
   providers: [BannedusersService],
-  exports: [BannedusersService]
+  exports: [BannedusersService],
 })
 export class BannedusersModule {}

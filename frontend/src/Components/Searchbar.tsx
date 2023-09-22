@@ -19,7 +19,7 @@ function Searchbar() {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': 'Bearer' + token
+				'Authorization': 'Bearer ' + token
 			},
 		});
 		const data = await response.json()
@@ -28,6 +28,7 @@ function Searchbar() {
 			if (searchTerm === data[0].username)
 			{
 				console.log(data);
+				const userID = data[0].id;
 				navigate(`/profiles/${searchTerm}`); //add the right url with the username of the person found
 			}
 			// setSearchHistory((prevHistory) => [...prevHistory, searchTerm]);

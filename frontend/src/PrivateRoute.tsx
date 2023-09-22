@@ -45,7 +45,7 @@ const Routes = (props: Props) => {
 				<Route path="/login" element={<RegisterButton />} />
 				<Route element={<PrivateRoutes />}>
 					<Route path="/Home" element={<Home />} />
-					<Route path="/users" element={<Users />} />
+					{/* <Route path="/users" element={<Users />} /> */}
 					<Route path="/game" element={<Game />} />
 					<Route path="/chats" Component={Chat} />
 					{/* element={<Chat />} /> */}

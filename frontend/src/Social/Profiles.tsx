@@ -22,6 +22,7 @@ import Searchbar from '../Components/Searchbar'
 import Cookies from 'js-cookie'
 import decodeToken from '../helpers/helpers'
 import { useParams } from 'react-router-dom';
+import AddFriend from '../Components/AddFriend'
 
 
 type Props = {}
@@ -100,9 +101,8 @@ const Profiles = (props: Props) => {
             </Wrap>
             <div className='profile-border'>
             <AddIcon boxSize={5} />
-              <Text>
+              <AddFriend />
             "Add {username} as a friend"
-            </Text>
             </div>
         </div>
         <div className='displayGrid'>

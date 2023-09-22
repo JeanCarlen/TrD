@@ -21,38 +21,81 @@ import GoogleAuth from '../Components/googleAuth'
 import decodeToken from '../helpers/helpers'
 import Cookies from 'js-cookie'
 import Searchbar from '../Components/Searchbar'
+import FriendList from '../Components/Friends'
 
 type Props = {}
 
 const Home = (props: Props) => {
-    const [avatarUrl, setAvatarUrl] = useState<string>(
-        'https://multiavatar.com/img/thumb-logo.png'
-      );
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const token: string|undefined = Cookies.get("token");
-      let content: {username: string, user: number};
+    const [avatarUrl, setAvatarUrl] = useState<any>(
+      'https://multiavatar.com/img/thumb-logo.png'
+    );
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const token: string|undefined = Cookies.get("token");
+    let content: {username: string, user: number};
     if (token != undefined)
     {
       content = decodeToken(token);
     }
     else
       content = { username: 'default', user: 0}
-	const navigate = useNavigate();
-    const handleAvatarChange = (newAvatarUrl: string) => {
-        setAvatarUrl(newAvatarUrl);
+    const handleAvatarChange =  async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      //setSelectedFile(file);
+      //console.log(selectedFile);
+      event.preventDefault();
 
-    };
-    const handleAvatarClick = () => {
-        if (fileInputRef.current) {
-          fileInputRef.current.click();
-        }
-      };
+      if (file) {
+        const reader = new FormData();
+        reader.append('file', file);
+      // reader.onload = (e) => {
+      //   e.preventDefault();
+      //   const dataUrl = e.target?.result as string;
+      // };
+      //reader.readAsDataURL(file);
+      //setAvatarUrl(reader);
+      // event.preventDefault();
+      console.log("FILE BEFORE FETCH ", reader.get('file'));
+      const response = await fetch('http://localhost:8080/api/file', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': 'Bearer ' + token,
+          },
+          body: reader,
+        })
+        .then(() => {
+          console.log("GOOD");
+        })
+        .catch(err => {
+        console.log(err);
+      })
+    }
+  };
 
-      const handleClick = () => {
-        // Navigate to the "/about" page
-        navigate(`/profiles/${content.username}`);
-      };
+  const SendFile = async(file: File | null, event: React.ChangeEvent<any>) => {
+    // const formData = new FormData();
+    // formData.append('file', file);
+      // const data = await response.json()
+      // console.log(file);
+      // if (response.ok)
+      // {
+      //   // Cookies.set('token', data.token)
+      // }
+  }
+    // const navigate = useNavigate();
+    // const handleAvatarClick = () => {
 
+      // console.log()
+      // if (fileInputRef.current) {
+      //   fileInputRef.current.click();
+      // }
+      // };
+
+      // const handleClick = () => {
+      //   // Navigate to the "/about" page
+      //   navigate(`/profiles/${content.username}`);
+      // };
 
     return (
         <ChakraProvider resetCSS={false}>
@@ -61,41 +104,47 @@ const Home = (props: Props) => {
         <Sidebar/>
         <div>
           <div className='topBox'>
-        <Wrap>
+            <form /*encType='multipart/form-data'*/ action=''>
+              <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handleAvatarChange}
+                // const file = event.target.files && event.target.files[0];
+                //   console.log(event.target.files)
+                // if (file) {
+                //   const reader = new FileReader();
+                //   reader.onload = (e) => {
+                //     // handleAvatarChange(e)
+                //   }
+                    /*= (e) => {
+                    const dataUrl = e.target?.result as string;
+                    // setAvatarUrl(dataUrl);
+                  };
+                  // reader.readAsDataURL(file);
+                // }*/
+              />
+             {/* <button onClick={(event) => handleAvatarChange(event)}>Update</button> */}
+            </form>
+            <Wrap>
             <WrapItem className='profile-border'>
             {/* <div className='profilePic'> */}
             <VStack spacing={4} alignItems="center">
             <Avatar
             size="2xl"
             src={avatarUrl}
-            onClick={handleAvatarClick}
+            // onClick={handleAvatarClick}
             cursor="pointer"/>
             <EditIcon
             boxSize={10}
             cursor="pointer"
-            onClick={handleAvatarClick}
-            style={{ display: 'none' }}/>
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          style={{ display: 'none' }}
-          onChange={(event) => {
-            const file = event.target.files && event.target.files[0];
-
-            if (file) {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                const dataUrl = e.target?.result as string;
-                setAvatarUrl(dataUrl);
-              };
-              reader.readAsDataURL(file);
-            }
-          }}
-          />
-          {avatarUrl && (
-            <AvatarUpload onAvatarChange={handleAvatarChange} />
-            )}
+            // onClick={handleAvatarClick}
+          // onClick={handleAvatarChange}
+            // style={{ display: 'none' }}/>
+        />
+          {/* {avatarUrl && (
+            <onClick={handleAvatarChange} />
+            )} */}
             </VStack>
               <h1 className="welcome">Hello {content.username}! </h1>
               <GoogleAuth/>
@@ -123,18 +172,9 @@ const Home = (props: Props) => {
             </div>
             <div className='friends'>
                 <div className='matchBox'>
-                  FRIENDS
+                <FriendList/>
                 </div>
-                <div className='matchBox'>
-                  FRIENDS
-                </div>
-                <div className='matchBox'>
-                  FRIENDS
-                </div>
-                <button onClick={handleClick}>
-                    click for more
-                </button>
-            </div>
+              </div>
             </div>
         </div>
         </div>

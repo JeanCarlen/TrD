@@ -9,6 +9,7 @@ import { MutedUsers } from './mutedusers/entities/muteduser.entity';
 import { Messages } from './messages/entities/message.entity';
 import { Achievments } from './achievments/entities/achievment.entity';
 import { UserAchievments } from './user_achievments/entities/user_achievment.entity';
+import { Friends } from './friends/entities/friend.entity';
 
 @Module({
   imports: [
@@ -17,23 +18,24 @@ import { UserAchievments } from './user_achievments/entities/user_achievment.ent
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-		host: 'database',
-		port: 5432,
-		username: process.env.POSTGRES_USER,
-		password: process.env.POSTGRES_PASSWORD,
-		database: process.env.POSTGRES_DATABASE,
+        host: 'database',
+        port: 5432,
+        username: process.env.POSTGRES_USER,
+        password: process.env.POSTGRES_PASSWORD,
+        database: process.env.POSTGRES_DATABASE,
         entities: [
           Users,
-		  Matches,
-		  BannedUsers,
-		  BlockedUsers,
-		  MutedUsers,
-		  Messages,
-		  Achievments,
-		  UserAchievments
+          Matches,
+          BannedUsers,
+          BlockedUsers,
+          MutedUsers,
+          Messages,
+          Achievments,
+          UserAchievments,
+          Friends,
         ],
         synchronize: true,
-      })
+      }),
     }),
   ],
 })

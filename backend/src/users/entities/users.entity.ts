@@ -1,7 +1,7 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('users')
-export class Users extends BaseEntity{
+export class Users extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -17,15 +17,15 @@ export class Users extends BaseEntity{
   @Column({ type: 'boolean', nullable: true })
   twofaenabled: boolean;
 
+  @Column({ type: 'char', length: 256, nullable: true })
+  twofasecret: string;
+
   @Column({ type: 'varchar', length: 256, nullable: true })
   avatar: string;
 
   @Column({ type: 'boolean', nullable: true })
   is42: boolean;
-  
+
   @Column({ type: 'varchar', length: 72, nullable: true })
   password: string;
-
-  @Column({ type: 'varchar', length: 64, nullable: true })
-  refreshtoken42: string;
 }
