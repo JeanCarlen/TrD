@@ -267,4 +267,17 @@ export class UsersService {
       token: this.getJWT(user),
     };
   }
+
+  public async turnOff2FA(id: number) {
+	const user: Users = await this.usersRepository.findOne({
+		where: { id: id }
+	})
+	user.twofaenabled = false;
+	user.twofasecret = '';
+	await this.usersRepository.save(user);
+	return {
+		message: ['Two factor authentication successfully turned off.'],
+		token: this.getJWT(user)
+	}
+  }
 }
