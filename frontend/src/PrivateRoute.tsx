@@ -13,29 +13,38 @@ import { useNavigate } from 'react-router-dom';
 import {Routes as Router, Route, Navigate, Outlet} from 'react-router-dom';
 import RegisterButton from './LoginForm/RegisterButton';
 import Cookies from 'js-cookie';
+import MFASetup from './pages/mfasetup';
+import Enter2Fa from './Components/Enter2Fa';
+import decodeToken from './helpers/helpers';
 
 
 type Props = {}
 
 const PrivateRoutes = () => {
 	const isRegistered = Cookies.get('registered');
-	const isToken = Cookies.get('token');
+	const token = Cookies.get('token');
 	const { authenticated } = useContext(AuthContext)
 
-	if (!isToken){
-
-		return <Navigate to='/login' replace />
+	let tokenContent;
+	if (token) {
+		tokenContent = decodeToken(token);
 	}
 
-	return <Outlet />
+	if (!token)
+		return <Navigate to='/login' replace />
+	else if (token && tokenContent && tokenContent.twofaenabled)
+		return <Navigate to='/authenticate' replace />
+	else
+		return <Outlet />
 }
 
 const Routes = (props: Props) => {
 	const navigate = useNavigate();
 	return (
 		<div className='loginTest'>
-				<Router>
-				<Route path="/login" element={<RegisterButton />} />
+			<Router>
+					<Route path="/login" element={<RegisterButton />} />
+					<Route path="/authenticate" element={<Enter2Fa />} />
 				<Route element={<PrivateRoutes />}>
 					<Route path="/Home" element={<Home />} />
 					<Route path="/users" element={<Users />} />
@@ -44,7 +53,8 @@ const Routes = (props: Props) => {
 					<Route path="/statistics" element={<Stats />} />
 					<Route path="/profiles" element={<Profiles />} />
 					<Route path="/Logout" element={<Logout />} />
-				<Route path='*' element={<Navigate to='/login' replace />} />
+					<Route path="/mfasetup" element={<MFASetup />} />
+					<Route path='*' element={<Navigate to='/login' replace />} />
 				</Route>
 			</Router>
 		</div>

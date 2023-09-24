@@ -124,4 +124,8 @@ export class AuthService {
   public async turnOn2FA(id: number) {
     return await this.usersService.turnOn2FA(id);
   }
+
+  public async turnOff2FA(id: number) {
+	return this.usersService.turnOff2FA(id);
+  }
 }
