@@ -1,102 +1,124 @@
-import React, {useState, useContext, useEffect} from "react"; 
-import { WebsocketContext, socket } from "../context/websocket.context";
-import { Friends } from "../pages/Chat";
+import React, { useState, useContext, useEffect } from "react";
+import { WebsocketContext } from "../context/websocket.context";
+import Cookies from "js-cookie";
+import decodeToken from '../helpers/helpers';
 
 interface Message {
-	id: number;
-	text: string;
-	sender: string;
+id: number;
+text: string;
+sender: string;
 }
 
 const ChatInterface: React.FC = () => {
+const [value, setValue] = useState('');
+const [isLoading, setIsLoading] = useState(false);
+const [messages, setMessages] = useState<Message[]>([]);
+const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender: '' });
+const socket = useContext(WebsocketContext);
+const token: string | undefined = Cookies.get("token");
 
-	const [value, setValue] = useState('');
-	const [data, setData] = useState('');
-	const [isLoading, setIsLoading] = useState(false);
-	const [friends, setFriends] = useState<Friends[]>([]);
-	const [friendsName, setFriendsName] = useState<string>('');
-	const [messages, setMessages] = useState<Message[]>([]);
-	const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender: ''});
-	const socket = useContext(WebsocketContext);
-
-
-
-	useEffect(() => {
-		socket.on('connect', () => {
-			console.log('connected')
-		})
-		socket.on('srv-message', (data) => {
-			console.log(`srv-message ${data}`);
-			const latest: Message={id:messages.length + 1, text:data, sender:'other'};
-			setMessages([...messages, latest]);
-		});
-		return () => {
-			console.log('Unregistering events...')
-			socket.off('connect')
-			socket.off('srv-message')
-		}
-	}, [])
-
-	const sendMessage = () => {
-		if (socket) {
-			socket.emit('create-something', newMessage);
-			//console.log('Message sent:', newMessage);
-	
-		}
-		setMessages([...messages, newMessage]);
-		setNewMessage({ id: 0, text: '', sender: ''}); // Clear the input field
-	  };
-
-	function onSubmit(e: React.FormEvent) {
-		e.preventDefault();
-		socket.emit('create-something', value)
+useEffect(() => {
+	if (token === undefined) {
+	return;
 	}
 
-	function connect(e: React.FormEvent) {
-		e.preventDefault();
-		setIsLoading(true);
-		socket.connect()
-		setIsLoading(false);
+	const content = decodeToken(token);
+
+	socket.on('connect', () => {
+	setIsLoading(false);
+	console.log('Connected');
+	});
+
+	socket.on('srv-message', (data) => {
+	console.log(`srv-message ${data}`);
+	const latest: Message = { id: messages.length + 1, text: data, sender: 'other' };
+	setMessages([...messages, latest]);
+	});
+
+	return () => {
+	console.log('Unregistering events...');
+	socket.off('connect');
+	socket.off('srv-message');
+	};
+
+}, [token, socket, messages]);
+
+function handleSendMessage(sender: string) {
+	if (!newMessage.text.trim() || !socket.connected) {
+	return;
 	}
 
-	return (
-		<div>
-		<p>{ data }</p>
-		<button onClick={ connect } >Connect</button>
-		<form onSubmit={ onSubmit }>
-		<input onChange={ e => setValue(e.target.value) } />
-		<button type="submit" disabled={ isLoading }>Submit</button>
-		</form>
+	socket.emit('create-something', {
+	text: newMessage.text,
+	sender: sender,
+	});
 
-		<div className="chat-interface">
+	console.log('Message sent:', newMessage.text);
+
+	const updatedMessage: Message = {
+	id: messages.length + 1,
+	text: newMessage.text,
+	sender: sender,
+	};
+
+	setMessages([...messages, updatedMessage]);
+	setNewMessage({ id: 0, text: '', sender: '' });
+}
+
+function connect(e: React.FormEvent) {
+	e.preventDefault();
+	if (!socket.connected) {
+	setIsLoading(true);
+	socket.connect();
+	}
+}
+
+return (
+	<div>
+	{isLoading && <p>Loading...</p>}
+
+	<button onClick={connect} disabled={isLoading || socket.connected}>
+		{socket.connected ? "Connected" : "Connect"}
+	</button>
+	<div className="chat-interface">
 		<div className="message-display">
-			<div className="character-picture">N</div>
-			{messages.map((message) => (
-			<div
-				key={message.id} // Use message.id as the key
-				className={`message-bubble ${
-					message.sender === 'user' ? 'user' : 'other'
-				}`}
-				>
-				{message.text}
-			</div>
-			))}
+		<div className="character-picture">bob</div>
+		{messages.map((message) => (
+		<div
+			key={message.id}
+			className={`message-bubble ${message.sender === 'user' ? 'user' : 'other'}`}
+		>
+		{message.text}
+		</div>
+		))}
 		</div>
 		<div className="message-input">
-			<input
+		<input
 			className="messages"
 			type="text"
 			placeholder="Type your message..."
 			value={newMessage.text}
-			onChange={(e) => setNewMessage({id: 0, text: e.target.value, sender: 'user'})}
-			/>
-			<button className="sendButton" onClick={sendMessage}>
-			Send
-			</button>
+			onChange={(e) => setNewMessage({ id: messages.length + 1, text: e.target.value, sender: 'user' })}
+		/>
+		<button className="sendButton" onClick={() => handleSendMessage('user')}>
+			user
+		</button>
 		</div>
+		<div className="message-input">
+		<input
+			className="messages"
+			type="text"
+			placeholder="Type your message..."
+			value={newMessage.text}
+			onChange={(e) => setNewMessage({ id: messages.length + 1, text: e.target.value, sender: 'other' })}
+		/>
+		<button className="sendButton" onClick={() => handleSendMessage('other')}>
+			other
+		</button>
 		</div>
-		</div>
-	);
+	</div>
+	</div>
+);
 };
 
 export default ChatInterface;
