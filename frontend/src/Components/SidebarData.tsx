@@ -32,6 +32,11 @@ export const SidebarData = [
         path: '/statistics',
         icon: <FaIcons.FaRegChartBar />
     },
+	{
+		title: 'setupmfa',
+		path: '/mfasetup',
+		icon: <FaIcons.FaLock />
+	},
     {
         title: 'Log Out',
         path: '/logout',
