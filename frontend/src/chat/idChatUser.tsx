@@ -138,7 +138,7 @@ const MultipleUsers: React.FC<MultipleUsersInter> = ({members}) => {
 	return (
 		<div>
 			{members.map((user) => (
-			<li key="{user.name}" className={`friendslist ${user.status === 1 ? 1 : 0}`} >
+			<li key={user.name} className={`friendslist ${user.status === 1 ? 1 : 0}`} >
 				<span className="messages">
 					{user.name}
 				</span>

@@ -31,7 +31,8 @@ useEffect(() => {
 
 	socket.on('srv-message', (data) => {
 	console.log(`srv-message ${data}`);
-	const latest: Message = { id: messages.length + 1, text: data, sender: 'other' };
+	// const latest: Message = { id: messages.length + 1, text: data, sender: 'other' };
+	const latest: Message = { id: messages.length + 1, text: data.text, sender: 'other' };
 	setMessages([...messages, latest]);
 	});
 
