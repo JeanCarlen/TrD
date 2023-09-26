@@ -25,6 +25,7 @@ useEffect(() => {
 	const content = decodeToken(token);
 
 	socket.on('connect', () => {
+	console.log(socket.id);
 	setIsLoading(false);
 	console.log('Connected');
 	});
@@ -32,7 +33,7 @@ useEffect(() => {
 	socket.on('srv-message', (data) => {
 	console.log(`srv-message ${data}`);
 	// const latest: Message = { id: messages.length + 1, text: data, sender: 'other' };
-	const latest: Message = { id: messages.length + 1, text: data.text, sender: 'other' };
+	const latest: Message = { id: messages.length + 3, text: data.text, sender: data.sender };
 	setMessages([...messages, latest]);
 	});
 
@@ -57,14 +58,15 @@ function handleSendMessage(sender: string) {
 	console.log('Message sent:', newMessage.text);
 
 	const updatedMessage: Message = {
-	id: messages.length + 1,
+	id: messages.length + 3,
 	text: newMessage.text,
 	sender: sender,
 	};
 
-	setMessages([...messages, updatedMessage]);
+//	setMessages([...messages, updatedMessage]);
 	setNewMessage({ id: 0, text: '', sender: '' });
 }
+
 
 function connect(e: React.FormEvent) {
 	e.preventDefault();
@@ -88,7 +90,7 @@ return (
 		<div
 			key={message.id}
 			className={`message-bubble ${message.sender === 'user' ? 'user' : 'other'}`}
-		>
+>
 		{message.text}
 		</div>
 		))}
@@ -105,6 +107,7 @@ return (
 			user
 		</button>
 		</div>
+		</div>
 		<div className="message-input">
 		<input
 			className="messages"
@@ -117,7 +120,6 @@ return (
 			other
 		</button>
 		</div>
-	</div>
 	</div>
 );
 };
