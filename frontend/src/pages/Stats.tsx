@@ -23,13 +23,15 @@ const Stats: React.FunctionComponent = () => {
 		player1: 'Steve',
 		player2: 'Patrick',
 	}
-
+	
 	const data2: gameInfo= {
 		score1: 6,
 		score2: 11,
 		player1: 'Steve',
 		player2: 'Jcarlen',
 	}
+
+	const alldata: gameInfo[]= [data1, data2];
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -55,9 +57,11 @@ const Stats: React.FunctionComponent = () => {
 
 		{gameFetched ? 
 			<div className='history_1'>
-            <LayoutGamestats {...data1}/>
-            <LayoutGamestats {...data2}/>
-			</div>
+			{alldata.map((achievement) => {
+					return (
+						<LayoutGamestats {...achievement}/>
+					);
+			})}
 			: <div className='history_1' style={{fontSize:"25px"}}>Loading...</div>
 		}
         
