@@ -62,6 +62,7 @@ const Stats: React.FunctionComponent = () => {
 						<LayoutGamestats {...achievement}/>
 					);
 			})}
+			</div>
 			: <div className='history_1' style={{fontSize:"25px"}}>Loading...</div>
 		}
         

@@ -18,7 +18,6 @@ import decodeToken from './helpers/helpers';
 import { useParams } from 'react-router-dom';
 import MFASetup from './pages/mfasetup';
 import Enter2Fa from './Components/Enter2Fa';
-import decodeToken from './helpers/helpers';
 import AchTest from './pages/AchievementTest';
 
 
@@ -36,7 +35,7 @@ const PrivateRoutes = () => {
 	}
 	else
 	{
-		content = decodeToken(isToken);
+		// content = decodeToken(isToken);
 		return <Outlet />
 	}
 
