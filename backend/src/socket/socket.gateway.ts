@@ -22,7 +22,7 @@ handleConnection(client: Socket) {
 
 	client.join(room);
 	console.log(client.id, " logged on room ", room);
-	client.broadcast.to(room).emit("fuck this shit, are you there");
+	this.server.to(room).emit('broadcast', "fuck this shit, are you there");
 };
 
 @SubscribeMessage('newMessage')
