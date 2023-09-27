@@ -1,10 +1,20 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Sidebar from '../Components/Sidebar';
 import Cookies from 'js-cookie';
 
+interface achlist{
+	id: number,
+	title: string,
+	description: string,
+	objective: number,
+}
+
 const AchTest: React.FC = () => {
 	
-	const [achieve, setAchieve] = useState('');
+	const [achieve, setAchieve] = useState([]);
+	const [fetched, setFetched] = useState<boolean>(false);
+	const [parsed, setParsed] = useState();
+
 	
 	const GetAchieve = async() => {
 		
@@ -22,24 +32,36 @@ const AchTest: React.FC = () => {
 		if (response.ok)
 		{
 			setAchieve(data);
-			console.log("YOU DID CLICK THE BUTTON MOTHERFUCKER")
-			console.log(data);
+			console.log(achieve[0]);
+			console.log(achieve[1]);
+			setFetched(true);
+			console.log("BUTTON TIME!");
 		}
 	}
+
+	useEffect(() => {
+		GetAchieve();
+	}, []);
+
 
 	return(
 		<div>
 			<Sidebar/>
 			ACHIEVE!
 			<br/>
-			{/* {achieve.map((elem) => (
-				<div key=(elem.id)>
-				<h2>(elem.title)</h2>
-				<h2>(elem.description)</h2>
-				</div>
-			))} */}
-			<pre>{JSON.stringify(achieve, null, 2)}</pre>
-			<br/>
+			{fetched ?
+			<p>
+				{achieve.map((employee) => {
+					return (
+						<div key={employee.id}>
+						<h2>title: {employee.title}</h2>
+						<h2>description: {employee.description}</h2>
+
+						<hr />
+						</div>
+					);
+				})}
+			</p> : <p> NOT FETCHED YET</p>}
 			<button onClick={GetAchieve}>
 				NO ACHIEVE?
 			</button>

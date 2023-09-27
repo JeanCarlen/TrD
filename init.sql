@@ -111,8 +111,8 @@ CREATE TABLE achievments (
 	CONSTRAINT "achievments_pk" PRIMARY KEY ("id")
 );
 
-INSERT INTO achievements (id, title, description, objective) VALUES(1, 'LOGIN', 'Good job! You logged in for the first time!', 1);
-INSERT INTO achievements (id, title, description, objective) VALUES(2, 'NIKKI', 'Good job! You made NIKKI smile!', 1);
+INSERT INTO achievments (id, title, description, objective) VALUES(1, 'LOGIN', 'Good job! You logged in for the first time!', 1);
+INSERT INTO achievments (id, title, description, objective) VALUES(2, 'NIKKI', 'Good job! You made NIKKI smile!', 1);
 
 CREATE TABLE user_achievments (
 	"id" serial NOT NULL,

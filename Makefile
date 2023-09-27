@@ -27,6 +27,11 @@ fclean:
 	@docker system prune -af
 	@echo "All unused Docker resources have been removed."
 
+runf:
+	@echo "re-runnning front end :]"
+	@docker stop trd-frontend-1 && docker rm trd-frontend-1
+	@make run
+
 help:
 	@echo "Available targets:"
 	@echo "  run    : Start the Docker containers using docker-compose up."
@@ -34,3 +39,4 @@ help:
 	@echo "  clean  : Stop and remove volumes."
 	@echo "  fclean : Perform 'clean' and remove all unused Docker resources."
 	@echo "  help   : Show this help message."
+
