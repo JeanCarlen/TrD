@@ -51,7 +51,7 @@ const Routes = (props: Props) => {
 					{/* element={<Chat />} /> */}
 					<Route path="/statistics" element={<Stats />} />
 					{/* <Route path="/profiles" element={<Profiles />} /> */}
-					<Route path="/profiles/:username" element={<Profiles />} />
+					<Route path="/profiles/:users" element={<Profiles />} />
 					{/* <Route path="/profile" element={<Profiles />} /> */}
 					<Route path="/Logout" element={<Logout />} />
 				<Route path='*' element={<Navigate to='/login' replace />} />

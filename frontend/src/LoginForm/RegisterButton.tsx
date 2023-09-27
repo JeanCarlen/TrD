@@ -255,4 +255,4 @@ const RegisterButton: React.FC = () => {
   );
 };
 
-export default RegisterButton;
+export default RegisterButton

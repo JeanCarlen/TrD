@@ -22,13 +22,15 @@ import Searchbar from '../Components/Searchbar'
 import Cookies from 'js-cookie'
 import decodeToken from '../helpers/helpers'
 import { useParams } from 'react-router-dom';
-import AddFriend from '../Components/AddFriend'
+import handleAddFriend from '../Components/AddFriend'
 
-
+export interface profiles {
+	username: string | undefined;
+  }
 type Props = {}
 
 const Profiles = (props: Props) => {
-  const { username } = useParams();
+  const {username} = useParams();
   const token: string|undefined = Cookies.get("token");
   let content: {username: string, user: number};
     if (token != undefined)
@@ -37,10 +39,9 @@ const Profiles = (props: Props) => {
     }
     else
     content = { username: 'default', user: 0};
-  const [avatarUrl, setAvatarUrl] = useState<string>(
-        'https://multiavatar.com/img/thumb-logo.png'
-      );
+  const [avatarUrl, setAvatarUrl] = useState<string>();
   const [achievementName, setAchievementName] = useState<string>('');
+  const [friendname, setFriendName] = useState<string>('');
     // const username = content.username;
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const GetUserinfo = async () => {
@@ -68,19 +69,21 @@ const Profiles = (props: Props) => {
       if (response1.ok)
       {
         setAchievementName(achievementData[0].title);
+        setAvatarUrl(data[0].avatar);
+        setFriendName(data[0].username);
       }
     }
 
     return (
       <ChakraProvider resetCSS={false}>
           <Searchbar/>
+          GetUserinfo()
         <div>
         <Sidebar/>
         <div>
           <div className='topBox'>
         <Wrap>
             <WrapItem className='profile-border'>
-            {/* <div className='profilePic'> */}
             <VStack spacing={4} alignItems="center">
             <Avatar
             size="2xl"
@@ -90,9 +93,8 @@ const Profiles = (props: Props) => {
              </WrapItem>
             </Wrap>
             <div className='profile-border'>
-            <AddIcon boxSize={5} />
-              <AddFriend />
-            "Add {username} as a friend"
+            <AddIcon boxSize={5} onClick={() => handleAddFriend()}/>
+            Add {username} as a friend
             </div>
         </div>
         <div className='displayGrid'>
@@ -129,5 +131,5 @@ const Profiles = (props: Props) => {
 )
 }
 
-export default Profiles;
+export default Profiles
 

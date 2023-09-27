@@ -136,7 +136,7 @@ export class UsersService {
         description: `Username already taken.`,
       });
     user.username = updateUserDto.username;
-
+    this.usersRepository.save(user);
     return { message: [''], token: this.getJWT(user) };
   }
 

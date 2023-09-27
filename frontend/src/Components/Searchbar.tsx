@@ -30,6 +30,7 @@ function Searchbar() {
 				console.log(data);
 				const userID = data[0].id;
 				navigate(`/profiles/${searchTerm}`); //add the right url with the username of the person found
+				
 			}
 			// setSearchHistory((prevHistory) => [...prevHistory, searchTerm]);
 
