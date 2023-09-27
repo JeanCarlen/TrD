@@ -61,6 +61,16 @@ export class UsersController {
     return this.usersService.findOne(+params.id);
   }
 
+  @Get(':id/chats')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get all chats of a user.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiResponse({status: 200, description: 'Return all chats of a user.'})
+  @ApiBearerAuth()
+  findUserChats(@Param() params: paramValidator) {
+	return this.usersService.findUserChats(+params.id);
+  }
+
   @Get('/42')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()

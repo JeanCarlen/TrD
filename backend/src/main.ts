@@ -16,6 +16,8 @@ import { Create42UserDto } from './users/dto/create-42-user.dto';
 import { CreateUserDto } from './users/dto/create-user.dto';
 import { LoginUserDto } from './users/dto/login-user.dto';
 import { UpdateUserDto } from './users/dto/update-user.dto';
+import { writeFileSync } from 'fs';
+import * as path from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

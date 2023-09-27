@@ -15,10 +15,6 @@ export class Users extends BaseEntity {
   @ApiProperty({example: 'laendrun', description: 'The username of the User.'})
   username: string;
 
-  @Column({ type: 'varchar', length: 256, nullable: true })
-  @ApiProperty({example: 'N/A', description: 'Not used, will be deleted.'})
-  refreshtoken: string;
-
   @Column({ type: 'boolean', nullable: true })
   @ApiProperty({example: true, description: 'Is two factor authentication activated.'})
   twofaenabled: boolean;
