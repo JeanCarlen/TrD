@@ -10,6 +10,8 @@ import { Messages } from './messages/entities/message.entity';
 import { Achievments } from './achievments/entities/achievment.entity';
 import { UserAchievments } from './user_achievments/entities/user_achievment.entity';
 import { Friends } from './friends/entities/friend.entity';
+import { Chats } from './chats/entities/chat.entity';
+import { UserChats } from './userchats/entities/userchat.entity';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { Friends } from './friends/entities/friend.entity';
           Achievments,
           UserAchievments,
           Friends,
+		  Chats,
+		  UserChats
         ],
         synchronize: true,
       }),

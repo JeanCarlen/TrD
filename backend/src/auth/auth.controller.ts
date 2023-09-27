@@ -10,6 +10,7 @@ import {
   UseGuards,
   UnauthorizedException,
   Inject,
+  Delete,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
@@ -44,6 +45,17 @@ export class AuthController {
     if (insertedUser.twofaenabled)
       response.redirect('https://trd.laendrun.ch/login'); // redirect to page asking for the code when implemented on the frontend
     response.redirect('https://trd.laendrun.ch/login');
+  }
+
+  @Delete('2fa')
+  @UseGuards(AuthGuard)
+  async turnOff2FA(@Req() request:any, @Body() body: otpBody) {
+	const isCodeValid = await this.authService.is2FACodeValid(
+		body.code, request.user.id
+	);
+	if (!isCodeValid)
+		throw new UnauthorizedException('Wrong authentication code.');
+	return await this.authService.turnOff2FA(request.user.id);
   }
 
   @Post('2fa/generate')
