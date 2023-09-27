@@ -10,8 +10,11 @@ import * as dotenv from 'dotenv';
 import { LoggingInterceptor } from './logger.interceptor';
 import { useContainer } from 'class-validator';
 import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from '@nestjs/swagger';
+<<<<<<< HEAD
 import { writeFileSync} from 'fs'
 import * as path from 'path';
+=======
+>>>>>>> master
 import { Create42UserDto } from './users/dto/create-42-user.dto';
 import { CreateUserDto } from './users/dto/create-user.dto';
 import { LoginUserDto } from './users/dto/login-user.dto';
