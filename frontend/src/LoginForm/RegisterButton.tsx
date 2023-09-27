@@ -38,6 +38,19 @@ const RegisterButton: React.FC = () => {
 			navigate('/authenticate');
 	}, []);
 
+	// Create a first achievment
+	const FirstAchievement = async () => {
+		const isRegisteredCheck = Cookies.get('token');
+		const response = await fetch('http://localhost:8080/api/auth/achievement', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + isRegisteredCheck,
+			},
+			body: JSON.stringify({ title: "You Logged IN!", description:"You get this for logginng in for the first time!", objective:1 }),
+		});
+	}
+
 	const handleLogin = async () => {
 		if (username.trim() === '' || password.trim() === '')
 		{
@@ -239,4 +252,4 @@ const RegisterButton: React.FC = () => {
   );
 };
 
-export default RegisterButton;
+export default RegisterButton

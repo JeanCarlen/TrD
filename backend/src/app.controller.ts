@@ -51,15 +51,15 @@ export class AppController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [new FileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })],
+        //validators: [new FileTypeValidator({ fileType: /\.(jpg|jpeg|png)$/ })],
       }),
-    )
-    file: Express.Multer.File,
-    @Req() req,
-  ) {
+      )
+      file: Express.Multer.File,
+      @Req() req,
+      ) {
     // file.filename contains the name of the saved file
     // use Request.user to access the user id from the validated auth token
     // Request.user was set in the authGuard if the token is valid
-
     return this.appService.updateUserImage(req.user.id, file.filename);
   }
 }

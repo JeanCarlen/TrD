@@ -13,6 +13,9 @@ import { useNavigate } from 'react-router-dom';
 import {Routes as Router, Route, Navigate, Outlet} from 'react-router-dom';
 import RegisterButton from './LoginForm/RegisterButton';
 import Cookies from 'js-cookie';
+import { isToken } from 'typescript';
+import decodeToken from './helpers/helpers';
+import { useParams } from 'react-router-dom';
 import MFASetup from './pages/mfasetup';
 import Enter2Fa from './Components/Enter2Fa';
 import decodeToken from './helpers/helpers';
@@ -22,12 +25,18 @@ type Props = {}
 
 const PrivateRoutes = () => {
 	const isRegistered = Cookies.get('registered');
+
 	const token = Cookies.get('token');
 	const { authenticated } = useContext(AuthContext)
 
 	let tokenContent;
 	if (token) {
 		tokenContent = decodeToken(token);
+	}
+	else
+	{
+		content = decodeToken(isToken);
+		return <Outlet />
 	}
 
 	if (!token)
@@ -37,7 +46,6 @@ const PrivateRoutes = () => {
 	else
 		return <Outlet />
 }
-
 const Routes = (props: Props) => {
 	const navigate = useNavigate();
 	return (
@@ -47,11 +55,14 @@ const Routes = (props: Props) => {
 					<Route path="/authenticate" element={<Enter2Fa />} />
 				<Route element={<PrivateRoutes />}>
 					<Route path="/Home" element={<Home />} />
-					<Route path="/users" element={<Users />} />
+					{/* <Route path="/users" element={<Users />} /> */}
 					<Route path="/game" element={<Game />} />
-					<Route path="/chats" element={<Chat />} />
+					<Route path="/chats" Component={Chat} />
+					{/* element={<Chat />} /> */}
 					<Route path="/statistics" element={<Stats />} />
-					<Route path="/profiles" element={<Profiles />} />
+					{/* <Route path="/profiles" element={<Profiles />} /> */}
+					<Route path="/profiles/:users" element={<Profiles />} />
+					{/* <Route path="/profile" element={<Profiles />} /> */}
 					<Route path="/Logout" element={<Logout />} />
 					<Route path="/mfasetup" element={<MFASetup />} />
 					<Route path='*' element={<Navigate to='/login' replace />} />

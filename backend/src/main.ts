@@ -42,7 +42,7 @@ writeFileSync(outputPath, JSON.stringify(document), { encoding: 'utf8'});
 
   app.enableCors({
     origin: 'https://trd.laendrun.ch/',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE' ,
     allowedHeaders: 'Content-Type, Authorization, Accept, Cookie, Set-Cookie',
     credentials: true,
   });

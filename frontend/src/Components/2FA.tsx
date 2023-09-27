@@ -16,7 +16,7 @@ interface Authresponse{
 	user: User;
 }
 
-const GoogleAuth: React.FC = () => {
+const Auth2F: React.FC = () => {
 	const [user, setUser] = useState<User | null>(null);
 
 
@@ -52,6 +52,6 @@ const GoogleAuth: React.FC = () => {
 };
 
 
-export default GoogleAuth;
+export default Auth2F;
 
 
