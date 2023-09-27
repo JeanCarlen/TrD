@@ -66,6 +66,106 @@ export class ChatsController {
 	return this.chatsService.addUserToChat(+id, body);
   }
 
+  @Post(':id/users/ban')
+  @ApiOperation({summary: 'Ban a user from a chat.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 201, description: 'User banned from chat.'})
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  banUserFromChat(@Param('id') id: string, @Body() body) {
+	return this.chatsService.banUserFromChat(+id, body);
+  }
+
+  @Post(':id/users/unban')
+  @ApiOperation({summary: 'Unban a user from a chat.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 201, description: 'User unbanned from chat.'})
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  unbanUserFromChat(@Param('id') id: string, @Body() body) {
+	return this.chatsService.unbanUserFromChat(+id, body);
+  }
+
+  @Post(':id/users/leave')
+  @ApiOperation({summary: 'Leave a chat.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 201, description: 'User left chat.'})
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  leaveChat(@Param('id') id: string, @Body() body) {
+	return this.chatsService.leaveChat(+id, body);
+  }
+
+  @Post(':id/users/mute')
+  @ApiOperation({summary: 'Mute a user in a chat.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 201, description: 'User muted in chat.'})
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  muteUserInChat(@Param('id') id: string, @Body() body) {
+	return this.chatsService.muteUserInChat(+id, body);
+  }
+
+  @Post(':id/users/unmute')
+  @ApiOperation({summary: 'Unmute a user in a chat.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 201, description: 'User unmuted in chat.'})
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  unmuteUserInChat(@Param('id') id: string, @Body() body) {
+	return this.chatsService.unmuteUserInChat(+id, body);
+  }
+
+  @Post(':id/users/admin')
+  @ApiOperation({summary: 'Set a user as admin in a chat.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 201, description: 'User set as admin in chat.'})
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  setAdminInChat(@Param('id') id: string, @Body() body) {
+	return this.chatsService.setAdminInChat(+id, body);
+  }
+
+  @Post(':id/users/unadmin')
+  @ApiOperation({summary: 'Unset a user as admin in a chat.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 201, description: 'User unset as admin in chat.'})
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  unsetAdminInChat(@Param('id') id: string, @Body() body) {
+	return this.chatsService.unsetAdminInChat(+id, body);
+  }
+
+  @Get(':id/users/banned')
+  @ApiOperation({summary: 'Get all banned users in a chat.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 200, description: 'Return all banned users in a chat.', type: [Chats]})
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  findChatBannedUsers(@Param('id') id: string) {
+	return this.chatsService.findChatBannedUsers(+id);
+  }
+
+  @Get(':id/users/muted')
+  @ApiOperation({summary: 'Get all muted users in a chat.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 200, description: 'Return all muted users in a chat.', type: [Chats]})
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  findChatMutedUsers(@Param('id') id: string) {
+	return this.chatsService.findChatMutedUsers(+id);
+  }
+
+  @Get(':id/users/admins')
+  @ApiOperation({summary: 'Get all admins in a chat.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 200, description: 'Return all admins in a chat.', type: [Chats]})
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  findChatAdmins(@Param('id') id: string) {
+	return this.chatsService.findChatAdmins(+id);
+  }
+
   @Get(':id')
   @ApiOperation({summary: 'Get a chat.'})
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})

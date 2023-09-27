@@ -7,6 +7,8 @@ import { Chats } from './entities/chat.entity';
 import { Repository } from 'typeorm';
 import { CreateUserchatDto } from 'src/userchats/dto/create-userchat.dto';
 import { UserChats } from 'src/userchats/entities/userchat.entity';
+import { ChatAdmins } from 'src/chatadmins/entities/chatadmin.entity';
+import { MutedUsers } from 'src/mutedusers/entities/muteduser.entity';
 
 @Injectable()
 export class ChatsService {
@@ -15,7 +17,19 @@ export class ChatsService {
 		private readonly userchatsRepository: Repository<UserChats>,
 		@InjectRepository(Chats)
 		private readonly chatsRepository: Repository<Chats>,
+		@InjectRepository(ChatAdmins)
+		private readonly chatadminsRepository: Repository<ChatAdmins>,
 	) {}
+
+  private async isChatAdmin(chat_id: number, user_id: number) {
+	const chatAdmin = await this.chatadminsRepository.findOne({where: {chat_id: chat_id, user_id: user_id}})
+	if (!chatAdmin)
+		throw new BadRequestException(['You\'re not an admin on this chat.'], {
+			cause: new Error(),
+			description: `You're not an admin on this chat.`,
+		});
+	return true;
+  }
 
   public async create(createChatDto: CreateChatDto) {
 	if (!createChatDto.name) {
@@ -50,6 +64,65 @@ export class ChatsService {
 
   public async findOne(id: number) {
 	return await this.chatsRepository.findOne({where: { id: id}})
+  }
+
+  public async banUserFromChat(id: number, body) {
+	await this.isChatAdmin(id, body.user_id);
+	const chatAdmin = new ChatAdmins();
+	chatAdmin.user_id = body.user_id;
+	chatAdmin.chat_id = id;
+	return await this.chatadminsRepository.save(chatAdmin);
+  }
+
+  public async unbanUserFromChat(id: number, body) {
+	await this.isChatAdmin(id, body.user_id);
+	const chatAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
+	return await this.chatadminsRepository.remove(chatAdmin);
+  }
+
+  public async leaveChat(id: number, body) {
+	const userChat = await this.userchatsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
+	return await this.userchatsRepository.remove(userChat);
+  }
+
+  public async muteUserInChat(id: number, body) {
+	await this.isChatAdmin(id, body.user_id);
+	const mutedUser = new MutedUsers();
+	mutedUser.user_id = body.user_id;
+	mutedUser.chat_id = id;
+	return await this.chatadminsRepository.save(mutedUser);
+  }
+
+  public async unmuteUserInChat(id: number, body) {
+	await this.isChatAdmin(id, body.user_id);
+	const mutedUser = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
+	return await this.chatadminsRepository.remove(mutedUser);
+  }
+
+  public async setAdminInChat(id: number, body) {
+	await this.isChatAdmin(id, body.user_id);
+	const chatAdmin = new ChatAdmins();
+	chatAdmin.user_id = body.user_id;
+	chatAdmin.chat_id = id;
+	return await this.chatadminsRepository.save(chatAdmin);
+  }
+
+  public async unsetAdminInChat(id: number, body) {
+	await this.isChatAdmin(id, body.user_id);
+	const chatAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
+	return await this.chatadminsRepository.remove(chatAdmin);
+  }
+
+  public async findChatAdmins(id: number) {
+	return await this.chatadminsRepository.find({where: {chat_id: id}})
+  }
+
+  public async findChatMutedUsers(id: number) {
+	return await this.chatadminsRepository.find({where: {chat_id: id}})
+  }
+
+  public async findChatBannedUsers(id: number) {
+	return await this.chatadminsRepository.find({where: {chat_id: id}})
   }
 
   public async update(id: number, updateChatDto: UpdateChatDto) {
