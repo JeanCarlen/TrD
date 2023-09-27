@@ -16,6 +16,7 @@ import { FriendsModule } from './friends/friends.module';
 import { SocketModule } from './socket/socket.module';
 import { ChatsModule } from './chats/chats.module';
 import { UserChats } from './userchats/entities/userchat.entity';
+import { ChatadminsModule } from './chatadmins/chatadmins.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { UserChats } from './userchats/entities/userchat.entity';
 	SocketModule,
 	ChatsModule,
 	UserChats,
+	ChatadminsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
