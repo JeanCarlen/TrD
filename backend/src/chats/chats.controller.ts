@@ -2,11 +2,12 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { ChatsService } from './chats.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth.guard';
 import { Chats } from './entities/chat.entity';
 import { Messages } from 'src/messages/entities/message.entity';
 import { MessagesService } from 'src/messages/messages.service';
+import { ChatsBodyDto } from './dto/chats-body.dto';
 
 @ApiTags('Chats')
 @Controller('chats')
@@ -62,7 +63,7 @@ export class ChatsController {
   @ApiResponse({status: 201, description: 'User added to chat.'})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  addUserToChat(@Param('id') id: string, @Body() body) {
+  addUserToChat(@Param('id') id: string, @Body() body : ChatsBodyDto) {
 	return this.chatsService.addUserToChat(+id, body);
   }
 
@@ -72,7 +73,7 @@ export class ChatsController {
   @ApiResponse({status: 201, description: 'User banned from chat.'})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  banUserFromChat(@Param('id') id: string, @Body() body) {
+  banUserFromChat(@Param('id') id: string, @Body() body: ChatsBodyDto) {
 	return this.chatsService.banUserFromChat(+id, body);
   }
 
@@ -82,7 +83,7 @@ export class ChatsController {
   @ApiResponse({status: 201, description: 'User unbanned from chat.'})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  unbanUserFromChat(@Param('id') id: string, @Body() body) {
+  unbanUserFromChat(@Param('id') id: string, @Body() body: ChatsBodyDto) {
 	return this.chatsService.unbanUserFromChat(+id, body);
   }
 
@@ -92,7 +93,7 @@ export class ChatsController {
   @ApiResponse({status: 201, description: 'User left chat.'})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  leaveChat(@Param('id') id: string, @Body() body) {
+  leaveChat(@Param('id') id: string, @Body() body: ChatsBodyDto) {
 	return this.chatsService.leaveChat(+id, body);
   }
 
@@ -102,7 +103,7 @@ export class ChatsController {
   @ApiResponse({status: 201, description: 'User muted in chat.'})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  muteUserInChat(@Param('id') id: string, @Body() body) {
+  muteUserInChat(@Param('id') id: string, @Body() body: ChatsBodyDto) {
 	return this.chatsService.muteUserInChat(+id, body);
   }
 
@@ -112,7 +113,7 @@ export class ChatsController {
   @ApiResponse({status: 201, description: 'User unmuted in chat.'})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  unmuteUserInChat(@Param('id') id: string, @Body() body) {
+  unmuteUserInChat(@Param('id') id: string, @Body() body: ChatsBodyDto) {
 	return this.chatsService.unmuteUserInChat(+id, body);
   }
 
@@ -122,7 +123,7 @@ export class ChatsController {
   @ApiResponse({status: 201, description: 'User set as admin in chat.'})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  setAdminInChat(@Param('id') id: string, @Body() body) {
+  setAdminInChat(@Param('id') id: string, @Body() body: ChatsBodyDto) {
 	return this.chatsService.setAdminInChat(+id, body);
   }
 
@@ -132,7 +133,7 @@ export class ChatsController {
   @ApiResponse({status: 201, description: 'User unset as admin in chat.'})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  unsetAdminInChat(@Param('id') id: string, @Body() body) {
+  unsetAdminInChat(@Param('id') id: string, @Body() body: ChatsBodyDto) {
 	return this.chatsService.unsetAdminInChat(+id, body);
   }
 
