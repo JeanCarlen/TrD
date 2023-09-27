@@ -1,23 +1,17 @@
 import React, {useState, useEffect} from 'react';
 import Sidebar from '../Components/Sidebar';
 import Cookies from 'js-cookie';
-
-interface achlist{
-	id: number,
-	title: string,
-	description: string,
-	objective: number,
-}
+import './Stats.css';
+import { autoGetFetch } from '../helpers/helpers';
 
 const AchTest: React.FC = () => {
 	
 	const [achieve, setAchieve] = useState([]);
 	const [fetched, setFetched] = useState<boolean>(false);
-	const [parsed, setParsed] = useState();
 
 	
 	const GetAchieve = async() => {
-		
+		setFetched(false);
 		const token = Cookies.get('token');
 
 		const response = await fetch ('http://localhost:8080/api/achievments', {
@@ -32,36 +26,34 @@ const AchTest: React.FC = () => {
 		if (response.ok)
 		{
 			setAchieve(data);
-			console.log(achieve[0]);
-			console.log(achieve[1]);
 			setFetched(true);
-			console.log("BUTTON TIME!");
 		}
 	}
 
 	useEffect(() => {
 		GetAchieve();
 	}, []);
-
+	
+	// setAchieve(autoGetFetch("achievments"));
+	// setFetched(true)
 
 	return(
 		<div>
 			<Sidebar/>
 			ACHIEVE!
 			<br/>
-			{fetched ?
-			<p>
-				{achieve.map((employee) => {
+			<div className="grid">
+			{fetched ? <div className="history_1">
+				{achieve.map((achievement) => {
 					return (
-						<div key={employee.id}>
-						<h2>title: {employee.title}</h2>
-						<h2>description: {employee.description}</h2>
-
-						<hr />
+						<div key={achievement.id} className="game-stats" style={{flexDirection: "column"}}>
+						<div className='box'>title: {achievement.title}</div>
+						<div className='box'>description: {achievement.description}</div>
 						</div>
 					);
 				})}
-			</p> : <p> NOT FETCHED YET</p>}
+			</div> : <div className="history_1"> Loading...</div>}
+			</div>
 			<button onClick={GetAchieve}>
 				NO ACHIEVE?
 			</button>

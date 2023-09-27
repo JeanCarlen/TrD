@@ -1,16 +1,22 @@
 import React from "react";
 import './Stats.css';
+import { gameInfo } from "./Stats";
 
-const LayoutGamestats: React.FunctionComponent = () => {
+const LayoutGamestats: React.FunctionComponent<gameInfo> = ({score1, score2, player1, player2}: gameInfo) => {
+	
+	let winLoose: string;
+
+	if (score1 > score2)
+		winLoose = 'WON';
+	else
+		winLoose = 'LOST';
+
 	return (
 	<div className="game-stats">
-	<h2>PLAYERS</h2>
-	<div className='box'>SCORE</div>
-	<div className='box'>TIME</div>
-	<div className='box'>LAYOUT</div>
-	<div className='box'>GAMETYPE</div>
-	<div className='box'>ENEMY</div>
-	<div className='box'>CR CHANGES</div>
+	<div className='box' style={{fontSize:"25px"}}>{player1} - {player2}</div>
+	<div className='box'>{score1}</div>
+	<div className='box'>{score2}</div>
+	<div className='box' style={winLoose=='WON' ? {color:"green"} : {color:"RED"}}>{winLoose}</div>
 	</div>
 	)
 }
