@@ -3,7 +3,7 @@ import { AuthContext } from './AuthContext';
 import Sidebar from './Components/Sidebar';
 import Users from './pages/Users';
 import Game from './pages/LetsPlay';
-import Chat from './pages/Chat';
+import {Chat} from './pages/Chat';
 import Stats from './pages/Stats';
 import SignIn from './pages/SingIn';
 import Home from './pages/Home';
@@ -16,19 +16,22 @@ import Cookies from 'js-cookie';
 import { isToken } from 'typescript';
 import decodeToken from './helpers/helpers';
 import { useParams } from 'react-router-dom';
+import MFASetup from './pages/mfasetup';
+import Enter2Fa from './Components/Enter2Fa';
+import decodeToken from './helpers/helpers';
 
 
 type Props = {}
 
 const PrivateRoutes = () => {
 	const isRegistered = Cookies.get('registered');
-	const isToken: string|undefined  = Cookies.get('token');
-	let content: {username: string, user: number};
+
+	const token = Cookies.get('token');
 	const { authenticated } = useContext(AuthContext)
 
-	if (!isToken || isToken == undefined){
-		content = { username: 'default', user: 0};
-		return <Navigate to='/login' replace />
+	let tokenContent;
+	if (token) {
+		tokenContent = decodeToken(token);
 	}
 	else
 	{
@@ -36,13 +39,20 @@ const PrivateRoutes = () => {
 		return <Outlet />
 	}
 
+	if (!token)
+		return <Navigate to='/login' replace />
+	else if (token && tokenContent && tokenContent.twofaenabled)
+		return <Navigate to='/authenticate' replace />
+	else
+		return <Outlet />
 }
 const Routes = (props: Props) => {
 	const navigate = useNavigate();
 	return (
 		<div className='loginTest'>
-				<Router>
-				<Route path="/login" element={<RegisterButton />} />
+			<Router>
+					<Route path="/login" element={<RegisterButton />} />
+					<Route path="/authenticate" element={<Enter2Fa />} />
 				<Route element={<PrivateRoutes />}>
 					<Route path="/Home" element={<Home />} />
 					{/* <Route path="/users" element={<Users />} /> */}
@@ -54,7 +64,8 @@ const Routes = (props: Props) => {
 					<Route path="/profiles/:users" element={<Profiles />} />
 					{/* <Route path="/profile" element={<Profiles />} /> */}
 					<Route path="/Logout" element={<Logout />} />
-				<Route path='*' element={<Navigate to='/login' replace />} />
+					<Route path="/mfasetup" element={<MFASetup />} />
+					<Route path='*' element={<Navigate to='/login' replace />} />
 				</Route>
 			</Router>
 		</div>

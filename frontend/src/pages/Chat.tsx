@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import Sidebar from '../Components/Sidebar';
-import { Avatar, AvatarBadge, AvatarGroup, CSSReset } from '@chakra-ui/react'
+import { Avatar, AvatarBadge, AvatarGroup, CSSReset, useConst } from '@chakra-ui/react'
 import {Wrap, WrapItem, Text} from '@chakra-ui/react'
 import { avatarAnatomy } from '@chakra-ui/anatomy'
 import { ChakraProvider } from '@chakra-ui/react'
@@ -9,6 +9,7 @@ import ChatInterface from '../chat/chatroom';
 import './Chat.css'
 import { useState } from 'react';
 import OnlineUsersList from '../chat/onlineFriends';
+import { WebsocketContext, socket } from '../context/websocket.context';
 
 interface Friends {
 	id: number;
@@ -16,63 +17,102 @@ interface Friends {
 	state: number;
   }
 
-const Chat: React.FunctionComponent = () => {
-	const [friends, setFriends] = useState<Friends[]>([]);
-	const [friendsName, setFriendsName] = useState<string>('');
+export function Chat() {
+	const [value, setValue] = useState('');
+	const [data, setData] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
 
-const handleFriends = () => {
-	const newFriend: Friends = {
-		id:friends.length + 1,
-		name: friendsName,
-		state: 1,
+	const socket = useContext(WebsocketContext);
 
-	};
-	setFriends([...friends, newFriend]);
-    setFriendsName('');
+	useEffect(() => {
+		socket.on('connect', () => {
+			console.log('connected')
+		})
+		socket.on('srv-message', (data) => {
+			console.log(`srv-message ${data}`)
+		});
+		return () => {
+			console.log('Unregistering events...')
+			socket.off('connect')
+			socket.off('srv-message')
+		}
+	}, [])
 
-}
+	function onSubmit(e: React.FormEvent) {
+	  e.preventDefault();
+	  socket.emit('create-something', value)
+	}
 
+	function connect(e: React.FormEvent) {
+		e.preventDefault();
+		setIsLoading(true);
+		socket.connect()
+		setIsLoading(false);
+	}
+
+	// socket.on('srv-message', (body) => console.log(body))
+  
 	return (
-		<div>
-            <Sidebar/>
-		<div className='HomeText'>
-			Chat
-		</div>
-		<div className='grid'>
-			<div className="leftColumn">
-			{friends.map((friend) => (
-			<div
-				key={friend.id}
-				className={`friendBubble ${
-				friend.state === 1 ? 'online' : 'offline'
-				}`}
-			>
-				{friend.name}
-			</div>
-			))}
-			<div className="message-input">
-        	<input className='messages'
-			type="text"
-			placeholder="TFriend name"
-			value={friendsName}
-			onChange={(e) => setFriendsName(e.target.value)}
-        	/>
-			<button className="sendButton"
-			onClick={handleFriends}>ADD</button>
-			</div>
-			</div>
-			<div className="middleColumn">
-				<ChatInterface/>
-			</div>
-			<div className="rightColumn">
-				<OnlineUsersList/>
-			</div>
-		</div>
-		</div>
-	)
-}
-
-export default Chat
+		<>
+			<Sidebar />
+			<p>{ data }</p>
+			<button onClick={ connect } >Connect</button>
+			<form onSubmit={ onSubmit }>
+				<input onChange={ e => setValue(e.target.value) } />
+		
+				<button type="submit" disabled={ isLoading }>Submit</button>
+			</form>
+		</>
+	);
+  }
+		// <div>
+		// 	<ChatHome
+		// 			username={username}
+		// 			setUsername={setUsername}
+		// 			room={room}
+		// 			setRoom={setRoom}
+		// 			socket={socket}
+		// 			/>
+		// 	<ChatRoom username={username} room={room} socket={socket} />
+		// </div>
+	// 	<div>
+    //         <Sidebar/>
+	// 	<div className='HomeText'>
+	// 		Chat
+	// 	</div>
+	// 	<div className='grid'>
+	// 		<div className="leftColumn">
+	// 		{friends.map((friend) => (
+	// 		<div
+	// 			key={friend.id}
+	// 			className={`friendBubble ${
+	// 			friend.state === 1 ? 'online' : 'offline'
+	// 			}`}
+	// 		>
+	// 			{friend.name}
+	// 		</div>
+	// 		))}
+	// 		<div className="message-input">
+    //     	<input className='messages'
+	// 		type="text"
+	// 		placeholder="TFriend name"
+	// 		value={friendsName}
+	// 		onChange={(e) => setFriendsName(e.target.value)}
+    //     	/>
+	// 		<button className="sendButton"
+	// 		onClick={handleFriends}>ADD</button>
+	// 		</div>
+	// 		</div>
+	// 		<div className="middleColumn">
+	// 			<ChatInterface/>
+	// 		</div>
+	// 		<div className="rightColumn">
+	// 			<OnlineUsersList/>
+	// 		</div>
+	// 	</div>
+	// 	</div>
+	// )
+// }
 
 // <ChakraProvider resetCSS={false}>
 // <Wrap>

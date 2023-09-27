@@ -10,12 +10,14 @@ import {
   UseGuards,
   UnauthorizedException,
   Inject,
+  Delete,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginUserDto } from '../users/dto/login-user.dto';
-import { AuthGuard } from 'src/auth.guard';
+import { AuthGuard, OTPGuard } from 'src/auth.guard';
+import { otpBody } from 'src/validation/param.validators';
 
 @Controller('auth')
 export class AuthController {
@@ -45,6 +47,17 @@ export class AuthController {
     response.redirect('https://trd.laendrun.ch/login');
   }
 
+  @Delete('2fa')
+  @UseGuards(AuthGuard)
+  async turnOff2FA(@Req() request:any, @Body() body: otpBody) {
+	const isCodeValid = await this.authService.is2FACodeValid(
+		body.code, request.user.id
+	);
+	if (!isCodeValid)
+		throw new UnauthorizedException('Wrong authentication code.');
+	return await this.authService.turnOff2FA(request.user.id);
+  }
+
   @Post('2fa/generate')
   @UseGuards(AuthGuard)
   async generate(@Req() request) {
@@ -54,9 +67,9 @@ export class AuthController {
 
   @Post('2fa/turn-on')
   @UseGuards(AuthGuard)
-  async turnOn2FA(@Req() request, @Body() body) {
+  async turnOn2FA(@Req() request, @Body() body: otpBody) {
     const isCodeValid = await this.authService.is2FACodeValid(
-      body.twoFACode,
+      body.code,
       request.user.id,
     );
     if (!isCodeValid)
@@ -65,10 +78,10 @@ export class AuthController {
   }
 
   @Post('2fa/authenticate')
-  @UseGuards(AuthGuard)
-  async authenticate(@Req() request, @Body() body) {
+  @UseGuards(OTPGuard)
+  async authenticate(@Req() request, @Body() body: otpBody) {
     const isCodeValid = await this.authService.is2FACodeValid(
-      body.twoFACode,
+      body.code,
       request.user.id,
     );
     if (!isCodeValid)

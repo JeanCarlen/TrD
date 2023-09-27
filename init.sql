@@ -8,7 +8,6 @@ CREATE TABLE users (
 	"id" serial NOT NULL,
 	"login42" varchar(100) NULL,
 	"username" varchar(100) NOT NULL,
-	"refreshtoken" varchar(256) NULL,
 	"twofaenabled" BOOLEAN NOT NULL DEFAULT false,
 	"towfasecret" char(256) NULL,
 	"avatar" varchar(256) NOT NULL DEFAULT '/path/to/default.png',
@@ -32,6 +31,8 @@ CREATE TABLE matches (
 CREATE TABLE chats (
 	"id" serial NOT NULL,
 	"type" integer NOT NULL,
+	"name" varchar(32) NULL,
+	"owner" integer NOT NULL,
 	CONSTRAINT "chats_pk" PRIMARY KEY ("id")
 );
 
@@ -39,10 +40,10 @@ CREATE TABLE friends (
 	"id" serial NOT NULL,
 	"requester" integer NOT NULL,
 	"requested" integer NOT NULL,
-	"status" integer NOT NULL
+	"status" integer NOT NULL,
 	CONSTRAINT "friends_pk" PRIMARY KEY ("id"),
 	CONSTRAINT "friends_fk0" FOREIGN KEY ("requester") REFERENCES "users"("id"),
-	CONSTRAINT "friends_fk1" FOREIGN KEY ("requested") REFERENCES "users"("id"),
+	CONSTRAINT "friends_fk1" FOREIGN KEY ("requested") REFERENCES "users"("id")
 );
 
 CREATE TABLE userchats (

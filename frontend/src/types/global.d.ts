@@ -8,4 +8,10 @@ declare global {
         status: number,
         name: string,
     }
+  type JWTPayload = {
+	user: number,
+	username: string,
+	avatar: string,
+	twofaenabled?: boolean,
+  };
 }

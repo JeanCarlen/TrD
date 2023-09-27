@@ -17,16 +17,22 @@ import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import * as mime from 'mime-types';
 import { AuthGuard } from './auth.guard';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
+  @ApiResponse({status: 200, description: 'Hello World!'})
   getHello(): string {
     return this.appService.getHello();
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({summary: 'Upload a file.'})
+  @ApiUnauthorizedResponse()
+  @ApiResponse({status: 201, description: 'File created.'})
   @UseGuards(AuthGuard)
   @UseInterceptors(
     FileInterceptor('file', {

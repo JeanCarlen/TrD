@@ -89,8 +89,6 @@ export class AuthService {
     }
   }
 
-  public;
-
   public async setUp2FA(user: Users) {
     const data: { secret: string; otpUri: string } =
       await this.generate2FASecret(user);
@@ -125,5 +123,9 @@ export class AuthService {
 
   public async turnOn2FA(id: number) {
     return await this.usersService.turnOn2FA(id);
+  }
+
+  public async turnOff2FA(id: number) {
+	return this.usersService.turnOff2FA(id);
   }
 }
