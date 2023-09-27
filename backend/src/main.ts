@@ -30,17 +30,16 @@ async function bootstrap() {
   .addTag('transcendence')
   .build();
   const options: SwaggerDocumentOptions =  {
-		operationIdFactory: (
-			controllerKey: string,
-			methodKey: string
-		) => methodKey,
-		extraModels: [Create42UserDto, CreateUserDto, LoginUserDto, UpdateUserDto]
- 	 };
-	const document = SwaggerModule.createDocument(app, config, options);
-	const outputPath = path.resolve(process.cwd(), 'swagger.json');
-	writeFileSync(outputPath, JSON.stringify(document), { encoding: 'utf8'});
+	operationIdFactory: (
+	  controllerKey: string,
+	  methodKey: string
+	) => methodKey,
+	extraModels: [Create42UserDto, CreateUserDto, LoginUserDto, UpdateUserDto]
+  };
+const document = SwaggerModule.createDocument(app, config, options);
+const outputPath = path.resolve(process.cwd(), 'swagger.json');
+writeFileSync(outputPath, JSON.stringify(document), { encoding: 'utf8'});
 
-  //app.setGlobalPrefix('api')
   app.enableCors({
     origin: 'https://trd.laendrun.ch/',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
