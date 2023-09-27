@@ -9,7 +9,7 @@ CREATE TABLE users (
 	"login42" varchar(100) NULL,
 	"username" varchar(100) NOT NULL,
 	"twofaenabled" BOOLEAN NOT NULL DEFAULT false,
-	"towfasecret" char(256) NULL,
+	"twofasecret" char(256) NULL,
 	"avatar" varchar(256) NOT NULL DEFAULT '/path/to/default.png',
 	"is42" boolean DEFAULT false,
 	"password" varchar(72) NULL,
@@ -106,14 +106,11 @@ CREATE TABLE blockedusers (
 
 CREATE TABLE achievments (
 	"id" serial NOT NULL,
-	"title" varchar(32),
+	"title" varchar(32) NOT NULL,
 	"description" varchar(256),
 	"objective" integer,
 	CONSTRAINT "achievments_pk" PRIMARY KEY ("id")
 );
-
-INSERT INTO achievments (id, title, description, objective) VALUES(1, 'LOGIN', 'Good job! You logged in for the first time!', 1);
-INSERT INTO achievments (id, title, description, objective) VALUES(2, 'NIKKI', 'Good job! You made NIKKI smile!', 1);
 
 CREATE TABLE user_achievments (
 	"id" serial NOT NULL,
