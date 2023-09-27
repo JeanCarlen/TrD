@@ -2,8 +2,10 @@ export {};
 
 declare global {
 	type Message = {
-		sender: number,
-		receiver: number,
-		message: string,
+		id: number;
+		sender: number;
+		sender_name: string;
+		text: string;
+		date: string;
 	}
 }
