@@ -1,6 +1,5 @@
 import { IsString, MinLength, MaxLength, ValidateIf } from 'class-validator';
 import { IsMatching } from 'src/validation/matches.decorator';
-import { IsUniqueUsername } from 'src/validation/uniqueUsername.decorator';
 import { IsValidPassword } from 'src/validation/validPassword.decorator';
 
 export class CreateUserDto {

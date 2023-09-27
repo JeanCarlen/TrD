@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core'
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -13,6 +14,8 @@ import { AchievmentsModule } from './achievments/achievments.module';
 import { UserAchievmentsModule } from './user_achievments/user_achievments.module';
 import { FriendsModule } from './friends/friends.module';
 import { SocketModule } from './socket/socket.module';
+import { ChatsModule } from './chats/chats.module';
+import { UserChats } from './userchats/entities/userchat.entity';
 
 @Module({
   imports: [
@@ -28,6 +31,8 @@ import { SocketModule } from './socket/socket.module';
     UserAchievmentsModule,
     FriendsModule,
 	SocketModule,
+	ChatsModule,
+	UserChats,
   ],
   controllers: [AppController],
   providers: [AppService],

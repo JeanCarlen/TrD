@@ -11,9 +11,6 @@ export class Users extends BaseEntity {
   @Column({ type: 'varchar', length: 100, nullable: true })
   username: string;
 
-  @Column({ type: 'varchar', length: 256, nullable: true })
-  refreshtoken: string;
-
   @Column({ type: 'boolean', nullable: true })
   twofaenabled: boolean;
 

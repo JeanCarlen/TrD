@@ -13,6 +13,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard, CurrentOrAdminGuard } from 'src/auth.guard';
 import { paramValidator } from 'src/validation/param.validators';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 
 @Controller('users')
 export class UsersController {
@@ -39,6 +40,16 @@ export class UsersController {
   @UseGuards(AuthGuard, CurrentOrAdminGuard)
   findOne(@Param() params: paramValidator) {
     return this.usersService.findOne(+params.id);
+  }
+
+  @Get(':id/chats')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get all chats of a user.' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
+  @ApiResponse({status: 200, description: 'Return all chats of a user.'})
+  @ApiBearerAuth()
+  findUserChats(@Param() params: paramValidator) {
+	return this.usersService.findUserChats(+params.id);
   }
 
   @Get('/42')

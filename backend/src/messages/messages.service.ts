@@ -21,6 +21,10 @@ export class MessagesService {
     return this.messagesRepository.save(message);
   }
 
+  public async findChatMessages(id: number) {
+	return await this.messagesRepository.find({ where: { chat_id: id } });
+  }
+
   public findAll() {
     return this.messagesRepository.find();
   }
