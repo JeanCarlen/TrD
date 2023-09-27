@@ -1,0 +1,44 @@
+/* Style for the message bubbles */
+.message-bubble {
+	max-width: 80%;
+	margin: 10px;
+	padding: 10px;
+	border-radius: 10px;
+	clear: both;
+	word-wrap: break-word;
+	position: relative;
+  }
+  
+  /* Style for the sender's username */
+  .message-sender {
+	font-weight: bold;
+	margin-bottom: 4px;
+	font-size: 12px;
+  }
+  
+  /* Style for the message text */
+  .message-text {
+	color: #333;
+  }
+  
+  /* Style for the message time (bottom right) */
+  .message-date {
+	font-size: 12px;
+	color: #999;
+	position: absolute;
+	bottom: 5px;
+	right: 5px;
+  }
+  
+  /* Style for user messages */
+  .user .message-bubble {
+	background-color: #dcf8c6; /* Light green background for user messages */
+	float: right;
+  }
+  
+  /* Style for other messages */
+  .other .message-bubble {
+	background-color: #ffffff; /* White background for other messages */
+	float: left;
+  }
+  
