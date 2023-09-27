@@ -19,6 +19,7 @@ import { useParams } from 'react-router-dom';
 import MFASetup from './pages/mfasetup';
 import Enter2Fa from './Components/Enter2Fa';
 import decodeToken from './helpers/helpers';
+import AchTest from './pages/AchievementTest';
 
 
 type Props = {}
@@ -65,6 +66,7 @@ const Routes = (props: Props) => {
 					{/* <Route path="/profile" element={<Profiles />} /> */}
 					<Route path="/Logout" element={<Logout />} />
 					<Route path="/mfasetup" element={<MFASetup />} />
+					<Route path="/achi" element={<AchTest />} />
 					<Route path='*' element={<Navigate to='/login' replace />} />
 				</Route>
 			</Router>

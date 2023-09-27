@@ -93,7 +93,7 @@ const OnlineUsersList: React.FC = () => {
 					</MenuList>
 					</Menu>
 			</li>
-        ))}
+			))}
 		</ul>
 		  </div>
 		);
