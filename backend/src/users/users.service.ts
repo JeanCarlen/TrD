@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -6,6 +6,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Users } from './entities/users.entity';
 import { Create42UserDto } from './dto/create-42-user.dto';
+import { UserchatsService } from 'src/userchats/userchats.service';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -15,7 +16,9 @@ export class UsersService {
   constructor(
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
-  ) {}
+	@Inject(UserchatsService)
+	private readonly userchatsService: UserchatsService,
+) {}
 
   public getJWT(
     user:
@@ -55,7 +58,7 @@ export class UsersService {
   ): Promise<{ message: string[]; token: string }> {
     const user = await this.usersRepository.findOne({ where: { id: id } });
         user.password = this.hashPassword(updateUserDto.password);
-        await this.usersRepository.update({ id: id }, user);
+        await this.usersRepository.save(user);
         return { message: ['Password changed.'], token: this.getJWT(user) };
   }
 
@@ -75,7 +78,7 @@ export class UsersService {
         description: `Username already taken.`,
       });
     user.username = updateUserDto.username;
-
+	  await this.usersRepository.save(user);
     return { message: [''], token: this.getJWT(user) };
   }
 
@@ -177,6 +180,10 @@ export class UsersService {
       where: { id: id },
       select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
     });
+  }
+
+  public async findUserChats(id: number) {
+	return await this.userchatsService.findByUserId(id);
   }
 
   public findTwoFaSecret(id: number) {
