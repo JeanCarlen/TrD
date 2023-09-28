@@ -24,7 +24,8 @@ export class UsersService {
     user:
       | { id: string; username: string; avatar: string; login42: string }
       | Users,
-    twoFaEnabled?: boolean,
+	  twoFaCodeReq: boolean,
+	  twoFaEnabled?: boolean,
   ): string {
     let payload;
     if (twoFaEnabled) {
@@ -34,6 +35,7 @@ export class UsersService {
         avatar: user.avatar,
         login42: user.login42 || null,
         twofaenabled: true,
+		twofacodereq: twoFaCodeReq || false,
       };
     } else {
       payload = {
@@ -41,6 +43,8 @@ export class UsersService {
         username: user.username,
         avatar: user.avatar,
         login42: user.login42 || null,
+		twofaenabled: false,
+		twofacodereq: false
       };
     }
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
@@ -59,7 +63,7 @@ export class UsersService {
     const user = await this.usersRepository.findOne({ where: { id: id } });
         user.password = this.hashPassword(updateUserDto.password);
         await this.usersRepository.save(user);
-        return { message: ['Password changed.'], token: this.getJWT(user) };
+        return { message: ['Password changed.'], token: this.getJWT(user, user.twofaenabled) };
   }
 
   private async updateUsername(
@@ -79,7 +83,7 @@ export class UsersService {
       });
     user.username = updateUserDto.username;
 	  await this.usersRepository.save(user);
-    return { message: [''], token: this.getJWT(user) };
+    return { message: [''], token: this.getJWT(user, user.twofaenabled) };
   }
 
   private async localLogin(
@@ -96,7 +100,7 @@ export class UsersService {
         description: `Unknown username or password.`,
       });
 
-    return { message: ['Successfully logged in.'], token: this.getJWT(user) };
+    return { message: ['Successfully logged in.'], token: this.getJWT(user, false, false) };
   }
 
   private async login2FA(loginUserDto: LoginUserDto, user: Users) {
@@ -111,7 +115,7 @@ export class UsersService {
       });
     return {
       message: ['Two Factor Code needed.'],
-      token: this.getJWT(user, true),
+      token: this.getJWT(user, true, true),
     };
   }
 
@@ -125,7 +129,7 @@ export class UsersService {
         description: `Unknown username or password.`,
       });
     // check if twofaenabled or not
-    console.log(user);
+    // console.log(user);
     if (user.twofaenabled) return await this.login2FA(loginUserDto, user);
     return await this.localLogin(loginUserDto, user);
   }
@@ -151,7 +155,7 @@ export class UsersService {
       });
 
     user.password = this.hashPassword(createUserDto.password);
-    const token = this.getJWT(await this.usersRepository.save(user));
+    const token = this.getJWT(await this.usersRepository.save(user), false);
     return { message: ['Successfully registered.'], token: token };
   }
 
@@ -165,7 +169,7 @@ export class UsersService {
     user.login42 = create42User.login42;
     user.is42 = true;
 
-    const token = this.getJWT(await this.usersRepository.save(user));
+    const token = this.getJWT(await this.usersRepository.save(user), false);
     return { message: ['Successfully registered.'], token: token };
   }
 
@@ -251,7 +255,7 @@ export class UsersService {
 
     user.avatar = process.env.HOST + 'images/' + imageName;
     const inserted = await this.usersRepository.save(user);
-    const token = this.getJWT(inserted);
+    const token = this.getJWT(inserted, false);
     return { message: ['Avatar successfully saved.'], token: token };
   }
 
@@ -271,7 +275,7 @@ export class UsersService {
     await this.usersRepository.save(user);
     return {
       message: ['Two factor authentication successfully turned on.'],
-      token: this.getJWT(user),
+      token: this.getJWT(user, false),
     };
   }
 
@@ -284,7 +288,7 @@ export class UsersService {
 	await this.usersRepository.save(user);
 	return {
 		message: ['Two factor authentication successfully turned off.'],
-		token: this.getJWT(user)
+		token: this.getJWT(user, false, false)
 	}
   }
 }
