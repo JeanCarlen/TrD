@@ -2,12 +2,12 @@ import React, { useState, useContext, useEffect } from "react";
 import { WebsocketContext } from "../context/websocket.context";
 import Cookies from "js-cookie";
 import decodeToken from '../helpers/helpers';
-import './Chat.css'
+import './ChatInterface.css'
 
 interface Message {
   id: number;
   text: string;
-  sender: number;
+  sender: string;
   sender_Name: string;
   date: string;
 }
@@ -16,7 +16,7 @@ const ChatInterface: React.FC = () => {
   const [value, setValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender: 0, sender_Name: '', date: '' });
+  const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender: '', sender_Name: '', date: '' });
   const socket = useContext(WebsocketContext);
   const token: string | undefined = Cookies.get("token");
   const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
@@ -68,12 +68,12 @@ const ChatInterface: React.FC = () => {
     const updatedMessage: Message = {
       id: messages.length + 3,
       text: newMessage.text,
-      sender: 0,
+      sender: '',
       sender_Name: 'user',
       date: new Date().toLocaleTimeString(),
     };
 
-    setNewMessage({ id: 0, text: '', sender: 0, sender_Name: '', date: '' });
+    setNewMessage({ id: 0, text: '', sender: '', sender_Name: '', date: '' });
   }
 
   function connect(e: React.FormEvent) {
@@ -91,19 +91,16 @@ const ChatInterface: React.FC = () => {
       <button onClick={connect} disabled={isLoading || socket.connected}>
         {socket.connected ? "Connected" : "Connect"}
       </button>
-      <div className="chat-interface">
         <div className="message-display">
-          <div className="character-picture">bob</div>
+          <div className="message-box">
           {messages.map((message) => (
-            <div key={message.id} className={`message-bubble ${message.sender_Name === message.sender_Name ? message.sender_Name : 'other'}`}>
-              <div className="message-header">
-                <span className="message-sender">{message.sender_Name}</span>
-                <span className="message-date">{message.date}</span>
-              </div>
-              <span className="message-text">{message.text}</span>
+            <div key={message.id} className={`message-bubble ${message.sender === content?.username ? 'user-message' : 'other-message'}`}>
+              <span className="message-sender">{message.sender}</span> <br/>
+              <span className="message-text">{message.text}</span> <br/>
+              <span className="message-date">{message.date}</span>
             </div>
           ))}
-        </div>
+          </div>
         <div className="message-input">
           <input
             className="messages"
@@ -114,7 +111,7 @@ const ChatInterface: React.FC = () => {
               let username = content?.username;
               if (username === undefined)
                 username = 'user';
-              setNewMessage({ id: messages.length + 1, text: e.target.value, sender: 0, sender_Name: username, date: Date.now().toString() })}
+              setNewMessage({ id: messages.length + 1, text: e.target.value, sender: '', sender_Name: username, date: Date.now().toString() })}
           }
           />
           <button className="sendButton" onClick={() => handleSendMessage()}>

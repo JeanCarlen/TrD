@@ -29,7 +29,7 @@ fclean:
 
 upfront:
 	@echo "updating the front :]"
-	@docker cp ./frontend/src trd-frontend-1:/app
+	@docker cp ./frontend/src swmg-frontend-1:/app
 
 help:
 	@echo "Available targets:"
