@@ -4,11 +4,11 @@ import Cookies from 'js-cookie';
 import './Stats.css';
 import { autoGetFetch } from '../helpers/helpers';
 
-type achievementData{
-	id: number,
-	title: string,
-	description: string,
-	objective: number,
+type achievementData={
+	id: number;
+	title: string;
+	description: string;
+	objective: number;
 }
 
 const AchTest: React.FC = () => {
@@ -47,7 +47,7 @@ const AchTest: React.FC = () => {
 	return(
 		<div>
 			<Sidebar/>
-			ACHIEVE!
+			ACHIEVE! and be amazed!
 			<br/>
 			<div className="grid">
 			{fetched ? <div className="history_1">
