@@ -79,12 +79,12 @@ export class AuthService {
       if (found[0].twofaenabled)
         return {
           message: ['Two Factor Code needed.'],
-          token: this.usersService.getJWT(found[0], true),
+          token: this.usersService.getJWT(found[0], true, true),
           twofaenabled: true,
         };
       return {
         message: ['Successfully logged in.'],
-        token: this.usersService.getJWT(found[0]),
+        token: this.usersService.getJWT(found[0], false),
       };
     }
   }
