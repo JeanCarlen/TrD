@@ -37,6 +37,12 @@ export class UserAchievmentsController {
     return this.userAchievmentsService.findOne(+id);
   }
 
+  @Get('users/:id')
+  @UseGuards(AuthGuard)
+  findUserAchievments(@Param('id') id: number) {
+	return this.userAchievmentsService.findUserAchievments(id);
+  }
+
   @Patch(':id')
   @UseGuards(AuthGuard)
   update(

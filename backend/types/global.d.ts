@@ -14,4 +14,14 @@ declare global {
 		chat_id: number;
 		date: string;
 	}
+
+	type UserAchievmentReponse = {
+		current: number, user_id: number, achievment_id: number,
+		achievment_data: {
+			id: number,
+			title: string,
+			description: string,
+			objective: number
+		}
+	}
 }
