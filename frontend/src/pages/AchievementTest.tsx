@@ -4,6 +4,13 @@ import Cookies from 'js-cookie';
 import './Stats.css';
 import { autoGetFetch } from '../helpers/helpers';
 
+type achievementData{
+	id: number,
+	title: string,
+	description: string,
+	objective: number,
+}
+
 const AchTest: React.FC = () => {
 	
 	const [achieve, setAchieve] = useState([]);
@@ -44,7 +51,7 @@ const AchTest: React.FC = () => {
 			<br/>
 			<div className="grid">
 			{fetched ? <div className="history_1">
-				{achieve.map((achievement) => {
+				{achieve.map((achievement: achievementData) => {
 					return (
 						<div key={achievement.id} className="game-stats" style={{flexDirection: "column"}}>
 						<div className='box'>title: {achievement.title}</div>
