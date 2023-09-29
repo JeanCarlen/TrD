@@ -40,6 +40,16 @@ export class FriendsController {
     return this.friendsService.findAll();
   }
 
+  @Get(':id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({summary: 'Get a friend (request).'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 200, description: 'Friend (request) found.', type: FriendsResponse})
+  friendReq(@Param('id') id: string) {
+	return this.friendsService.findOne(+id);
+  }
+
   @Get('active/list/:id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
@@ -80,8 +90,38 @@ export class FriendsController {
     return this.friendsService.update(+id, updateFriendDto);
   }
 
+  @Delete('active/:id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({summary: 'Delete a friend.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 200, description: 'Friend deleted.'})
+  removeFriend(@Param('id') id: string) {
+	return this.friendsService.remove(+id);
+  }
+
+  @Delete('cancel/:id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({summary: 'Delete a friend request.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 200, description: 'Friend request deleted.'})
+  removeRequest(@Param('id') id: string) {
+	return this.friendsService.remove(+id);
+  }
+
+  @Delete('reject/:id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({summary: 'Delete a pending friend.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 200, description: 'Pending friend deleted.'})
+  removePending(@Param('id') id: string) {
+	return this.friendsService.remove(+id);
+  }
+
   @Delete(':id')
-  @UseGuards(AuthGuard, CurrentOrAdminGuard)
+  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({summary: 'Delete a friend (request).'})
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})

@@ -44,6 +44,21 @@ export class FriendsService {
 	return tmp;
   }
 
+  public async findOne(id: number) {
+	const friends: Friends = await this.friendsRepository.findOne({
+	  where: { id: id },
+	});
+	const users: Users[] = await this.usersRepository.find();
+	let requested: Users = users.find(user => {
+		return user.id == friends.requested
+	})
+	let requester : Users = users.find(user => {
+		return user.id == friends.requester
+	})
+	let ret: FriendsResponse = this.getUsersData(friends, requested, requester);
+	return ret;
+  }
+
   public async findFriendsList(id: number) {
     const friendlist: Friends[] =  await this.friendsRepository.find({
       where: [
