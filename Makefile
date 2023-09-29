@@ -31,11 +31,11 @@ upfront:
 	@echo "updating the front :]"
 	@docker cp ./frontend/src swmg-frontend-1:/app
 
-backfront:
+upback:
 	@echo "updating the back :]"
 	@docker cp ./backend/src swmg-backend-1:/app
 
-reload: upfront backfront
+reload: upfront upback
 	@echo "updating the back and the front :]"
 
 help:
@@ -46,4 +46,4 @@ help:
 	@echo "  fclean : Perform 'clean' and remove all unused Docker resources."
 	@echo "  help   : Show this help message."
 
-.PHONY: run down clean fclean upfront backfront reload help
+.PHONY: run down clean fclean upfront upback reload help
