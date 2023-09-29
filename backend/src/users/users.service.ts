@@ -1,12 +1,15 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Users } from './entities/users.entity';
 import { Create42UserDto } from './dto/create-42-user.dto';
 import { UserchatsService } from 'src/userchats/userchats.service';
+import { FriendsService } from 'src/friends/friends.service';
+import { Friends } from 'src/friends/entities/friend.entity';
+import { UsersResponse } from './dto/users.response';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -18,6 +21,8 @@ export class UsersService {
     private readonly usersRepository: Repository<Users>,
 	@Inject(UserchatsService)
 	private readonly userchatsService: UserchatsService,
+	@Inject(FriendsService)
+	private readonly friendsService: FriendsService,
 ) {}
 
   public getJWT(
@@ -128,8 +133,6 @@ export class UsersService {
         cause: new Error(),
         description: `Unknown username or password.`,
       });
-    // check if twofaenabled or not
-    // console.log(user);
     if (user.twofaenabled) return await this.login2FA(loginUserDto, user);
     return await this.localLogin(loginUserDto, user);
   }
@@ -179,11 +182,36 @@ export class UsersService {
     });
   }
 
-  public findOne(id: number) {
-    return this.usersRepository.findOne({
-      where: { id: id },
-      select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
-    });
+  public async findOne(id: number): Promise<UsersResponse> { // TODO: send friends count, pending count, request count
+    const user: Users = await this.usersRepository.findOne({
+		where: { id: id },
+		select: ['id', 'username', 'login42', 'avatar', 'twofaenabled']
+	})
+
+	const friends: Friends[] = await this.friendsService.findAllByUser(user.id);
+	const pending: Friends[] = friends.filter(friend => {
+		return friend.status == 0 && friend.requested == user.id
+	})
+	const requests: Friends[] = friends.filter(friend => {
+		return friend.status == 0 && friend.requester == user.id
+	})
+	const active: Friends[] = friends.filter(friend => {
+		return friend.status == 1 && (friend.requested == user.id || friend.requester == user.id)
+	})
+
+	const ret: UsersResponse = {
+		...user,
+		active_friends: active.length,
+		pending_requests: pending.length,
+		requests_sent: requests.length
+	}
+	return ret;
+  }
+
+  public async findOneUser(id: number): Promise<Users> {
+	return await this.usersRepository.findOne({
+		where: { id: id }
+	})
   }
 
   public async findUserChats(id: number) {
@@ -197,11 +225,35 @@ export class UsersService {
     });
   }
 
-  public findByUsername(name: string) {
-    return this.usersRepository.find({
-      where: { username: Like(`%${name}%`) },
+  public async findByUsername(name: string) {
+    const users = await this.usersRepository.find({
+      where: { username: ILike(`%${name}%`) },
       select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
     });
+
+	const friends: Friends[] = await this.friendsService.findAllByUser(users[0].id);
+
+	const ret: UsersResponse[] = [];
+	users.forEach((user) => {
+		let tmp: UsersResponse;
+		const pending: Friends[] = friends.filter(friend => {
+			return friend.status == 0 && friend.requested == user.id
+		})
+		const requests: Friends[] = friends.filter(friend => {
+			return friend.status == 0 && friend.requester == user.id
+		})
+		const active: Friends[] = friends.filter(friend => {
+			return friend.status == 1 && (friend.requested == user.id || friend.requester == user.id)
+		})
+		tmp = {
+			...user,
+			active_friends: active.length,
+			pending_requests: pending.length,
+			requests_sent: requests.length
+		}
+		ret.push(tmp)
+	})
+	return ret;
   }
 
   public async update(id: number, updateUserDto: UpdateUserDto) {

@@ -61,7 +61,7 @@ export class AuthController {
   @Post('2fa/generate')
   @UseGuards(AuthGuard)
   async generate(@Req() request) {
-    const user = await this.usersService.findOne(request.user.id);
+    const user = await this.usersService.findOneUser(request.user.id);
     return this.authService.setUp2FA(user);
   }
 
