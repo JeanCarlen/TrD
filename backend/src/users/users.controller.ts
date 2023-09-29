@@ -15,6 +15,7 @@ import { AuthGuard, CurrentOrAdminGuard } from 'src/auth.guard';
 import { paramValidator } from 'src/validation/param.validators';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Users } from './entities/users.entity';
+import { UsersResponse } from './dto/users.response';
 
 @ApiTags('Users')
 @Controller('users')
@@ -46,17 +47,17 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({summary: 'Get users by username.'})
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
-  @ApiResponse({status: 200, description: 'Users by username.', type: [Users]})
+  @ApiResponse({status: 200, description: 'Users by username.', type: [UsersResponse]})
   findByUsername(@Param() params: paramValidator) {
     return this.usersService.findByUsername(params.username);
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard, CurrentOrAdminGuard)
+  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({summary: 'Get user by id.'})
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
-  @ApiResponse({status: 200, description: 'User by id.', type: Users})
+  @ApiResponse({status: 200, description: 'User by id.', type: UsersResponse})
   findOne(@Param() params: paramValidator) {
     return this.usersService.findOne(+params.id);
   }

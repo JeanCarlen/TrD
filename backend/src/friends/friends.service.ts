@@ -59,6 +59,15 @@ export class FriendsService {
 	return ret;
   }
 
+  public async findAllByUser(id: number) {
+	return await this.friendsRepository.find({
+	  where: [
+		{ requester: id },
+		{ requested: id },
+	  ],
+	});
+  }
+
   public async findFriendsList(id: number) {
     const friendlist: Friends[] =  await this.friendsRepository.find({
       where: [
