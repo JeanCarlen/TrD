@@ -39,9 +39,8 @@ export class UserAchievmentsService {
 			})
 		};
 		ret.push(tmp)
-		
 	})
-    return ret;
+	return ret;
   }
 
   public async findUserAchievments(id: number) {
