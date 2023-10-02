@@ -49,8 +49,22 @@ const Home = (props: Props) => {
 		player2: 'Jcarlen',
 	}
 
-	const alldata: gameInfo[]= [data1, data2];
+	const data3: gameInfo= {
+		score1: 11,
+		score2: 5,
+		player1: 'Steve',
+		player2: 'ALEX',
+	}
 
+	const data4: gameInfo= {
+		score1: 9,
+		score2: 11,
+		player1: 'Steve',
+		player2: 'Eliott',
+	}
+
+	const alldata: gameInfo[]= [data1, data2, data3, data4];
+	const dataLast: gameInfo[] = alldata.slice(-3)
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 	const yourFunction = async () => {
@@ -129,7 +143,7 @@ const Home = (props: Props) => {
                 match history<br/>
                 {gameFetched ? 
 					<div className='matchBox'>
-					{alldata.map((achievement) => {
+					{dataLast.map((achievement) => {
 					return (
 						<LayoutGamestats {...achievement}/>
 					);
