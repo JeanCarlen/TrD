@@ -27,10 +27,14 @@ fclean:
 	@docker system prune -af
 	@echo "All unused Docker resources have been removed."
 
-runf:
-	@echo "re-runnning front end :]"
-	@docker stop trd-frontend-1 && docker rm trd-frontend-1
-	@make run
+upfront:
+	@echo "updating the front :]"
+	@docker cp ./frontend/src trd-frontend-1:/app
+
+# runf:
+# 	@echo "re-runnning front end :]"
+# 	@docker stop trd-frontend-1 && docker rm trd-frontend-1
+# 	@make run
 
 help:
 	@echo "Available targets:"

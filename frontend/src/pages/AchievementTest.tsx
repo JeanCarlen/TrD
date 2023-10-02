@@ -5,11 +5,10 @@ import './Stats.css';
 import { autoGetFetch } from '../helpers/helpers';
 
 const AchTest: React.FC = () => {
-	
+
 	const [achieve, setAchieve] = useState([]);
 	const [fetched, setFetched] = useState<boolean>(false);
 
-	
 	const GetAchieve = async() => {
 		setFetched(false);
 		const token = Cookies.get('token');
@@ -33,7 +32,7 @@ const AchTest: React.FC = () => {
 	useEffect(() => {
 		GetAchieve();
 	}, []);
-	
+
 	// setAchieve(autoGetFetch("achievments"));
 	// setFetched(true)
 
@@ -44,7 +43,7 @@ const AchTest: React.FC = () => {
 			<br/>
 			<div className="grid">
 			{fetched ? <div className="history_1">
-				{achieve.map((achievement) => {
+				{achieve.map((achievement:any) => {
 					return (
 						<div key={achievement.id} className="game-stats" style={{flexDirection: "column"}}>
 						<div className='box'>title: {achievement.title}</div>

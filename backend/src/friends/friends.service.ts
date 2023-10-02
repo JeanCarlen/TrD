@@ -31,13 +31,13 @@ export class FriendsService {
 
   public async findPendingFriends(id: number) {
     return await this.friendsRepository.find({
-      where: { requester: id, status: 0 },
+      where: { requested: id, status: 0 },
     });
   }
 
   public async findPendingRequests(id: number) {
     return await this.friendsRepository.find({
-      where: { requested: id, status: 0 },
+      where: { requester: id, status: 0 },
     });
   }
 
