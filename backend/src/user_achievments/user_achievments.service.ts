@@ -44,7 +44,7 @@ export class UserAchievmentsService {
   }
 
   public async findUserAchievments(id: number) {
-	const userAchievments: UserAchievments[] = await this.userachievmentsRepository.find({where: {id: id}});
+	const userAchievments: UserAchievments[] = await this.userachievmentsRepository.find({where: {user_id: id}});
 	const achievments: Achievments[] = await this.achievmentsRepository.find();
 
 	let ret: UserAchievmentReponse[] = [];

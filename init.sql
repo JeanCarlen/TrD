@@ -112,6 +112,8 @@ CREATE TABLE achievments (
 	CONSTRAINT "achievments_pk" PRIMARY KEY ("id")
 );
 
+-- INSERT INTO achievments(title, description, objective) VALUES('First Match', 'Play your first match', 1), ('NIKKI', 'you found Nikki', 1), ('SIMON', 'Simon added new features', 5), ('JEAN', 'Jean broke the CSS again', 2) RETURNING *;
+
 CREATE TABLE user_achievments (
 	"id" serial NOT NULL,
 	"current" integer,
