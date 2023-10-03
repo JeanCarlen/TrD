@@ -8,8 +8,8 @@ import { Users } from './entities/users.entity';
 import { Create42UserDto } from './dto/create-42-user.dto';
 import { UserchatsService } from 'src/userchats/userchats.service';
 import { FriendsService } from 'src/friends/friends.service';
-import { Friends } from 'src/friends/entities/friend.entity';
 import { UsersResponse } from './dto/users.response';
+import { FriendsResponse } from 'src/friends/dto/friends.response';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -188,14 +188,14 @@ export class UsersService {
 		select: ['id', 'username', 'login42', 'avatar', 'twofaenabled']
 	})
 
-	const friends: Friends[] = await this.friendsService.findAllByUser(user.id);
-	const pending: Friends[] = friends.filter(friend => {
+	const friends: FriendsResponse[] = await this.friendsService.findAllByUser(user.id);
+	const pending: FriendsResponse[] = friends.filter(friend => {
 		return friend.status == 0 && friend.requested == user.id
 	})
-	const requests: Friends[] = friends.filter(friend => {
+	const requests: FriendsResponse[] = friends.filter(friend => {
 		return friend.status == 0 && friend.requester == user.id
 	})
-	const active: Friends[] = friends.filter(friend => {
+	const active: FriendsResponse[] = friends.filter(friend => {
 		return friend.status == 1 && (friend.requested == user.id || friend.requester == user.id)
 	})
 
@@ -231,18 +231,18 @@ export class UsersService {
       select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
     });
 	if (users.length > 0) {
-		const friends: Friends[] = await this.friendsService.findAllByUser(users[0].id);
+		const friends: FriendsResponse[] = await this.friendsService.findAllByUser(users[0].id);
 	
 		const ret: UsersResponse[] = [];
 		users.forEach((user) => {
 			let tmp: UsersResponse;
-			const pending: Friends[] = friends.filter(friend => {
+			const pending: FriendsResponse[] = friends.filter(friend => {
 				return friend.status == 0 && friend.requested == user.id
 			})
-			const requests: Friends[] = friends.filter(friend => {
+			const requests: FriendsResponse[] = friends.filter(friend => {
 				return friend.status == 0 && friend.requester == user.id
 			})
-			const active: Friends[] = friends.filter(friend => {
+			const active: FriendsResponse[] = friends.filter(friend => {
 				return friend.status == 1 && (friend.requested == user.id || friend.requester == user.id)
 			})
 			tmp = {
