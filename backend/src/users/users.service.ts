@@ -232,7 +232,6 @@ export class UsersService {
     });
 	if (users.length > 0) {
 		const friends: FriendsResponse[] = await this.friendsService.findAllByUser(users[0].id);
-	
 		const ret: UsersResponse[] = [];
 		users.forEach((user) => {
 			let tmp: UsersResponse;

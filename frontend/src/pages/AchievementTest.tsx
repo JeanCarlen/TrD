@@ -13,7 +13,7 @@ type achievementData={
 }
 
 const AchTest: React.FC = () => {
-	
+
 	const [achieve, setAchieve] = useState([]);
 	const [userAchieve, setUserAchieve] = useState([]);
 	// const [userId, setUserId] = useState<number>(0);
@@ -96,7 +96,7 @@ const AchTest: React.FC = () => {
 		GetAchieve();
 		GetUserAchieve();
 	}, []);
-	
+
 	// setAchieve(autoGetFetch("achievments"));
 	// setFetched(true)
 

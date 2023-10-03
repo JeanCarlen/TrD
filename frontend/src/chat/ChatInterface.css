@@ -1,0 +1,75 @@
+Chat bubble container
+.message-bubble{
+	background-color: #e5e5ea;
+	border-radius: 10px;
+	padding: 10px;
+	margin: 10px;
+	/* display: inline-block; */
+	max-width: 70%;
+	word-wrap: break-word;
+	position: relative;
+	clear: both;
+	width: auto;
+	min-height: 40px;
+}
+
+/* Sender's name (top right) */
+.message-sender {
+	font-size: 12px;
+	font-weight: bold;
+	float: right;
+	margin-right: 5px;
+	margin-top: -10px;
+}
+
+/* Message text (center) */
+.message-text {
+	font-size: 16px;
+}
+
+/* Date (bottom right) */
+.message-date {
+	font-size: 12px;
+	float: right;
+	margin-right: 5px;
+	margin-bottom: -10px;
+}
+
+.message-box {
+	display: flex;
+	flex-direction: column;
+}
+
+/* Add styles for user's messages */
+.user-message {
+	border-radius: 10px;
+	padding: 10px;
+	margin: 10px;
+	max-width: 70%;
+	word-wrap: break-word;
+	position: relative;
+	clear: both;
+	width: auto;
+	min-height: 40px;
+
+	background-color: #4caf50;
+	color: white;
+	align-self: flex-end;
+}
+
+/* Add styles for other's messages */
+.other-message {
+	border-radius: 10px;
+	padding: 10px;
+	margin: 10px;
+	max-width: 70%;
+	word-wrap: break-word;
+	position: relative;
+	clear: both;
+	width: auto;
+	min-height: 40px;
+
+	background-color: #2196F3;
+	color: white;
+	align-self: flex-start;
+}

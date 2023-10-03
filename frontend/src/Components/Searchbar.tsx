@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 import '../pages/Users.css'
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { Tooltip } from '@chakra-ui/react'
 
 
 function Searchbar() {
@@ -23,18 +24,33 @@ function Searchbar() {
 			},
 		});
 		const data = await response.json()
+		console.log(data);
 		if (response.ok && searchTerm)
 		{
-			if (searchTerm === data[0].username)
+			if (!data[0])
+			{
+				console.log('error');
+				toast.error("User not found", {
+					position: toast.POSITION.BOTTOM_RIGHT,
+					className: 'toast-error'
+				})
+			}
+			else if (searchTerm === data[0].username)
 			{
 				console.log(data);
 				const userID = data[0].id;
 				navigate(`/profiles/${searchTerm}`); //add the right url with the username of the person found
-				
 			}
-			// setSearchHistory((prevHistory) => [...prevHistory, searchTerm]);
-
+			else
+			{
+				console.log('error');
+				toast.error("User not found", {
+					position: toast.POSITION.BOTTOM_RIGHT,
+					className: 'toast-error'
+				})
+			}
 		}
+		// setSearchHistory((prevHistory) => [...prevHistory, searchTerm]);
 		else
 		{
 			console.log('error');
@@ -62,6 +78,8 @@ function Searchbar() {
 		}
 	}
 
+
+
 return (
 	<div>
 	<InputGroup size='sm' placeholder='Search'>
@@ -72,7 +90,7 @@ return (
 		value={searchTerm}
 		onChange={(e) => handleInputChange(e.target.value)}
       />
-	<button className='login-button2' type="submit" onClick={handleSearch}>Submit</button> :
+	<button className='login-button2' type="submit" onClick={handleSearch}>Submit</button>
 	</InputRightElement>
 	</InputGroup>
 	</div>
