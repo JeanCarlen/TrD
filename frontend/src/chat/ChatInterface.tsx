@@ -1,129 +1,168 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { WebsocketContext } from "../context/websocket.context";
 import Cookies from "js-cookie";
 import decodeToken from '../helpers/helpers';
-import './Chat.css'
+import './ChatInterface.css'
 
 interface Message {
-  id: number;
-  text: string;
-  sender: number;
-  sender_Name: string;
-  date: string;
+id: number;
+text: string;
+sender: string;
+sender_Name: string;
+date: string;
 }
 
 const ChatInterface: React.FC = () => {
-  const [value, setValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender: 0, sender_Name: '', date: '' });
-  const socket = useContext(WebsocketContext);
-  const token: string | undefined = Cookies.get("token");
-  const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
+const [value, setValue] = useState('');
+const [currentRoom, setCurrentRoom] = useState<string>('default');
+const [isLoading, setIsLoading] = useState(false);
+const [messages, setMessages] = useState<Message[]>([]);
+const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender: '', sender_Name: '', date: '' });
+const [rooms, setRooms] = useState<string[]>([]); // State variable for rooms
+const socket = useContext(WebsocketContext);
+const token: string | undefined = Cookies.get("token");
+const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
+const lastMessageRef = useRef(null);
 
-  useEffect(() => {
-    if (token === undefined) {
-      return;
-    }
+useEffect(() => {
+	if (token === undefined) {
+	return;
+	}
 
-    setContent(decodeToken(token));
+	setContent(decodeToken(token));
 
-    socket.on('connect', () => {
-      console.log(socket.id);
-      setIsLoading(false);
-      console.log('Connected');
-    });
+	socket.on('connect', () => {
+	console.log(socket.id);
+	setIsLoading(false);
+	console.log('Connected');
+	});
 
-    socket.on('srv-message', (data) => {
-      console.log(`srv-message ${data}`);
-      const latest: Message = { id: messages.length + 3, text: data.text, sender: data.sender, sender_Name: data.sender_Name, date: data.date };
-      setMessages([...messages, latest]);
-    });
 
-    socket.on('broadcast', (data) => {
-      console.log('mange tes morts');
-    });
+	socket.on('room-list', (roomList: string[]) => {
+	setRooms(roomList);
+	});
 
-    return () => {
-      console.log('Unregistering events...');
-      socket.off('connect');
-      socket.off('srv-message');
-    };
+	socket.on('connect', () => {
+	socket.emit('join-room', currentRoom);
+	});
 
-  }, [token, socket, messages]);
+	socket.on('srv-message', (data) => {
+	console.log(`srv-message ${data}`);
+	const latest: Message = { id: messages.length + 3, text: data.text, sender: data.sender, sender_Name: data.sender_Name, date: data.date };
+	setMessages([...messages, latest]);
+	});
 
-  function handleSendMessage(sender: string = content?.username || 'user') {
-    if (!newMessage.text.trim() || !socket.connected) {
-      return;
-    }
-    socket.emit('create-something', {
-      text: newMessage.text,
-      sender: sender,
-      date: new Date().toLocaleTimeString(), // Add date to the message data
-    });
+	socket.on('broadcast', (data) => {
+	console.log('mange tes morts');
+	});
 
-    console.log('Message sent:', newMessage.text);
+	return () => {
+	console.log('Unregistering events...');
+	socket.off('connect');
+	socket.off('srv-message');
+	};
+}, [token, socket, messages, currentRoom]);
 
-    // Remove the line that overwrites the date property
-    const updatedMessage: Message = {
-      id: messages.length + 3,
-      text: newMessage.text,
-      sender: 0,
-      sender_Name: 'user',
-      date: new Date().toLocaleTimeString(),
-    };
+const handleRoomChange = (room: string) => {
+	socket.emit('leave-room', currentRoom);
 
-    setNewMessage({ id: 0, text: '', sender: 0, sender_Name: '', date: '' });
-  }
+	// Join the new room
+	setCurrentRoom(room);
+	socket.emit('join-room', room);
 
-  function connect(e: React.FormEvent) {
-    e.preventDefault();
-    if (!socket.connected) {
-      setIsLoading(true);
-      socket.connect();
-    }
-  }
+	// Clear messages
+	setMessages([]);
+};
+const handleCreateRoom = () => {
+	const roomName = prompt("Enter a name for the new room:");
+	if (roomName) {
+	socket.emit('create-room', roomName);
+	}
+};
 
-  return (
-    <div>
-      {isLoading && <p>Loading...</p>}
+function handleSendMessage(sender: string = content?.username || 'user') {
+	if (!newMessage.text.trim() || !socket.connected) {
+	return;
+	}
+	socket.emit('create-something', {
+	text: newMessage.text,
+	sender: sender,
+	date: new Date().toLocaleTimeString(),
+	room: currentRoom, // Include the current room in the message data
+	});
 
-      <button onClick={connect} disabled={isLoading || socket.connected}>
-        {socket.connected ? "Connected" : "Connect"}
-      </button>
-      <div className="chat-interface">
-        <div className="message-display">
-          <div className="character-picture">bob</div>
-          {messages.map((message) => (
-            <div key={message.id} className={`message-bubble ${message.sender_Name === message.sender_Name ? message.sender_Name : 'other'}`}>
-              <div className="message-header">
-                <span className="message-sender">{message.sender_Name}</span>
-                <span className="message-date">{message.date}</span>
-              </div>
-              <span className="message-text">{message.text}</span>
-            </div>
-          ))}
-        </div>
-        <div className="message-input">
-          <input
-            className="messages"
-            type="text"
-            placeholder="Type your message..."
-            value={newMessage.text}
-            onChange={(e) => {
-              let username = content?.username;
-              if (username === undefined)
-                username = 'user';
-              setNewMessage({ id: messages.length + 1, text: e.target.value, sender: 0, sender_Name: username, date: Date.now().toString() })}
-          }
-          />
-          <button className="sendButton" onClick={() => handleSendMessage()}>
-            user
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+	console.log('Message sent:', newMessage.text);
+
+	const updatedMessage: Message = {
+	id: messages.length + 3,
+	text: newMessage.text,
+	sender: '',
+	sender_Name: 'user',
+	date: new Date().toLocaleTimeString(),
+	};
+
+	setNewMessage({ id: 0, text: '', sender: '', sender_Name: '', date: '' });
+}
+
+function connect(e: React.FormEvent) {
+	e.preventDefault();
+	if (!socket.connected) {
+	setIsLoading(true);
+	socket.connect();
+	}
+}
+
+return (
+	<div>
+	{isLoading && <p>Loading...</p>}
+
+	<button onClick={connect} disabled={isLoading || socket.connected}>
+		{socket.connected ? "Connected" : "Connect"}
+	</button>
+
+	{/* Display the list of rooms */}
+	<div>
+		<p>Available Rooms:</p>
+		<button onClick={handleCreateRoom}>Create New Room</button>
+		<ul>
+		{rooms.map((room) => (
+			<li key={room}>
+			<button onClick={() => handleRoomChange(room)}>{room}</button>
+			</li>
+		))}
+		</ul>
+	</div>
+
+	<div className="message-display">
+		<div className="message-box">
+		{messages.map((message) => (
+			<div key={message.id} className={`message-bubble ${message.sender === content?.username ? 'user-message' : 'other-message'}`}>
+			<span className="message-sender">{message.sender}</span> <br/>
+			<span className="message-text">{message.text}</span> <br/>
+			<span className="message-date">{message.date}</span>
+			</div>
+		))}
+		</div>
+		<div className="message-input">
+		<input
+			className="messages"
+			type="text"
+			placeholder="Type your message..."
+			value={newMessage.text}
+			onChange={(e) => {
+			let username = content?.username;
+			if (username === undefined)
+				username = 'user';
+			setNewMessage({ id: messages.length + 1, text: e.target.value, sender: '', sender_Name: username, date: Date.now().toString() })}
+		}
+		/>
+		<button className="sendButton" onClick={() => handleSendMessage()}>
+			user
+		</button>
+		</div>
+	</div>
+	</div>
+);
 };
 
 export default ChatInterface;

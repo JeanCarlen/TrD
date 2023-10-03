@@ -29,7 +29,14 @@ fclean:
 
 upfront:
 	@echo "updating the front :]"
-	@docker cp ./frontend/src trd-frontend-1:/app
+	@docker cp ./frontend/src swmg-frontend-1:/app
+
+upback:
+	@echo "updating the back :]"
+	@docker cp ./backend/src swmg-backend-1:/app
+
+reload: upfront upback
+	@echo "updating the back and the front :]"
 
 help:
 	@echo "Available targets:"
@@ -39,3 +46,4 @@ help:
 	@echo "  fclean : Perform 'clean' and remove all unused Docker resources."
 	@echo "  help   : Show this help message."
 
+.PHONY: run down clean fclean upfront upback reload help
