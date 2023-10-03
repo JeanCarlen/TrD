@@ -1,4 +1,3 @@
-import { IsNumber, IsNumberString } from 'class-validator';
 import { IsEnum, IsNumberString } from 'class-validator';
 import { FriendStatus } from '../entities/friend.entity';
 import { ApiProperty } from '@nestjs/swagger';
