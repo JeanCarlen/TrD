@@ -17,6 +17,12 @@ export class FriendsService {
   ) {}
 
   public async create(createFriendDto: CreateFriendDto) {
+	if (createFriendDto.requester == createFriendDto.requested) {
+		throw new BadRequestException(['Cannot add yourself as a friend.'], {
+			cause: new Error(),
+			description: `Cannot add yourself as a friend.`,
+		});
+	}
 	  const found = await this.friendsRepository.find({
 		  where: [
 			  { requester: createFriendDto.requester, requested: createFriendDto.requested },
@@ -37,6 +43,12 @@ export class FriendsService {
   }
 
   public async addFriendById(id: number, current_id: number) {
+	if (id == current_id) {
+		throw new BadRequestException(['Cannot add yourself as a friend.'], {
+			cause: new Error(),
+			description: `Cannot add yourself as a friend.`,
+		});
+	}
 	const found = await this.friendsRepository.find({
 		where: [
 			{ requester: current_id, requested: id },
@@ -57,6 +69,12 @@ export class FriendsService {
   }
 
   public async addFriendByUsername(username: string, current_id: number) {
+	if (username == undefined) {
+		throw new BadRequestException(['User not found.'], {
+			cause: new Error(),
+			description: `User not found.`,
+		});
+	}
 	const found = await this.usersRepository.find({
 		where: { username: username },
 	  });
@@ -64,6 +82,12 @@ export class FriendsService {
 		throw new BadRequestException(['User not found.'], {
 			cause: new Error(),
 			description: `User not found.`,
+		});
+	}
+	if (found[0].id == current_id) {
+		throw new BadRequestException(['Cannot add yourself as a friend.'], {
+			cause: new Error(),
+			description: `Cannot add yourself as a friend.`,
 		});
 	}
 	const found2 = await this.friendsRepository.find({
