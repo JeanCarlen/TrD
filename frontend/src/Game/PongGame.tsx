@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { useEffect, useState } from 'react';
 import './PongGame.css';
 import cowLogo from '../cow.png';
 
@@ -18,10 +19,10 @@ interface State {
 class PongGame extends Component<{}, State> {
   private canvasRef: React.RefObject<HTMLCanvasElement>;
   private intervalId: number;
-
+  
   constructor(props: {}) {
     super(props);
-
+    
     this.state = {
       ballX: 100,
       ballY: 100,
@@ -34,12 +35,12 @@ class PongGame extends Component<{}, State> {
       paddleSize: 1300,
       cowLogo: null,
     };
-
+    
     this.intervalId = 0;
     this.canvasRef = React.createRef();
     this.updateGame = this.updateGame.bind(this);
   }
-
+  
   componentDidMount() {
     this.intervalId = window.setInterval(this.updateGame, 1000 / 60); // 60 FPS
     window.addEventListener('keydown', this.handleKeyPress);

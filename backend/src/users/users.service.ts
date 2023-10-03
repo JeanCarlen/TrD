@@ -189,14 +189,14 @@ export class UsersService {
 		select: ['id', 'username', 'login42', 'avatar', 'twofaenabled']
 	})
 
-	const friends: Friends[] = await this.friendsService.findAllByUser(user.id);
-	const pending: Friends[] = friends.filter(friend => {
+	const friends: FriendsResponse[] = await this.friendsService.findAllByUser(user.id);
+	const pending: FriendsResponse[] = friends.filter(friend => {
 		return friend.status == 0 && friend.requested == user.id
 	})
-	const requests: Friends[] = friends.filter(friend => {
+	const requests: FriendsResponse[] = friends.filter(friend => {
 		return friend.status == 0 && friend.requester == user.id
 	})
-	const active: Friends[] = friends.filter(friend => {
+	const active: FriendsResponse[] = friends.filter(friend => {
 		return friend.status == 1 && (friend.requested == user.id || friend.requester == user.id)
 	})
 

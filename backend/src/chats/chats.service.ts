@@ -38,6 +38,7 @@ export class ChatsService {
 	const chat = new Chats();
 	chat.type = createChatDto.type;
 	chat.name = createChatDto.name;
+	chat.owner = createChatDto.owner;
     return await this.chatsRepository.save(chat);
   }
 
@@ -64,6 +65,10 @@ export class ChatsService {
 
   public async findOne(id: number) {
 	return await this.chatsRepository.findOne({where: { id: id}})
+  }
+
+  public async findName(name: string) {
+	return await this.chatsRepository.findOne({where: { name: name}})
   }
 
   public async banUserFromChat(id: number, body) {

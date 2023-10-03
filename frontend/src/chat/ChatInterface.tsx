@@ -3,6 +3,8 @@ import { WebsocketContext } from "../context/websocket.context";
 import Cookies from "js-cookie";
 import decodeToken from '../helpers/helpers';
 import './ChatInterface.css'
+import { Context } from "react-responsive";
+import { Socket } from "socket.io-client";
 
 interface Message {
 id: number;
@@ -22,13 +24,13 @@ const [rooms, setRooms] = useState<string[]>([]); // State variable for rooms
 const socket = useContext(WebsocketContext);
 const token: string | undefined = Cookies.get("token");
 const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
-const lastMessageRef = useRef(null);
+const [roomName, setRoomName] = useState<string>('');
+const socketRef = useRef(null);
 
 useEffect(() => {
 	if (token === undefined) {
 	return;
 	}
-
 	setContent(decodeToken(token));
 
 	socket.on('connect', () => {
@@ -37,23 +39,14 @@ useEffect(() => {
 	console.log('Connected');
 	});
 
-
-	socket.on('room-list', (roomList: string[]) => {
-	setRooms(roomList);
-	});
-
-	socket.on('connect', () => {
-	socket.emit('join-room', currentRoom);
-	});
+	// socket.on('connect', () => {
+	// socket.emit('join-room', {roomName:'default', client: socket});
+	// });
 
 	socket.on('srv-message', (data) => {
 	console.log(`srv-message ${data}`);
 	const latest: Message = { id: messages.length + 3, text: data.text, sender: data.sender, sender_Name: data.sender_Name, date: data.date };
 	setMessages([...messages, latest]);
-	});
-
-	socket.on('broadcast', (data) => {
-	console.log('mange tes morts');
 	});
 
 	return () => {
@@ -63,20 +56,33 @@ useEffect(() => {
 	};
 }, [token, socket, messages, currentRoom]);
 
+
 const handleRoomChange = (room: string) => {
-	socket.emit('leave-room', currentRoom);
-
-	// Join the new room
+	console.log("trying room: ", room);
+	socket.emit('join-room', { roomName: room, socketID: socket.id });
 	setCurrentRoom(room);
-	socket.emit('join-room', room);
-
-	// Clear messages
+	console.log("Joined room: ", room);
 	setMessages([]);
 };
+
+const handleJoinRoom = () => {
+    if (roomName.trim() !== '') 
+	{
+	  setRoomName(roomName);
+	  console.log("Joining room: ", roomName);
+      handleRoomChange(roomName);
+      setRoomName('');
+    }
+  };
+
 const handleCreateRoom = () => {
 	const roomName = prompt("Enter a name for the new room:");
 	if (roomName) {
-	socket.emit('create-room', roomName);
+	socket.emit('create-room', {
+		roomName: roomName,
+		client: content?.user
+	});
+	//handleRoomChange(roomName);
 	}
 };
 
@@ -86,7 +92,8 @@ function handleSendMessage(sender: string = content?.username || 'user') {
 	}
 	socket.emit('create-something', {
 	text: newMessage.text,
-	sender: sender,
+	sender: socket.id,
+	sender_Name: sender,
 	date: new Date().toLocaleTimeString(),
 	room: currentRoom, // Include the current room in the message data
 	});
@@ -121,18 +128,24 @@ return (
 	</button>
 
 	{/* Display the list of rooms */}
-	<div>
-		<p>Available Rooms:</p>
-		<button onClick={handleCreateRoom}>Create New Room</button>
-		<ul>
-		{rooms.map((room) => (
-			<li key={room}>
-			<button onClick={() => handleRoomChange(room)}>{room}</button>
-			</li>
-		))}
-		</ul>
-	</div>
-
+	<p>Available Rooms:</p>
+        <button onClick={handleCreateRoom}>Create New Room</button>
+        <ul>
+          {rooms.map((room) => (
+            <li key={room}>
+              <button onClick={() => handleRoomChange(room)}>{room}</button>
+            </li>
+          ))}
+        </ul>
+        <div>
+          <input
+            type="text"
+            placeholder="Enter room name"
+            value={roomName}
+            onChange={(e) => setRoomName(e.target.value)}
+          />
+          <button onClick={handleJoinRoom}>Join Room</button>
+        </div>
 	<div className="message-display">
 		<div className="message-box">
 		{messages.map((message) => (

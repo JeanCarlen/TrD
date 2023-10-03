@@ -13,4 +13,7 @@ export class CreateChatDto {
 	@IsString({message: '$property should be a string.'})
 	@IsOptional()
 	name?: string
+
+	@ApiProperty({example: 1, description: 'The user id of the owner of the chat.'})
+	owner: number;
 }
