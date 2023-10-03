@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class FriendsResponse {
 	@ApiProperty({example: 1, description: 'The ID of the friend (request).'})
@@ -18,4 +18,7 @@ export class FriendsResponse {
 
 	@ApiProperty({example: {username: 'laendrun', login42: 'saeby', avatar: 'http://localhost:8080/images/default.png'}})
 	requested_user: object;
+
+	@ApiPropertyOptional({example: 1, description: 'The number of friends returned.'})
+	total_count?: number;
 }
