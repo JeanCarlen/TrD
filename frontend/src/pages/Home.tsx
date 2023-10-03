@@ -23,14 +23,55 @@ import Cookies from 'js-cookie'
 import Searchbar from '../Components/Searchbar'
 import FriendList from '../Components/Friends'
 import UserInformation from '../Components/UserInformation'
+import LayoutGamestats from './Layout-gamestats'
+import {gameInfo} from './Stats'
 
 type Props = {}
 
 const Home = (props: Props) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [gameFetched, setGameFetched] = useState<boolean>(false)
   const token: string|undefined = Cookies.get("token");
   let content: {username: string, user: number, avatar: string};
+
+	const data1: gameInfo= {
+		score1: 11,
+		score2: 2,
+		player1: 'Steve',
+		player2: 'Patrick',
+	}
+
+	const data2: gameInfo= {
+		score1: 6,
+		score2: 11,
+		player1: 'Steve',
+		player2: 'Jcarlen',
+	}
+
+	const data3: gameInfo= {
+		score1: 11,
+		score2: 5,
+		player1: 'Steve',
+		player2: 'ALEX',
+	}
+
+	const data4: gameInfo= {
+		score1: 9,
+		score2: 11,
+		player1: 'Steve',
+		player2: 'Eliott',
+	}
+
+	const alldata: gameInfo[]= [data1, data2, data3, data4];
+	const dataLast: gameInfo[] = alldata.slice(-3)
+	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+	const yourFunction = async () => {
+		await delay(5000);
+		setGameFetched(true);
+	};
+
     if (token != undefined)
       content = decodeToken(token);
     else
@@ -58,6 +99,10 @@ const Home = (props: Props) => {
         //add a toast
       }
     };
+
+	useEffect (() => {
+		yourFunction();
+	}, []);
 
     return (
         <ChakraProvider resetCSS={false}>
@@ -96,15 +141,16 @@ const Home = (props: Props) => {
         <div className='displayGrid'>
             <div className='matchHistory'>
                 match history<br/>
-                <div className='matchBox'>
-                  FRIEND 11-5
-                </div>
-                <div className='matchBox'>
-                  FRIEND 8-11
-                </div>
-                <div className='matchBox'>
-                  FRIEND 7-11
-                </div>
+                {gameFetched ? 
+					<div className='matchBox'>
+					{dataLast.map((achievement) => {
+					return (
+						<LayoutGamestats {...achievement}/>
+					);
+					})}
+					</div>
+				: <div className='history_1' style={{fontSize:"25px"}}>Loading...</div>
+				}
             </div>
             <div className='achievements'>
                 achievements

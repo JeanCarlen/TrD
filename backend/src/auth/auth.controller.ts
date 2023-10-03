@@ -48,7 +48,7 @@ export class AuthController {
   }
 
   @Delete('2fa')
-  @UseGuards(AuthGuard)
+  @UseGuards(OTPGuard)
   async turnOff2FA(@Req() request:any, @Body() body: otpBody) {
 	const isCodeValid = await this.authService.is2FACodeValid(
 		body.code, request.user.id
@@ -61,7 +61,7 @@ export class AuthController {
   @Post('2fa/generate')
   @UseGuards(AuthGuard)
   async generate(@Req() request) {
-    const user = await this.usersService.findOne(request.user.id);
+    const user = await this.usersService.findOneUser(request.user.id);
     return this.authService.setUp2FA(user);
   }
 
@@ -88,7 +88,7 @@ export class AuthController {
       throw new UnauthorizedException('Wrong authentication code.');
     return {
       message: ['Succesffully logged in'],
-      token: this.usersService.getJWT(request.user),
+      token: this.usersService.getJWT(request.user, false, true),
     };
   }
 }

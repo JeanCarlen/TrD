@@ -12,6 +12,7 @@ declare global {
 	user: number,
 	username: string,
 	avatar: string,
-	twofaenabled?: boolean,
+	twofaenabled: boolean,
+	twofacodereq: boolean
   };
 }

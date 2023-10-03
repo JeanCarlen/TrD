@@ -28,6 +28,11 @@ const TurnOff2fa: React.FC<{}> = () => {
 		})
 		const data = await response.json()
 		console.log (data);
+		Cookies.set('token', data.token)
+		toast.success(data.message[0], {
+			position: toast.POSITION.BOTTOM_LEFT,
+			className: 'toast-success'
+		})
 	}
 
 	const updateCode = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,6 +45,7 @@ const TurnOff2fa: React.FC<{}> = () => {
 				<input onChange={updateCode} type="text" value={code}></input>
 				<button onClick={turnOff}>Désactiver</button>
 			</div>
+			<ToastContainer />
 		</>
 	)
 }

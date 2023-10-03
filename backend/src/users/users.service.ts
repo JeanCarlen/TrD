@@ -1,12 +1,15 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Users } from './entities/users.entity';
 import { Create42UserDto } from './dto/create-42-user.dto';
 import { UserchatsService } from 'src/userchats/userchats.service';
+import { FriendsService } from 'src/friends/friends.service';
+import { Friends } from 'src/friends/entities/friend.entity';
+import { UsersResponse } from './dto/users.response';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -18,13 +21,16 @@ export class UsersService {
     private readonly usersRepository: Repository<Users>,
 	@Inject(UserchatsService)
 	private readonly userchatsService: UserchatsService,
+	@Inject(FriendsService)
+	private readonly friendsService: FriendsService,
 ) {}
 
   public getJWT(
     user:
       | { id: string; username: string; avatar: string; login42: string }
       | Users,
-    twoFaEnabled?: boolean,
+	  twoFaCodeReq: boolean,
+	  twoFaEnabled?: boolean,
   ): string {
     let payload;
     if (twoFaEnabled) {
@@ -34,6 +40,7 @@ export class UsersService {
         avatar: user.avatar,
         login42: user.login42 || null,
         twofaenabled: true,
+		twofacodereq: twoFaCodeReq || false,
       };
     } else {
       payload = {
@@ -41,6 +48,8 @@ export class UsersService {
         username: user.username,
         avatar: user.avatar,
         login42: user.login42 || null,
+		twofaenabled: false,
+		twofacodereq: false
       };
     }
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
@@ -59,7 +68,7 @@ export class UsersService {
     const user = await this.usersRepository.findOne({ where: { id: id } });
         user.password = this.hashPassword(updateUserDto.password);
         await this.usersRepository.save(user);
-        return { message: ['Password changed.'], token: this.getJWT(user) };
+        return { message: ['Password changed.'], token: this.getJWT(user, user.twofaenabled) };
   }
 
   private async updateUsername(
@@ -79,7 +88,7 @@ export class UsersService {
       });
     user.username = updateUserDto.username;
 	  await this.usersRepository.save(user);
-    return { message: [''], token: this.getJWT(user) };
+    return { message: [''], token: this.getJWT(user, user.twofaenabled) };
   }
 
   private async localLogin(
@@ -96,7 +105,7 @@ export class UsersService {
         description: `Unknown username or password.`,
       });
 
-    return { message: ['Successfully logged in.'], token: this.getJWT(user) };
+    return { message: ['Successfully logged in.'], token: this.getJWT(user, false, false) };
   }
 
   private async login2FA(loginUserDto: LoginUserDto, user: Users) {
@@ -111,7 +120,7 @@ export class UsersService {
       });
     return {
       message: ['Two Factor Code needed.'],
-      token: this.getJWT(user, true),
+      token: this.getJWT(user, true, true),
     };
   }
 
@@ -124,8 +133,6 @@ export class UsersService {
         cause: new Error(),
         description: `Unknown username or password.`,
       });
-    // check if twofaenabled or not
-    console.log(user);
     if (user.twofaenabled) return await this.login2FA(loginUserDto, user);
     return await this.localLogin(loginUserDto, user);
   }
@@ -151,7 +158,7 @@ export class UsersService {
       });
 
     user.password = this.hashPassword(createUserDto.password);
-    const token = this.getJWT(await this.usersRepository.save(user));
+    const token = this.getJWT(await this.usersRepository.save(user), false);
     return { message: ['Successfully registered.'], token: token };
   }
 
@@ -165,7 +172,7 @@ export class UsersService {
     user.login42 = create42User.login42;
     user.is42 = true;
 
-    const token = this.getJWT(await this.usersRepository.save(user));
+    const token = this.getJWT(await this.usersRepository.save(user), false);
     return { message: ['Successfully registered.'], token: token };
   }
 
@@ -175,11 +182,36 @@ export class UsersService {
     });
   }
 
-  public findOne(id: number) {
-    return this.usersRepository.findOne({
-      where: { id: id },
-      select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
-    });
+  public async findOne(id: number): Promise<UsersResponse> { // TODO: send friends count, pending count, request count
+    const user: Users = await this.usersRepository.findOne({
+		where: { id: id },
+		select: ['id', 'username', 'login42', 'avatar', 'twofaenabled']
+	})
+
+	const friends: Friends[] = await this.friendsService.findAllByUser(user.id);
+	const pending: Friends[] = friends.filter(friend => {
+		return friend.status == 0 && friend.requested == user.id
+	})
+	const requests: Friends[] = friends.filter(friend => {
+		return friend.status == 0 && friend.requester == user.id
+	})
+	const active: Friends[] = friends.filter(friend => {
+		return friend.status == 1 && (friend.requested == user.id || friend.requester == user.id)
+	})
+
+	const ret: UsersResponse = {
+		...user,
+		active_friends: active.length,
+		pending_requests: pending.length,
+		requests_sent: requests.length
+	}
+	return ret;
+  }
+
+  public async findOneUser(id: number): Promise<Users> {
+	return await this.usersRepository.findOne({
+		where: { id: id }
+	})
   }
 
   public async findUserChats(id: number) {
@@ -193,11 +225,37 @@ export class UsersService {
     });
   }
 
-  public findByUsername(name: string) {
-    return this.usersRepository.find({
-      where: { username: Like(`%${name}%`) },
+  public async findByUsername(name: string) {
+    const users = await this.usersRepository.find({
+      where: { username: ILike(`%${name}%`) },
       select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
     });
+	if (users.length > 0) {
+		const friends: Friends[] = await this.friendsService.findAllByUser(users[0].id);
+	
+		const ret: UsersResponse[] = [];
+		users.forEach((user) => {
+			let tmp: UsersResponse;
+			const pending: Friends[] = friends.filter(friend => {
+				return friend.status == 0 && friend.requested == user.id
+			})
+			const requests: Friends[] = friends.filter(friend => {
+				return friend.status == 0 && friend.requester == user.id
+			})
+			const active: Friends[] = friends.filter(friend => {
+				return friend.status == 1 && (friend.requested == user.id || friend.requester == user.id)
+			})
+			tmp = {
+				...user,
+				active_friends: active.length,
+				pending_requests: pending.length,
+				requests_sent: requests.length
+			}
+			ret.push(tmp)
+			return ret;
+		})
+	}
+	return users;
   }
 
   public async update(id: number, updateUserDto: UpdateUserDto) {
@@ -251,7 +309,7 @@ export class UsersService {
 
     user.avatar = process.env.HOST + 'images/' + imageName;
     const inserted = await this.usersRepository.save(user);
-    const token = this.getJWT(inserted);
+    const token = this.getJWT(inserted, false);
     return { message: ['Avatar successfully saved.'], token: token };
   }
 
@@ -271,7 +329,7 @@ export class UsersService {
     await this.usersRepository.save(user);
     return {
       message: ['Two factor authentication successfully turned on.'],
-      token: this.getJWT(user),
+      token: this.getJWT(user, false),
     };
   }
 
@@ -284,7 +342,7 @@ export class UsersService {
 	await this.usersRepository.save(user);
 	return {
 		message: ['Two factor authentication successfully turned off.'],
-		token: this.getJWT(user)
+		token: this.getJWT(user, false, false)
 	}
   }
 }

@@ -41,7 +41,7 @@ const PrivateRoutes = () => {
 
 	if (!token)
 		return <Navigate to='/login' replace />
-	else if (token && tokenContent && tokenContent.twofaenabled)
+	else if (token && tokenContent && tokenContent.twofacodereq)
 		return <Navigate to='/authenticate' replace />
 	else
 		return <Outlet />

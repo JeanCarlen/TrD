@@ -31,11 +31,6 @@ upfront:
 	@echo "updating the front :]"
 	@docker cp ./frontend/src trd-frontend-1:/app
 
-# runf:
-# 	@echo "re-runnning front end :]"
-# 	@docker stop trd-frontend-1 && docker rm trd-frontend-1
-# 	@make run
-
 help:
 	@echo "Available targets:"
 	@echo "  run    : Start the Docker containers using docker-compose up."
