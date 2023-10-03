@@ -230,30 +230,32 @@ export class UsersService {
       where: { username: ILike(`%${name}%`) },
       select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
     });
-
-	const friends: Friends[] = await this.friendsService.findAllByUser(users[0].id);
-
-	const ret: UsersResponse[] = [];
-	users.forEach((user) => {
-		let tmp: UsersResponse;
-		const pending: Friends[] = friends.filter(friend => {
-			return friend.status == 0 && friend.requested == user.id
+	if (users.length > 0) {
+		const friends: Friends[] = await this.friendsService.findAllByUser(users[0].id);
+	
+		const ret: UsersResponse[] = [];
+		users.forEach((user) => {
+			let tmp: UsersResponse;
+			const pending: Friends[] = friends.filter(friend => {
+				return friend.status == 0 && friend.requested == user.id
+			})
+			const requests: Friends[] = friends.filter(friend => {
+				return friend.status == 0 && friend.requester == user.id
+			})
+			const active: Friends[] = friends.filter(friend => {
+				return friend.status == 1 && (friend.requested == user.id || friend.requester == user.id)
+			})
+			tmp = {
+				...user,
+				active_friends: active.length,
+				pending_requests: pending.length,
+				requests_sent: requests.length
+			}
+			ret.push(tmp)
+			return ret;
 		})
-		const requests: Friends[] = friends.filter(friend => {
-			return friend.status == 0 && friend.requester == user.id
-		})
-		const active: Friends[] = friends.filter(friend => {
-			return friend.status == 1 && (friend.requested == user.id || friend.requester == user.id)
-		})
-		tmp = {
-			...user,
-			active_friends: active.length,
-			pending_requests: pending.length,
-			requests_sent: requests.length
-		}
-		ret.push(tmp)
-	})
-	return ret;
+	}
+	return users;
   }
 
   public async update(id: number, updateUserDto: UpdateUserDto) {
