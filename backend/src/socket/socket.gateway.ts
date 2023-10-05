@@ -163,7 +163,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @SubscribeMessage('create-something')
     onCreateSomething(@MessageBody() data: any) {
         console.log('Create something:', data);
-        this.server.to(data.room).emit('something-created', data);
-        return { event: 'something-created', data };
+        this.server.to(data.room).emit('srv-message', data);
     }
 }
