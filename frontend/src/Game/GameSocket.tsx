@@ -9,7 +9,7 @@ import cowLogo from '../cow.png';
 
 export interface GameData
 {
-  roomName: string,
+  // roomName: string,
   player1: Players,
   player2: Players,
   score1: number,
@@ -33,33 +33,33 @@ interface Ball{
 }
 
 const GameSocket: React.FC = () => {
-  const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
+	let content: {username: string, user: number, avatar: string};
   const [roomName, setRoomName] = useState<string>('');
   const [playerNumber, setPlayerNumber] = useState<number>(0);
   const [gameStarted, setGameStarted] = useState<boolean>(false);
   const token: string | undefined = Cookies.get("token");
   const intervalIdRef = useRef<number | null>(null);
   let intervalId: number= 0;
-  let paddleSize: number = 1300;
+  let paddleSize: number = 150;
   let newDir: number = 0;
   let cowLogoImage: HTMLImageElement = new Image();
-  let canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef<HTMLCanvasElement>();
+//   let canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef<HTMLCanvasElement>();
+	const canvasRef = useRef<HTMLCanvasElement>();
 
   let data: GameData = {
-    roomName: '',
     player1: {
-      id: 1,
+      id: 0,
       name: '',
       avatar: '',
-      pos_y: 200,
-      pos_x: 600,
+      pos_y: 10,
+      pos_x: 0,
     },
     player2: {
-      id: 2,
+      id: 0,
       name: '',
       avatar: '',
       pos_y: 100,
-      pos_x: 500,
+      pos_x: 0,
     },
     score1: 0,
     score2: 0,
@@ -75,9 +75,23 @@ const GameSocket: React.FC = () => {
 
   useEffect(() => {
     // once at the start of the component
-    intervalId = window.setInterval(updateGame, 1000 / 60);
+    intervalId = window.setInterval(updateGame, 1000 / 60, data);
+    window.addEventListener('keydown', (e: KeyboardEvent) => handleKeyPress(e, data));
+
     cowLogoImage.src = cowLogo;
-    socket.connect(); 
+    if (token != undefined)
+	{
+		content = decodeToken(token);
+		console.log('registering token' , content);
+		data.player1.id = content?.user;
+		data.player1.name = content?.username;
+		data.player1.avatar = content?.avatar;
+		socket.connect();
+	}
+  	else
+    {
+      content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
+    } 
     // updateGame(data);
   },[]);
 
@@ -86,16 +100,16 @@ const GameSocket: React.FC = () => {
     if (token === undefined) {
       return;
       }
-    setContent(decodeToken(token));
+    content = (decodeToken(token));
 
 	socket.on('connect', () => {
 	  console.log(socket.id);
 	  console.log('Connected');
 	  });
 
-    socket.on('game-start', (data: GameData) => {
-      console.log('game-start');
-      setGameStarted(true);
+    socket.on('game-start', (dataBack: string) => {
+		console.log('sending info', dataBack);
+		SendInfo(dataBack);
     });
     
     socket.on('pong-init-setup', (playerNumber: number) => {
@@ -108,8 +122,8 @@ const GameSocket: React.FC = () => {
       data.ball = ball;
     });
     
-    socket.on('goal', (newScore: number, data: GameData) => {
-      console.log('Game finished');
+    socket.on('goal', (newScore: number, dataGame: GameData) => {
+      //data = dataGame;
 
     });
 
@@ -119,19 +133,49 @@ const GameSocket: React.FC = () => {
       data.player2.pos_y = newy2;
     });
 
+	socket.on('exchange-info', (dataBack: any) => {
+		console.log("EXCHANGE: ",dataBack);
+		if (data.player1.id === 0)
+		{
+			data.player1.id = dataBack.myId;
+			data.player1.name = dataBack.myName;
+			data.player1.avatar = dataBack.myAvatar;
+		}
+		else if (data.player2.id === 0)
+		{
+			data.player2.id = dataBack.myId;
+			data.player2.name = dataBack.myName;
+			data.player2.avatar = dataBack.myAvatar;
+		}
+		//setGameStarted(true);
+	});
+
     return () => {
       socket.off('gameUpdate');
+	    socket.off('connect');
+	    socket.off('game-start');
+	    socket.off('pong-init-setup');
+	    socket.off('bounce');
+	    socket.off('paddle-movement');
+	    socket.off('exchange-info');
     };
     }, [socket]);
 
-  const upateGame = (data: GameData) => {
+  const updateGame = (data: GameData) => {
     // console.log('lets start the game1');
     // if (gameStarted === true)
     // {
-      console.log('lets start the game2');
       const canvas = canvasRef.current!;
-      if (!canvas) return;
-        const ctx = canvas.getContext('2d')!;
+      if (!canvas)
+      {
+        console.log("canvas is null");
+        return;
+      }
+
+	  // if (!gameStarted)
+	  // 	return;
+
+    	const ctx = canvas.getContext('2d')!;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const newBallX = data.ball.pos_x + data.ball.speed_x;
@@ -171,14 +215,19 @@ const GameSocket: React.FC = () => {
       ctx.drawImage(cowLogoImage, data.ball.pos_x, data.ball.pos_y, 20, 20);
       }
       ctx.beginPath();
-      ctx.roundRect(data.player1.pos_x, canvas.height - 20, paddleSize, 10, 5);
-      ctx.roundRect(data.player2.pos_x, 10, paddleSize, 10, 5);
+      ctx.roundRect(data.player2.pos_x, canvas.height - 20, paddleSize, 10, 5);
+      ctx.roundRect(data.player1.pos_x, 10, paddleSize, 10, 5);
       ctx.fill();
     // }
   };
   
+  	const SendInfo = (roomToSend: string) => {
+		console.log('game-start-> message: ', {roomName: roomToSend, myId: content?.user, myName: content?.username, myAvatar: content?.avatar});
+		socket.emit('exchange-info', {roomName: roomToSend, myId: content?.user, myName: content?.username, myAvatar: content?.avatar});
+	};
+
 	const gameOver = () => {
-		socket.emit('game-over', { roomName: data.roomName});
+		socket.emit('game-over', { roomName: roomName});
     //fetch-> post score to batabse
 	};
 
@@ -186,7 +235,8 @@ const GameSocket: React.FC = () => {
     socket.emit('paddle-movement', { playerNumber: playerNumber, data: data, newDir: newDir});}
 
   const sendGame = () => {
-	socket.emit('join-game', { roomName: data.roomName});
+    console.log('sendGame', roomName);
+	socket.emit('join-game', { roomName: roomName});
   };
 
   const Bounce = (newBallx: number, newBally: number, newSpeedx: number, newSpeedy: number) => {
@@ -194,18 +244,45 @@ const GameSocket: React.FC = () => {
   };
 
   const CreatePongRoom = () => {
-    const roomName = prompt("Enter a name for the new Game:");
-    console.log("creating room:", roomName);
+    const roomNamePrompt = prompt("Enter a name for the new Game:");
+    console.log("creating room:", roomNamePrompt);
     socket.emit('create-room', {
-        roomName: roomName,
+        roomName: roomNamePrompt,
       client: content?.user
     });
   };
 
-  let updateGame:any = upateGame.bind(this);
+const handleKeyPress = (e: React.KeyboardEvent, data: GameData) => {
+  const speed = 30;
+  switch (e.key) {
+    case 'ArrowLeft':
+      data.player2.pos_x =  data.player2.pos_x - speed;
+      break;
+    case 'ArrowRight':
+      data.player2.pos_x = data.player2.pos_x + speed;
+      break;
+    case 'a':
+      data.player1.pos_x = data.player1.pos_x - speed;
+      break;
+    case 'd':
+      data.player1.pos_x =  data.player1.pos_x + speed;
+      break;
+    default:
+      break;
+  }
+};
 
   return (
 	<div>
+	<div className="game">
+	<canvas ref={canvasRef} width={600} height={800}></canvas>
+  	<div className="score">
+          <img src="../cow.png" alt="Ball" style={{ display: 'none' }} />
+          <span>{data.player1.name}: {data.score1}</span>
+          <br/>
+          <span>{data.player2.name}: {data.score2}</span>
+      	</div>
+	</div>
 	<button onClick={CreatePongRoom}>Create Room</button>
 	<input
 	  type="text"
@@ -213,9 +290,8 @@ const GameSocket: React.FC = () => {
 	  value={roomName}
 	  onChange={(e) => setRoomName(e.target.value)}
 	/>
-	<button onClick={sendGame}>Join {data.roomName}</button>
+	<button onClick={sendGame}>Join {roomName}</button>
 	<button onClick={gameOver}>Game Over</button>
-  {/* <PongGame/> */}
 	</div>
     );
 };

@@ -10,7 +10,7 @@ const Game: React.FunctionComponent = () => {
             <Sidebar/>
 			<div>
 			</div>
-			<PongGame/>
+			{/* <PongGame/> */}
 			<GameSocket/>
 		</div>
 	)

@@ -1,4 +1,3 @@
-// Import necessary modules and services
 import { Inject, Logger, OnModuleInit } from "@nestjs/common";
 import { MessageBody, OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
@@ -7,7 +6,6 @@ import { ChatsService } from "src/chats/chats.service";
 import { ChatType } from "src/chats/entities/chat.entity";
 import { create } from "domain";
 import { RouterModule } from "@nestjs/core";
-import e from "express";
 
 // Define the WebSocketGateway and its path and CORS settings
 @WebSocketGateway({ path: '/api', cors: true })
@@ -29,12 +27,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         this.server.on('connection', async (socket: Socket) => {
             console.log(`${socket.id} connected`);
             this.handleConnection(socket);
-            try {
-                const roomList = await this.ChatsService.findAll();
-                console.log(roomList);
-            } catch (error) {
-                console.error('Error listing rooms:', error.message);
-            }
+            // try {
+            //     const roomList = await this.ChatsService.findAll();
+            //     console.log(roomList);
+            // } catch (error) {
+            //     console.error('Error listing rooms:', error.message);
+            // }
         });
     }
 
@@ -51,15 +49,21 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define the onPongInitSetup method to handle joining a game
     @SubscribeMessage('join-game')
     async onPongInitSetup(client: Socket, message: { roomName: string }) {
-        console.log("into pong init setup");
+        console.log("into pong init setup, message is ", message);
         this.clients.push(client);
         client.join(message.roomName);
         client.emit('pong-init-setup', this.clients.length);
         if (this.clients.length == 2) {
-            console.log("into if");
-            this.server.to(message.roomName).emit('pong-init-setup done for', message.roomName);
-            this.server.emit('game-start', message.roomName);
+            console.log("into if, roomName is ", message.roomName);
+            // this.server.to(message.roomName).emit('pong-init-setup done for', message.roomName);
+            this.server.to(message.roomName).emit('game-start', message.roomName);
         }
+    }
+
+    @SubscribeMessage('exchange-info')
+    onExchangeInfo(client: Socket, data: { myId : number, myName : string, myAvatar : string, roomName: string }) {
+        console.log("into exchange info ->", data);
+        this.server.to(data.roomName).emit('exchange-info', data);
     }
 
     // Define the onGameOver method to handle when a game is over
@@ -67,6 +71,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     onGameOver(client: Socket, message: { player : string, roomName: string }) {
         console.log("into game over");
         this.server.to(message.roomName).emit('game-over', message);
+        const index = this.clients.indexOf(client);
+        if (index !== -1) {
+            this.clients.splice(index, 1);
+        }
         this.handleDisconnect(client);
     }
 
@@ -118,8 +126,9 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
                 type: ChatType.CHANNEL,
                 owner: parseInt(client),
             });
-            this.server.emit('room-list', roomName);
-            console.log('Room created:', createdRoom);
+            console.log('Room created:', roomName);
+            const roomList = await this.ChatsService.findAll();
+            console.log(roomList);
         } catch (error) {
             console.error('Error creating room:', error.message);
             this.server.emit('room-creation-error', error.message);
