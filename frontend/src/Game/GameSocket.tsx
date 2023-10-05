@@ -33,7 +33,7 @@ speed_x: number
 }
 
 const GameSocket: React.FC = () => {
-	let content: {username: string, user: number, avatar: string};
+let content: {username: string, user: number, avatar: string};
 const [roomName, setRoomName] = useState<string>('');
 const [playerNumber, setPlayerNumber] = useState<number>(0);
 const [gameStarted, setGameStarted] = useState<boolean>(false);
@@ -46,7 +46,7 @@ let cowLogoImage: HTMLImageElement = new Image();
 //   let canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef<HTMLCanvasElement>();
 const canvasRef = useRef<HTMLCanvasElement>();
 
-let data: GameData = {
+let data = useRef<GameData>({
 	player1: {
 		id: 0,
 		name: 'Bob',
@@ -69,29 +69,29 @@ let data: GameData = {
 		speed_y: 3,
 		speed_x: 5,
 	},
-};
+});
 
 const socket = useContext(WebsocketContext);
 
 useEffect(() => {
 	// once at the start of the component
 	intervalId = window.setInterval(updateGame, 1000 / 60, data);
-	window.addEventListener('keydown', (e: KeyboardEvent) => handleKeyPress(e, data));
+	window.addEventListener('keydown', (e: KeyboardEvent) => handleKeyPress(e , data));
 
 	cowLogoImage.src = cowLogo;
 	if (token != undefined)
 	{
 		content = decodeToken(token);
 		console.log('registering token' , content);
-		data.player1.id = content?.user;
-		data.player1.name = content?.username;
-		data.player1.avatar = content?.avatar;
+		data.current.player1.id = content?.user;
+		data.current.player1.name = content?.username;
+		data.current.player1.avatar = content?.avatar;
 		socket.connect();
 	}
 	else
 	{
 	content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
-	} 
+	}
 	// updateGame(data);
 },[]);
 
@@ -111,7 +111,7 @@ useEffect(() => {
 		console.log('sending info', dataBack);
 		SendInfo(dataBack);
 	});
-	
+
 	socket.on('pong-init-setup', (playerNumber: number) => {
 		console.log('recieved player number: ' + playerNumber);
 		setPlayerNumber(playerNumber);
@@ -119,9 +119,9 @@ useEffect(() => {
 
 	socket.on('bounce', (ball: Ball)=> {
 		console.log('bounce');
-		data.ball = ball;
+		data.current.ball = ball;
 	});
-	
+
 	socket.on('goal', (newScore: number, dataGame: GameData) => {
 	//data = dataGame;
 
@@ -129,29 +129,31 @@ useEffect(() => {
 
 	socket.on('paddle-movement', (newy1: number, newy2: number) => {
 	console.log('paddle-movement');
-	data.player1.pos_y = newy1;
-	data.player2.pos_y = newy2;
+	data.current.player1.pos_y = newy1;
+	data.current.player2.pos_y = newy2;
 	});
 
 	socket.on('exchange-info', (dataBack: any) => {
-		console.log("EXCHANGE: ",dataBack);
-		if (data.player1.id === 0)
+		alert('ON Y RENTRE');
+		debugger;
+		console.log("EXCH1ANGE: ",dataBack);
+		if (data.current.player1.id === 0)
 		{
-			data.player1.id = dataBack.myId;
-			data.player1.name = dataBack.myName;
-			data.player1.avatar = dataBack.myAvatar;
+			data.current.player1.id = dataBack.myId;
+			data.current.player1.name = dataBack.myName;
+			data.current.player1.avatar = dataBack.myAvatar;
 		}
-		else if (data.player2.id === 0)
+		else if (data.current.player2.id === 0)
 		{
-			data.player2.id = dataBack.myId;
-			data.player2.name = dataBack.myName;
-			data.player2.avatar = dataBack.myAvatar;
+			data.current.player2.id = dataBack.myId;
+			data.current.player2.name = dataBack.myName;
+			data.current.player2.avatar = dataBack.myAvatar;
 		}
 		//setGameStarted(true);
 	});
 
 	return () => {
-	socket.off('gameUpdate');
+		socket.off('gameUpdate');
 		socket.off('connect');
 		socket.off('game-start');
 		socket.off('pong-init-setup');
@@ -175,52 +177,52 @@ const updateGame = () => {
 	// if (!gameStarted)
 	// 	return;
 
-		const ctx = canvas.getContext('2d')!;
+	const ctx = canvas.getContext('2d')!;
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	const newBallX = data.ball.pos_x + data.ball.speed_x;
-	const newBallY = data.ball.pos_y + data.ball.speed_y;
-	if ((data.ball.speed_x > 20) || (data.ball.speed_x < - 20)) {
-		data.ball.speed_x = 20;
-		data.ball.speed_y = 20;
+	const newBallX = data.current.ball.pos_x + data.current.ball.speed_x;
+	const newBallY = data.current.ball.pos_y + data.current.ball.speed_y;
+	if ((data.current.ball.speed_x > 20) || (data.current.ball.speed_x < - 20)) {
+		data.current.ball.speed_x = 20;
+		data.current.ball.speed_y = 20;
 	}
 	if ((newBallX < 0) || (newBallX > canvas.width)) {
-		data.ball.speed_x = -data.ball.speed_x;
+		data.current.ball.speed_x = -data.current.ball.speed_x;
 	}
-	if ((newBallY < 10 && (newBallX >= data.player1.pos_x && newBallX <= data.player1.pos_x + paddleSize)) 
-	|| (newBallY > canvas.height - 20 && (newBallX >= data.player2.pos_x && newBallX <= data.player2.pos_x + paddleSize))) {
-		data.ball.speed_y = -data.ball.speed_y * 1.05;
-		data.ball.speed_x = data.ball.speed_x * 1.05;
+	if ((newBallY < 10 && (newBallX >= data.current.player1.pos_x && newBallX <= data.current.player1.pos_x + paddleSize))
+	|| (newBallY > canvas.height - 20 && (newBallX >= data.current.player2.pos_x && newBallX <= data.current.player2.pos_x + paddleSize))) {
+		data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
+		data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
 	}
 	if (newBallY < 0) {
-		data.score2++;
-		data.ball.pos_x = canvas.width / 2;
-		data.ball.pos_y = canvas.height / 2;
-		data.ball.speed_x = 3;
-		data.ball.speed_y = 5;
+		data.current.score2++;
+		data.current.ball.pos_x = canvas.width / 2;
+		data.current.ball.pos_y = canvas.height / 2;
+		data.current.ball.speed_x = 3;
+		data.current.ball.speed_y = 5;
 	}
 	else if(newBallY > canvas.height) {
-		data.score1++;
-		data.ball.pos_x = canvas.width / 2;
-		data.ball.pos_y = canvas.height / 2;
-		data.ball.speed_x = -3;
-		data.ball.speed_y = -5;
+		data.current.score1++;
+		data.current.ball.pos_x = canvas.width / 2;
+		data.current.ball.pos_y = canvas.height / 2;
+		data.current.ball.speed_x = -3;
+		data.current.ball.speed_y = -5;
 	}
 	else{
-		data.ball.pos_x = newBallX;
-		data.ball.pos_y = newBallY;
+		data.current.ball.pos_x = newBallX;
+		data.current.ball.pos_y = newBallY;
 	}
 	ctx.fillStyle = 'pink';
 	if (cowLogo) {
-	ctx.drawImage(cowLogoImage, data.ball.pos_x, data.ball.pos_y, 40, 40);
+	ctx.drawImage(cowLogoImage, data.current.ball.pos_x, data.current.ball.pos_y, 40, 40);
 	}
 	ctx.beginPath();
-	ctx.roundRect(data.player2.pos_x, canvas.height - 20, paddleSize, 10, 5);
-	ctx.roundRect(data.player1.pos_x, 10, paddleSize, 10, 5);
+	ctx.roundRect(data.current.player2.pos_x, canvas.height - 20, paddleSize, 10, 5);
+	ctx.roundRect(data.current.player1.pos_x, 10, paddleSize, 10, 5);
 	ctx.fill();
 	// }
 	// make the overall data equal to the new data
-	
+
 };
 
 	const SendInfo = (roomToSend: string) => {
@@ -280,9 +282,9 @@ return (
 	<canvas ref={canvasRef} width={600} height={800}></canvas>
 	<div className="score">
 		<img src="../cow.png" alt="Ball" style={{ display: 'none' }} />
-		<span>{data.player1.name}: {data.score1}</span>
+		<span>{data.current.player1.name}: {data.current.score1}</span>
 		<br/>
-		<span>{data.player2.name}: {data.score2}</span>
+		<span>{data.current.player2.name}: {data.current.score2}</span>
 		</div>
 	</div>
 	<button onClick={CreatePongRoom}>Create Room</button>
