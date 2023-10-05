@@ -95,7 +95,7 @@ function handleSendMessage(sender: string = content?.username || 'user') {
 	sender: socket.id,
 	sender_Name: sender,
 	date: new Date().toLocaleTimeString(),
-	room: currentRoom, // Include the current room in the message data
+	room: currentRoom,
 	});
 
 	console.log('Message sent:', newMessage.text);
