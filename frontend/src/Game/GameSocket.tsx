@@ -15,6 +15,7 @@ export interface GameData
 	score1: number,
 	score2: number,
 	ball: Ball,
+	started: boolean
 }
 
 interface Players{
@@ -37,19 +38,10 @@ interface Ball{
 const GameSocket: React.FC = () => {
 let content: {username: string, user: number, avatar: string};
 const [roomName, setRoomName] = useState<string>('');
-const [playerNumber, setPlayerNumber] = useState<number>(0);
-const [gameStarted, setGameStarted] = useState<boolean>(false);
-const [playerName1, setPlayerName1] = useState<string>('');
-const [playerName2, setPlayerName2] = useState<string>('');
-const [playerScore1, setPlayerScore1] = useState<number>(0);
-const [playerScore2, setPlayerScore2] = useState<number>(0);
 const token: string | undefined = Cookies.get("token");
-const intervalIdRef = useRef<number | null>(null);
 let intervalId: number= 0;
 let paddleSize: number = 150;
-let newDir: number = 0;
 let cowLogoImage: HTMLImageElement = new Image();
-//   let canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef<HTMLCanvasElement>();
 const canvasRef = useRef<HTMLCanvasElement>();
 
 let data = useRef<GameData>({
@@ -57,7 +49,7 @@ let data = useRef<GameData>({
 	player1: {
 		pNumber: 0,
 		id: 0,
-		name: 'Bob',
+		name: '',
 		avatar: '',
 		pos_y: 10,
 		pos_x: 0,
@@ -68,8 +60,8 @@ let data = useRef<GameData>({
 		id: 0,
 		name: '',
 		avatar: '',
-		pos_y: 100,
-		pos_x: 0,
+		pos_y: 10,
+		pos_x: 10,
 		speed: 25,
 	},
 	score1: 0,
@@ -77,16 +69,17 @@ let data = useRef<GameData>({
 	ball: {
 		pos_y: 100,
 		pos_x: 100,
-		speed_y: 3,
-		speed_x: 5,
+		speed_y: 1,
+		speed_x: 2,
 	},
+	started: false
 });
 
 const socket = useContext(WebsocketContext);
 
 useEffect(() => {
 	// once at the start of the component
-	intervalId = window.setInterval(updateGame, 1000 / 60, data);
+	intervalId = window.setInterval(updateGame, 1000 / 30, data);
 	window.addEventListener('keydown', (e: KeyboardEvent) => handleKeyPress(e));
 
 	cowLogoImage.src = cowLogo;
@@ -103,15 +96,14 @@ useEffect(() => {
 	{
 	content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
 	}
-	// updateGame(data);
 },[]);
 
 useEffect(() => {
 
-	if (token === undefined) {
-	return;
-	}
-	content = (decodeToken(token));
+	// if (token === undefined) {
+	// return;
+	// }
+	// content = (decodeToken(token));
 
 	socket.on('connect', () => {
 		console.log(socket.id);
@@ -120,12 +112,12 @@ useEffect(() => {
 
 	socket.on('game-start', (dataBack: string) => {
 		console.log('sending info', dataBack);
+		data.current.NameOfRoom = dataBack;
 		SendInfo(dataBack);
 	});
 
 	socket.on('pong-init-setup', (playerNumber: number) => {
 		console.log('recieved player number: ' + playerNumber);
-		setPlayerNumber(playerNumber);
 		data.current.player1.pNumber= playerNumber;
 		});
 
@@ -136,7 +128,11 @@ useEffect(() => {
 
 	socket.on('goal', (newScore: number, dataGame: GameData) => {
 	//data = dataGame;
+	});
 
+	socket.on('leave-game', (roomName: string) => {
+		console.log(socket.id , ' left : ', roomName);
+		socket.leave(roomName);
 	});
 
 	socket.on('paddle-send', (dataBack: any) => {
@@ -148,7 +144,7 @@ useEffect(() => {
 	});
 
 	socket.on('exchange-info', (dataBack: any) => {
-		console.log("EXCH1ANGE: ",dataBack);
+		console.log("EXCHANGE: ",dataBack.myName);
 		if (data.current.player1.id === 0)
 		{
 			data.current.player1.id = dataBack.myId;
@@ -163,9 +159,7 @@ useEffect(() => {
 			data.current.player2.avatar = dataBack.myAvatar;
 			data.current.player2.pNumber = dataBack.playerNumber;
 		}
-		setPlayerName1(data.current.player1.name);
-		setPlayerName2(data.current.player2.name);
-		//setGameStarted(true);
+		data.current.started = true;
 	});
 
 	return () => {
@@ -180,9 +174,10 @@ useEffect(() => {
 	}, [socket]);
 
 const updateGame = () => {
-	// console.log('lets start the game1');
-	// if (gameStarted === true)
-	// {
+	if (!data.current.started)
+	{
+		return ;
+	}
 	const canvas = canvasRef.current!;
 	if (!canvas)
 	{
@@ -190,58 +185,59 @@ const updateGame = () => {
 		return;
 	}
 
-	// if (!gameStarted)
-	// 	return;
-
 	const ctx = canvas.getContext('2d')!;
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	const newBallX = data.current.ball.pos_x + data.current.ball.speed_x;
 	const newBallY = data.current.ball.pos_y + data.current.ball.speed_y;
+	// limit max ball speed
 	if ((data.current.ball.speed_x > 20) || (data.current.ball.speed_x < - 20)) {
 		data.current.ball.speed_x = 20;
 		data.current.ball.speed_y = 20;
 	}
+	// bounce off of left/right walls
 	if ((newBallX < 0) || (newBallX > canvas.width)) {
+		// a garder
 		data.current.ball.speed_x = -data.current.ball.speed_x;
 	}
-	if ((newBallY < 10 && (newBallX >= data.current.player1.pos_x && newBallX <= data.current.player1.pos_x + paddleSize))
-	|| (newBallY > canvas.height - 20 && (newBallX >= data.current.player2.pos_x && newBallX <= data.current.player2.pos_x + paddleSize))) {
+	// check for collision with paddle - change for only player 1 paddle
+	if ((newBallY < 10 && (newBallX >= data.current.player2.pos_x && newBallX <= data.current.player2.pos_x + paddleSize))
+	|| (newBallY > canvas.height - 20 && (newBallX >= data.current.player1.pos_x && newBallX <= data.current.player1.pos_x + paddleSize))) {
 		data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
 		data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
 	}
+	// check for goal on player 2 side - remove 
 	if (newBallY < 0) {
-		data.current.score2++;
-		setPlayerScore2(data.current.score2);
-		data.current.ball.pos_x = canvas.width / 2;
-		data.current.ball.pos_y = canvas.height / 2;
-		data.current.ball.speed_x = 3;
-		data.current.ball.speed_y = 5;
-	}
-	else if(newBallY > canvas.height) {
 		data.current.score1++;
-		setPlayerScore1(data.current.score1);
+		console.log('new score: ', data.current.score1, ' - ' ,data.current.score2)
 		data.current.ball.pos_x = canvas.width / 2;
 		data.current.ball.pos_y = canvas.height / 2;
-		data.current.ball.speed_x = -3;
-		data.current.ball.speed_y = -5;
+		data.current.ball.speed_x = 2;
+		data.current.ball.speed_y = 1;
+	}
+	// check for goal on player 1 side - change into socket goal
+	else if(newBallY > canvas.height) {
+		data.current.score2++;
+		data.current.ball.pos_x = canvas.width / 2;
+		data.current.ball.pos_y = canvas.height / 2;
+		data.current.ball.speed_x = -2;
+		data.current.ball.speed_y = -1;
 	}
 	else{
+		// calculating new position - keep
 		data.current.ball.pos_x = newBallX;
 		data.current.ball.pos_y = newBallY;
 	}
+	// drawing elements - keep
 	ctx.fillStyle = 'pink';
 	if (cowLogo) {
-	ctx.drawImage(cowLogoImage, data.current.ball.pos_x + 20, data.current.ball.pos_y + 20, 40, 40);
+	ctx.drawImage(cowLogoImage, data.current.ball.pos_x - 20, data.current.ball.pos_y - 20, 40, 40);
 	}
 	ctx.beginPath();
 	ctx.arc(data.current.ball.pos_x, data.current.ball.pos_y, 10, 0, Math.PI * 2, true);
-	ctx.roundRect(data.current.player2.pos_x, canvas.height - 20, paddleSize, 10, 5);
-	ctx.roundRect(data.current.player1.pos_x, 10, paddleSize, 10, 5);
+	ctx.roundRect(data.current.player2.pos_x, data.current.player2.pos_y, paddleSize, 10, 5);
+	ctx.roundRect(data.current.player1.pos_x, canvas.height - 10, paddleSize, 10, 5);
 	ctx.fill();
-	// }
-	// make the overall data equal to the new data
-
 };
 
 	const SendInfo = (roomToSend: string) => {
@@ -254,7 +250,7 @@ const updateGame = () => {
 	//fetch-> post score to batabse
 	};
 
-const Paddles = (roomName: string, playerNumber: number, newDir: number) => {
+const Paddles = (roomName: string, newDir: number) => {
 	socket.emit('paddle-movement', {roomName:roomName, playerNumber: data.current.player1.pNumber, pos_x: data.current.player1.pos_x, newDir: newDir, speed: data.current.player1.speed});}
 
 const sendGame = () => {
@@ -269,29 +265,25 @@ const Bounce = (newBallx: number, newBally: number, newSpeedx: number, newSpeedy
 
 const CreatePongRoom = () => {
 	const roomNamePrompt = prompt("Enter a name for the new Game:");
-	console.log("creating room:", roomNamePrompt);
+	console.log("creating room:", roomNamePrompt, content?.user);
 	socket.emit('create-room', {
 		roomName: roomNamePrompt,
-	client: content?.user
+		client: content?.user
 	});
 };
 
+const WaitingRoom = () => {
+	socket.emit('waitList');
+	console.log('in the waiting-room');
+};
+
 	const handleKeyPress = (e: React.KeyboardEvent) => {
-	const speed = 30;
 	switch (e.key) {
 		case 'ArrowLeft':
-		Paddles(data.current.NameOfRoom, playerNumber, -1);
-		//data.player2.pos_x =  data.player2.pos_x - speed;
+		Paddles(data.current.NameOfRoom, -1);
 		break;
 		case 'ArrowRight':
-		Paddles(data.current.NameOfRoom, playerNumber, 1);
-		//data.player2.pos_x = data.player2.pos_x + speed;
-		break;
-		case 'a':
-		//data.player1.pos_x = data.player1.pos_x - speed;
-		break;
-		case 'd':
-		//data.player1.pos_x =  data.player1.pos_x + speed;
+		Paddles(data.current.NameOfRoom, 1);
 		break;
 		default:
 		break;
@@ -304,9 +296,9 @@ const CreatePongRoom = () => {
 	<canvas ref={canvasRef} width={600} height={800}></canvas>
 	<div className="score">
 		<img src="../cow.png" alt="Ball" style={{ display: 'none' }} />
-		<span>{playerName1}: {playerScore1}</span>
+		<span>{data.current.player1.name}: {data.current.score1}</span>
 		<br/>
-		<span>{playerName2}: {playerScore2}</span>
+		<span>{data.current.player2.name}: {data.current.score2}</span>
 		</div>
 	</div>
 	<button onClick={CreatePongRoom}>Create Room</button>
@@ -318,6 +310,7 @@ const CreatePongRoom = () => {
 	/>
 	<button onClick={sendGame}>Join {roomName}</button>
 	<button onClick={gameOver}>Game Over</button>
+	<button onClick={WaitingRoom}>Waiting Room</button>
 	</div>
 	);
 };
