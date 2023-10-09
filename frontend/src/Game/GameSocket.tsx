@@ -37,6 +37,10 @@ const GameSocket: React.FC = () => {
 const [roomName, setRoomName] = useState<string>('');
 const [playerNumber, setPlayerNumber] = useState<number>(0);
 const [gameStarted, setGameStarted] = useState<boolean>(false);
+const [playerName1, setPlayerName1] = useState<string>('');
+const [playerName2, setPlayerName2] = useState<string>('');
+const [playerScore1, setPlayerScore1] = useState<number>(0);
+const [playerScore2, setPlayerScore2] = useState<number>(0);
 const token: string | undefined = Cookies.get("token");
 const intervalIdRef = useRef<number | null>(null);
 let intervalId: number= 0;
@@ -147,6 +151,8 @@ useEffect(() => {
 			data.player2.name = dataBack.myName;
 			data.player2.avatar = dataBack.myAvatar;
 		}
+		setPlayerName1(data.player1.name);
+		setPlayerName2(data.player2.name);
 		//setGameStarted(true);
 	});
 
@@ -194,6 +200,7 @@ const updateGame = () => {
 	}
 	if (newBallY < 0) {
 		data.score2++;
+		setPlayerScore2(data.score2);
 		data.ball.pos_x = canvas.width / 2;
 		data.ball.pos_y = canvas.height / 2;
 		data.ball.speed_x = 3;
@@ -201,6 +208,7 @@ const updateGame = () => {
 	}
 	else if(newBallY > canvas.height) {
 		data.score1++;
+		setPlayerScore1(data.score1);
 		data.ball.pos_x = canvas.width / 2;
 		data.ball.pos_y = canvas.height / 2;
 		data.ball.speed_x = -3;
@@ -274,15 +282,15 @@ const CreatePongRoom = () => {
 	}
 	};
 
-return (
+	return (
 	<div>
 	<div className="game">
 	<canvas ref={canvasRef} width={600} height={800}></canvas>
 	<div className="score">
 		<img src="../cow.png" alt="Ball" style={{ display: 'none' }} />
-		<span>{data.player1.name}: {data.score1}</span>
+		<span>{playerName1}: {playerScore1}</span>
 		<br/>
-		<span>{data.player2.name}: {data.score2}</span>
+		<span>{playerName2}: {playerScore2}</span>
 		</div>
 	</div>
 	<button onClick={CreatePongRoom}>Create Room</button>
