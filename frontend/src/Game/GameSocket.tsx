@@ -9,27 +9,29 @@ import cowLogo from '../cow.png';
 
 export interface GameData
 {
-// roomName: string,
-player1: Players,
-player2: Players,
-score1: number,
-score2: number,
-ball: Ball,
+	NameOfRoom: string,
+	player1: Players,
+	player2: Players,
+	score1: number,
+	score2: number,
+	ball: Ball,
 }
 
 interface Players{
-id: number,
-name: string,
-avatar: string,
-pos_y: number,
-pos_x: number,
+	pNumber: number,
+	id: number,
+	name: string,
+	avatar: string,
+	pos_y: number,
+	pos_x: number,
+	speed: number,
 }
 
 interface Ball{
-pos_y: number,
-pos_x: number,
-speed_y: number,
-speed_x: number
+	pos_y: number,
+	pos_x: number,
+	speed_y: number,
+	speed_x: number
 }
 
 const GameSocket: React.FC = () => {
@@ -51,19 +53,24 @@ let cowLogoImage: HTMLImageElement = new Image();
 const canvasRef = useRef<HTMLCanvasElement>();
 
 let data = useRef<GameData>({
+	NameOfRoom: '',
 	player1: {
+		pNumber: 0,
 		id: 0,
 		name: 'Bob',
 		avatar: '',
 		pos_y: 10,
 		pos_x: 0,
+		speed: 25,
 	},
 	player2: {
+		pNumber: 0,
 		id: 0,
 		name: '',
 		avatar: '',
 		pos_y: 100,
 		pos_x: 0,
+		speed: 25,
 	},
 	score1: 0,
 	score2: 0,
@@ -80,7 +87,7 @@ const socket = useContext(WebsocketContext);
 useEffect(() => {
 	// once at the start of the component
 	intervalId = window.setInterval(updateGame, 1000 / 60, data);
-	window.addEventListener('keydown', (e: KeyboardEvent) => handleKeyPress(e , data));
+	window.addEventListener('keydown', (e: KeyboardEvent) => handleKeyPress(e));
 
 	cowLogoImage.src = cowLogo;
 	if (token != undefined)
@@ -119,7 +126,8 @@ useEffect(() => {
 	socket.on('pong-init-setup', (playerNumber: number) => {
 		console.log('recieved player number: ' + playerNumber);
 		setPlayerNumber(playerNumber);
-	});
+		data.current.player1.pNumber= playerNumber;
+		});
 
 	socket.on('bounce', (ball: Ball)=> {
 		console.log('bounce');
@@ -131,30 +139,32 @@ useEffect(() => {
 
 	});
 
-	socket.on('paddle-movement', (newy1: number, newy2: number) => {
-	console.log('paddle-movement');
-	data.current.player1.pos_y = newy1;
-	data.current.player2.pos_y = newy2;
+	socket.on('paddle-send', (dataBack: any) => {
+	console.log('paddle-movement -> playerNumber= ', dataBack);
+		if (dataBack.playerNumber === data.current.player1.pNumber)
+			data.current.player1.pos_x = dataBack.pos_x;
+		else if (dataBack.playerNumber === data.current.player2.pNumber)
+			data.current.player2.pos_x = dataBack.pos_x;
 	});
 
 	socket.on('exchange-info', (dataBack: any) => {
-		alert('ON Y RENTRE');
-		debugger;
 		console.log("EXCH1ANGE: ",dataBack);
 		if (data.current.player1.id === 0)
 		{
 			data.current.player1.id = dataBack.myId;
 			data.current.player1.name = dataBack.myName;
 			data.current.player1.avatar = dataBack.myAvatar;
+			data.current.player1.pNumber = dataBack.playerNumber;
 		}
-		else if (data.current.player2.id === 0)
+		else if (data.current.player2.id === 0 && data.current.player1.id !== dataBack.myId)
 		{
 			data.current.player2.id = dataBack.myId;
 			data.current.player2.name = dataBack.myName;
 			data.current.player2.avatar = dataBack.myAvatar;
+			data.current.player2.pNumber = dataBack.playerNumber;
 		}
-		setPlayerName1(data.player1.name);
-		setPlayerName2(data.player2.name);
+		setPlayerName1(data.current.player1.name);
+		setPlayerName2(data.current.player2.name);
 		//setGameStarted(true);
 	});
 
@@ -164,7 +174,7 @@ useEffect(() => {
 		socket.off('game-start');
 		socket.off('pong-init-setup');
 		socket.off('bounce');
-		socket.off('paddle-movement');
+		socket.off('paddle-send');
 		socket.off('exchange-info');
 	};
 	}, [socket]);
@@ -201,20 +211,20 @@ const updateGame = () => {
 		data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
 	}
 	if (newBallY < 0) {
-		data.score2++;
-		setPlayerScore2(data.score2);
-		data.ball.pos_x = canvas.width / 2;
-		data.ball.pos_y = canvas.height / 2;
-		data.ball.speed_x = 3;
-		data.ball.speed_y = 5;
+		data.current.score2++;
+		setPlayerScore2(data.current.score2);
+		data.current.ball.pos_x = canvas.width / 2;
+		data.current.ball.pos_y = canvas.height / 2;
+		data.current.ball.speed_x = 3;
+		data.current.ball.speed_y = 5;
 	}
 	else if(newBallY > canvas.height) {
-		data.score1++;
-		setPlayerScore1(data.score1);
-		data.ball.pos_x = canvas.width / 2;
-		data.ball.pos_y = canvas.height / 2;
-		data.ball.speed_x = -3;
-		data.ball.speed_y = -5;
+		data.current.score1++;
+		setPlayerScore1(data.current.score1);
+		data.current.ball.pos_x = canvas.width / 2;
+		data.current.ball.pos_y = canvas.height / 2;
+		data.current.ball.speed_x = -3;
+		data.current.ball.speed_y = -5;
 	}
 	else{
 		data.current.ball.pos_x = newBallX;
@@ -222,9 +232,10 @@ const updateGame = () => {
 	}
 	ctx.fillStyle = 'pink';
 	if (cowLogo) {
-	ctx.drawImage(cowLogoImage, data.current.ball.pos_x, data.current.ball.pos_y, 40, 40);
+	ctx.drawImage(cowLogoImage, data.current.ball.pos_x + 20, data.current.ball.pos_y + 20, 40, 40);
 	}
 	ctx.beginPath();
+	ctx.arc(data.current.ball.pos_x, data.current.ball.pos_y, 10, 0, Math.PI * 2, true);
 	ctx.roundRect(data.current.player2.pos_x, canvas.height - 20, paddleSize, 10, 5);
 	ctx.roundRect(data.current.player1.pos_x, 10, paddleSize, 10, 5);
 	ctx.fill();
@@ -234,8 +245,8 @@ const updateGame = () => {
 };
 
 	const SendInfo = (roomToSend: string) => {
-		console.log('game-start-> message: ', {roomName: roomToSend, myId: content?.user, myName: content?.username, myAvatar: content?.avatar});
-		socket.emit('exchange-info', {roomName: roomToSend, myId: content?.user, myName: content?.username, myAvatar: content?.avatar});
+		console.log('game-start-> message: ', {roomName: roomToSend, myId: content?.user, myName: content?.username, myAvatar: content?.avatar, playerNumber: data.current.player1.pNumber});
+		socket.emit('exchange-info', {roomName: roomToSend, myId: content?.user, myName: content?.username, myAvatar: content?.avatar, playerNumber: data.current.player1.pNumber});
 	};
 
 	const gameOver = () => {
@@ -243,11 +254,12 @@ const updateGame = () => {
 	//fetch-> post score to batabse
 	};
 
-const Paddles = () => {
-	socket.emit('paddle-movement', { playerNumber: playerNumber, data: data, newDir: newDir});}
+const Paddles = (roomName: string, playerNumber: number, newDir: number) => {
+	socket.emit('paddle-movement', {roomName:roomName, playerNumber: data.current.player1.pNumber, pos_x: data.current.player1.pos_x, newDir: newDir, speed: data.current.player1.speed});}
 
 const sendGame = () => {
 	console.log('sendGame', roomName);
+	data.current.NameOfRoom = roomName;
 	socket.emit('join-game', { roomName: roomName});
 };
 
@@ -264,20 +276,22 @@ const CreatePongRoom = () => {
 	});
 };
 
-	const handleKeyPress = (e: React.KeyboardEvent, data: GameData) => {
+	const handleKeyPress = (e: React.KeyboardEvent) => {
 	const speed = 30;
 	switch (e.key) {
 		case 'ArrowLeft':
-		data.player2.pos_x =  data.player2.pos_x - speed;
+		Paddles(data.current.NameOfRoom, playerNumber, -1);
+		//data.player2.pos_x =  data.player2.pos_x - speed;
 		break;
 		case 'ArrowRight':
-		data.player2.pos_x = data.player2.pos_x + speed;
+		Paddles(data.current.NameOfRoom, playerNumber, 1);
+		//data.player2.pos_x = data.player2.pos_x + speed;
 		break;
 		case 'a':
-		data.player1.pos_x = data.player1.pos_x - speed;
+		//data.player1.pos_x = data.player1.pos_x - speed;
 		break;
 		case 'd':
-		data.player1.pos_x =  data.player1.pos_x + speed;
+		//data.player1.pos_x =  data.player1.pos_x + speed;
 		break;
 		default:
 		break;

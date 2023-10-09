@@ -21,7 +21,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @WebSocketServer()
     private server: Server;
     private clients: Socket[] = [];
-
     // Define the onModuleInit method to handle connections and list rooms
     onModuleInit() {
         this.server.on('connection', async (socket: Socket) => {
@@ -50,18 +49,20 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @SubscribeMessage('join-game')
     async onPongInitSetup(client: Socket, message: { roomName: string }) {
         console.log("into pong init setup, message is ", message);
-        this.clients.push(client);
         client.join(message.roomName);
-        client.emit('pong-init-setup', this.clients.length);
-        if (this.clients.length == 2) {
+        const room = this.server.sockets.adapter.rooms.get(message.roomName);
+        if (room && room.size == 2) {
             console.log("into if, roomName is ", message.roomName);
-            // this.server.to(message.roomName).emit('pong-init-setup done for', message.roomName);
+            client.emit('pong-init-setup', room.size);
             this.server.to(message.roomName).emit('game-start', message.roomName);
+        }
+        else {
+            client.emit('pong-init-setup', room.size);
         }
     }
 
     @SubscribeMessage('exchange-info')
-    onExchangeInfo(client: Socket, data: { myId : number, myName : string, myAvatar : string, roomName: string }) {
+    onExchangeInfo(client: Socket, data: { myId : number, myName : string, myAvatar : string, roomName: string, playerNumber: number }) {
         console.log("into exchange info ->", data);
         this.server.to(data.roomName).emit('exchange-info', data);
     }
@@ -80,9 +81,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 
     // Define the onPaddleMovement method to handle paddle movement
     @SubscribeMessage('paddle-movement')
-    onPaddleMovement(client: Socket, message: { player : string, y : number, roomName: string }) {
-        console.log("into paddle movement");
-        this.server.to(message.roomName).emit('paddle-movement', message);
+    onPaddleMovement(client: Socket, data: {roomName:string, playerNumber: number, pos_x: number, newDir: number, speed: number}) {
+        console.log("into paddle movement data is ->", data);
+        data.pos_x = data.pos_x + (data.newDir * data.speed);
+        this.server.to(data.roomName).emit('paddle-send', {playerNumber: data.playerNumber, pos_x: data.pos_x});
     }
 
     // Define the onGoal method to handle when a goal is scored
