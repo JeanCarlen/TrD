@@ -35,7 +35,7 @@ export class AuthGuard implements CanActivate {
 }
 
 @Injectable()
-export class CurrentOrAdminGuard implements CanActivate {
+export class CurrentGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean | Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     return this.validateRequest(request);
@@ -43,8 +43,7 @@ export class CurrentOrAdminGuard implements CanActivate {
 
   private validateRequest(request): boolean | Promise<boolean> {
     if (
-      request.user.user == request.params.id ||
-      request.user.username == 'saeby'
+      request.user.user == request.params.id
     )
       return true;
     return false;

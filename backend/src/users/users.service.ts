@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike, Not, In, And, Equal } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -283,7 +283,7 @@ export class UsersService {
   }
 
   public async update(id: number, updateUserDto: UpdateUserDto) {
-    if (updateUserDto.username) return this.updateUsername(id, updateUserDto);
+	if (updateUserDto.username) return this.updateUsername(id, updateUserDto);
     else if (updateUserDto.password || updateUserDto.confirm_password)
       return this.updatePassword(id, updateUserDto);
     throw new BadRequestException(['Unable to update'], {
@@ -292,23 +292,9 @@ export class UsersService {
     });
   }
 
-  public find42Users() {
-    return this.usersRepository.find({
-      where: { is42: true },
-      select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
-    });
-  }
-
   public find42User(username: string) {
     return this.usersRepository.find({
       where: { login42: username },
-      select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
-    });
-  }
-
-  public findNon42Users() {
-    return this.usersRepository.find({
-      where: { is42: false },
       select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
     });
   }
@@ -338,14 +324,6 @@ export class UsersService {
   }
 
   public async blockUser(blocked_id: number, blocker_id: number) {
-	// - [x] check if blocker_id equals blocked_id => throw error
-	// - [x] check if blocker_id already blocked blocked_id => throw error
-	// - [x] check if blocked_id already blocked blocker_id => throw error
-	// - [x] check if blocker_id already has blocked_id as friend => remove friendship
-	// - [x] check if blocked_id already has blocker_id as friend => remove friendship
-	// - [x] if blocker_id and blocked_id have a one-to-one chat => delete chat
-	// - [x] if blocker_id and blocked_id have a group chat => don't do anything
-	// - [x] block user
 
 	if (blocker_id == blocked_id) {
 		throw new BadRequestException(['You cannot block yourself.'], {
@@ -373,13 +351,7 @@ export class UsersService {
 	return await this.blockedusersService.create(blockedUser);
   }
 
-  public async blockedUsersList(blocker_id: number, current_id: number) {
-	if (blocker_id != current_id) {
-		throw new BadRequestException(['Unauthorized.'], {
-			cause: new Error(),
-			description: 'Unauthorized.'
-		})
-	}
+  public async blockedUsersList(blocker_id: number) {
 	const blocked: BlockedUsers[] = await this.blockedusersService.findAllWhereBlockerIs(blocker_id);
 	const ret: UsersResponse[] = [];
 	for (const block of blocked) {

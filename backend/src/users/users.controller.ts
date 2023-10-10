@@ -12,7 +12,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AuthGuard, CurrentOrAdminGuard } from 'src/auth.guard';
+import { AuthGuard, CurrentGuard } from 'src/auth.guard';
 import { paramValidator } from 'src/validation/param.validators';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Users } from './entities/users.entity';
@@ -22,16 +22,6 @@ import { UsersResponse } from './dto/users.response';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @Post()
-  @UseGuards(CurrentOrAdminGuard)
-  @ApiBearerAuth()
-  @ApiOperation({summary: 'Create a user.'})
-  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
-  @ApiResponse({status: 201, description: 'User created.'})
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
 
   @Get()
   @UseGuards(AuthGuard)
@@ -64,7 +54,7 @@ export class UsersController {
   }
 
   @Get(':id/chats')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, CurrentGuard)
   @ApiOperation({ summary: 'Get all chats of a user.' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized.' })
   @ApiResponse({status: 200, description: 'Return all chats of a user.'})
@@ -74,33 +64,13 @@ export class UsersController {
   }
 
   @Get(':id/blocked')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, CurrentGuard)
   @ApiBearerAuth()
   @ApiOperation({summary: 'Get all blocked users of a user.'})
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
   @ApiResponse({status: 200, description: 'Return all blocked users of a user.', type: [UsersResponse]})
-  findUserBlockedUsers(@Param() params: paramValidator, @Req() req: any) {
-	return this.usersService.blockedUsersList(+params.id, req.user.user);
-  }
-
-  @Get('/42')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({summary: 'Get all 42 users.'})
-  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
-  @ApiResponse({status: 200, description: 'Array of 42 users.', type: [Users]})
-  fin42Users() {
-    return this.usersService.find42Users();
-  }
-
-  @Get('/non42/')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({summary: 'Get all non-42 users.'})
-  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
-  @ApiResponse({status: 200, description: 'Array of non-42 users.', type: [Users]})
-  findNon42Users() {
-    return this.usersService.findNon42Users();
+  findUserBlockedUsers(@Param() params: paramValidator) {
+	return this.usersService.blockedUsersList(+params.id);
   }
 
   @Post('/block/:id')
@@ -110,7 +80,6 @@ export class UsersController {
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
   @ApiResponse({status: 200, description: 'User blocked successfully.'})
   blockUser(@Param() params: paramValidator, @Req() req: any) {
-	console.log('req.user in user controller: ', req.user)
 	return this.usersService.blockUser(params.id, req.user.user);
   }
 
@@ -126,7 +95,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, CurrentGuard)
   @ApiBearerAuth()
   @ApiOperation({summary: 'Update a user.'})
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
@@ -136,7 +105,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, CurrentGuard)
   @ApiBearerAuth()
   @ApiOperation({summary: 'Delete a user.'})
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
