@@ -38,6 +38,14 @@ export class UserchatsService {
 	return await this.userchatsRepository.find({where: { user_id: id}})
   }
 
+  public async getChatIdListByUser(id: number): Promise<number[]> {
+	const userChats = await this.userchatsRepository.find({where: { user_id: id}})
+	const chatIds = userChats.map((userChat) => {
+		return userChat.chat_id;
+	});
+	return chatIds;
+  }
+
   public async areInOneToOneChat(id1: number, id2: number): Promise<[boolean, number]> {
 	const userChats = await this.userchatsRepository.find({where: { user_id: id1}})
 	for (let i = 0; i < userChats.length; i++) {

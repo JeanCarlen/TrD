@@ -1,14 +1,15 @@
-import { BadRequestException, Inject, Injectable, forwardRef } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException, forwardRef } from '@nestjs/common';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chats } from './entities/chat.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateUserchatDto } from 'src/userchats/dto/create-userchat.dto';
 import { UserChats } from 'src/userchats/entities/userchat.entity';
 import { ChatAdmins } from 'src/chatadmins/entities/chatadmin.entity';
 import { MutedUsers } from 'src/mutedusers/entities/muteduser.entity';
+import { UserchatsService } from 'src/userchats/userchats.service';
 
 @Injectable()
 export class ChatsService {
@@ -19,6 +20,8 @@ export class ChatsService {
 		private readonly chatsRepository: Repository<Chats>,
 		@InjectRepository(ChatAdmins)
 		private readonly chatadminsRepository: Repository<ChatAdmins>,
+		@Inject(UserchatsService)
+		private readonly userchatsService: UserchatsService,
 	) {}
 
   private async isChatAdmin(chat_id: number, user_id: number) {
@@ -42,7 +45,14 @@ export class ChatsService {
     return await this.chatsRepository.save(chat);
   }
 
-  public async findChatUsers(id: number) {
+  public async findChatUsers(id: number, current_id: number) {
+	const chats = await this.userchatsService.getChatIdListByUser(current_id);
+	if (!chats.includes(id)) {
+		throw new UnauthorizedException(['You\'re not in this chat.'], {
+			cause: new Error(),
+			description: `You're not in this chat.`,
+		});
+	}
 	return await this.userchatsRepository.find({where: {chat_id: id}})
   }
 
@@ -59,11 +69,21 @@ export class ChatsService {
 	return await this.userchatsRepository.save(userChat)
   }
 
-  public async findAll() {
-	return await this.chatsRepository.find();
+  public async findAll(current_id: number) {
+	const chats = await this.userchatsService.getChatIdListByUser(current_id);
+	return await this.chatsRepository.find({
+		where: { id: In(chats)}
+	});
   }
 
-  public async findOne(id: number) {
+  public async findOne(id: number, current_id: number) {
+	const chats = await this.userchatsService.getChatIdListByUser(current_id);
+	if (!chats.includes(id)) {
+		throw new NotFoundException(['Chat not found.'], {
+			cause: new Error(),
+			description: `Chat not found.`,
+		});
+	}
 	return await this.chatsRepository.findOne({where: { id: id}})
   }
 
@@ -118,15 +138,36 @@ export class ChatsService {
 	return await this.chatadminsRepository.remove(chatAdmin);
   }
 
-  public async findChatAdmins(id: number) {
+  public async findChatAdmins(id: number, current_id: number) {
+	const chats = await this.userchatsService.getChatIdListByUser(current_id);
+	if (!chats.includes(id)) {
+		throw new UnauthorizedException(['You\'re not in this chat.'], {
+			cause: new Error(),
+			description: `You're not in this chat.`,
+		});
+	}
 	return await this.chatadminsRepository.find({where: {chat_id: id}})
   }
 
-  public async findChatMutedUsers(id: number) {
+  public async findChatMutedUsers(id: number, current_id: number) {
+	const chats = await this.userchatsService.getChatIdListByUser(current_id);
+	if (!chats.includes(id)) {
+		throw new UnauthorizedException(['You\'re not in this chat.'], {
+			cause: new Error(),
+			description: `You're not in this chat.`,
+		});
+	}
 	return await this.chatadminsRepository.find({where: {chat_id: id}})
   }
 
-  public async findChatBannedUsers(id: number) {
+  public async findChatBannedUsers(id: number, current_id: number) {
+	const chats = await this.userchatsService.getChatIdListByUser(current_id);
+	if (!chats.includes(id)) {
+		throw new UnauthorizedException(['You\'re not in this chat.'], {
+			cause: new Error(),
+			description: `You're not in this chat.`,
+		});
+	}
 	return await this.chatadminsRepository.find({where: {chat_id: id}})
   }
 
