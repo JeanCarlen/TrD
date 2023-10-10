@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth.guard';
 import { Chats } from './entities/chat.entity';
 import { Messages } from 'src/messages/entities/message.entity';
@@ -33,8 +33,8 @@ export class ChatsController {
   @ApiResponse({status: 200, description: 'Return all chats.', type: [Chats]})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  findAll() {
-    return this.chatsService.findAll();
+  findAll(@Req() req: any) {
+    return this.chatsService.findAll(req.user.user);
   }
 
   @Get(':id/users')
@@ -43,8 +43,8 @@ export class ChatsController {
   @ApiResponse({status: 200, description: 'Return all users in a chat.', type: [Chats]})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  findChatUsers(@Param('id') id: string) {
-	return this.chatsService.findChatUsers(+id);
+  findChatUsers(@Param('id') id: string, @Req() req: any) {
+	return this.chatsService.findChatUsers(+id, req.user.user);
   }
 
   @Get(':id/messages')
@@ -53,8 +53,8 @@ export class ChatsController {
   @ApiResponse({status: 200, description: 'Return all messages in a chat.', type: [Messages]})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  findChatMessages(@Param('id') id: string) {
-	return this.messagesService.findChatMessages(+id);
+  findChatMessages(@Param('id') id: string, @Req() req: any) {
+	return this.messagesService.findChatMessages(+id, req.user.user);
   }
 
   @Post(':id/users')
@@ -143,8 +143,8 @@ export class ChatsController {
   @ApiResponse({status: 200, description: 'Return all banned users in a chat.', type: [Chats]})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  findChatBannedUsers(@Param('id') id: string) {
-	return this.chatsService.findChatBannedUsers(+id);
+  findChatBannedUsers(@Param('id') id: string, @Req() req: any) {
+	return this.chatsService.findChatBannedUsers(+id, req.user.user);
   }
 
   @Get(':id/users/muted')
@@ -153,8 +153,8 @@ export class ChatsController {
   @ApiResponse({status: 200, description: 'Return all muted users in a chat.', type: [Chats]})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  findChatMutedUsers(@Param('id') id: string) {
-	return this.chatsService.findChatMutedUsers(+id);
+  findChatMutedUsers(@Param('id') id: string, @Req() req: any) {
+	return this.chatsService.findChatMutedUsers(+id, req.user.user);
   }
 
   @Get(':id/users/admins')
@@ -163,18 +163,18 @@ export class ChatsController {
   @ApiResponse({status: 200, description: 'Return all admins in a chat.', type: [Chats]})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  findChatAdmins(@Param('id') id: string) {
-	return this.chatsService.findChatAdmins(+id);
+  findChatAdmins(@Param('id') id: string, @Req() req: any) {
+	return this.chatsService.findChatAdmins(+id, req.user.user);
   }
 
   @Get(':id')
   @ApiOperation({summary: 'Get a chat.'})
-  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiNotFoundResponse({description: 'Chat not found.'})
   @ApiResponse({status: 200, description: 'Return a chat.', type: Chats})
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  findOne(@Param('id') id: string) {
-    return this.chatsService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() req: any) {
+    return this.chatsService.findOne(+id, req.user.user);
   }
 
   @Patch(':id')

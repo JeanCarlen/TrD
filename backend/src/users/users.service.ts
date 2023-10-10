@@ -1,6 +1,6 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike } from 'typeorm';
+import { Repository, ILike, Not, In, And, Equal } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -9,7 +9,9 @@ import { Create42UserDto } from './dto/create-42-user.dto';
 import { UserchatsService } from 'src/userchats/userchats.service';
 import { FriendsService } from 'src/friends/friends.service';
 import { UsersResponse } from './dto/users.response';
-import { FriendsResponse } from 'src/friends/dto/friends.response';
+import { FriendsResponse } from '../friends/dto/friends.response';
+import { BlockedusersService } from 'src/blockedusers/blockedusers.service';
+import { BlockedUsers } from 'src/blockedusers/entities/blockeduser.entity';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -23,6 +25,8 @@ export class UsersService {
 	private readonly userchatsService: UserchatsService,
 	@Inject(FriendsService)
 	private readonly friendsService: FriendsService,
+	@Inject(BlockedusersService)
+	private readonly blockedusersService: BlockedusersService,
 ) {}
 
   public getJWT(
@@ -176,14 +180,23 @@ export class UsersService {
     return { message: ['Successfully registered.'], token: token };
   }
 
-  public findAll() {
-    return this.usersRepository.find({
+  public async findAll(current_id: number): Promise<UsersResponse[]> {
+	const blocked: number[] = await this.blockedusersService.getBlockedListByUser(current_id);
+    return await this.usersRepository.find({
       select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
+	  where: { id: Not(In(blocked)) }
     });
   }
 
   public async findOne(id: number): Promise<UsersResponse> { // TODO: send friends count, pending count, request count
-    const user: Users = await this.usersRepository.findOne({
+    const blocked: number[] = await this.blockedusersService.getBlockedListByUser(id);
+	if (blocked.includes(id)) {
+		throw new NotFoundException(['User not found.'], {
+			cause: new Error(),
+			description: 'User not found.'
+		})
+	}
+	const user: Users = await this.usersRepository.findOne({
 		where: { id: id },
 		select: ['id', 'username', 'login42', 'avatar', 'twofaenabled']
 	})
@@ -225,15 +238,27 @@ export class UsersService {
     });
   }
 
-  public async findByUsername(name: string) {
-    const users = await this.usersRepository.find({
-      where: { username: ILike(`%${name}%`) },
-      select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
-    });
+  public async findByUsername(name: string, current_id?: number) {
+	let blocked: number[];
+	let users: Users[]
+	if (current_id) {
+		blocked = await this.blockedusersService.getBlockedListByUser(current_id);
+		users = await this.usersRepository.find({
+			where: { username: ILike(`%${name}%`), id: Not(In(blocked)) },
+			select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
+		});
+	} else {
+		users = await this.usersRepository.find({
+		  where: { username: ILike(`%${name}%`) },
+		  select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
+		});
+	}
 	if (users.length > 0) {
 		const friends: FriendsResponse[] = await this.friendsService.findAllByUser(users[0].id);
 		const ret: UsersResponse[] = [];
 		users.forEach((user) => {
+			if (blocked && blocked.includes(user.id))
+				return ; // basically the same thing as doing continue in a for loop
 			let tmp: UsersResponse;
 			const pending: FriendsResponse[] = friends.filter(friend => {
 				return friend.status == 0 && friend.requested == user.id
@@ -258,7 +283,7 @@ export class UsersService {
   }
 
   public async update(id: number, updateUserDto: UpdateUserDto) {
-    if (updateUserDto.username) return this.updateUsername(id, updateUserDto);
+	if (updateUserDto.username) return this.updateUsername(id, updateUserDto);
     else if (updateUserDto.password || updateUserDto.confirm_password)
       return this.updatePassword(id, updateUserDto);
     throw new BadRequestException(['Unable to update'], {
@@ -267,23 +292,9 @@ export class UsersService {
     });
   }
 
-  public find42Users() {
-    return this.usersRepository.find({
-      where: { is42: true },
-      select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
-    });
-  }
-
   public find42User(username: string) {
     return this.usersRepository.find({
       where: { login42: username },
-      select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
-    });
-  }
-
-  public findNon42Users() {
-    return this.usersRepository.find({
-      where: { is42: false },
       select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
     });
   }
@@ -310,6 +321,63 @@ export class UsersService {
     const inserted = await this.usersRepository.save(user);
     const token = this.getJWT(inserted, false);
     return { message: ['Avatar successfully saved.'], token: token };
+  }
+
+  public async blockUser(blocked_id: number, blocker_id: number) {
+
+	if (blocker_id == blocked_id) {
+		throw new BadRequestException(['You cannot block yourself.'], {
+			cause: new Error(),
+			description: 'You cannot block yourself.'
+		})
+	}
+	const blocked: BlockedUsers = await this.blockedusersService.findOneByUsers(blocked_id, blocker_id);
+	if (blocked) {
+		throw new BadRequestException(['You already blocked this user.'], {
+			cause: new Error(),
+			description: 'You already blocked this user.'
+		})
+	}
+	const [fb, fid] = await this.friendsService.areFriends(blocker_id, blocked_id);
+	if (fb)
+		await this.friendsService.delete(fid);
+	const [cb, cid] = await this.userchatsService.areInOneToOneChat(blocker_id, blocked_id);
+	if (cb)
+		await this.userchatsService.remove(cid);
+
+	const blockedUser = new BlockedUsers();
+	blockedUser.blockeduser_id = blocked_id;
+	blockedUser.blockinguser_id = blocker_id;
+	return await this.blockedusersService.create(blockedUser);
+  }
+
+  public async blockedUsersList(blocker_id: number) {
+	const blocked: BlockedUsers[] = await this.blockedusersService.findAllWhereBlockerIs(blocker_id);
+	const ret: UsersResponse[] = [];
+	for (const block of blocked) {
+		if (block.blockinguser_id == blocker_id) {
+			const user: UsersResponse = await this.findOne(block.blockeduser_id);
+			ret.push(user);
+		}
+	}
+	return ret;
+  }
+
+  public async unblockUser(blocked_id: number, blocker_id: number) {
+	const blocked: BlockedUsers = await this.blockedusersService.findOneByUsers(blocked_id, blocker_id);
+	if (!blocked) {
+		throw new BadRequestException(['You did not block this user.'], {
+			cause: new Error(),
+			description: 'You did not block this user.'
+		})
+	}
+	if (blocked.blockinguser_id != blocker_id) {
+		throw new BadRequestException(['You did not block this user.'], {
+			cause: new Error(),
+			description: 'You did not block this user.'
+		})
+	}
+	return await this.blockedusersService.remove(blocked.id);
   }
 
   public async set2FASecret(id: number, secret: string) {

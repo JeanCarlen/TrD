@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFriendDto } from './dto/create-friend.dto';
 import { UpdateFriendDto } from './dto/update-friend.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,7 @@ import { Friends } from './entities/friend.entity';
 import { Repository } from 'typeorm';
 import { Users } from 'src/users/entities/users.entity';
 import { FriendsResponse } from './dto/friends.response';
+import { BlockedusersService } from 'src/blockedusers/blockedusers.service';
 
 @Injectable()
 export class FriendsService {
@@ -14,6 +15,8 @@ export class FriendsService {
     private readonly friendsRepository: Repository<Friends>,
 	@InjectRepository(Users)
 	private readonly usersRepository: Repository<Users>,
+	@Inject(BlockedusersService)
+	private readonly blockedusersService: BlockedusersService,
   ) {}
 
   public async create(createFriendDto: CreateFriendDto) {
@@ -43,6 +46,13 @@ export class FriendsService {
   }
 
   public async addFriendById(id: number, current_id: number) {
+	const blockedusers = await this.blockedusersService.getBlockedListByUser(current_id);
+	if (blockedusers.includes(id)) {
+		throw new NotFoundException(['User not found.'], {
+			cause: new Error(),
+			description: `User not found.`,
+    })
+  }
 	if (id == current_id) {
 		throw new BadRequestException(['Cannot add yourself as a friend.'], {
 			cause: new Error(),
@@ -84,6 +94,13 @@ export class FriendsService {
 			description: `User not found.`,
 		});
 	}
+	const blockedusers = await this.blockedusersService.getBlockedListByUser(current_id);
+	if (blockedusers.includes(found[0].id)) {
+		throw new NotFoundException(['User not found.'], {
+			cause: new Error(),
+			description: `User not found.`,
+    })
+  }
 	if (found[0].id == current_id) {
 		throw new BadRequestException(['Cannot add yourself as a friend.'], {
 			cause: new Error(),
@@ -109,6 +126,18 @@ export class FriendsService {
 	return await this.friendsRepository.save(friends);
   }
 
+  public async areFriends(id1: number, id2: number): Promise<[boolean, number]> {
+	const found = await this.friendsRepository.find({
+		where: [
+			{ requester: id1, requested: id2, status: 1 },
+			{ requester: id2, requested: id1, status: 1 },
+		],
+	  });
+	if (found.length == 0) {
+		return [false, -1];
+	}
+	return [true, found[0].id];
+  }
 
   private getUsersData(friend: Friends, requested: Users, requester: Users, count?: number) : FriendsResponse {
 	let tmp: FriendsResponse = {
@@ -320,6 +349,13 @@ public async findPendingFriendsByUsername(username: string) {
       where: { id: id },
     });
     return await this.friendsRepository.update(id, friends);
+  }
+
+  public async delete(id: number) {
+	const friends: Friends = await this.friendsRepository.findOne({
+	  where: { id: id },
+	});
+	return await this.friendsRepository.remove(friends);
   }
 
   public async remove(id: number, user_id: number) {
