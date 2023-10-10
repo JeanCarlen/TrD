@@ -28,11 +28,15 @@ const [roomName, setRoomName] = useState<string>('');
 const socketRef = useRef(null);
 
 useEffect(() => {
+	socket.connect();
+	}, []);
+
+useEffect(() => {
+	
 	if (token === undefined) {
 	return;
 	}
 	setContent(decodeToken(token));
-
 	socket.on('connect', () => {
 	console.log(socket.id);
 	setIsLoading(false);
@@ -71,7 +75,7 @@ const handleJoinRoom = () => {
 	  setRoomName(roomName);
 	  console.log("Joining room: ", roomName);
       handleRoomChange(roomName);
-      setRoomName('');
+//      setRoomName('');
     }
   };
 
@@ -82,7 +86,7 @@ const handleCreateRoom = () => {
 		roomName: roomName,
 		client: content?.user
 	});
-	//handleRoomChange(roomName);
+	handleRoomChange(roomName);
 	}
 };
 
@@ -95,7 +99,7 @@ function handleSendMessage(sender: string = content?.username || 'user') {
 	sender: socket.id,
 	sender_Name: sender,
 	date: new Date().toLocaleTimeString(),
-	room: currentRoom, // Include the current room in the message data
+	room: currentRoom,
 	});
 
 	console.log('Message sent:', newMessage.text);
@@ -111,32 +115,25 @@ function handleSendMessage(sender: string = content?.username || 'user') {
 	setNewMessage({ id: 0, text: '', sender: '', sender_Name: '', date: '' });
 }
 
-function connect(e: React.FormEvent) {
-	e.preventDefault();
-	if (!socket.connected) {
-	setIsLoading(true);
-	socket.connect();
-	}
-}
+// function connect(e: React.FormEvent) {
+// 	e.preventDefault();
+// 	if (!socket.connected) {
+// 	setIsLoading(true);
+// 	socket.connect();
+// 	}
+// }
 
 return (
 	<div>
 	{isLoading && <p>Loading...</p>}
 
-	<button onClick={connect} disabled={isLoading || socket.connected}>
+	{/* <button onClick={connect} disabled={isLoading || socket.connected}>
 		{socket.connected ? "Connected" : "Connect"}
-	</button>
+	</button> */}
 
 	{/* Display the list of rooms */}
 	<p>Available Rooms:</p>
         <button onClick={handleCreateRoom}>Create New Room</button>
-        <ul>
-          {rooms.map((room) => (
-            <li key={room}>
-              <button onClick={() => handleRoomChange(room)}>{room}</button>
-            </li>
-          ))}
-        </ul>
         <div>
           <input
             type="text"
@@ -149,8 +146,8 @@ return (
 	<div className="message-display">
 		<div className="message-box">
 		{messages.map((message) => (
-			<div key={message.id} className={`message-bubble ${message.sender === content?.username ? 'user-message' : 'other-message'}`}>
-			<span className="message-sender">{message.sender}</span> <br/>
+			<div key={message.id} className={`message-bubble ${message.sender_Name === content?.username ? 'user-message' : 'other-message'}`}>
+			<span className="message-sender">{message.sender_Name}</span> <br/>
 			<span className="message-text">{message.text}</span> <br/>
 			<span className="message-date">{message.date}</span>
 			</div>
