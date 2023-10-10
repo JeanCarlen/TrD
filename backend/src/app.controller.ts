@@ -8,7 +8,6 @@ import {
   ParseFilePipe,
   FileTypeValidator,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -60,6 +59,6 @@ export class AppController {
     // file.filename contains the name of the saved file
     // use Request.user to access the user id from the validated auth token
     // Request.user was set in the authGuard if the token is valid
-    return this.appService.updateUserImage(req.user.id, file.filename);
+    return this.appService.updateUserImage(req.user.user, file.filename);
   }
 }

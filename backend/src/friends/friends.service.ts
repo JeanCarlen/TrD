@@ -85,6 +85,18 @@ export class FriendsService {
 	return await this.friendsRepository.save(friends);
   }
 
+  public async areFriends(id1: number, id2: number): Promise<[boolean, number]> {
+	const found = await this.friendsRepository.find({
+		where: [
+			{ requester: id1, requested: id2, status: 1 },
+			{ requester: id2, requested: id1, status: 1 },
+		],
+	  });
+	if (found.length == 0) {
+		return [false, -1];
+	}
+	return [true, found[0].id];
+  }
 
   private getUsersData(friend: Friends, requested: Users, requester: Users, count?: number) : FriendsResponse {
 	let tmp: FriendsResponse = {
@@ -296,6 +308,13 @@ public async findPendingFriendsByUsername(username: string) {
       where: { id: id },
     });
     return await this.friendsRepository.update(id, friends);
+  }
+
+  public async delete(id: number) {
+	const friends: Friends = await this.friendsRepository.findOne({
+	  where: { id: id },
+	});
+	return await this.friendsRepository.remove(friends);
   }
 
   public async remove(id: number, user_id: number) {

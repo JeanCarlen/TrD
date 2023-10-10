@@ -39,7 +39,7 @@ export class FriendsController {
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
   @ApiResponse({status: 200, description: 'Array of all friends (requests).', type: [FriendsResponse]})
   findAll(@Req() req: any) {
-    return this.friendsService.findAllByUser(req.user.id);
+    return this.friendsService.findAllByUser(req.user.user);
   }
 
   @Get(':id')
@@ -50,7 +50,7 @@ export class FriendsController {
   @ApiNotFoundResponse({description: 'Friend (request) not found.'})
   @ApiResponse({status: 200, description: 'Friend (request) found.', type: FriendsResponse})
   friendReq(@Param('id') id: string, @Req() req: any) {
-	return this.friendsService.findOne(+id, req.user.id);
+	return this.friendsService.findOne(+id, req.user.user);
   }
 
   @Post('add/id/:id')
@@ -61,7 +61,7 @@ export class FriendsController {
   @ApiConflictResponse({description: 'Friend (request) already exists.'})
   @ApiResponse({status: 201, description: 'Friend (request) created.'})
   addFriend(@Param('id') id: number, @Req() req: any) {
-	return this.friendsService.addFriendById(+id, req.user.id);
+	return this.friendsService.addFriendById(+id, req.user.user);
   }
 
   @Post('add/username/:username')
@@ -73,7 +73,7 @@ export class FriendsController {
   @ApiConflictResponse({description: 'Friend (request) already exists.'})
   @ApiResponse({status: 201, description: 'Friend (request) created.'})
   addFriendByUsername(@Param('username') username: string, @Req() req: any) {
-	return this.friendsService.addFriendByUsername(username, req.user.id);
+	return this.friendsService.addFriendByUsername(username, req.user.user);
   }
 
   @Get('active/list/:id')
@@ -187,7 +187,7 @@ export class FriendsController {
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
   @ApiResponse({status: 200, description: 'Friend deleted.'})
   removeFriend(@Param('id') id: string, @Req() req: any) {
-	return this.friendsService.remove(+id, req.user.id);
+	return this.friendsService.remove(+id, req.user.user);
   }
 
   @Delete('cancel/:id')
@@ -197,7 +197,7 @@ export class FriendsController {
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
   @ApiResponse({status: 200, description: 'Friend request deleted.'})
   removeRequest(@Param('id') id: string, @Req() req: any) {
-	return this.friendsService.cancel(+id, req.user.id);
+	return this.friendsService.cancel(+id, req.user.user);
   }
 
   @Delete('reject/:id')
@@ -207,7 +207,7 @@ export class FriendsController {
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
   @ApiResponse({status: 200, description: 'Pending friend deleted.'})
   removePending(@Param('id') id: string, @Req() req: any) {
-	return this.friendsService.reject(+id, req.user.id);
+	return this.friendsService.reject(+id, req.user.user);
   }
 
   @Delete(':id')
@@ -217,6 +217,6 @@ export class FriendsController {
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
   @ApiResponse({status: 200, description: 'Friend (request) deleted.'})
   remove(@Param('id') id: string, @Req() req: any) {
-    return this.friendsService.remove(+id, req.user.id);
+    return this.friendsService.remove(+id, req.user.user);
   }
 }

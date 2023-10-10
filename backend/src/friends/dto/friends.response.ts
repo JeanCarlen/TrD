@@ -14,10 +14,18 @@ export class FriendsResponse {
 	status: number;
 
 	@ApiProperty({example: {username: 'laendrun', login42: 'saeby', avatar: 'http://localhost:8080/images/default.png'}})
-	requester_user: object;
+	requester_user: {
+		username: string,
+		avatar: string,
+		login42: string|null,
+	};
 
 	@ApiProperty({example: {username: 'laendrun', login42: 'saeby', avatar: 'http://localhost:8080/images/default.png'}})
-	requested_user: object;
+	requested_user: {
+		username: string,
+		avatar: string,
+		login42: string|null,
+	};
 
 	@ApiPropertyOptional({example: 1, description: 'The number of friends returned.'})
 	total_count?: number;
