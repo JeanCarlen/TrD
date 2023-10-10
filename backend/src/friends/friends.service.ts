@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateFriendDto } from './dto/create-friend.dto';
 import { UpdateFriendDto } from './dto/update-friend.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,7 @@ import { Friends } from './entities/friend.entity';
 import { Repository } from 'typeorm';
 import { Users } from 'src/users/entities/users.entity';
 import { FriendsResponse } from './dto/friends.response';
+import { BlockedusersService } from 'src/blockedusers/blockedusers.service';
 
 @Injectable()
 export class FriendsService {
@@ -14,6 +15,8 @@ export class FriendsService {
     private readonly friendsRepository: Repository<Friends>,
 	@InjectRepository(Users)
 	private readonly usersRepository: Repository<Users>,
+	@Inject(BlockedusersService)
+	private readonly blockedusersService: BlockedusersService,
   ) {}
 
   public async create(createFriendDto: CreateFriendDto) {
@@ -37,6 +40,13 @@ export class FriendsService {
   }
 
   public async addFriendById(id: number, current_id: number) {
+	const blockedusers = await this.blockedusersService.getBlockedListByUser(current_id);
+	if (blockedusers.includes(id)) {
+		throw new NotFoundException(['User not found.'], {
+			cause: new Error(),
+			description: `User not found.`,
+		});
+	}
 	const found = await this.friendsRepository.find({
 		where: [
 			{ requester: current_id, requested: id },
@@ -62,6 +72,13 @@ export class FriendsService {
 	  });
 	if (found.length == 0) {
 		throw new BadRequestException(['User not found.'], {
+			cause: new Error(),
+			description: `User not found.`,
+		});
+	}
+	const blockedusers = await this.blockedusersService.getBlockedListByUser(current_id);
+	if (blockedusers.includes(found[0].id)) {
+		throw new NotFoundException(['User not found.'], {
 			cause: new Error(),
 			description: `User not found.`,
 		});

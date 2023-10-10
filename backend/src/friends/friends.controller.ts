@@ -12,7 +12,7 @@ import {
 import { FriendsService } from './friends.service';
 import { CreateFriendDto } from './dto/create-friend.dto';
 import { UpdateFriendDto } from './dto/update-friend.dto';
-import { AuthGuard, CurrentOrAdminGuard } from 'src/auth.guard';
+import { AuthGuard } from 'src/auth.guard';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiConflictResponse, ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { FriendsResponse } from './dto/friends.response';
 
