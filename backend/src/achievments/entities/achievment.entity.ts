@@ -5,10 +5,10 @@ export class Achievments extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', length: 32 })
   title: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', length: 255 })
   description: string;
 
   @Column({ type: 'int4' })

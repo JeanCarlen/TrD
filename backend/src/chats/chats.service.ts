@@ -76,6 +76,10 @@ export class ChatsService {
 	});
   }
 
+  public async findAllFromSocket() {
+	return await this.chatsRepository.find();
+  }
+
   public async findOne(id: number, current_id: number) {
 	const chats = await this.userchatsService.getChatIdListByUser(current_id);
 	if (!chats.includes(id)) {

@@ -106,8 +106,8 @@ CREATE TABLE blockedusers (
 
 CREATE TABLE achievments (
 	"id" serial NOT NULL,
-	"title" varchar(32) NOT NULL,
-	"description" varchar(256),
+	"title" varchar(32),
+	"description" varchar(255),
 	"objective" integer,
 	CONSTRAINT "achievments_pk" PRIMARY KEY ("id")
 );
@@ -123,3 +123,8 @@ CREATE TABLE user_achievments (
 	CONSTRAINT "user_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id"),
 	CONSTRAINT "achievment_fk" FOREIGN KEY ("achievment_id") REFERENCES "achievments"("id")
 );
+
+COPY achievments(id, title, description, objective)
+FROM '/docker-entrypoint-initdb.d/achievments.csv'
+DELIMITER ','
+CSV HEADER;
