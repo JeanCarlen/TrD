@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAchievmentDto } from './dto/create-achievment.dto';
-import { UpdateAchievmentDto } from './dto/update-achievment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Achievments } from './entities/achievment.entity';
 import { Repository } from 'typeorm';
+import { AchievmentsResponse } from './dto/achievments.response';
 
 @Injectable()
 export class AchievmentsService {
@@ -12,30 +12,22 @@ export class AchievmentsService {
     private readonly achievmentsRepository: Repository<Achievments>,
   ) {}
 
-  public create(createAchievmentDto: CreateAchievmentDto) {
-    const achievment: Achievments = new Achievments();
-    achievment.description = createAchievmentDto.description;
-    achievment.title = createAchievmentDto.title;
-    achievment.objective = createAchievmentDto.objective;
-    return this.achievmentsRepository.save(achievment);
+//   public create(createAchievmentDto: CreateAchievmentDto) {
+//     const achievment: Achievments = new Achievments();
+//     achievment.description = createAchievmentDto.description;
+//     achievment.title = createAchievmentDto.title;
+//     achievment.objective = createAchievmentDto.objective;
+//     return this.achievmentsRepository.save(achievment);
+//   }
+
+  public async findAll(): Promise<AchievmentsResponse[]> {
+	const achievements: AchievmentsResponse[] = await this.achievmentsRepository.find();
+    return achievements;
   }
 
-  public findAll() {
-    return this.achievmentsRepository.find();
+  public async findOne(id: number): Promise<AchievmentsResponse> {
+	const achievment: AchievmentsResponse = await this.achievmentsRepository.findOne({ where: { id: id } });
+	return achievment;
   }
 
-  public findOne(id: number) {
-    return this.achievmentsRepository.findOne({ where: { id: id } });
-  }
-
-  public update(id: number, updateAchievmentDto: UpdateAchievmentDto) {
-    return this.achievmentsRepository.update({ id: id }, updateAchievmentDto);
-  }
-
-  public async remove(id: number) {
-    const achievment = await this.achievmentsRepository.findOne({
-      where: { id: id },
-    });
-    return this.achievmentsRepository.remove(achievment);
-  }
 }
