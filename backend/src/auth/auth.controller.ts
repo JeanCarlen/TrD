@@ -16,10 +16,13 @@ import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginUserDto } from '../users/dto/login-user.dto';
-import { AuthGuard, OTPGuard } from 'src/auth.guard';
+import { AuthGuard, CurrentGuard, OTPGuard } from 'src/auth.guard';
 import { otpBody } from 'src/validation/param.validators';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthResponse } from 'src/auth/dto/auth.response';
 
 @Controller('auth')
+@ApiTags('Authentication')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -28,22 +31,34 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  async login(@Body() loginUserDto: LoginUserDto) {
+  @ApiOperation({ summary: 'Login a user.' })
+  @ApiResponse({ status: 200, description: 'Return the token of the user.', type: [AuthResponse] })
+  async login(@Body() loginUserDto: LoginUserDto): Promise<AuthResponse> {
     return await this.authService.login(loginUserDto);
   }
 
   @Post('register')
   @HttpCode(201)
-  async register(@Body() createUserDto: CreateUserDto) {
+  @ApiOperation({ summary: 'Register a user.' })
+  @ApiResponse({ status: 201, description: 'Return the token of the user.', type: [AuthResponse] })
+  async register(@Body() createUserDto: CreateUserDto): Promise<AuthResponse> {
     return await this.authService.create(createUserDto);
   }
 
   @Get('callback')
+  @ApiOperation({ summary: 'Callback for 42 OAuth2.' })
+
   async callback(@Res() response, @Query() query) {
+	if (!query.code) {
+		throw new UnauthorizedException(['No code provided.'], {
+			cause: new Error(),
+			description: 'No code provided.'
+		});
+	}
     const insertedUser = await this.authService.getToken(query.code);
     response.cookie('token', insertedUser.token);
     if (insertedUser.twofaenabled)
-      response.redirect('https://trd.laendrun.ch/login'); // redirect to page asking for the code when implemented on the frontend
+      response.redirect('https://trd.laendrun.ch/authenticate'); // redirect to page asking for the code when implemented on the frontend
     response.redirect('https://trd.laendrun.ch/login');
   }
 
@@ -51,17 +66,17 @@ export class AuthController {
   @UseGuards(OTPGuard)
   async turnOff2FA(@Req() request:any, @Body() body: otpBody) {
 	const isCodeValid = await this.authService.is2FACodeValid(
-		body.code, request.user.id
+		body.code, request.user.user
 	);
 	if (!isCodeValid)
 		throw new UnauthorizedException('Wrong authentication code.');
-	return await this.authService.turnOff2FA(request.user.id);
+	return await this.authService.turnOff2FA(request.user.user);
   }
 
   @Post('2fa/generate')
   @UseGuards(AuthGuard)
   async generate(@Req() request) {
-    const user = await this.usersService.findOneUser(request.user.id);
+    const user = await this.usersService.findOneUser(request.user.user);
     return this.authService.setUp2FA(user);
   }
 
@@ -70,11 +85,11 @@ export class AuthController {
   async turnOn2FA(@Req() request, @Body() body: otpBody) {
     const isCodeValid = await this.authService.is2FACodeValid(
       body.code,
-      request.user.id,
+      request.user.user,
     );
     if (!isCodeValid)
       throw new UnauthorizedException('Wrong authentication code.');
-    return await this.authService.turnOn2FA(request.user.id);
+    return await this.authService.turnOn2FA(request.user.user);
   }
 
   @Post('2fa/authenticate')
@@ -82,7 +97,7 @@ export class AuthController {
   async authenticate(@Req() request, @Body() body: otpBody) {
     const isCodeValid = await this.authService.is2FACodeValid(
       body.code,
-      request.user.id,
+      request.user.user,
     );
     if (!isCodeValid)
       throw new UnauthorizedException('Wrong authentication code.');

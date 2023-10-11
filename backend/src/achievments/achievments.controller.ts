@@ -11,10 +11,11 @@ import {
 import { AuthGuard } from 'src/auth.guard';
 import { AchievmentsService } from './achievments.service';
 import { CreateAchievmentDto } from './dto/create-achievment.dto';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AchievmentsResponse } from './dto/achievments.response';
 
 @Controller('achievments')
+@ApiTags('Achievments')
 export class AchievmentsController {
   constructor(private readonly achievmentsService: AchievmentsService) {}
 
