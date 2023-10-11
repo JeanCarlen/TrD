@@ -127,7 +127,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
                 owner: parseInt(client),
             });
             console.log('Room created:', roomName);
-            const roomList = await this.ChatsService.findAll();
+            const roomList = await this.ChatsService.findAllFromSocket();
             console.log(roomList);
         } catch (error) {
             console.error('Error creating room:', error.message);
