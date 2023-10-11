@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBanneduserDto } from './dto/create-banneduser.dto';
-import { UpdateBanneduserDto } from './dto/update-banneduser.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BannedUsers } from './entities/banneduser.entity';
@@ -21,18 +20,17 @@ export class BannedusersService {
   }
 
   public findAll() {
+	// only return the users that are banned from chats where you are admin
     return this.bannedUsersRepository.find();
   }
 
   public findOne(id: number) {
+	// only return the users that are banned from chats where you are admin
     return this.bannedUsersRepository.findOne({ where: { id: id } });
   }
 
-  public update(id: number, updateBanneduserDto: UpdateBanneduserDto) {
-    return this.bannedUsersRepository.update({ id: id }, updateBanneduserDto);
-  }
-
   public async remove(id: number) {
+	// only return the users that are banned from chats where you are admin
     const bannedUser = await this.bannedUsersRepository.findOne({
       where: { id: id },
     });

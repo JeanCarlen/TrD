@@ -11,6 +11,17 @@ export class ChatadminsService {
 		private readonly chatadminsRepository: Repository<ChatAdmins>,
 	) {}
 
+  public async getChatsIdByUser(user_id: number) : Promise<number[]> {
+	const chatAdmins = await this.chatadminsRepository.find({
+		where: { user_id: user_id },
+		select: ['id'],
+	});
+	const ids = chatAdmins.map((chatAdmin) => {
+		return chatAdmin.chat_id;
+	});
+	return ids;
+  }
+
   public async create(createChatadminDto: CreateChatadminDto) {
 	const chatadmin = new ChatAdmins();
 	chatadmin.user_id = createChatadminDto.user_id;
