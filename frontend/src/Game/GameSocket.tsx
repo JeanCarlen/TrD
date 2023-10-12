@@ -160,6 +160,16 @@ useEffect(() => {
 			data.current.player2.pNumber = dataBack.playerNumber;
 		}
 		data.current.started = true;
+		data.current.ball = {
+		pos_y: 100,
+		pos_x: 100,
+		speed_y: 1,
+		speed_x: 2,
+		}
+		if (data.current.player1.pNumber === 2)
+		{
+			data.current = convert(data.current, 800);
+		}
 	});
 
 	return () => {
@@ -172,6 +182,17 @@ useEffect(() => {
 		socket.off('exchange-info');
 	};
 	}, [socket]);
+
+
+
+	function convert (data: GameData, height: number) {
+
+		data.ball.speed_y *= -1;
+		data.ball.speed_x *= -1;
+		data.ball.pos_y = height - data.ball.pos_y;
+
+		return data;
+	}
 
 const updateGame = () => {
 	if (!data.current.started)
@@ -266,6 +287,7 @@ const Bounce = (newBallx: number, newBally: number, newSpeedx: number, newSpeedy
 const CreatePongRoom = () => {
 	const roomNamePrompt = prompt("Enter a name for the new Game:");
 	console.log("creating room:", roomNamePrompt, content?.user);
+
 	socket.emit('create-room', {
 		roomName: roomNamePrompt,
 		client: content?.user
