@@ -38,6 +38,8 @@ Chat bubble container
 .message-box {
 	display: flex;
 	flex-direction: column;
+	overflow-y: scroll;
+	height: 60vh;
 }
 
 /* Add styles for user's messages */

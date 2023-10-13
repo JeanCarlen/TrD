@@ -9,6 +9,7 @@ import './Chat.css'
 import { useState } from 'react';
 import IdChatUser from '../chat/idChatUser';
 import ChatInterface from '../chat/ChatInterface';
+import ListOfChats from '../chat/idChatList';
 
 export interface Friends {
 	id: number;
@@ -39,6 +40,7 @@ export function Chat() {
 		</div>
 		<div className='grid'>
 			<div className="leftColumn">
+			<ListOfChats/>
 			{friends.map((friend) => (
 			<div
 				key={friend.id}

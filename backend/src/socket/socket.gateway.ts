@@ -153,7 +153,8 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 
     // Define the onJoinRoom method to handle joining a chat room
     @SubscribeMessage('join-room')
-    async onJoinRoom(client: Socket, message:{ roomName: string, socketID: string }): Promise<void> {
+	@Inject('ChatsService')
+    async onJoinRoom(client: Socket, message:{ roomName: string, socketID: string, client: number }): Promise<void> {
         try {
             console.log("message is:",message);
             console.log(`Join room: ${message.roomName}`);
@@ -162,13 +163,15 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             console.error('Error joining room:', error.message);
         }
         try {
-            const room = await this.ChatsService.findName(message.roomName);
-            if (!room) {
+            const chats = await this.ChatsService.findName(message.roomName);
+			console.log("chats is ", chats);
+            if (!chats) {
                 throw new Error(`Room ${message.roomName} not found.`);
             }
             client.join(message.roomName);
+			this.ChatsService.addUserToChat(chats.id, {user_id: client, chat_id: chats.id});
             console.log(`${message.socketID} joined room ${message.roomName}`);
-            this.server.to(message.roomName).emit('user-joined', message.socketID);
+            // this.server.to(message.roomName).emit('user-joined', message.socketID);
         } catch (error) {
             console.error('Error joining room:', error.message);
             this.server.emit('room-join-error', error.message);

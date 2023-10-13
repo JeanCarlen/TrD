@@ -63,7 +63,7 @@ useEffect(() => {
 
 const handleRoomChange = (room: string) => {
 	console.log("trying room: ", room);
-	socket.emit('join-room', { roomName: room, socketID: socket.id });
+	socket.emit('join-room', { roomName: room, socketID: socket.id, client: content?.user });
 	setCurrentRoom(room);
 	console.log("Joined room: ", room);
 	setMessages([]);
