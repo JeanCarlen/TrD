@@ -169,7 +169,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
                 throw new Error(`Room ${message.roomName} not found.`);
             }
             client.join(message.roomName);
-			this.ChatsService.addUserToChat(chats.id, {user_id: client, chat_id: chats.id});
+            await this.ChatsService.addUserToChat(chats.id, {user_id: client, chat_id: chats.id});
             console.log(`${message.socketID} joined room ${message.roomName}`);
             // this.server.to(message.roomName).emit('user-joined', message.socketID);
         } catch (error) {

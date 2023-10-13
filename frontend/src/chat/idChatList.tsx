@@ -26,6 +26,7 @@ const ListOfChats: React.FC = () => {
         if (token != undefined)
         {
             content = decodeToken(token);
+            console.log("content: ", content.user);
         }
         else
             content = { username: 'default', user: 0};
@@ -56,6 +57,7 @@ const ListOfChats: React.FC = () => {
     }
 
 	useEffect(() => {
+        socket.connect();
 		getChats();
 	}, []);
 
