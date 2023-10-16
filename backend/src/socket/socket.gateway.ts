@@ -7,6 +7,7 @@ import { ChatType } from "src/chats/entities/chat.entity";
 import { create } from "domain";
 import { RouterModule } from "@nestjs/core";
 import { UserchatsService } from "src/userchats/userchats.service";
+import { MessagesService } from "src/messages/messages.service";
 
 // Define the WebSocketGateway and its path and CORS settings
 @WebSocketGateway({ path: '/api', cors: true })
@@ -16,7 +17,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     private readonly rooms = new Map<string, Set<string>>();
     
     // Inject the ChatsService into the constructor
-    constructor(private readonly ChatsService: ChatsService, private readonly UserchatsService: UserchatsService) {}
+    constructor(private readonly ChatsService: ChatsService, private readonly UserchatsService: UserchatsService, private readonly MessageService: MessagesService) {}
     
     // Define the WebSocketServer and an array of clients
     @WebSocketServer()
@@ -170,11 +171,16 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             if (!chats) {
                 throw new Error(`Room ${message.roomName} not found.`);
             }
-			await this.UserchatsService.create({user_id: message.client, chat_id: chats.id, chat_name: message.roomName});
-			// await this.ChatsService.addUserToChat(chats.id, {user_id: message.client, chat_id: chats.id});
             client.join(message.roomName);
-			console.log(`${message.socketID} joined room ${message.roomName}`);
-            // this.server.to(message.roomName).emit('user-joined', message.socketID);
+            console.log(`${message.socketID} joined room ${message.roomName}`);
+			const list = await this.UserchatsService.findByChatId(chats.id);
+            console.log("list is ", list);
+			list.map((userchat) => {
+                if (userchat.user_id == message.client) {
+                    throw new Error(`User ${message.client} already in room ${message.roomName}.`);
+                }
+            });
+				await this.UserchatsService.create({user_id: message.client, chat_id: chats.id, chat_name: message.roomName});
         } catch (error) {
             console.error('Error joining room:', error.message);
             this.server.emit('room-join-error', error.message);
@@ -183,8 +189,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 
     // Define the onCreateSomething method to handle creating something
     @SubscribeMessage('create-something')
-    onCreateSomething(@MessageBody() data: any) {
+    async onCreateSomething(@MessageBody() data: any) {
         console.log('Create something:', data);
+        const chats = await this.ChatsService.findName(data.room);
+		this.MessageService.create({chat_id: chats.id, user_id: data.user_id, text: data.text});
         this.server.to(data.room).emit('srv-message', data);
     }
 }

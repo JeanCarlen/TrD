@@ -19,7 +19,7 @@ const [value, setValue] = useState('');
 const [currentRoom, setCurrentRoom] = useState<string>('default');
 const [isLoading, setIsLoading] = useState(false);
 const [messages, setMessages] = useState<Message[]>([]);
-const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender: '', sender_Name: '', date: '' });
+const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender: '', sender_Name: '', date: '' ,});
 const [rooms, setRooms] = useState<string[]>([]); // State variable for rooms
 const socket = useContext(WebsocketContext);
 const token: string | undefined = Cookies.get("token");
@@ -98,6 +98,7 @@ function handleSendMessage(sender: string = content?.username || 'user') {
 	text: newMessage.text,
 	sender: socket.id,
 	sender_Name: sender,
+	user_id: content?.user,
 	date: new Date().toLocaleTimeString(),
 	room: currentRoom,
 	});

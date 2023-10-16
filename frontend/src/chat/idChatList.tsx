@@ -71,7 +71,7 @@ const ListOfChats: React.FC = () => {
             {data.map((chat: chatData) => {
                 return (
                     <button onClick={printlog} key={chat.id} className="game-stats" style={{flexDirection: "column"}}>
-						<div className="box">{chat.chat_id}</div>
+						<div className="box">{chat.chat_name}</div>
                     </button>
                 );
             })}

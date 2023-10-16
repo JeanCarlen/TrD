@@ -3,9 +3,10 @@ import { SocketGateway } from './socket.gateway';
 import { SocketService } from './socket.service';
 import { ChatsModule } from 'src/chats/chats.module';
 import { UserchatsModule } from 'src/userchats/userchats.module';
+import { MessagesModule } from 'src/messages/messages.module';
 
 @Module({
-  imports: [ChatsModule, UserchatsModule],
+  imports: [ChatsModule, UserchatsModule, MessagesModule],
   providers: [SocketGateway, SocketService],
 })
 export class SocketModule {}
