@@ -6,6 +6,7 @@ import { ChatsService } from "src/chats/chats.service";
 import { ChatType } from "src/chats/entities/chat.entity";
 import { create } from "domain";
 import { RouterModule } from "@nestjs/core";
+import { UserchatsService } from "src/userchats/userchats.service";
 
 // Define the WebSocketGateway and its path and CORS settings
 @WebSocketGateway({ path: '/api', cors: true })
@@ -15,7 +16,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     private readonly rooms = new Map<string, Set<string>>();
     
     // Inject the ChatsService into the constructor
-    constructor(private readonly ChatsService: ChatsService) {}
+    constructor(private readonly ChatsService: ChatsService, private readonly UserchatsService: UserchatsService) {}
     
     // Define the WebSocketServer and an array of clients
     @WebSocketServer()
@@ -154,6 +155,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define the onJoinRoom method to handle joining a chat room
     @SubscribeMessage('join-room')
 	@Inject('ChatsService')
+	@Inject('UserchatsService')
     async onJoinRoom(client: Socket, message:{ roomName: string, socketID: string, client: number }): Promise<void> {
         try {
             console.log("message is:",message);
@@ -168,9 +170,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             if (!chats) {
                 throw new Error(`Room ${message.roomName} not found.`);
             }
+			await this.UserchatsService.create({user_id: message.client, chat_id: chats.id, chat_name: message.roomName});
+			// await this.ChatsService.addUserToChat(chats.id, {user_id: message.client, chat_id: chats.id});
             client.join(message.roomName);
-            await this.ChatsService.addUserToChat(chats.id, {user_id: client, chat_id: chats.id});
-            console.log(`${message.socketID} joined room ${message.roomName}`);
+			console.log(`${message.socketID} joined room ${message.roomName}`);
             // this.server.to(message.roomName).emit('user-joined', message.socketID);
         } catch (error) {
             console.error('Error joining room:', error.message);

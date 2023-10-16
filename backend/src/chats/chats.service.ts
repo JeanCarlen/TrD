@@ -64,6 +64,7 @@ export class ChatsService {
 	const userChat: CreateUserchatDto = {
 		user_id: body.user_id,
 		chat_id: id,
+		chat_name: body.chat_name,
 	}
 
 	return await this.userchatsRepository.save(userChat)

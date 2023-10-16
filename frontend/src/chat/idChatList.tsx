@@ -7,9 +7,8 @@ import { list } from "@chakra-ui/react";
 
 type chatData = {
     id: number;
-    type: number;
-    name: string;
-    owner: number;
+    chat_id : number;
+    chat_name: string;
 }
 
 const ListOfChats: React.FC = () => {
@@ -56,6 +55,10 @@ const ListOfChats: React.FC = () => {
         }
     }
 
+	const printlog = () => {
+		console.log("data: ", data);
+	}
+
 	useEffect(() => {
         socket.connect();
 		getChats();
@@ -65,10 +68,10 @@ const ListOfChats: React.FC = () => {
         <div className="chatList">
 			<button onClick={() => getChats()}>Refresh</button>
             {fetched ? <div className="history-1">
-            {data.map((data: chatData) => {
+            {data.map((chat: chatData) => {
                 return (
-                    <button key={data.id} className="game-stats" style={{flexDirection: "column"}}>
-						<div className="box">{data.name}</div>
+                    <button onClick={printlog} key={chat.id} className="game-stats" style={{flexDirection: "column"}}>
+						<div className="box">{chat.chat_id}</div>
                     </button>
                 );
             })}
