@@ -14,13 +14,25 @@ sender_Name: string;
 date: string;
 }
 
-const ChatInterface: React.FC = () => {
+export interface sentMessages {
+	id: number;
+	user_id: number;
+	user_name: string;
+	chat_id: number;
+	text: string;
+	date: string;
+}
+
+interface Props {
+	messagesData: sentMessages[];
+}
+
+const ChatInterface: React.FC<Props> = ({messagesData}: Props) => {
 const [value, setValue] = useState('');
 const [currentRoom, setCurrentRoom] = useState<string>('default');
 const [isLoading, setIsLoading] = useState(false);
 const [messages, setMessages] = useState<Message[]>([]);
 const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender: '', sender_Name: '', date: '' ,});
-const [rooms, setRooms] = useState<string[]>([]); // State variable for rooms
 const socket = useContext(WebsocketContext);
 const token: string | undefined = Cookies.get("token");
 const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
@@ -30,6 +42,19 @@ const socketRef = useRef(null);
 useEffect(() => {
 	socket.connect();
 	}, []);
+
+	useEffect(() => {
+		console.log("messagesData: ", messagesData);
+		setMessages(messagesData.map((message) => (
+		{
+			id: message.id,
+			text: message.text,
+			sender: message.user_id.toString(),
+			sender_Name: message.user_name,
+			date: message.date
+		}
+		)));
+	},[messagesData]);
 
 useEffect(() => {
 	
@@ -60,9 +85,10 @@ useEffect(() => {
 	};
 }, [token, socket, messages, currentRoom]);
 
-
 const handleRoomChange = (room: string) => {
-	console.log("trying room: ", room);
+	console.log("next room: ", room);
+	console.log("currentRoom is : ", currentRoom);
+	socket.emit('leave-room', { roomName: currentRoom, socketID: socket.id, client: content?.user });
 	socket.emit('join-room', { roomName: room, socketID: socket.id, client: content?.user });
 	setCurrentRoom(room);
 	console.log("Joined room: ", room);
@@ -86,7 +112,6 @@ const handleCreateRoom = () => {
 		roomName: roomName,
 		client: content?.user
 	});
-	handleRoomChange(roomName);
 	}
 };
 
@@ -126,14 +151,10 @@ function handleSendMessage(sender: string = content?.username || 'user') {
 
 return (
 	<div>
-	{isLoading && <p>Loading...</p>}
 
 	{/* <button onClick={connect} disabled={isLoading || socket.connected}>
 		{socket.connected ? "Connected" : "Connect"}
 	</button> */}
-
-	{/* Display the list of rooms */}
-	<p>Available Rooms:</p>
         <button onClick={handleCreateRoom}>Create New Room</button>
         <div>
           <input

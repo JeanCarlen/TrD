@@ -20,6 +20,7 @@ export class MessagesService {
     message.chat_id = createMessageDto.chat_id;
     message.user_id = createMessageDto.user_id;
     message.text = createMessageDto.text;
+	message.user_name = createMessageDto.user_name;
     message.created = new Date();
     return this.messagesRepository.save(message);
   }

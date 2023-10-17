@@ -15,4 +15,7 @@ export class CreateMessageDto {
 
   @IsString({ message: '$property must be a string.' })
   text: string;
+
+  @IsString({ message: '$property must be a string.' })
+  user_name: string;
 }

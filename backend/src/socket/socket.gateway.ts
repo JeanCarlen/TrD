@@ -152,6 +152,11 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             this.server.emit('room-creation-error', error.message);
         }
     }
+	@SubscribeMessage('leave-room')
+	async onLeaveRoom(client: Socket, message:{ roomName: string, socketID: string, client: number }): Promise<void> {
+		client.leave(message.roomName);
+		console.log(`${message.socketID} left room ${message.roomName}`);
+	}
 
     // Define the onJoinRoom method to handle joining a chat room
     @SubscribeMessage('join-room')
@@ -180,10 +185,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
                     throw new Error(`User ${message.client} already in room ${message.roomName}.`);
                 }
             });
+				console.log("user_id is ", message.client);
 				await this.UserchatsService.create({user_id: message.client, chat_id: chats.id, chat_name: message.roomName});
         } catch (error) {
             console.error('Error joining room:', error.message);
-            this.server.emit('room-join-error', error.message);
         }
     }
 
@@ -192,7 +197,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     async onCreateSomething(@MessageBody() data: any) {
         console.log('Create something:', data);
         const chats = await this.ChatsService.findName(data.room);
-		this.MessageService.create({chat_id: chats.id, user_id: data.user_id, text: data.text});
+		this.MessageService.create({chat_id: chats.id, user_id: data.user_id, text: data.text, user_name: data.sender_Name});
         this.server.to(data.room).emit('srv-message', data);
     }
 }
