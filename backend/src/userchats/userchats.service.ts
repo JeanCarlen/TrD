@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, UseGuards, forwardRef } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, UseGuards, forwardRef } from '@nestjs/common';
 import { CreateUserchatDto } from './dto/create-userchat.dto';
 import { UpdateUserchatDto } from './dto/update-userchat.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -64,7 +64,7 @@ export class UserchatsService {
   public async update(id: number, updateUserchatDto: UpdateUserchatDto) {
 	const userChat: UserChats = await this.userchatsRepository.findOne({ where: { id: id}})
 	if (!userChat)
-		throw new BadRequestException(['Unknown userchat.'], {
+		throw new NotFoundException(['Unknown userchat.'], {
 			cause: new Error(),
 			description: `Userchat not found.`,
 		});

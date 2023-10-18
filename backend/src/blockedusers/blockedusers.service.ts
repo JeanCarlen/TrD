@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBlockeduserDto } from './dto/create-blockeduser.dto';
-import { UpdateBlockeduserDto } from './dto/update-blockeduser.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BlockedUsers } from './entities/blockeduser.entity';
@@ -31,12 +30,12 @@ export class BlockedusersService {
     return this.blockedUsersRepository.save(blockedUser);
   }
 
-  public findAll() {
-    return this.blockedUsersRepository.find();
+  public async findAll() {
+    return await this.blockedUsersRepository.find();
   }
 
-  public findOne(id: number) {
-    return this.blockedUsersRepository.findOne({ where: { id: id } });
+  public async findOne(id: number) {
+    return await this.blockedUsersRepository.findOne({ where: { id: id } });
   }
 
   public async findOneByUsers(id1: number, id2: number): Promise<BlockedUsers> {
@@ -54,14 +53,16 @@ export class BlockedusersService {
 	});
   }
 
-  public update(id: number, updateBlockeduserDto: UpdateBlockeduserDto) {
-    return this.blockedUsersRepository.update({ id: id }, updateBlockeduserDto);
-  }
-
   public async remove(id: number) {
     const blockedUser = await this.blockedUsersRepository.findOne({
       where: { id: id },
     });
+	if (!blockedUser) {
+		throw new NotFoundException(['Blocked user not found.'], {
+			cause: new Error(),
+			description: `Blocked user not found.`,
+		});
+	}
     return this.blockedUsersRepository.remove(blockedUser);
   }
 }

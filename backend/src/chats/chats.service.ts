@@ -178,7 +178,7 @@ export class ChatsService {
   public async update(id: number, updateChatDto: UpdateChatDto) {
 	const chat: Chats = await this.chatsRepository.findOne({ where: { id: id}})
 	if (!chat)
-		throw new BadRequestException(['Unknown chat.'], {
+		throw new NotFoundException(['Unknown chat.'], {
 			cause: new Error(),
 			description: `Username already taken.`,
 		});
@@ -190,7 +190,13 @@ export class ChatsService {
   }
 
   public async remove(id: number) {
-	const chat = await this.chatsRepository.findOne({where: {id: id}})
+	const chat: Chats = await this.chatsRepository.findOne({ where: { id: id } })
+	if (!chat) {
+		throw new NotFoundException(['Chat not found.'], {
+			cause: new Error(),
+			description: `Chat not found.`,
+		});
+	}
 	return await this.chatsRepository.remove(chat)
   }
 }

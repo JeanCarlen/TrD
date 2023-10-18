@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBanneduserDto } from './dto/create-banneduser.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,14 +19,21 @@ export class BannedusersService {
     return this.bannedUsersRepository.save(bannedUser);
   }
 
-  public findAll() {
+  public async findAll() {
 	// only return the users that are banned from chats where you are admin
-    return this.bannedUsersRepository.find();
+    return await this.bannedUsersRepository.find();
   }
 
-  public findOne(id: number) {
+  public async findOne(id: number): Promise<BannedUsers> {
 	// only return the users that are banned from chats where you are admin
-    return this.bannedUsersRepository.findOne({ where: { id: id } });
+    const bannedUser: BannedUsers = await this.bannedUsersRepository.findOne({ where: { id: id } });
+	if (!bannedUser) {
+		throw new NotFoundException(['Banned user not found.'], {
+			cause: new Error(),
+			description: `Banned user not found.`,
+		});
+	}
+	return bannedUser;
   }
 
   public async remove(id: number) {
@@ -34,6 +41,12 @@ export class BannedusersService {
     const bannedUser = await this.bannedUsersRepository.findOne({
       where: { id: id },
     });
+	if (!bannedUser) {
+		throw new NotFoundException(['Banned user not found.'], {
+			cause: new Error(),
+			description: `Banned user not found.`,
+		});
+	}
     return this.bannedUsersRepository.remove(bannedUser);
   }
 }

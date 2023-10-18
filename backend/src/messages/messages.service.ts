@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -35,15 +35,22 @@ export class MessagesService {
 	return await this.messagesRepository.find({ where: { chat_id: id } });
   }
 
-  public findAll() {
-    return this.messagesRepository.find();
+  public async findAll() {
+    return await this.messagesRepository.find();
   }
 
-  public findOne(id: number) {
-    return this.messagesRepository.findOne({ where: { id: id } });
+  public async findOne(id: number) {
+    return await this.messagesRepository.findOne({ where: { id: id } });
   }
 
-  public update(id: number, updateMessageDto: UpdateMessageDto) {
+  public async update(id: number, updateMessageDto: UpdateMessageDto) {
+	const message = await this.messagesRepository.findOne({ where: { id: id } });
+	if (!message) {
+		throw new NotFoundException(['Message not found.'], {
+			cause: new Error(),
+			description: `Message not found.`,
+		});
+	}
     return this.messagesRepository.update({ id: id }, updateMessageDto);
   }
 
@@ -51,6 +58,12 @@ export class MessagesService {
     const message = await this.messagesRepository.findOne({
       where: { id: id },
     });
+	if (!message) {
+		throw new NotFoundException(['Message not found.'], {
+			cause: new Error(),
+			description: `Message not found.`,
+		});
+	}
     return this.messagesRepository.remove(message);
   }
 }
