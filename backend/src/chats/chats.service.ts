@@ -42,10 +42,11 @@ export class ChatsService {
 	chat.type = createChatDto.type;
 	chat.name = createChatDto.name;
 	chat.owner = createChatDto.owner;
-    return await this.chatsRepository.save(chat);
-  }
+	chat.password = createChatDto?.password;
+	return await this.chatsRepository.save(chat);
+}
 
-  public async findChatUsers(id: number, current_id: number) {
+public async findChatUsers(id: number, current_id: number) {
 	const chats = await this.userchatsService.getChatIdListByUser(current_id);
 	if (!chats.includes(id)) {
 		throw new UnauthorizedException(['You\'re not in this chat.'], {
@@ -54,7 +55,7 @@ export class ChatsService {
 		});
 	}
 	return await this.userchatsRepository.find({where: {chat_id: id}})
-  }
+}
 
   public async findUserChats(id: number) {
 	return await this.userchatsRepository.find({where: {user_id: id}})

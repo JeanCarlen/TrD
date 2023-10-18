@@ -19,6 +19,7 @@
 	overflow-y: scroll;
 	row-gap: 0.5vh;
 	padding: 2vh;
+	max-height: 75vh;
 }
 
 .friendBubble

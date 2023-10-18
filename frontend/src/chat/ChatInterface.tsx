@@ -5,6 +5,7 @@ import decodeToken from '../helpers/helpers';
 import './ChatInterface.css'
 import { Context } from "react-responsive";
 import { Socket } from "socket.io-client";
+import { ToastContainer, toast } from "react-toastify";
 
 interface Message {
 id: number;
@@ -25,11 +26,12 @@ export interface sentMessages {
 
 interface Props {
 	messagesData: sentMessages[];
+	currentRoomProps: string;
 }
 
-const ChatInterface: React.FC<Props> = ({messagesData}: Props) => {
+const ChatInterface: React.FC<Props> = ({messagesData, currentRoomProps}: Props) => {
 const [value, setValue] = useState('');
-const [currentRoom, setCurrentRoom] = useState<string>('default');
+const [currentRoom, setCurrentRoom] = useState<string>(currentRoomProps);
 const [isLoading, setIsLoading] = useState(false);
 const [messages, setMessages] = useState<Message[]>([]);
 const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender: '', sender_Name: '', date: '' ,});
@@ -54,7 +56,8 @@ useEffect(() => {
 			date: message.date
 		}
 		)));
-	},[messagesData]);
+		setCurrentRoom(currentRoomProps);
+	},[messagesData, currentRoomProps]);
 
 useEffect(() => {
 	
@@ -75,7 +78,14 @@ useEffect(() => {
 	socket.on('srv-message', (data) => {
 	console.log(`srv-message ${data}`);
 	const latest: Message = { id: messages.length + 3, text: data.text, sender: data.sender, sender_Name: data.sender_Name, date: data.date };
-	setMessages([...messages, latest]);
+	if (data.room == currentRoom)
+	{
+		setMessages([...messages, latest]);
+	}
+	else 
+	{
+		toast.info(latest.text + ' in ' + data.room, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' })
+	}
 	});
 
 	return () => {
@@ -84,36 +94,6 @@ useEffect(() => {
 	socket.off('srv-message');
 	};
 }, [token, socket, messages, currentRoom]);
-
-const handleRoomChange = (room: string) => {
-	console.log("next room: ", room);
-	console.log("currentRoom is : ", currentRoom);
-	socket.emit('leave-room', { roomName: currentRoom, socketID: socket.id, client: content?.user });
-	socket.emit('join-room', { roomName: room, socketID: socket.id, client: content?.user });
-	setCurrentRoom(room);
-	console.log("Joined room: ", room);
-	setMessages([]);
-};
-
-const handleJoinRoom = () => {
-    if (roomName.trim() !== '') 
-	{
-	  setRoomName(roomName);
-	  console.log("Joining room: ", roomName);
-      handleRoomChange(roomName);
-//      setRoomName('');
-    }
-  };
-
-const handleCreateRoom = () => {
-	const roomName = prompt("Enter a name for the new room:");
-	if (roomName) {
-	socket.emit('create-room', {
-		roomName: roomName,
-		client: content?.user
-	});
-	}
-};
 
 function handleSendMessage(sender: string = content?.username || 'user') {
 	if (!newMessage.text.trim() || !socket.connected) {
@@ -127,44 +107,12 @@ function handleSendMessage(sender: string = content?.username || 'user') {
 	date: new Date().toLocaleTimeString(),
 	room: currentRoom,
 	});
-
 	console.log('Message sent:', newMessage.text);
-
-	const updatedMessage: Message = {
-	id: messages.length + 3,
-	text: newMessage.text,
-	sender: '',
-	sender_Name: 'user',
-	date: new Date().toLocaleTimeString(),
-	};
-
 	setNewMessage({ id: 0, text: '', sender: '', sender_Name: '', date: '' });
 }
 
-// function connect(e: React.FormEvent) {
-// 	e.preventDefault();
-// 	if (!socket.connected) {
-// 	setIsLoading(true);
-// 	socket.connect();
-// 	}
-// }
-
 return (
 	<div>
-
-	{/* <button onClick={connect} disabled={isLoading || socket.connected}>
-		{socket.connected ? "Connected" : "Connect"}
-	</button> */}
-        <button onClick={handleCreateRoom}>Create New Room</button>
-        <div>
-          <input
-            type="text"
-            placeholder="Enter room name"
-            value={roomName}
-            onChange={(e) => setRoomName(e.target.value)}
-          />
-          <button onClick={handleJoinRoom}>Join Room</button>
-        </div>
 	<div className="message-display">
 		<div className="message-box">
 		{messages.map((message) => (

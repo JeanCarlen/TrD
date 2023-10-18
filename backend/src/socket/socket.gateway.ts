@@ -136,17 +136,19 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define the onCreateRoom method to handle creating a chat room
     @SubscribeMessage('create-room')
     @Inject('ChatsService')
-    async onCreateRoom(@MessageBody() { roomName, client }: { roomName: string, client: string }) {
+    async onCreateRoom(client: Socket, message: { roomName: string, client: string, Password: string | null }) {
         try {
             console.log("into create room", client);
             const createdRoom = await this.ChatsService.create({
-                name: roomName,
+                name: message.roomName,
                 type: ChatType.CHANNEL,
-                owner: parseInt(client),
+                owner: parseInt(message.client),
+                password: message.Password,
             });
-            console.log('Room created:', roomName);
+            console.log('Room created:', message.roomName);
+			await this.onJoinRoom(client, { roomName: message.roomName, socketID: client.id, client: parseInt(message.client), password: message.Password });
             const roomList = await this.ChatsService.findAllFromSocket();
-            console.log(roomList);
+            console.log('create room:',roomList);
         } catch (error) {
             console.error('Error creating room:', error.message);
             this.server.emit('room-creation-error', error.message);
@@ -162,7 +164,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @SubscribeMessage('join-room')
 	@Inject('ChatsService')
 	@Inject('UserchatsService')
-    async onJoinRoom(client: Socket, message:{ roomName: string, socketID: string, client: number }): Promise<void> {
+    async onJoinRoom(client: Socket, message:{ roomName: string, socketID: string, client: number, password: string | null }): Promise<void> {
         try {
             console.log("message is:",message);
             console.log(`Join room: ${message.roomName}`);
@@ -176,6 +178,9 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             if (!chats) {
                 throw new Error(`Room ${message.roomName} not found.`);
             }
+            if (chats.password != message.password) {
+                throw new Error(`Wrong password.`);
+            }
             client.join(message.roomName);
             console.log(`${message.socketID} joined room ${message.roomName}`);
 			const list = await this.UserchatsService.findByChatId(chats.id);
@@ -185,19 +190,21 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
                     throw new Error(`User ${message.client} already in room ${message.roomName}.`);
                 }
             });
-				console.log("user_id is ", message.client);
-				await this.UserchatsService.create({user_id: message.client, chat_id: chats.id, chat_name: message.roomName});
+            console.log("user_id is ", message.client);
+            await this.UserchatsService.create({user_id: message.client, chat_id: chats.id, chat_name: message.roomName});
         } catch (error) {
             console.error('Error joining room:', error.message);
+            this.server.emit('room-join-error', error.message);
         }
     }
 
     // Define the onCreateSomething method to handle creating something
     @SubscribeMessage('create-something')
     async onCreateSomething(@MessageBody() data: any) {
-        console.log('Create something:', data);
+        // console.log('Create something:', data);
         const chats = await this.ChatsService.findName(data.room);
 		this.MessageService.create({chat_id: chats.id, user_id: data.user_id, text: data.text, user_name: data.sender_Name});
         this.server.to(data.room).emit('srv-message', data);
+        console.log('sent this: ', data);
     }
 }
