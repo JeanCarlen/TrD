@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class MessagesResopnse {
+export class MessagesResponse {
 	@ApiProperty({ example: 1, description: 'Message ID' })
 	id: number;
 

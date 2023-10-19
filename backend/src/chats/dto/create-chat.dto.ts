@@ -18,9 +18,6 @@ export class CreateChatDto {
 	@IsOptional()
 	name?: string
 
-	@ApiProperty({example: 1, description: 'The user id of the owner of the chat.'})
-	owner: number;
-
 	@ApiPropertyOptional({example: 'Password1234', description: 'The password of the chat (for private chat), null in unprotected chats.'})
 	@MaxLength(32, {message: '$property should be at most 32 characters long.'})
 	@IsString({message: '$property should be a string.'})

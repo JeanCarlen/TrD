@@ -12,6 +12,7 @@ import { MutedUsers } from 'src/mutedusers/entities/muteduser.entity';
 import { UserchatsService } from 'src/userchats/userchats.service';
 import { UsersResponse } from 'src/users/dto/users.response';
 import { Users } from 'src/users/entities/users.entity';
+import { UserChatsResponse } from 'src/userchats/dto/userchat.response';
 
 @Injectable()
 export class ChatsService {
@@ -49,7 +50,7 @@ export class ChatsService {
   chat.password = createChatDto?.password;
 
 	const inserted_chat: Chats = await this.chatsRepository.save(chat);
-	const inserted: UserChats = await this.userchatsService.create({chat_id: inserted_chat.id, user_id: chat.owner});
+	const inserted: UserChatsResponse = await this.userchatsService.create({chat_id: inserted_chat.id, user_id: chat.owner});
 	if (!inserted.chat_id || inserted.chat_id != inserted_chat.id) {
 		throw new InternalServerErrorException(['Error creating chat.'], {
 			cause: new Error(),
@@ -86,7 +87,6 @@ export class ChatsService {
 	const userChat: CreateUserchatDto = {
 		user_id: body.user_id,
 		chat_id: id,
-		chat_name: body.chat_name,
 	}
 
 	return await this.userchatsRepository.save(userChat)
