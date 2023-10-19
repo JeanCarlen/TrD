@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateChatadminDto } from './dto/create-chatadmin.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatAdmins } from './entities/chatadmin.entity';
@@ -10,6 +10,17 @@ export class ChatadminsService {
 		@InjectRepository(ChatAdmins)
 		private readonly chatadminsRepository: Repository<ChatAdmins>,
 	) {}
+
+  public async getChatsIdByUser(user_id: number) : Promise<number[]> {
+	const chatAdmins = await this.chatadminsRepository.find({
+		where: { user_id: user_id },
+		select: ['id'],
+	});
+	const ids = chatAdmins.map((chatAdmin) => {
+		return chatAdmin.chat_id;
+	});
+	return ids;
+  }
 
   public async create(createChatadminDto: CreateChatadminDto) {
 	const chatadmin = new ChatAdmins();
@@ -28,6 +39,12 @@ export class ChatadminsService {
 
   public async remove(id: number) {
 	const chatadmin = await this.findOne(id);
+	if (!chatadmin) {
+		throw new NotFoundException(['Chat admin not found.'], {
+			cause: new Error(),
+			description: `Chat admin not found.`,
+		});
+	}
 	await this.chatadminsRepository.remove(chatadmin)
   }
 }

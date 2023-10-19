@@ -345,85 +345,91 @@ public async findPendingFriendsByUsername(username: string) {
   }
 
   public async update(id: number, updateFriendDto: UpdateFriendDto) {
-    const friends: Friends = await this.friendsRepository.findOne({
+    const friend: Friends = await this.friendsRepository.findOne({
       where: { id: id },
     });
-    return await this.friendsRepository.update(id, friends);
+	if (!friend) {
+		throw new NotFoundException(['Friend request not found.'], {
+			cause: new Error(),
+			description: `Friend request not found.`,
+		});
+	}
+    return await this.friendsRepository.update(id, friend);
   }
 
   public async delete(id: number) {
-	const friends: Friends = await this.friendsRepository.findOne({
+	const friend: Friends = await this.friendsRepository.findOne({
 	  where: { id: id },
 	});
-	return await this.friendsRepository.remove(friends);
+	return await this.friendsRepository.remove(friend);
   }
 
   public async remove(id: number, user_id: number) {
-    const friends: Friends = await this.friendsRepository.findOne({
+    const friend: Friends = await this.friendsRepository.findOne({
       where: { id: id },
     });
-	if (friends == undefined) {
+	if (friend == undefined) {
 		throw new NotFoundException(['Friend request not found.'], {
 			cause: new Error(),
 			description: `Friend request not found.`,
 		});
 	}
-	if (friends.requester != user_id && friends.requested != user_id) {
+	if (friend.requester != user_id && friend.requested != user_id) {
 		throw new BadRequestException(['Friend request not found.'], {
 			cause: new Error(),
 			description: `Friend request not found.`,
 		});
 	}
-    return await this.friendsRepository.remove(friends);
+    return await this.friendsRepository.remove(friend);
   }
 
   public async cancel(id: number, user_id: number) {
-	const friends: Friends = await this.friendsRepository.findOne({
+	const friend: Friends = await this.friendsRepository.findOne({
 	  where: { id: id },
 	});
-	if (friends == undefined) {
+	if (friend == undefined) {
 		throw new NotFoundException(['Friend request not found.'], {
 			cause: new Error(),
 			description: `Friend request not found.`,
 		});
 	}
-	if (friends.requester != user_id) {
+	if (friend.requester != user_id) {
 		throw new BadRequestException(['Friend request not found.'], {
 			cause: new Error(),
 			description: `Friend request not found.`,
 		});
 	}
-	if (friends.status != 0) {
+	if (friend.status != 0) {
 		throw new BadRequestException(['Friend request already accepted.'], {
 			cause: new Error(),
 			description: `Friend request already accepted.`,
 		});
 	}
-	return await this.friendsRepository.remove(friends);
+	return await this.friendsRepository.remove(friend);
   }
 
   public async reject(id: number, user_id: number) {
-	const friends: Friends = await this.friendsRepository.findOne({
+	const friend: Friends = await this.friendsRepository.findOne({
 	  where: { id: id },
 	});
-	if (friends == undefined) {
+	if (friend == undefined) {
 		throw new NotFoundException(['Friend request not found.'], {
 			cause: new Error(),
 			description: `Friend request not found.`,
 		});
 	}
-	if (friends.requested != user_id) {
+	if (friend.requested != user_id) {
 		throw new BadRequestException(['Friend request not found.'], {
 			cause: new Error(),
 			description: `Friend request not found.`,
 		});
 	}
-	if (friends.status != 0) {
+	if (friend.status != 0) {
 		throw new BadRequestException(['Friend request already accepted.'], {
 			cause: new Error(),
 			description: `Friend request already accepted.`,
 		});
 	}
-	return await this.friendsRepository.remove(friends);
+	return await this.friendsRepository.remove(friend);
   }
 }

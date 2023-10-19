@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBanneduserDto } from './dto/create-banneduser.dto';
-import { UpdateBanneduserDto } from './dto/update-banneduser.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BannedUsers } from './entities/banneduser.entity';
@@ -20,22 +19,34 @@ export class BannedusersService {
     return this.bannedUsersRepository.save(bannedUser);
   }
 
-  public findAll() {
-    return this.bannedUsersRepository.find();
+  public async findAll() {
+	// only return the users that are banned from chats where you are admin
+    return await this.bannedUsersRepository.find();
   }
 
-  public findOne(id: number) {
-    return this.bannedUsersRepository.findOne({ where: { id: id } });
-  }
-
-  public update(id: number, updateBanneduserDto: UpdateBanneduserDto) {
-    return this.bannedUsersRepository.update({ id: id }, updateBanneduserDto);
+  public async findOne(id: number): Promise<BannedUsers> {
+	// only return the users that are banned from chats where you are admin
+    const bannedUser: BannedUsers = await this.bannedUsersRepository.findOne({ where: { id: id } });
+	if (!bannedUser) {
+		throw new NotFoundException(['Banned user not found.'], {
+			cause: new Error(),
+			description: `Banned user not found.`,
+		});
+	}
+	return bannedUser;
   }
 
   public async remove(id: number) {
+	// only return the users that are banned from chats where you are admin
     const bannedUser = await this.bannedUsersRepository.findOne({
       where: { id: id },
     });
+	if (!bannedUser) {
+		throw new NotFoundException(['Banned user not found.'], {
+			cause: new Error(),
+			description: `Banned user not found.`,
+		});
+	}
     return this.bannedUsersRepository.remove(bannedUser);
   }
 }
