@@ -134,13 +134,21 @@ const Chat: React.FC = () => {
 
 	useEffect(() => {
 		socket.connect();
+		console.log("socket: ", socket);
 		getChats();
 	}, []);
 
 	useEffect(() => {
-		socket.on('error-join-room', (err) => {
-			alert(err);
+		socket.on('room-join-error', (err) => {
+			console.log("error in joining room: ", err);
+			toast.error(err, {
+				position: toast.POSITION.BOTTOM_LEFT,
+				className: 'toast-error'});
 		});
+
+		return() => {
+			socket.off('room-join-error');
+		}
 	}, [socket]);
 
 
@@ -189,6 +197,22 @@ const Chat: React.FC = () => {
 		await getChats();
 	};
 
+	const handleLeaveRoom = async (currentRoom: string) => {
+		let idremove: chatData | undefined = data.find((chat: chatData) => chat.chat_name === currentRoom);
+		if (idremove === undefined)
+		{
+			toast.error('Error with removing user from chat', {
+				position: toast.POSITION.BOTTOM_LEFT,
+				className: 'toast-error'
+			});
+			return;
+		}
+		socket.emit('leave-room', { id : idremove.id, roomName : currentRoom });
+		setCurrentRoom('default');
+		await delay(1000);
+		await getChats();
+	}
+
 	return (
 		<div>
 		<Sidebar/>
@@ -199,6 +223,7 @@ const Chat: React.FC = () => {
 		<div className="leftColumn">
 		<button onClick={handleCreateRoom}>Create New Room</button>
 		<button onClick={handleJoinRoomClick}>Join Room</button>
+		<button onClick={() => handleLeaveRoom(currentRoom)}>Leave Room</button>
 		<div className="chatList">
 		<p>currentRoom: {currentRoom}</p>
 		{fetched ? <div className="history-1">
@@ -213,12 +238,13 @@ const Chat: React.FC = () => {
 	</div>
 		</div>
 		<div className="middleColumn">
-			<ChatInterface messagesData={messages} currentRoomProps={currentRoom}/>
+			<ChatInterface messagesData={messages} currentRoomProps={currentRoom} chatSocket={socket}/>
 		</div>
 		<div className="rightColumn">
 			<IdChatUser chatData={currentChat} user_id={content?.user}/>
 		</div>
 	</div>
+	<ToastContainer />
 	</div>
 	);
 };

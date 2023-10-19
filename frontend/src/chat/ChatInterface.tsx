@@ -27,23 +27,24 @@ export interface sentMessages {
 interface Props {
 	messagesData: sentMessages[];
 	currentRoomProps: string;
+	chatSocket: Socket;
 }
 
-const ChatInterface: React.FC<Props> = ({messagesData, currentRoomProps}: Props) => {
+const ChatInterface: React.FC<Props> = ({messagesData, currentRoomProps, chatSocket}: Props) => {
 const [value, setValue] = useState('');
 const [currentRoom, setCurrentRoom] = useState<string>(currentRoomProps);
 const [isLoading, setIsLoading] = useState(false);
 const [messages, setMessages] = useState<Message[]>([]);
 const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender: '', sender_Name: '', date: '' ,});
-const socket = useContext(WebsocketContext);
+const socket = chatSocket;
 const token: string | undefined = Cookies.get("token");
 const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
 const [roomName, setRoomName] = useState<string>('');
 const socketRef = useRef(null);
 
-useEffect(() => {
-	socket.connect();
-	}, []);
+// useEffect(() => {
+// 	socket.connect();
+// 	}, []);
 
 	useEffect(() => {
 		console.log("messagesData: ", messagesData);
@@ -93,7 +94,6 @@ useEffect(() => {
 	console.log('Unregistering events...');
 	socket.off('connect');
 	socket.off('srv-message');
-	socket.off('room-join-error');
 	};
 }, [token, socket, messages, currentRoom]);
 

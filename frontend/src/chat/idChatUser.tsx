@@ -65,6 +65,12 @@ const invitePong = (username: string) => {
 	//navigate('/Game');
 };
 
+const muteUser = async (username: string) => {
+	console.log(`Muting user: ${username}`);
+	
+
+};
+
 const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id }) => {
 	const token = Cookies.get('token');
 	const socket = useContext(WebsocketContext);

@@ -52,7 +52,7 @@ writeFileSync(outputPath, JSON.stringify(document), { encoding: 'utf8'});
       forbidNonWhitelisted: true,
     }),
   );
-  app.useGlobalInterceptors(new LoggingInterceptor());
+//  app.useGlobalInterceptors(new LoggingInterceptor());
   app.use(cookieParser());
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   await app.listen(3001);

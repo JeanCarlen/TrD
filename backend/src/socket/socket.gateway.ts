@@ -155,9 +155,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         }
     }
 	@SubscribeMessage('leave-room')
-	async onLeaveRoom(client: Socket, message:{ roomName: string, socketID: string, client: number }): Promise<void> {
-		client.leave(message.roomName);
-		console.log(`${message.socketID} left room ${message.roomName}`);
+	@Inject('UserchatsService')
+	async onLeaveRoom(client: Socket, message:{ id : number, roomName : string}): Promise<void> {
+		console.log("into leave room", message);
+		console.log ("logging the service " ,await this.UserchatsService.remove(message.id));
+        client.leave(message.roomName);
+		console.log( message.id , ` left room ${message.roomName}`);
 	}
 
     // Define the onJoinRoom method to handle joining a chat room
@@ -187,14 +190,16 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             console.log("list is ", list);
 			list.map((userchat) => {
                 if (userchat.user_id == message.client) {
-                    throw new Error(`User ${message.client} already in room ${message.roomName}.`);
-                }
-            });
-            console.log("user_id is ", message.client);
-            await this.UserchatsService.create({user_id: message.client, chat_id: chats.id, chat_name: message.roomName, protected: chats.password === null ? false : true});
+                    console.log(`User ${message.client} already in room ${message.roomName}.`);
+                    throw new Error(`Already in room`);
+                }});
+			console.log("user_id is ", message.client);
+			await this.UserchatsService.create({user_id: message.client, chat_id: chats.id, chat_name: message.roomName, protected: chats.password === null ? false : true});
         } catch (error) {
             console.error('Error joining room:', error.message);
-            this.server.to(client.id).emit('room-join-error', error.message);
+            if (error.message !== 'Already in room') {
+				this.server.to(client.id).emit('room-join-error', error.message);
+			}
         }
     }
 
