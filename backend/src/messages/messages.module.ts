@@ -9,7 +9,7 @@ import { Chats } from 'src/chats/entities/chat.entity';
 import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Messages, Users, Chats]), UserchatsModule, UsersModule],
+  imports: [TypeOrmModule.forFeature([Messages, Users, Chats]), UserchatsModule, MessagesModule, UsersModule],
   controllers: [MessagesController],
   providers: [MessagesService],
   exports: [MessagesService],
