@@ -116,17 +116,6 @@ const AchTest: React.FC = () => {
 					);
 				})}
 			</div> : <div className="history_1"> Loading...</div>}
-			{userFetched ? <div className="history_1">
-				{/* {userAchieve.map((achievement: achievementData) => {
-					return (
-						<div key={achievement.id} className="game-stats" style={{flexDirection: "column"}}>
-						<div className='box'>title: {achievement.title}</div>
-						<div className='box'>description: {achievement.description}</div>
-						</div>
-					);
-				})} */}
-				{JSON.stringify(userAchieve)}
-			</div> : <div className="history_1"> Loading...</div>}
 			</div>
 			<button onClick={GetAchieve}>
 				NO ACHIEVE?

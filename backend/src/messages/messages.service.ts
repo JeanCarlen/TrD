@@ -3,8 +3,10 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Messages } from './entities/message.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UserchatsService } from 'src/userchats/userchats.service';
+import { UsersService } from 'src/users/users.service';
+import { Users } from 'src/users/entities/users.entity';
 
 @Injectable()
 export class MessagesService {
@@ -13,6 +15,8 @@ export class MessagesService {
     private readonly messagesRepository: Repository<Messages>,
 	@Inject(UserchatsService)
 	private readonly userchatsService: UserchatsService,
+	@Inject(UsersService)
+	private readonly usersService: UsersService,
   ) {}
 
   public create(createMessageDto: CreateMessageDto) {
@@ -20,6 +24,7 @@ export class MessagesService {
     message.chat_id = createMessageDto.chat_id;
     message.user_id = createMessageDto.user_id;
     message.text = createMessageDto.text;
+	  message.user_name = createMessageDto.user_name;
     message.created = new Date();
     return this.messagesRepository.save(message);
   }
@@ -32,7 +37,18 @@ export class MessagesService {
 			description: `You're not in this chat.`,
 		});
 	}
-	return await this.messagesRepository.find({ where: { chat_id: id } });
+  // let complete = incomplete.map(async (message)=>{
+  //   let user = await this.usersService.findOneUser(message.user_id);
+  //   return {
+  //     id: message.id,
+  //     chat_id: message.chat_id,
+  //     user_id: message.user_id,
+  //     text: message.text,
+  //     user_name: user.username,
+  //     created: message.created,
+  //   }
+  // })
+	return this.messagesRepository.find({ where: { chat_id: id } });
   }
 
   public findAll() {

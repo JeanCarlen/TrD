@@ -22,4 +22,8 @@ export class Messages extends BaseEntity {
   @ApiProperty({ example: '2021-01-01T00:00:00.000Z', description: 'The date when the message was sent.' })
   @Column({ type: 'date' })
   created: Date;
+
+  @ApiProperty({ example: 'John Doe', description: 'The name of the user who sent the message.' })
+  @Column({ type: 'text'})
+  user_name: string;
 }
