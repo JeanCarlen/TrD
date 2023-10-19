@@ -35,7 +35,6 @@ CREATE TABLE chats (
 	"owner" integer NOT NULL,
 	CONSTRAINT "chats_pk" PRIMARY KEY ("id")
 );
-
 CREATE TABLE friends (
 	"id" serial NOT NULL,
 	"requester" integer NOT NULL,

@@ -46,6 +46,7 @@ export class ChatsService {
 	chat.type = createChatDto.type;
 	chat.name = createChatDto.name;
 	chat.owner = createChatDto.owner;
+  chat.password = createChatDto?.password;
 
 	const inserted_chat: Chats = await this.chatsRepository.save(chat);
 	const inserted: UserChats = await this.userchatsService.create({chat_id: inserted_chat.id, user_id: chat.owner});
@@ -85,6 +86,7 @@ export class ChatsService {
 	const userChat: CreateUserchatDto = {
 		user_id: body.user_id,
 		chat_id: id,
+		chat_name: body.chat_name,
 	}
 
 	return await this.userchatsRepository.save(userChat)

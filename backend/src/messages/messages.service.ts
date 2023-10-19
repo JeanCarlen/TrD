@@ -3,11 +3,12 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Messages } from './entities/message.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UserchatsService } from 'src/userchats/userchats.service';
-import { MessagesResopnse } from './dto/message.response';
+import { MessagesResponse } from './dto/message.response';
 import { Users } from 'src/users/entities/users.entity';
 import { Chats } from 'src/chats/entities/chat.entity';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class MessagesService {
@@ -20,18 +21,21 @@ export class MessagesService {
 	private readonly chatsRepository: Repository<Chats>,
 	@Inject(UserchatsService)
 	private readonly userchatsService: UserchatsService,
+	@Inject(UsersService)
+	private readonly usersService: UsersService,
   ) {}
 
-  public async create(createMessageDto: CreateMessageDto): Promise<MessagesResopnse> {
+  public async create(createMessageDto: CreateMessageDto): Promise<MessagesResponse> {
     const message = new Messages();
     message.chat_id = createMessageDto.chat_id;
     message.user_id = createMessageDto.user_id;
     message.text = createMessageDto.text;
+	  message.user_name = createMessageDto.user_name;
     message.created = new Date();
 	const inserted: Messages = await this.messagesRepository.save(message);
 	const user: Users = await this.usersRepository.findOne({ where: { id: inserted.user_id } });
     const chat: Chats = await this.chatsRepository.findOne({ where: { id: inserted.chat_id } });
-	const messageResponse: MessagesResopnse = {
+	const messageResponse: MessagesResponse = {
 		id: inserted.id,
 		user_id: inserted.user_id,
 		user_data: {
@@ -59,7 +63,18 @@ export class MessagesService {
 			description: `You're not in this chat.`,
 		});
 	}
-	return await this.messagesRepository.find({ where: { chat_id: id } });
+  // let complete = incomplete.map(async (message)=>{
+  //   let user = await this.usersService.findOneUser(message.user_id);
+  //   return {
+  //     id: message.id,
+  //     chat_id: message.chat_id,
+  //     user_id: message.user_id,
+  //     text: message.text,
+  //     user_name: user.username,
+  //     created: message.created,
+  //   }
+  // })
+	return this.messagesRepository.find({ where: { chat_id: id } });
   }
 
   public async findAll() {

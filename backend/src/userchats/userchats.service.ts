@@ -19,6 +19,7 @@ export class UserchatsService {
 	const userChat = new UserChats();
 	userChat.user_id = createUserchatDto.user_id;
 	userChat.chat_id = createUserchatDto.chat_id;
+	userChat.chat_name = createUserchatDto.chat_name;
 	return await this.userchatsRepository.save(userChat);
   }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
 	Menu,
 	MenuButton,
@@ -14,16 +14,23 @@ import {
 import { useNavigate } from 'react-router-dom';
 import '../pages/LetsPlay'
 import Cookies from 'js-cookie';
+import { chatData } from './Chat';
+import { ChatForm } from 'react-chat-engine-advanced';
+import { WebsocketContext } from '../context/websocket.context';
 
 interface User{
+	id: number;
+	user_id: number;
+	chat_id: number;
+	chat_name: string;
 	name: string;
 	status: number;
 	isWriting: number;
 }
 
 interface FUCKLINTERFACESAMERE{
-	Idduchat: number;
-	ChatType: number;
+	chatData: chatData | undefined ;
+	user_id: number | undefined;
 }
 
 interface MultipleUsersInter{
@@ -57,61 +64,72 @@ const invitePong = (username: string) => {
 	//navigate('/Game');
 };
 
-const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ Idduchat, ChatType }) => {
+const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id }) => {
 	const token = Cookies.get('token');
+	const socket = useContext(WebsocketContext);
+	const [chatMembers, setchatMembers] = useState<User[]>()
+	const ChatType: number = 0;
+	
 
-	async function GetData (Idduchat: number) {
-		const response = await fetch(`http://localhost:8080/api/chats/${Idduchat}/users`, {
+
+	useEffect(() => {
+		socket.connect();
+		if (chatData) {
+			getData(chatData);
+		}
+	}, [chatData]);
+
+	async function getData (chatData: chatData) {
+		console.log('user_id', user_id);
+		const response = await fetch(`http://localhost:8080/api/chats/${chatData.chat_id}/users`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': 'Bearer' + token
+				'Authorization': 'Bearer ' + token
 			},
 		});
 		const data = await response.json()
-		return (data);
+		const print = JSON.stringify(data);
+		console.log("user list data = ", data);
+		console.log(print);
+		if(response.ok)
+		{
+			setchatMembers(data)
+		}
+		else
+			console.log("error in the get data")
 	}
 
-	const [chatMembers, setchatMembers] = useState<User[]>([
-		{
-		name: 'Jean',
-		status: 1,
-		isWriting: 0,
-		},
-		{
-		name: 'Fabio',
-		status: 1,
-		isWriting: 0,
-		},
-		{
-		name: 'Nikki',
-		status: 1,
-		isWriting: 0,
-		}
-		
-	])
+	
 
 	if (ChatType === 0)
 	{
 		return (
 			<div className='chat-interface'>
 				<h2>Online Users</h2>
-			<ul>
-				<MultipleUsers members={chatMembers}/>
-			</ul>
+				<ul>
+					{chatMembers && <MultipleUsers members={chatMembers} />}
+				</ul>
 			</div>
 		);
 	}
 	else if (ChatType === 1)
-	{
+	if (Array.isArray(chatMembers) && chatMembers.length > 0) {
 		return (
 			<div className='chat-interface'>
 				<h2>Online Users</h2>	
-			<ul>
-				<OnlyOneUser user={chatMembers[0]}/>
-			</ul>
+				<ul>
+					<OnlyOneUser user={chatMembers[0]}/>
+				</ul>
 			</div>
-			);
+		);
+	} else {
+		return (
+			<div className='chat-interface'>
+				<h2>Online Users</h2>
+				<div>No users online</div>
+			</div>
+		);
 	}
 	else
 	{
@@ -138,9 +156,9 @@ const MultipleUsers: React.FC<MultipleUsersInter> = ({members}) => {
 	return (
 		<div>
 			{members.map((user) => (
-			<li key={user.name} className={`friendslist ${user.status === 1 ? 1 : 0}`} >
+			<li key={user.id} className= "friendslist" >
 				<span className="messages">
-					{user.name}
+					{user.user_id}
 				</span>
 				<Menu>
 				<MenuButton className='sendButton' as={Button} rightIcon={<ChevronDownIcon />}>
