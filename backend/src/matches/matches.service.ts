@@ -30,6 +30,7 @@ export class MatchesService {
 	if (users.length < 2)
 		throw new NotFoundException('Users not found.');
 	const matchResponse: MatchesResponse = {
+		id: inserted.id,
 		user_1: inserted.user_1,
 		user_2: inserted.user_2,
 		user_1_data: {
@@ -60,6 +61,8 @@ export class MatchesService {
 			]
 		}
 	);
+	if (matches.length == 0)
+		return [];
 	let user_ids: number[] = matches.map((match: Matches) => {
 		if (match.user_1 == current_id)
 			return match.user_2;
@@ -74,6 +77,7 @@ export class MatchesService {
 		const user_1: Users = users.find((user: Users) => user.id == match.user_1);
 		const user_2: Users = users.find((user: Users) => user.id == match.user_2);
 		const matchResponse: MatchesResponse = {
+			id: match.id,
 			user_1: match.user_1,
 			user_2: match.user_2,
 			user_1_data: {
@@ -110,6 +114,7 @@ export class MatchesService {
 	const user_1 = users.find((user: Users) => user.id == match.user_1);
 	const user_2 = users.find((user: Users) => user.id == match.user_2);
 	const matchResponse: MatchesResponse = {
+		id: match.id,
 		user_1: match.user_1,
 		user_2: match.user_2,
 		user_1_data: {

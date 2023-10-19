@@ -5,23 +5,50 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Messages } from './entities/message.entity';
 import { Repository } from 'typeorm';
 import { UserchatsService } from 'src/userchats/userchats.service';
+import { MessagesResopnse } from './dto/message.response';
+import { Users } from 'src/users/entities/users.entity';
+import { Chats } from 'src/chats/entities/chat.entity';
 
 @Injectable()
 export class MessagesService {
   constructor(
     @InjectRepository(Messages)
     private readonly messagesRepository: Repository<Messages>,
+	@InjectRepository(Users)
+	private readonly usersRepository: Repository<Users>,
+	@InjectRepository(Chats)
+	private readonly chatsRepository: Repository<Chats>,
 	@Inject(UserchatsService)
 	private readonly userchatsService: UserchatsService,
   ) {}
 
-  public create(createMessageDto: CreateMessageDto) {
+  public async create(createMessageDto: CreateMessageDto): Promise<MessagesResopnse> {
     const message = new Messages();
     message.chat_id = createMessageDto.chat_id;
     message.user_id = createMessageDto.user_id;
     message.text = createMessageDto.text;
     message.created = new Date();
-    return this.messagesRepository.save(message);
+	const inserted: Messages = await this.messagesRepository.save(message);
+	const user: Users = await this.usersRepository.findOne({ where: { id: inserted.user_id } });
+    const chat: Chats = await this.chatsRepository.findOne({ where: { id: inserted.chat_id } });
+	const messageResponse: MessagesResopnse = {
+		id: inserted.id,
+		user_id: inserted.user_id,
+		user_data: {
+			username: user.username,
+			avatar: user.avatar,
+			login42: user.login42
+		},
+		chat_id: inserted.chat_id,
+		chat_data: {
+			name: chat.name,
+			type: chat.type,
+			owner: chat.owner,
+		},
+		text: inserted.text,
+		created: inserted.created,
+	}
+	return messageResponse;
   }
 
   public async findChatMessages(id: number, current_id: number) {

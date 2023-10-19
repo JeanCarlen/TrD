@@ -1,6 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 
 export class MatchesResponse {
+	@ApiProperty({ example: 1, description: 'Match ID' })
+	id: number;
+	
 	@ApiProperty({ example: 1, description: 'User 1 ID' })
 	user_1: number;
 

@@ -188,7 +188,7 @@ export class UsersService {
     });
   }
 
-  public async findOne(id: number): Promise<UsersResponse> { // TODO: send friends count, pending count, request count
+  public async findOne(id: number): Promise<UsersResponse> {
     const blocked: number[] = await this.blockedusersService.getBlockedListByUser(id);
 	if (blocked.includes(id)) {
 		throw new NotFoundException(['User not found.'], {
