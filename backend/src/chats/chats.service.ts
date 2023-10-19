@@ -66,6 +66,7 @@ public async findChatUsers(id: number, current_id: number) {
 		user_id: body.user_id,
 		chat_id: id,
 		chat_name: body.chat_name,
+		protected: body.protected,
 	}
 
 	return await this.userchatsRepository.save(userChat)

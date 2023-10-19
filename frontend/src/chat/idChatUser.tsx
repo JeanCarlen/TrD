@@ -17,6 +17,7 @@ import Cookies from 'js-cookie';
 import { chatData } from './Chat';
 import { ChatForm } from 'react-chat-engine-advanced';
 import { WebsocketContext } from '../context/websocket.context';
+import '../pages/Chat.css'
 
 interface User{
 	id: number;
@@ -155,7 +156,7 @@ const OnlyOneUser: React.FC<OneUserInter> = ({user}) => {
 const MultipleUsers: React.FC<MultipleUsersInter> = ({members}) => {
 	return (
 		<div>
-			{members.map((user) => (
+			{members.map((user: User) => (
 			<li key={user.id} className= "friendslist" >
 				<span className="messages">
 					{user.user_id}

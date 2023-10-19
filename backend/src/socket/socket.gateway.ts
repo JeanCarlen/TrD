@@ -191,10 +191,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
                 }
             });
             console.log("user_id is ", message.client);
-            await this.UserchatsService.create({user_id: message.client, chat_id: chats.id, chat_name: message.roomName});
+            await this.UserchatsService.create({user_id: message.client, chat_id: chats.id, chat_name: message.roomName, protected: chats.password === null ? false : true});
         } catch (error) {
             console.error('Error joining room:', error.message);
-            this.server.emit('room-join-error', error.message);
+            this.server.to(client.id).emit('room-join-error', error.message);
         }
     }
 

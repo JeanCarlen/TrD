@@ -18,6 +18,7 @@ export type chatData = {
 	user_id: number;
 	chat_name: string;
 	password: string | null;
+	protected: boolean;
 }
 
 const Chat: React.FC = () => {
@@ -74,8 +75,9 @@ const Chat: React.FC = () => {
 	const handleRoomChange = (room: string, password: string | null) => {
 		console.log("next room: ", room);
 		console.log("currentRoom is : ", currentRoom);
-		socket.emit('leave-room', { roomName: currentRoom, socketID: socket.id, client: content?.user });
+		// socket.emit('leave-room', { roomName: currentRoom, socketID: socket.id, client: content?.user }); -- removed to test
 		socket.emit('join-room', { roomName: room, socketID: socket.id, client: content?.user, password: password });
+		//check if the password was right -- otherwise set room to default
 		setCurrentRoom(room);
 		console.log("Joined room: ", room);
 	};
@@ -94,14 +96,17 @@ const Chat: React.FC = () => {
 		console.log("Joining room: ", chat.chat_name);
 		//ask the password if there is one
 		let passwordPrompt: string | null = null;
-		passwordPrompt = prompt("Enter the password for the room:");
-		if (passwordPrompt != null)
+		if (chat.protected === true)
 		{
-			if (passwordPrompt.trim() == '')
-				passwordPrompt = null;
+			passwordPrompt = prompt("Enter the password for the room:");
+			if (passwordPrompt != null)
+			{
+				if (passwordPrompt.trim() == '')
+					passwordPrompt = null;
+			}
+			else
+				return;
 		}
-		else
-			return;
 		handleRoomChange(chat.chat_name, passwordPrompt);
 		setRoomName(chat.chat_name);
 		setCurrentChat(chat);
@@ -132,6 +137,12 @@ const Chat: React.FC = () => {
 		getChats();
 	}, []);
 
+	useEffect(() => {
+		socket.on('error-join-room', (err) => {
+			alert(err);
+		});
+	}, [socket]);
+
 
 	const handleJoinRoomClick = async () => {
 		const roomNamePrompt = prompt("Enter the name of the room you want to join:");
@@ -149,7 +160,7 @@ const Chat: React.FC = () => {
 				console.log("newRoom: ", newRoom);
 				if (newRoom === undefined)
 				{
-					let emptyroom: chatData = {id: 0, chat_id: 0, user_id: 0, chat_name: roomNamePrompt, password: '_AskForThePassword_'};
+					let emptyroom: chatData = {id: 0, chat_id: 0, user_id: 0, chat_name: roomNamePrompt, password: '_AskForThePassword_', protected: true};
 					newRoom = emptyroom;
 				}
 				handleJoinRoom(newRoom);

@@ -20,6 +20,7 @@ export class UserchatsService {
 	userChat.user_id = createUserchatDto.user_id;
 	userChat.chat_id = createUserchatDto.chat_id;
 	userChat.chat_name = createUserchatDto.chat_name;
+	userChat.protected = createUserchatDto.protected;
 	return await this.userchatsRepository.save(userChat);
   }
 

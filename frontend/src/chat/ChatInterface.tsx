@@ -84,6 +84,7 @@ useEffect(() => {
 	}
 	else 
 	{
+		// alert(`You have a new message in another room: ${data.text}`);
 		toast.info(latest.text + ' in ' + data.room, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' })
 	}
 	});
@@ -92,6 +93,7 @@ useEffect(() => {
 	console.log('Unregistering events...');
 	socket.off('connect');
 	socket.off('srv-message');
+	socket.off('room-join-error');
 	};
 }, [token, socket, messages, currentRoom]);
 

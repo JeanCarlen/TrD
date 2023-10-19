@@ -18,4 +18,8 @@ export class UserChats extends BaseEntity {
 	@Column({type: 'varchar', length: 32, nullable: true})
 	@ApiProperty({example: 'Transcendence Channel', description: 'The name of the chat (for channel chat), null in one-to-one chats.'})
 	chat_name: string;
+
+	@Column({type: 'boolean'})
+	@ApiProperty({example: true, description: 'if the chat is protected by password'})
+	protected: boolean;
 }
