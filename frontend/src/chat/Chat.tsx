@@ -16,9 +16,17 @@ export type chatData = {
 	id: number;
 	chat_id : number;
 	user_id: number;
-	chat_name: string;
-	password: string | null;
-	protected: boolean;
+	chat: {
+		name: string,
+		owner: number,
+		type: number,
+		password?: string
+	},
+	user: {
+		username: string,
+		email: string,
+		avatar: string
+	}
 }
 
 const Chat: React.FC = () => {
@@ -95,7 +103,7 @@ const Chat: React.FC = () => {
 		}
 		// await getChats();
 		console.log("data in join: ", data);
-		console.log("Joining room: ", chat.chat_name);
+		console.log("Joining room: ", chat.chat.name);
 		//ask the password if there is one
 		let passwordPrompt: string | null = null;
 		if (chat.protected === true)
@@ -109,18 +117,12 @@ const Chat: React.FC = () => {
 			else
 				return;
 		}
-		handleRoomChange(chat.chat_name, passwordPrompt);
-		delay(2000);
-		if (roomFail === 2)
-		{
-			setRoomFail(0);
-		}
-		else{
-			setRoomName(chat.chat_name);
-			setCurrentChat(chat);
-			getMessages(chat);
-			setRoomFail(0);
-		}
+		else
+			return;
+		handleRoomChange(chat.chat.name, passwordPrompt);
+		setRoomName(chat.chat.name);
+		setCurrentChat(chat);
+		getMessages(chat);
 	};
 
 	const getMessages = async(chat: any) => {
@@ -178,11 +180,27 @@ const Chat: React.FC = () => {
 				// console.log("Joining room prompt: ", roomName);
 				// handleRoomChange(roomNamePrompt);
 				// getChats();
-				let newRoom: chatData | undefined = data.find((chat: chatData) => chat.chat_name === roomNamePrompt);
+				let newRoom: chatData | undefined = data.find((chat: chatData) => chat.chat.name === roomNamePrompt);
 				console.log("newRoom: ", newRoom);
 				if (newRoom === undefined)
 				{
-					let emptyroom: chatData = {id: 0, chat_id: 0, user_id: 0, chat_name: roomNamePrompt, password: '_AskForThePassword_', protected: true};
+					// let emptyroom: chatData = {id: 0, chat_id: 0, user_id: 0, chat: {name: roomNamePrompt }, password: '_AskForThePassword_'};
+					let emptyroom: chatData = {
+						id: 0,
+						chat_id: 0,
+						user_id: 0,
+						chat: {
+							name: roomNamePrompt,
+							owner: 0,
+							type: 1,
+							password: '_AskForThePassword_'
+						},
+						user: {
+							username: 'default',
+							email: 'default',
+							avatar: 'default'
+						}
+					}
 					newRoom = emptyroom;
 				}
 				handleJoinRoom(newRoom);
@@ -246,7 +264,7 @@ const Chat: React.FC = () => {
 		{data.map((chat: chatData) => {
 			return (
 				<button onClick={() => handleJoinRoom(chat)} key={chat.id} className="game-stats" style={{flexDirection: "column"}}>
-					<div className="box">{chat.chat_name}</div>
+					<div className="box">{chat.chat.name}</div>
 				</button>
 			);
 		})}

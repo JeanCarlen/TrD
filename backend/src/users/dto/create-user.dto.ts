@@ -3,7 +3,6 @@ import { IsString, MinLength, MaxLength, ValidateIf } from 'class-validator';
 import { IsMatching } from 'src/validation/matches.decorator';
 import { IsValidPassword } from 'src/validation/validPassword.decorator';
 
-@ApiTags('Schemas')
 export class CreateUserDto {
   @ApiProperty({example: 'laendrun', description: 'Username of the user.'})
   @IsString({ message: '$property must be a string.' })

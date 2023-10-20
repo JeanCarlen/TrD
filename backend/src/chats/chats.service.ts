@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException, forwardRef } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException, forwardRef } from '@nestjs/common';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,6 +10,9 @@ import { UserChats } from 'src/userchats/entities/userchat.entity';
 import { ChatAdmins } from 'src/chatadmins/entities/chatadmin.entity';
 import { MutedUsers } from 'src/mutedusers/entities/muteduser.entity';
 import { UserchatsService } from 'src/userchats/userchats.service';
+import { UsersResponse } from 'src/users/dto/users.response';
+import { Users } from 'src/users/entities/users.entity';
+import { UserChatsResponse } from 'src/userchats/dto/userchat.response';
 
 @Injectable()
 export class ChatsService {
@@ -20,6 +23,8 @@ export class ChatsService {
 		private readonly chatsRepository: Repository<Chats>,
 		@InjectRepository(ChatAdmins)
 		private readonly chatadminsRepository: Repository<ChatAdmins>,
+		@InjectRepository(Users)
+		private readonly usersRepository: Repository<Users>,
 		@Inject(UserchatsService)
 		private readonly userchatsService: UserchatsService,
 	) {}
@@ -42,11 +47,20 @@ export class ChatsService {
 	chat.type = createChatDto.type;
 	chat.name = createChatDto.name;
 	chat.owner = createChatDto.owner;
-	chat.password = createChatDto?.password;
-	return await this.chatsRepository.save(chat);
-}
+  chat.password = createChatDto?.password;
 
-public async findChatUsers(id: number, current_id: number) {
+	const inserted_chat: Chats = await this.chatsRepository.save(chat);
+	const inserted: UserChatsResponse = await this.userchatsService.create({chat_id: inserted_chat.id, user_id: chat.owner});
+	if (!inserted.chat_id || inserted.chat_id != inserted_chat.id) {
+		throw new InternalServerErrorException(['Error creating chat.'], {
+			cause: new Error(),
+			description: `Error creating chat.`,
+		});
+	}
+    return inserted_chat;
+  }
+
+  public async findChatUsers(id: number, current_id: number): Promise<UsersResponse[]> {
 	const chats = await this.userchatsService.getChatIdListByUser(current_id);
 	if (!chats.includes(id)) {
 		throw new UnauthorizedException(['You\'re not in this chat.'], {
@@ -54,8 +68,16 @@ public async findChatUsers(id: number, current_id: number) {
 			description: `You're not in this chat.`,
 		});
 	}
-	return await this.userchatsRepository.find({where: {chat_id: id}})
-}
+	const userschats: UserChats[] = await this.userchatsRepository.find({where: {chat_id: id}});
+	const user_ids: number[] = userschats.map((userchat) => {
+		return userchat.user_id;
+	})
+	let users: UsersResponse[] =  await this.usersRepository.find({
+		where: { id: In(user_ids) },
+		select: ['id', 'username', 'login42', 'avatar']
+	});
+	return users;
+  }
 
   public async findUserChats(id: number) {
 	return await this.userchatsRepository.find({where: {user_id: id}})
@@ -65,7 +87,6 @@ public async findChatUsers(id: number, current_id: number) {
 	const userChat: CreateUserchatDto = {
 		user_id: body.user_id,
 		chat_id: id,
-		chat_name: body.chat_name,
 		protected: body.protected,
 	}
 
@@ -181,7 +202,7 @@ public async findChatUsers(id: number, current_id: number) {
   public async update(id: number, updateChatDto: UpdateChatDto) {
 	const chat: Chats = await this.chatsRepository.findOne({ where: { id: id}})
 	if (!chat)
-		throw new BadRequestException(['Unknown chat.'], {
+		throw new NotFoundException(['Unknown chat.'], {
 			cause: new Error(),
 			description: `Username already taken.`,
 		});
@@ -193,7 +214,13 @@ public async findChatUsers(id: number, current_id: number) {
   }
 
   public async remove(id: number) {
-	const chat = await this.chatsRepository.findOne({where: {id: id}})
+	const chat: Chats = await this.chatsRepository.findOne({ where: { id: id } })
+	if (!chat) {
+		throw new NotFoundException(['Chat not found.'], {
+			cause: new Error(),
+			description: `Chat not found.`,
+		});
+	}
 	return await this.chatsRepository.remove(chat)
   }
 }

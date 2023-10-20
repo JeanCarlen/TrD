@@ -29,12 +29,11 @@ CREATE TABLE matches (
 );
 
 CREATE TABLE chats (
-    "id" serial NOT NULL,
-    "type" integer NOT NULL,
-    "name" varchar(100) NULL,
-    "owner" integer NOT NULL,
-	"password" varchar(100) NULL,
-    CONSTRAINT "chats_pk" PRIMARY KEY ("id")
+	"id" serial NOT NULL,
+	"type" integer NOT NULL,
+	"name" varchar(100) NULL,
+	"owner" integer NOT NULL,
+	CONSTRAINT "chats_pk" PRIMARY KEY ("id")
 );
 CREATE TABLE friends (
 	"id" serial NOT NULL,

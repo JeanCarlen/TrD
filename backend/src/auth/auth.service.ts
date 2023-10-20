@@ -24,7 +24,7 @@ export class AuthService {
     return this.usersService.create(createUserDto);
   }
 
-  public login(loginUserDto: LoginUserDto) {
+  public login(loginUserDto: LoginUserDto): Promise<{message: string[], token: string}> {
     return this.usersService.login(loginUserDto);
   }
 

@@ -188,7 +188,7 @@ export class UsersService {
     });
   }
 
-  public async findOne(id: number): Promise<UsersResponse> { // TODO: send friends count, pending count, request count
+  public async findOne(id: number): Promise<UsersResponse> {
     const blocked: number[] = await this.blockedusersService.getBlockedListByUser(id);
 	if (blocked.includes(id)) {
 		throw new NotFoundException(['User not found.'], {
@@ -283,6 +283,13 @@ export class UsersService {
   }
 
   public async update(id: number, updateUserDto: UpdateUserDto) {
+	const user: Users = await this.usersRepository.findOne({where: {id: id}});
+	if (!user) {
+		throw new NotFoundException(['User not found.'], {
+			cause: new Error(),
+			description: 'User not found.'
+		})
+	}
 	if (updateUserDto.username) return this.updateUsername(id, updateUserDto);
     else if (updateUserDto.password || updateUserDto.confirm_password)
       return this.updatePassword(id, updateUserDto);
@@ -304,6 +311,12 @@ export class UsersService {
       where: { id: id },
       select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
     });
+	if (!user) {
+		throw new NotFoundException(['User not found.'], {
+			cause: new Error(),
+			description: 'User not found.'
+		})
+	}
     return this.usersRepository.remove(user);
   }
 
@@ -312,6 +325,12 @@ export class UsersService {
       where: { id: id },
       select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
     });
+	if (!user) {
+		throw new NotFoundException(['User not found.'], {
+			cause: new Error(),
+			description: 'User not found.'
+		})
+	}
     if (!user.avatar.includes('default')) {
       const image = user.avatar.replace(process.env.HOST + 'images/', '');
       fs.unlinkSync('/app/uploads/' + image);

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserAchievmentDto } from './dto/create-user_achievment.dto';
 import { UpdateUserAchievmentDto } from './dto/update-user_achievment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -68,6 +68,13 @@ export class UserAchievmentsService {
   }
 
   public update(id: number, updateUserAchievmentDto: UpdateUserAchievmentDto) {
+	const userachievment = this.userachievmentsRepository.findOne({ where: { id: id } });
+	if (!userachievment) {
+		throw new NotFoundException(['User achievment not found.'], {
+			cause: new Error(),
+			description: `User achievment not found.`,
+		});
+	}
     return this.userachievmentsRepository.update(
       { id: id },
       updateUserAchievmentDto,
@@ -78,6 +85,12 @@ export class UserAchievmentsService {
     const userachievment = await this.userachievmentsRepository.findOne({
       where: { id: id },
     });
-    return this.userachievmentsRepository.remove(userachievment);
+	if (!userachievment) {
+		throw new NotFoundException(['User achievment not found.'], {
+			cause: new Error(),
+			description: `User achievment not found.`,
+		});
+	}
+    return await this.userachievmentsRepository.remove(userachievment);
   }
 }
