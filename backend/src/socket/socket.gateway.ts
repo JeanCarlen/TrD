@@ -194,7 +194,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
                     throw new Error(`Already in room`);
                 }});
 			console.log("user_id is ", message.client);
-			await this.UserchatsService.create({user_id: message.client, chat_id: chats.id, chat_name: message.roomName, protected: chats.password === null ? false : true});
+			await this.UserchatsService.create({user_id: message.client, chat_id: chats.id});
         } catch (error) {
             console.error('Error joining room:', error.message);
             if (error.message !== 'Already in room') {

@@ -20,7 +20,8 @@ export type chatData = {
 		name: string,
 		owner: number,
 		type: number,
-		password?: string
+		password?: string,
+		protected: boolean,
 	},
 	user: {
 		username: string,
@@ -106,7 +107,7 @@ const Chat: React.FC = () => {
 		console.log("Joining room: ", chat.chat.name);
 		//ask the password if there is one
 		let passwordPrompt: string | null = null;
-		if (chat.protected === true)
+		if (chat.chat.protected === true)
 		{
 			passwordPrompt = prompt("Enter the password for the room:");
 			if (passwordPrompt != null)
@@ -117,8 +118,6 @@ const Chat: React.FC = () => {
 			else
 				return;
 		}
-		else
-			return;
 		handleRoomChange(chat.chat.name, passwordPrompt);
 		setRoomName(chat.chat.name);
 		setCurrentChat(chat);
@@ -193,7 +192,8 @@ const Chat: React.FC = () => {
 							name: roomNamePrompt,
 							owner: 0,
 							type: 1,
-							password: '_AskForThePassword_'
+							password: '_AskForThePassword_',
+							protected: true,
 						},
 						user: {
 							username: 'default',
@@ -230,7 +230,7 @@ const Chat: React.FC = () => {
 	};
 
 	const handleLeaveRoom = async (currentRoom: string) => {
-		let idremove: chatData | undefined = data.find((chat: chatData) => chat.chat_name === currentRoom);
+		let idremove: chatData | undefined = data.find((chat: chatData) => chat.chat.name === currentRoom);
 		if (idremove === undefined)
 		{
 			toast.error('Error with removing user from chat', {

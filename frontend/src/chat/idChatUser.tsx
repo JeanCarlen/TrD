@@ -20,13 +20,10 @@ import { WebsocketContext } from '../context/websocket.context';
 import '../pages/Chat.css'
 
 interface User{
-	id: number;
-	user_id: number;
-	chat_id: number;
-	chat_name: string;
-	name: string;
-	status: number;
-	isWriting: number;
+	id:number,
+	login42: string,
+	username: string,
+	avatar: string,
 }
 
 interface FUCKLINTERFACESAMERE{
@@ -153,7 +150,7 @@ const OnlyOneUser: React.FC<OneUserInter> = ({user}) => {
 	return (
 		<div>
 			<span className="messages">
-					{user.name}
+					{user.username}
 			</span>
 		</div>
 	)
@@ -165,16 +162,16 @@ const MultipleUsers: React.FC<MultipleUsersInter> = ({members}) => {
 			{members.map((user: User) => (
 			<li key={user.id} className= "friendslist" >
 				<span className="messages">
-					{user.user_id}
+					{user.username}
 				</span>
 				<Menu>
 				<MenuButton className='sendButton' as={Button} rightIcon={<ChevronDownIcon />}>
 					Actions
 				</MenuButton>
 				<MenuList>
-					<MenuItem className='Addfriend' onClick={() => handleAddUser(user.name)}>Add as a friend</MenuItem>
-					<MenuItem className='Addfriend' onClick={() => handleBlockUser(user.name)}> Block User </MenuItem>
-					<MenuItem className='Addfriend' onClick={() => invitePong(user.name)}> Invite for a pong </MenuItem>
+					<MenuItem className='Addfriend' onClick={() => handleAddUser(user.username)}>Add as a friend</MenuItem>
+					<MenuItem className='Addfriend' onClick={() => handleBlockUser(user.username)}> Block User </MenuItem>
+					<MenuItem className='Addfriend' onClick={() => invitePong(user.username)}> Invite for a pong </MenuItem>
 				</MenuList>
 				</Menu>
 			</li>
