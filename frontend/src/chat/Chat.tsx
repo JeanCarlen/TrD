@@ -31,6 +31,7 @@ const Chat: React.FC = () => {
 	const [roomName, setRoomName] = useState<string>('');
 	const [messages, setMessages] = useState<sentMessages[]>([]);
 	const [currentChat, setCurrentChat] = useState<chatData>();
+	const [roomFail, setRoomFail] = useState<number>(0);
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -73,6 +74,7 @@ const Chat: React.FC = () => {
 	}
 
 	const handleRoomChange = (room: string, password: string | null) => {
+		setRoomFail(1);
 		console.log("next room: ", room);
 		console.log("currentRoom is : ", currentRoom);
 		// socket.emit('leave-room', { roomName: currentRoom, socketID: socket.id, client: content?.user }); -- removed to test
@@ -108,9 +110,17 @@ const Chat: React.FC = () => {
 				return;
 		}
 		handleRoomChange(chat.chat_name, passwordPrompt);
-		setRoomName(chat.chat_name);
-		setCurrentChat(chat);
-		getMessages(chat);
+		delay(2000);
+		if (roomFail === 2)
+		{
+			setRoomFail(0);
+		}
+		else{
+			setRoomName(chat.chat_name);
+			setCurrentChat(chat);
+			getMessages(chat);
+			setRoomFail(0);
+		}
 	};
 
 	const getMessages = async(chat: any) => {
@@ -144,6 +154,10 @@ const Chat: React.FC = () => {
 			toast.error(err, {
 				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-error'});
+		setCurrentRoom('default');
+		setCurrentChat(undefined);
+		setMessages([]);
+		setRoomFail(2);
 		});
 
 		return() => {
@@ -209,6 +223,8 @@ const Chat: React.FC = () => {
 		}
 		socket.emit('leave-room', { id : idremove.id, roomName : currentRoom });
 		setCurrentRoom('default');
+		setCurrentChat(undefined);
+		setMessages([]);
 		await delay(1000);
 		await getChats();
 	}
