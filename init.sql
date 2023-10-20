@@ -49,6 +49,8 @@ CREATE TABLE userchats (
 	"id" serial NOT NULL,
 	"user_id" integer NOT NULL,
 	"chat_id" integer NOT NULL,
+	"chat_name" varchar(100) NOT NULL,
+	"protected" boolean NOT NULL DEFAULT false,
 	CONSTRAINT "userchats_pk" PRIMARY KEY ("id"),
 	CONSTRAINT "userchats_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("id"),
 	CONSTRAINT "userchats_fk1" FOREIGN KEY ("chat_id") REFERENCES "chats"("id")

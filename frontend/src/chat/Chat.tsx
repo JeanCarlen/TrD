@@ -39,6 +39,7 @@ const Chat: React.FC = () => {
 	const [roomName, setRoomName] = useState<string>('');
 	const [messages, setMessages] = useState<sentMessages[]>([]);
 	const [currentChat, setCurrentChat] = useState<chatData>();
+	const [roomFail, setRoomFail] = useState<number>(0);
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -81,10 +82,12 @@ const Chat: React.FC = () => {
 	}
 
 	const handleRoomChange = (room: string, password: string | null) => {
+		setRoomFail(1);
 		console.log("next room: ", room);
 		console.log("currentRoom is : ", currentRoom);
-		socket.emit('leave-room', { roomName: currentRoom, socketID: socket.id, client: content?.user });
+		// socket.emit('leave-room', { roomName: currentRoom, socketID: socket.id, client: content?.user }); -- removed to test
 		socket.emit('join-room', { roomName: room, socketID: socket.id, client: content?.user, password: password });
+		//check if the password was right -- otherwise set room to default
 		setCurrentRoom(room);
 		console.log("Joined room: ", room);
 	};
@@ -103,11 +106,16 @@ const Chat: React.FC = () => {
 		console.log("Joining room: ", chat.chat.name);
 		//ask the password if there is one
 		let passwordPrompt: string | null = null;
-		passwordPrompt = prompt("Enter the password for the room:");
-		if (passwordPrompt != null)
+		if (chat.protected === true)
 		{
-			if (passwordPrompt.trim() == '')
-				passwordPrompt = null;
+			passwordPrompt = prompt("Enter the password for the room:");
+			if (passwordPrompt != null)
+			{
+				if (passwordPrompt.trim() == '')
+					passwordPrompt = null;
+			}
+			else
+				return;
 		}
 		else
 			return;
@@ -138,8 +146,26 @@ const Chat: React.FC = () => {
 
 	useEffect(() => {
 		socket.connect();
+		console.log("socket: ", socket);
 		getChats();
 	}, []);
+
+	useEffect(() => {
+		socket.on('room-join-error', (err) => {
+			console.log("error in joining room: ", err);
+			toast.error(err, {
+				position: toast.POSITION.BOTTOM_LEFT,
+				className: 'toast-error'});
+		setCurrentRoom('default');
+		setCurrentChat(undefined);
+		setMessages([]);
+		setRoomFail(2);
+		});
+
+		return() => {
+			socket.off('room-join-error');
+		}
+	}, [socket]);
 
 
 	const handleJoinRoomClick = async () => {
@@ -203,6 +229,24 @@ const Chat: React.FC = () => {
 		await getChats();
 	};
 
+	const handleLeaveRoom = async (currentRoom: string) => {
+		let idremove: chatData | undefined = data.find((chat: chatData) => chat.chat_name === currentRoom);
+		if (idremove === undefined)
+		{
+			toast.error('Error with removing user from chat', {
+				position: toast.POSITION.BOTTOM_LEFT,
+				className: 'toast-error'
+			});
+			return;
+		}
+		socket.emit('leave-room', { id : idremove.id, roomName : currentRoom });
+		setCurrentRoom('default');
+		setCurrentChat(undefined);
+		setMessages([]);
+		await delay(1000);
+		await getChats();
+	}
+
 	return (
 		<div>
 		<Sidebar/>
@@ -213,6 +257,7 @@ const Chat: React.FC = () => {
 		<div className="leftColumn">
 		<button onClick={handleCreateRoom}>Create New Room</button>
 		<button onClick={handleJoinRoomClick}>Join Room</button>
+		<button onClick={() => handleLeaveRoom(currentRoom)}>Leave Room</button>
 		<div className="chatList">
 		<p>currentRoom: {currentRoom}</p>
 		{fetched ? <div className="history-1">
@@ -227,12 +272,13 @@ const Chat: React.FC = () => {
 	</div>
 		</div>
 		<div className="middleColumn">
-			<ChatInterface messagesData={messages} currentRoomProps={currentRoom}/>
+			<ChatInterface messagesData={messages} currentRoomProps={currentRoom} chatSocket={socket}/>
 		</div>
 		<div className="rightColumn">
 			<IdChatUser chatData={currentChat} user_id={content?.user}/>
 		</div>
 	</div>
+	<ToastContainer />
 	</div>
 	);
 };

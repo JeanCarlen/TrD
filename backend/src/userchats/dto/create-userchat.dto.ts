@@ -11,6 +11,6 @@ export class CreateUserchatDto {
 	@IsNumberString()
 	chat_id: number;
 
-	// @ApiProperty({example: 'Transcendence Channel', description: 'The name of the chat (for channel chat)'})
-	// chat_name: string;
+	@ApiProperty({example: true, description: 'if the chat is protected by password'})
+	protected: boolean;
 }

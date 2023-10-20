@@ -25,6 +25,7 @@ export class UserchatsService {
 	const userChat = new UserChats();
 	userChat.user_id = createUserchatDto.user_id;
 	userChat.chat_id = createUserchatDto.chat_id;
+    
 	const user: Users = await this.usersRepository.findOne({
 		where: {id: createUserchatDto.user_id}, 
 		select: ['id', 'username', 'avatar', 'login42']
