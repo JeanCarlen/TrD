@@ -22,5 +22,6 @@ export class UserChatsResponse {
 		name: string,
 		type: number,
 		owner: number,
+		protected: boolean,
 	};
 }

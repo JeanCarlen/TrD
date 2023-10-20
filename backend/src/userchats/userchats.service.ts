@@ -32,7 +32,7 @@ export class UserchatsService {
 	});
 	const chat: Chats = await this.chatsRepository.findOne({
 		where: {id: createUserchatDto.chat_id}, 
-		select: ['id', 'name', 'type', 'owner']
+		select: ['id', 'name', 'type', 'owner', 'password']
 	});
 	if (!user) {
 		throw new BadRequestException(['Unknown user.'], {
@@ -60,6 +60,7 @@ export class UserchatsService {
 			name: chat.name,
 			type: chat.type,
 			owner: chat.owner,
+			protected: chat.password ? true : false,
 		},
 	};
 	return response;
@@ -79,7 +80,7 @@ export class UserchatsService {
 	});
 	const chats: Chats[] = await this.chatsRepository.find({
 		where: {id: In(chatIds)},
-		select: ['id', 'name', 'type', 'owner']
+		select: ['id', 'name', 'type', 'owner', 'password']
 	});
 	let responses: UserChatsResponse[] = [];
 	for (let i = 0; i < userChats.length; i++) {
@@ -103,6 +104,7 @@ export class UserchatsService {
 				name: chat.name,
 				type: chat.type,
 				owner: chat.owner,
+				protected: chat.password ? true : false,
 			},
 		};
 		responses.push(response);
@@ -124,7 +126,7 @@ export class UserchatsService {
 	});
 	const chat: Chats = await this.chatsRepository.findOne({
 		where: {id: userChat.chat_id}, 
-		select: ['id', 'name', 'type', 'owner']
+		select: ['id', 'name', 'type', 'owner', 'password']
 	});
 	const response: UserChatsResponse = {
 		id: userChat.id,
@@ -139,6 +141,7 @@ export class UserchatsService {
 			name: chat.name,
 			type: chat.type,
 			owner: chat.owner,
+			protected: chat.password ? true : false,
 		},
 	};
 	return response;
@@ -160,7 +163,7 @@ export class UserchatsService {
 	});
 	const chats: Chats[] = await this.chatsRepository.find({
 		where: {id: In(chatIds)},
-		select: ['id', 'name', 'type', 'owner']
+		select: ['id', 'name', 'type', 'owner', 'password']
 	});
 	let responses: UserChatsResponse[] = [];
 	for (let i = 0; i < userChats.length; i++) {
@@ -184,6 +187,7 @@ export class UserchatsService {
 				name: chat.name,
 				type: chat.type,
 				owner: chat.owner,
+				protected: chat.password ? true : false,
 			},
 		};
 		responses.push(response);
@@ -207,7 +211,7 @@ export class UserchatsService {
 	});
 	const chats: Chats[] = await this.chatsRepository.find({
 		where: {id: In(chatIds)},
-		select: ['id', 'name', 'type', 'owner']
+		select: ['id', 'name', 'type', 'owner', 'password']
 	});
 	let responses: UserChatsResponse[] = [];
 	for (let i = 0; i < userChats.length; i++) {
@@ -231,6 +235,7 @@ export class UserchatsService {
 				name: chat.name,
 				type: chat.type,
 				owner: chat.owner,
+				protected: chat.password ? true : false,
 			},
 		};
 		responses.push(response);
