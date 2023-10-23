@@ -147,6 +147,11 @@ const Chat: React.FC = () => {
 		socket.connect();
 		console.log("socket: ", socket);
 		getChats();
+		data.map((chat: chatData) => {
+			console.log("into the chat log")
+			socket.emit('join-room', { roomName: chat.chat.name, socketID: socket.id, client: content?.user, password: null });
+		}
+		);
 	}, []);
 
 	useEffect(() => {
