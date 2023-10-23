@@ -8,6 +8,7 @@ import { create } from "domain";
 import { RouterModule } from "@nestjs/core";
 import { UserchatsService } from "src/userchats/userchats.service";
 import { MessagesService } from "src/messages/messages.service";
+import { error } from "console";
 
 // Define the WebSocketGateway and its path and CORS settings
 @WebSocketGateway({ path: '/api', cors: true })
@@ -137,9 +138,16 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @SubscribeMessage('create-room')
     @Inject('ChatsService')
     async onCreateRoom(client: Socket, message: { roomName: string, client: string, Password: string | null }) {
-        try {
-            console.log("into create room", client);
-            const createdRoom = await this.ChatsService.create({
+		try {
+			const roomList = await this.ChatsService.findAllFromSocket();
+			console.log('create room:',roomList);
+			roomList.map((room) => {
+				if (room.name == message.roomName) {
+					throw new Error(`Room already exists`);
+				}
+			}
+			);			
+			const createdRoom = await this.ChatsService.create({
                 name: message.roomName,
                 type: ChatType.CHANNEL,
                 owner: parseInt(message.client),
@@ -147,13 +155,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             });
             console.log('Room created:', message.roomName);
 			await this.onJoinRoom(client, { roomName: message.roomName, socketID: client.id, client: parseInt(message.client), password: message.Password });
-            const roomList = await this.ChatsService.findAllFromSocket();
-            console.log('create room:',roomList);
         } catch (error) {
             console.error('Error creating room:', error.message);
-            this.server.emit('room-creation-error', error.message);
+			this.server.to(client.id).emit('room-join-error', error.message);
         }
     }
+
 	@SubscribeMessage('leave-room')
 	@Inject('UserchatsService')
 	async onLeaveRoom(client: Socket, message:{ id : number, roomName : string}): Promise<void> {

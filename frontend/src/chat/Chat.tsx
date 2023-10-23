@@ -11,6 +11,7 @@ import ChatInterface from '../chat/ChatInterface';
 import Sidebar from '../Components/Sidebar';
 import { sentMessages } from './ChatInterface';
 import { ToastContainer, toast } from 'react-toastify';
+import { Socket } from "socket.io-client";
 
 export type chatData = {
 	id: number;
@@ -66,11 +67,11 @@ const Chat: React.FC = () => {
 		})
 		try {
 			const data = await response.json();
-			const print = JSON.stringify(data);
-			console.log("data: ", print);
+			// const print = JSON.stringify(data);
+			// console.log("data: ", print);
 			if (response.ok)
 			{
-				console.log("data: ", data);
+				// console.log("data: ", data);
 				setFetched(true);
 				setData(data);
 			}
@@ -143,16 +144,25 @@ const Chat: React.FC = () => {
 			console.log("error in the getMessages");
 	}
 
-	useEffect(() => {
+	const joinChatRooms = async (client : Socket) => {
+		await console.log("data: is ", data);
+		data.forEach((chat) => {
+		  socket.emit('join-room', {
+			roomName: chat.chat.name,
+			socketID: client.id,
+			client: content?.user,
+			password: null,
+		  });
+		});
+	  };
+	  
+	  useEffect(() => {
 		socket.connect();
-		console.log("socket: ", socket);
+		console.log("socket: is ->", socket);
 		getChats();
-		data.map((chat: chatData) => {
-			console.log("into the chat log")
-			socket.emit('join-room', { roomName: chat.chat.name, socketID: socket.id, client: content?.user, password: null });
-		}
-		);
-	}, []);
+		console.log("data: is ", data);
+		joinChatRooms(socket);
+	  }, []);
 
 	useEffect(() => {
 		socket.on('room-join-error', (err) => {

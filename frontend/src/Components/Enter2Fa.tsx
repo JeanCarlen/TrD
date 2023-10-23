@@ -4,6 +4,7 @@ import Cookies from 'js-cookie'
 import decodeToken from '../helpers/helpers';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import '../pages/Chat.css'
 import { useNavigate } from 'react-router-dom';
 import * as FaIcons from 'react-icons/fa'
 

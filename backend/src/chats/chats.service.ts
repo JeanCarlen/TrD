@@ -152,7 +152,7 @@ export class ChatsService {
   }
 
   public async setAdminInChat(id: number, body) {
-	await this.isChatAdmin(id, body.user_id);
+	await this.isChatAdmin(id, body.requester);
 	const chatAdmin = new ChatAdmins();
 	chatAdmin.user_id = body.user_id;
 	chatAdmin.chat_id = id;
