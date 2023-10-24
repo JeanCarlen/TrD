@@ -42,6 +42,7 @@ const Chat: React.FC = () => {
 	const [messages, setMessages] = useState<sentMessages[]>([]);
 	const [currentChat, setCurrentChat] = useState<chatData>();
 	const [roomFail, setRoomFail] = useState<number>(0);
+	const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -145,24 +146,34 @@ const Chat: React.FC = () => {
 	}
 
 	const joinChatRooms = async (client : Socket) => {
-		await console.log("data: is ", data);
-		data.forEach((chat) => {
-		  socket.emit('join-room', {
+		await delay(1000);
+		console.log("data: is ", data);
+		setLoggedIn(true);
+		data.forEach((chat : chatData) => {
+		socket.emit('join-room', {
 			roomName: chat.chat.name,
 			socketID: client.id,
 			client: content?.user,
 			password: null,
-		  });
 		});
-	  };
-	  
-	  useEffect(() => {
+		});
+	};
+	
+	useEffect(() => {
 		socket.connect();
 		console.log("socket: is ->", socket);
 		getChats();
-		console.log("data: is ", data);
-		joinChatRooms(socket);
 	  }, []);
+	  
+	useEffect(() => {
+		if(loggedIn === false)
+		{
+			if(data.length > 0) {
+			joinChatRooms(socket);
+			console.log("data: is ", data);
+		}
+	}
+	}, [data, socket]);
 
 	useEffect(() => {
 		socket.on('room-join-error', (err) => {
