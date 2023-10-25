@@ -75,6 +75,7 @@ const Chat: React.FC = () => {
 				// console.log("data: ", data);
 				setFetched(true);
 				setData(data);
+				return data as chatData[];
 			}
 			else
 				console.log("error in the try");
@@ -104,7 +105,6 @@ const Chat: React.FC = () => {
 			});
 			return;
 		}
-		// await getChats();
 		console.log("data in join: ", data);
 		console.log("Joining room: ", chat.chat.name);
 		//ask the password if there is one
@@ -126,7 +126,9 @@ const Chat: React.FC = () => {
 		getMessages(chat);
 	};
 
-	const getMessages = async(chat: any) => {
+	const getMessages = async(chat: chatData | undefined) => {
+		if(chat === undefined)
+			return;
 		const response = await fetch(`http://localhost:8080/api/chats/${chat.chat_id}/messages`, {
 			method: 'GET',
 			headers: {
@@ -163,8 +165,8 @@ const Chat: React.FC = () => {
 		socket.connect();
 		console.log("socket: is ->", socket);
 		getChats();
-	  }, []);
-	  
+	}, []);
+	
 	useEffect(() => {
 		if(loggedIn === false)
 		{
@@ -173,7 +175,7 @@ const Chat: React.FC = () => {
 			console.log("data: is ", data);
 		}
 	}
-	}, [data, socket]);
+	}, [loggedIn]);
 
 	useEffect(() => {
 		socket.on('room-join-error', (err) => {
@@ -193,23 +195,23 @@ const Chat: React.FC = () => {
 	}, [socket]);
 
 
-	const handleJoinRoomClick = async () => {
+	const handleJoinRoomClick = async (dataPass: chatData[]) => {
 		const roomNamePrompt = prompt("Enter the name of the room you want to join:");
-		
 		if (roomNamePrompt)
 		{
 			console.log("roomNamePrompt: ", roomNamePrompt);
 			if (roomNamePrompt.trim() !== '') 
 			{
-				// setRoomName(roomNamePrompt);
-				// console.log("Joining room prompt: ", roomName);
-				// handleRoomChange(roomNamePrompt);
-				// getChats();
-				let newRoom: chatData | undefined = data.find((chat: chatData) => chat.chat.name === roomNamePrompt);
+				if(!fetched)
+				{
+					console.log("not fetched");
+					return;
+				}
+				let newRoom: chatData | undefined = dataPass.find((chat: chatData) => chat.chat.name === roomNamePrompt);
+				console.log("data in HandleJoinRoomClick : ", data);
 				console.log("newRoom: ", newRoom);
 				if (newRoom === undefined)
 				{
-					// let emptyroom: chatData = {id: 0, chat_id: 0, user_id: 0, chat: {name: roomNamePrompt }, password: '_AskForThePassword_'};
 					let emptyroom: chatData = {
 						id: 0,
 						chat_id: 0,
@@ -229,9 +231,17 @@ const Chat: React.FC = () => {
 					}
 					newRoom = emptyroom;
 				}
-				handleJoinRoom(newRoom);
+				console.log("newRoom before click: ", newRoom);
+				await handleJoinRoom(newRoom);
 				await delay(1000);
-				await getChats();
+				let newFetch =  await getChats();
+				if (newFetch !== undefined)
+					newRoom = newFetch.find((chat: chatData) => chat.chat.name === roomNamePrompt);
+				console.log("newRoom after click: ", newRoom);
+				delay(1000);
+				getMessages(newRoom);
+				if (newRoom !== undefined)
+					setCurrentChat(newRoom);
 			}
 		}
 		};
@@ -282,7 +292,7 @@ const Chat: React.FC = () => {
 	<div className='grid'>
 		<div className="leftColumn">
 		<button onClick={handleCreateRoom}>Create New Room</button>
-		<button onClick={handleJoinRoomClick}>Join Room</button>
+		<button onClick={() => handleJoinRoomClick(data)}>Join Room</button>
 		<button onClick={() => handleLeaveRoom(currentRoom)}>Leave Room</button>
 		<div className="chatList">
 		<p>currentRoom: {currentRoom}</p>
@@ -301,7 +311,7 @@ const Chat: React.FC = () => {
 			<ChatInterface messagesData={messages} currentRoomProps={currentRoom} chatSocket={socket}/>
 		</div>
 		<div className="rightColumn">
-			<IdChatUser chatData={currentChat} user_id={content?.user}/>
+			<IdChatUser chatData={currentChat} user_id={content?.user} socket={socket}/>
 		</div>
 	</div>
 	<ToastContainer />

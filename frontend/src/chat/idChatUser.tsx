@@ -19,6 +19,7 @@ import { ChatForm } from 'react-chat-engine-advanced';
 import { WebsocketContext } from '../context/websocket.context';
 import '../pages/Chat.css';
 import decodeToken from '../helpers/helpers';
+import { Socket } from 'socket.io-client';
 
 
 interface User{
@@ -31,12 +32,14 @@ interface User{
 interface FUCKLINTERFACESAMERE{
 	chatData: chatData | undefined ;
 	user_id: number | undefined;
+	socket: Socket;
 }
 
 interface MultipleUsersInter{
 	members: User[];
 	token: string | undefined,
 	chat: chatData | undefined,
+	socket: Socket,
 }
 
 interface OneUserInter{
@@ -89,13 +92,17 @@ const muteUser = async (chat: chatData|undefined, user: User, token: string|unde
 		console.log(data);
 };
 
-const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id }) => {
+	const deleteChannel = async (chat: chatData|undefined, socket: Socket) => {
+		if (chat == undefined)
+			return;
+		console.log('message: ', {chat_id: chat.chat_id, roomName: chat.chat.name});
+		socket.emit("delete-channel", {chat_id: chat.chat_id, roomName: chat.chat.name});
+	};
+
+const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id, socket }) => {
 	const token = Cookies.get('token');
-	const socket = useContext(WebsocketContext);
 	const [chatMembers, setchatMembers] = useState<User[]>()
 	const ChatType: number = 0;
-	
-
 
 	useEffect(() => {
 		socket.connect();
@@ -104,8 +111,34 @@ const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id }) => {
 		}
 	}, [chatData]);
 
-	async function getData (chatData: chatData) {
+	useEffect(() => {
+		socket.on("smb-moved", () =>{
+		console.log(">>smb joined<<")
+		if (chatData) {
+			getData(chatData);
+		}
+		});
+
+		socket.on("deleted", () =>{
+			socket.emit("leave-room", {id : chatData?.chat_id, roomName : chatData?.chat.name})
+		})
+		return() => {
+			socket.off("smb-moved");
+			socket.off("deleted");
+		}
+	}, [socket, chatMembers]);
+
+
+
+
+	async function getData (chatData: chatData|undefined) {
 		console.log('user_id', user_id);
+		console.log('chatData: ',chatData);
+		if (chatData === undefined)
+		{
+			setchatMembers([]);
+			return;
+		}
 		const response = await fetch(`http://localhost:8080/api/chats/${chatData.chat_id}/users`, {
 			method: 'GET',
 			headers: {
@@ -113,19 +146,18 @@ const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id }) => {
 				'Authorization': 'Bearer ' + token
 			},
 		});
-		const data = await response.json()
-		const print = JSON.stringify(data);
-		console.log("user list data = ", data);
-//		console.log(print);
 		if(response.ok)
 		{
+			const data = await response.json()
 			setchatMembers(data)
 		}
 		else
+		{
 			console.log("error in the get data")
+			setchatMembers([]);
+		}
 	}
 
-	
 
 	if (ChatType === 0)
 	{
@@ -133,7 +165,7 @@ const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id }) => {
 			<div className='chat-interface'>
 				<h2>Online Users</h2>
 				<ul>
-					{chatMembers && <MultipleUsers chat={chatData} members={chatMembers} token={token}/>}
+					{chatMembers && <MultipleUsers chat={chatData} members={chatMembers} token={token} socket={socket}/>}
 				</ul>
 			</div>
 		);
@@ -177,7 +209,7 @@ const OnlyOneUser: React.FC<OneUserInter> = ({user}) => {
 	)
 };
 
-const MultipleUsers: React.FC<MultipleUsersInter> = ({chat, members, token}) => {
+const MultipleUsers: React.FC<MultipleUsersInter> = ({chat, members, token, socket}) => {
 	return (
 		<div>
 			{members.map((user: User) => (
@@ -198,6 +230,7 @@ const MultipleUsers: React.FC<MultipleUsersInter> = ({chat, members, token}) => 
 				</Menu>
 			</li>
 		))}
+		<button onClick={() => deleteChannel(chat, socket)}>delete channel</button>
 		</div>
 	)
 };
