@@ -152,7 +152,7 @@ export class ChatsService {
   }
 
   public async setAdminInChat(id: number, body) {
-	await this.isChatAdmin(id, body.user_id);
+	await this.isChatAdmin(id, body.requester);
 	const chatAdmin = new ChatAdmins();
 	chatAdmin.user_id = body.user_id;
 	chatAdmin.chat_id = id;
@@ -203,12 +203,14 @@ export class ChatsService {
 	if (!chat)
 		throw new NotFoundException(['Unknown chat.'], {
 			cause: new Error(),
-			description: `Username already taken.`,
+			description: `Chat not found.`,
 		});
 	if (updateChatDto.type)
 		chat.type = updateChatDto.type;
 	if (updateChatDto.name)
 		chat.name = updateChatDto.name;
+	if (updateChatDto.password)
+		chat.password = updateChatDto.password;
 	await this.chatsRepository.save(chat);
   }
 

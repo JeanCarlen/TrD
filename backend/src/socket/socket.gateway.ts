@@ -8,6 +8,8 @@ import { create } from "domain";
 import { RouterModule } from "@nestjs/core";
 import { UserchatsService } from "src/userchats/userchats.service";
 import { MessagesService } from "src/messages/messages.service";
+import { ChatadminsService } from "src/chatadmins/chatadmins.service";
+import { error } from "console";
 
 // Define the WebSocketGateway and its path and CORS settings
 @WebSocketGateway({ path: '/api', cors: true })
@@ -17,7 +19,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     private readonly rooms = new Map<string, Set<string>>();
     
     // Inject the ChatsService into the constructor
-    constructor(private readonly ChatsService: ChatsService, private readonly UserchatsService: UserchatsService, private readonly MessageService: MessagesService) {}
+    constructor(private readonly ChatsService: ChatsService,
+                private readonly UserchatsService: UserchatsService,
+                private readonly MessageService: MessagesService,
+                private readonly ChatadminsService: ChatadminsService) {}
     
     // Define the WebSocketServer and an array of clients
     @WebSocketServer()
@@ -68,7 +73,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         console.log("into wait list");
         this.WaitList.push(client);
 		console.log("wait list is (1) ", this.WaitList);
-        if(this.WaitList.length == 2)
+        if(this.WaitList.length >= 2)
         {
             const roomName = this.WaitList[0].id + this.WaitList[1].id;
             console.log("roomName is ", roomName);
@@ -78,6 +83,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             this.WaitList.pop();
 			this.WaitList.pop();
         }
+    }
+
+    @SubscribeMessage('delete-channel')
+    onDeleteChannel(client: Socket, data: { chat_id: number, roomName: string }) {
+        console.log("into delete channel ->", data.chat_id, data.roomName);
+        this.server.to(data.roomName).emit('deleted', data);
     }
 
 
@@ -137,9 +148,16 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @SubscribeMessage('create-room')
     @Inject('ChatsService')
     async onCreateRoom(client: Socket, message: { roomName: string, client: string, Password: string | null }) {
-        try {
-            console.log("into create room", client);
-            const createdRoom = await this.ChatsService.create({
+		try {
+			const roomList = await this.ChatsService.findAllFromSocket();
+			console.log('create room:',roomList);
+			roomList.map((room) => {
+				if (room.name == message.roomName) {
+					throw new Error(`Room already exists`);
+				}
+			}
+			);			
+			const createdRoom = await this.ChatsService.create({
                 name: message.roomName,
                 type: ChatType.CHANNEL,
                 owner: parseInt(message.client),
@@ -147,18 +165,19 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             });
             console.log('Room created:', message.roomName);
 			await this.onJoinRoom(client, { roomName: message.roomName, socketID: client.id, client: parseInt(message.client), password: message.Password });
-            const roomList = await this.ChatsService.findAllFromSocket();
-            console.log('create room:',roomList);
+            this.ChatadminsService.create({user_id: parseInt(message.client), chat_id: createdRoom.id});
         } catch (error) {
             console.error('Error creating room:', error.message);
-            this.server.emit('room-creation-error', error.message);
+			this.server.to(client.id).emit('room-join-error', error.message);
         }
     }
+
 	@SubscribeMessage('leave-room')
 	@Inject('UserchatsService')
 	async onLeaveRoom(client: Socket, message:{ id : number, roomName : string}): Promise<void> {
 		console.log("into leave room", message);
 		console.log ("logging the service " ,await this.UserchatsService.remove(message.id));
+        this.server.to(message.roomName).emit('smb-moved');
         client.leave(message.roomName);
 		console.log( message.id , ` left room ${message.roomName}`);
 	}
@@ -177,7 +196,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         }
         try {
             const chats = await this.ChatsService.findName(message.roomName);
-			console.log("chats is ", chats);
             if (!chats) {
                 throw new Error(`Room ${message.roomName} not found.`);
             }
@@ -185,16 +203,16 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
                 throw new Error(`Wrong password.`);
             }
             client.join(message.roomName);
-            console.log(`${message.socketID} joined room ${message.roomName}`);
 			const list = await this.UserchatsService.findByChatId(chats.id);
-            console.log("list is ", list);
+//            console.log("list is ", list);
 			list.map((userchat) => {
                 if (userchat.user_id == message.client) {
                     console.log(`User ${message.client} already in room ${message.roomName}.`);
                     throw new Error(`Already in room`);
                 }});
-			console.log("user_id is ", message.client);
 			await this.UserchatsService.create({user_id: message.client, chat_id: chats.id});
+            this.server.to(message.roomName).emit('smb-moved');
+            console.log("sent smb joined");
         } catch (error) {
             console.error('Error joining room:', error.message);
             if (error.message !== 'Already in room') {

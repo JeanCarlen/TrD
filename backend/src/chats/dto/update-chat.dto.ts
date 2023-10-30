@@ -14,4 +14,9 @@ export class UpdateChatDto extends PartialType(CreateChatDto) {
 	@IsInt({message: '$property should be an integer.'})
 	@IsOptional()
 	type?: number
+
+	@ApiPropertyOptional({example: 'Test1234', description: 'password of the chat'})
+	@IsInt({message: '$property should be a string.'})
+	@IsOptional()
+	password?: string
 }

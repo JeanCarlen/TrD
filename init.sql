@@ -67,7 +67,7 @@ CREATE TABLE messages (
 	CONSTRAINT "messages_fk1" FOREIGN KEY ("chat_id") REFERENCES "chats"("id")
 );
 
-CREATE TABLE chatadmin (
+CREATE TABLE chatadmins (
 	"id" serial NOT NULL,
 	"user_id" integer NOT NULL,
 	"chat_id" integer NOT NULL,
