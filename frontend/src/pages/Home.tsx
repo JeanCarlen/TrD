@@ -25,13 +25,15 @@ import FriendList from '../Components/Friends'
 import UserInformation from '../Components/UserInformation'
 import LayoutGamestats from './Layout-gamestats'
 import {gameInfo} from './Stats'
+import {ToastContainer, toast} from 'react-toastify'
 
 type Props = {}
 
 const Home = (props: Props) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [gameFetched, setGameFetched] = useState<boolean>(false)
+  const [gameFetched, setGameFetched] = useState<boolean>(false);
+  const [friendsFetched, setFriendsFetched] = useState<boolean>(false);
   const token: string|undefined = Cookies.get("token");
   let content: {username: string, user: number, avatar: string};
 
@@ -96,6 +98,7 @@ const Home = (props: Props) => {
         })
         const data = await response.json()
         Cookies.set('token', data.token);
+		toast.success('Avatar changed successfully', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-success' });
         //add a toast
       }
     };
@@ -105,6 +108,7 @@ const Home = (props: Props) => {
 	}, []);
 
     return (
+		<div>
         <ChakraProvider resetCSS={false}>
         <Searchbar/>
         <UserInformation username={content.username}/>
@@ -164,6 +168,8 @@ const Home = (props: Props) => {
         </div>
         </div>
         </ChakraProvider>
+		<ToastContainer/>
+		</div>
 )
 }
 
