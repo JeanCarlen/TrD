@@ -43,6 +43,8 @@ const [roomName, setRoomName] = useState<string>('');
 const [timer, setTimer] = useState<number>(0);
 const token: string | undefined = Cookies.get("token");
 const [GamePaused, setGamePaused] = useState<boolean>(false);
+const [player1, setPlayer1] = useState<string>('player1');
+const [player2, setPlayer2] = useState<string>('player2');
 let intervalId: number= 0;
 let paddleSize: number = 150;
 let cowLogoImage: HTMLImageElement = new Image();
@@ -177,6 +179,16 @@ useEffect(() => {
 			data.current.player2.avatar = dataBack.myAvatar;
 			data.current.player2.pNumber = dataBack.playerNumber;
 		}
+		if (data.current.player1.pNumber === 1)
+		{
+			setPlayer1(data.current.player1.name);
+			setPlayer2(data.current.player2.name);
+		}
+		else if (data.current.player1.pNumber === 2)
+		{
+			setPlayer1(data.current.player2.name);
+			setPlayer2(data.current.player1.name);
+		}
 		data.current.started = true;
 		data.current.ball = {
 		pos_y: 100,
@@ -188,12 +200,19 @@ useEffect(() => {
 		{
 			data.current = convert(data.current, 800, 600);
 		}
-		//pause();
 	});
 
 	socket.on('game-over', (dataBack: {score1: number, score2: number}) => {
 		data.current.paused = 5;
 		console.log('game over');
+		let Fball: Ball = {
+			pos_y: 40,
+			pos_x: 300,
+			speed_y: 0,
+			speed_x: 0,
+		}
+
+		data.current.ball = Fball;
 	});
 
 	return () => {
@@ -265,7 +284,7 @@ const updateGame = async() => {
 
 	// check for goal on player 1 side - change into socket goal
 	// add a paused effect
-	if(newBallY > canvas.height) {
+	if(newBallY > canvas.height && data.current.paused === 0) {
 		console.log('goal scored');
 		if (data.current.player1.pNumber === 1)
 			socket.emit('goal', {score1: data.current.score1 , score2: data.current.score2 + 1, roomName: data.current.NameOfRoom});
@@ -345,9 +364,9 @@ const WaitingRoom = () => {
 	<canvas ref={canvasRef} width={600} height={800}></canvas>
 	<div className="score">
 		<img src="../cow.png" alt="Ball" style={{ display: 'none' }} />
-		<span>{data.current.player1.name}: {data.current.score1}</span>
+		<span>{player1}: {data.current.score1}</span>
 		<br/>
-		<span>{data.current.player2.name}: {data.current.score2}</span>
+		<span>{player2}: {data.current.score2}</span>
 		</div>
 	</div>
 	<button onClick={CreatePongRoom}>Create Room</button>
