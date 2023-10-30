@@ -109,7 +109,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define the onPaddleMovement method to handle paddle movement
     @SubscribeMessage('paddle-movement')
     onPaddleMovement(client: Socket, data: {roomName:string, playerNumber: number, pos_x: number, newDir: number, speed: number}) {
-        console.log("into paddle movement data is ->", data);
         data.pos_x = data.pos_x + (data.newDir * data.speed);
         this.server.to(data.roomName).emit('paddle-send', {playerNumber: data.playerNumber, pos_x: data.pos_x});
     }
@@ -117,31 +116,15 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define the onGoal method to handle when a goal is scored
     @SubscribeMessage('goal')
     onGoal(client: Socket, data: { score1: number, score2: number, roomName: string }) {
-        if(data.score1 < 10 || data.score2 < 10) {
+        if(data.score1 < 10 && data.score2 < 10) {
             console.log("into goal");
-            const gameState = {
-                ballX: 100,
-                ballY: 100,
-                ballSpeedX: 3,
-                ballSpeedY: 5,
-                UpPaddle: 100,
-                DownPaddle: 500
-            };
-            this.server.emit('reset', gameState);
+			console.log('goal scored');
+            this.server.to(data.roomName).emit('goal', {score1: data.score1, score2: data.score2});
         };
         if(data.score1 == 10 || data.score2 == 10) {
-            console.log("into goal");
-            this.server.to(data.roomName).emit('game-over', data);
+            console.log("into win");
+            this.server.to(data.roomName).emit('game-over',  {score1: data.score1, score2: data.score2});
         }
-    }
-
-    // Define the onRebond method to handle ball rebond
-    @SubscribeMessage('srv-bounce')
-    onRebond(client: Socket, data: { ballSpeedX: number, ballSpeedY: number, roomName: string }) {
-        console.log("into bounce");
-        data.ballSpeedX = data.ballSpeedX * -1;
-        data.ballSpeedY = data.ballSpeedY * -1;
-        this.server.to(data.roomName).emit('bounce', data);
     }
 
     // Define the onCreateRoom method to handle creating a chat room
