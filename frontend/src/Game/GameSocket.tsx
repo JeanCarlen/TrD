@@ -15,7 +15,9 @@ export interface GameData
 	score1: number,
 	score2: number,
 	ball: Ball,
-	started: boolean
+	started: boolean,
+	converted: boolean,
+	paused: number,
 }
 
 interface Players{
@@ -38,7 +40,9 @@ interface Ball{
 const GameSocket: React.FC = () => {
 let content: {username: string, user: number, avatar: string};
 const [roomName, setRoomName] = useState<string>('');
+const [timer, setTimer] = useState<number>(0);
 const token: string | undefined = Cookies.get("token");
+const [GamePaused, setGamePaused] = useState<boolean>(false);
 let intervalId: number= 0;
 let paddleSize: number = 150;
 let cowLogoImage: HTMLImageElement = new Image();
@@ -72,10 +76,20 @@ let data = useRef<GameData>({
 		speed_y: 1,
 		speed_x: 2,
 	},
-	started: false
+	started: false,
+	converted: false,
+	paused: 0,
 });
 
 const socket = useContext(WebsocketContext);
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+const pause = () => {
+	setGamePaused(true);
+	delay(5000).then(() => {
+		setGamePaused(false);
+	});
+};
 
 useEffect(() => {
 	// once at the start of the component
@@ -100,11 +114,6 @@ useEffect(() => {
 
 useEffect(() => {
 
-	// if (token === undefined) {
-	// return;
-	// }
-	// content = (decodeToken(token));
-
 	socket.on('connect', () => {
 		console.log(socket.id);
 		console.log('Connected');
@@ -121,13 +130,23 @@ useEffect(() => {
 		data.current.player1.pNumber= playerNumber;
 		});
 
-	socket.on('bounce', (ball: Ball)=> {
-		console.log('bounce');
-		data.current.ball = ball;
-	});
+	// socket.on('bounce', (ball: {ballSpeedX: number, ballSpeedY: number})=> {
+	// 	console.log('bounce');
+	// 	data.current.ball.speed_x = ball.ballSpeedX;
+	// 	data.current.ball.speed_y = ball.ballSpeedY;
+	// 	data.current.converted = false;
+	// });
 
-	socket.on('goal', (newScore: number, dataGame: GameData) => {
-	//data = dataGame;
+	socket.on('goal', (dataBack: {score1: number, score2: number}) => {
+			console.log(`goal --> new score ${dataBack.score1} - ${dataBack.score2}` )
+			data.current.ball.pos_x = 100;
+			data.current.ball.pos_y = 100;
+			data.current.ball.speed_x = 2;
+			data.current.ball.speed_y = 1;
+			data.current.score1 = dataBack.score1;
+			data.current.score2 = dataBack.score2;
+			data.current.converted = false;
+			data.current.paused = 0;
 	});
 
 	socket.on('leave-game', (roomName: string) => {
@@ -136,11 +155,10 @@ useEffect(() => {
 	});
 
 	socket.on('paddle-send', (dataBack: any) => {
-	console.log('paddle-movement -> playerNumber= ', dataBack);
 		if (dataBack.playerNumber === data.current.player1.pNumber)
 			data.current.player1.pos_x = dataBack.pos_x;
 		else if (dataBack.playerNumber === data.current.player2.pNumber)
-			data.current.player2.pos_x = dataBack.pos_x;
+			data.current.player2.pos_x = 600 - dataBack.pos_x - paddleSize;
 	});
 
 	socket.on('exchange-info', (dataBack: any) => {
@@ -168,8 +186,14 @@ useEffect(() => {
 		}
 		if (data.current.player1.pNumber === 2)
 		{
-			data.current = convert(data.current, 800);
+			data.current = convert(data.current, 800, 600);
 		}
+		//pause();
+	});
+
+	socket.on('game-over', (dataBack: {score1: number, score2: number}) => {
+		data.current.paused = 5;
+		console.log('game over');
 	});
 
 	return () => {
@@ -180,21 +204,24 @@ useEffect(() => {
 		socket.off('bounce');
 		socket.off('paddle-send');
 		socket.off('exchange-info');
+		socket.off('goal');
+		socket.off('game-over');
 	};
 	}, [socket]);
 
 
 
-	function convert (data: GameData, height: number) {
+	function convert (data: GameData, height: number, width:number) {
 
 		data.ball.speed_y *= -1;
 		data.ball.speed_x *= -1;
 		data.ball.pos_y = height - data.ball.pos_y;
-
+		data.ball.pos_x = width - data.ball.pos_x;
+		data.converted = true;
 		return data;
 	}
 
-const updateGame = () => {
+const updateGame = async() => {
 	if (!data.current.started)
 	{
 		return ;
@@ -207,6 +234,8 @@ const updateGame = () => {
 	}
 
 	const ctx = canvas.getContext('2d')!;
+	if (data.current.player1.pNumber === 2 && !data.current.converted)
+		data.current = convert(data.current, canvas.height, canvas.width);
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	const newBallX = data.current.ball.pos_x + data.current.ball.speed_x;
@@ -221,30 +250,31 @@ const updateGame = () => {
 		// a garder
 		data.current.ball.speed_x = -data.current.ball.speed_x;
 	}
-	// check for collision with paddle - change for only player 1 paddle
-	if ((newBallY < 10 && (newBallX >= data.current.player2.pos_x && newBallX <= data.current.player2.pos_x + paddleSize))
-	|| (newBallY > canvas.height - 20 && (newBallX >= data.current.player1.pos_x && newBallX <= data.current.player1.pos_x + paddleSize))) {
+	// check for collision with paddle
+	if ((newBallY < 20 && (newBallX >= data.current.player2.pos_x && newBallX <= data.current.player2.pos_x + paddleSize))
+		|| (newBallY > canvas.height - 20 && (newBallX >= data.current.player1.pos_x && newBallX <= data.current.player1.pos_x + paddleSize))) {
 		data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
 		data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
+		console.log('collision with paddle');
+		// if (data.current.player1.pNumber === 1)
+		// 	Bounce(newBallX, newBallY, data.current.ball.speed_x, data.current.ball.speed_y);
+		// else if (data.current.player1.pNumber === 2)
+		// 	Bounce(newBallX, newBallY, -data.current.ball.speed_x, -data.current.ball.speed_y);
+
 	}
-	// check for goal on player 2 side - remove 
-	if (newBallY < 0) {
-		data.current.score1++;
-		console.log('new score: ', data.current.score1, ' - ' ,data.current.score2)
-		data.current.ball.pos_x = canvas.width / 2;
-		data.current.ball.pos_y = canvas.height / 2;
-		data.current.ball.speed_x = 2;
-		data.current.ball.speed_y = 1;
-	}
+
 	// check for goal on player 1 side - change into socket goal
-	else if(newBallY > canvas.height) {
-		data.current.score2++;
-		data.current.ball.pos_x = canvas.width / 2;
-		data.current.ball.pos_y = canvas.height / 2;
-		data.current.ball.speed_x = -2;
-		data.current.ball.speed_y = -1;
+	// add a paused effect
+	if(newBallY > canvas.height) {
+		console.log('goal scored');
+		if (data.current.player1.pNumber === 1)
+			socket.emit('goal', {score1: data.current.score1 , score2: data.current.score2 + 1, roomName: data.current.NameOfRoom});
+		else if (data.current.player1.pNumber === 2)
+			socket.emit('goal', {score1: data.current.score1 + 1, score2: data.current.score2, roomName: data.current.NameOfRoom});
+
+
 	}
-	else{
+	else if (data.current.paused === 0){
 		// calculating new position - keep
 		data.current.ball.pos_x = newBallX;
 		data.current.ball.pos_y = newBallY;
@@ -252,10 +282,12 @@ const updateGame = () => {
 	// drawing elements - keep
 	ctx.fillStyle = 'pink';
 	if (cowLogo) {
-	ctx.drawImage(cowLogoImage, data.current.ball.pos_x - 20, data.current.ball.pos_y - 20, 40, 40);
+		ctx.drawImage(cowLogoImage, data.current.ball.pos_x - 20, data.current.ball.pos_y - 20, 40, 40);
 	}
+	if (data.current.paused > 0)
+		ctx.fillText(data.current.paused, ctx.width / 2, ctx.height / 2);
 	ctx.beginPath();
-	ctx.arc(data.current.ball.pos_x, data.current.ball.pos_y, 10, 0, Math.PI * 2, true);
+	//ctx.arc(data.current.ball.pos_x, data.current.ball.pos_y, 10, 0, Math.PI * 2, true);
 	ctx.roundRect(data.current.player2.pos_x, data.current.player2.pos_y, paddleSize, 10, 5);
 	ctx.roundRect(data.current.player1.pos_x, canvas.height - 10, paddleSize, 10, 5);
 	ctx.fill();
@@ -264,11 +296,6 @@ const updateGame = () => {
 	const SendInfo = (roomToSend: string) => {
 		console.log('game-start-> message: ', {roomName: roomToSend, myId: content?.user, myName: content?.username, myAvatar: content?.avatar, playerNumber: data.current.player1.pNumber});
 		socket.emit('exchange-info', {roomName: roomToSend, myId: content?.user, myName: content?.username, myAvatar: content?.avatar, playerNumber: data.current.player1.pNumber});
-	};
-
-	const gameOver = () => {
-		socket.emit('game-over', { roomName: roomName});
-	//fetch-> post score to batabse
 	};
 
 const Paddles = (roomName: string, newDir: number) => {
@@ -281,7 +308,7 @@ const sendGame = () => {
 };
 
 const Bounce = (newBallx: number, newBally: number, newSpeedx: number, newSpeedy: number) => {
-	socket.emit('bounce', newBallx, newBally, newSpeedx, newSpeedy);
+	socket.emit('bounce', {ballSpeedX: newSpeedx, ballSpeedY: newSpeedy, roomName: data.current.NameOfRoom});
 };
 
 const CreatePongRoom = () => {
@@ -331,7 +358,7 @@ const WaitingRoom = () => {
 	onChange={(e) => setRoomName(e.target.value)}
 	/>
 	<button onClick={sendGame}>Join {roomName}</button>
-	<button onClick={gameOver}>Game Over</button>
+	{/* <button onClick={gameOver}>Game Over</button> */}
 	<button onClick={WaitingRoom}>Waiting Room</button>
 	</div>
 	);
