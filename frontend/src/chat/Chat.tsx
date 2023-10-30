@@ -160,6 +160,19 @@ const Chat: React.FC = () => {
 		});
 		});
 	};
+
+	useEffect(() => {
+		socket.on("smb-movede", () => {
+		console.log("refreshing chats");
+		getChats();
+		setCurrentRoom('default');
+		setCurrentChat(undefined);
+		setMessages([]);
+		});
+		return () => {
+			socket.off("smb-movede");
+		};
+	}, [socket]);
 	
 	useEffect(() => {
 		socket.connect();

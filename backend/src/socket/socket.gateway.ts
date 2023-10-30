@@ -1,4 +1,4 @@
-import { Inject, Logger, OnModuleInit } from "@nestjs/common";
+import { ConsoleLogger, Inject, Logger, OnModuleInit } from "@nestjs/common";
 import { MessageBody, OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { WsResponse } from '@nestjs/websockets';
@@ -176,8 +176,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@Inject('UserchatsService')
 	async onLeaveRoom(client: Socket, message:{ id : number, roomName : string}): Promise<void> {
 		console.log("into leave room", message);
-		console.log ("logging the service " ,await this.UserchatsService.remove(message.id));
+		console.log(message.id);
+		console.log ("logging the service " , await this.UserchatsService.remove(message.id));
         this.server.to(message.roomName).emit('smb-moved');
+		this.server.to(message.roomName).emit('smb-movede');
         client.leave(message.roomName);
 		console.log( message.id , ` left room ${message.roomName}`);
 	}
@@ -187,14 +189,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@Inject('ChatsService')
 	@Inject('UserchatsService')
     async onJoinRoom(client: Socket, message:{ roomName: string, socketID: string, client: number, password: string | null }): Promise<void> {
-        try {
-            console.log("message is:",message);
-            console.log(`Join room: ${message.roomName}`);
-            console.log(`Client ID: ${message.socketID}`);
-        } catch (error) {
-            console.error('Error joining room:', error.message);
-        }
-        try {
+	try {
             const chats = await this.ChatsService.findName(message.roomName);
             if (!chats) {
                 throw new Error(`Room ${message.roomName} not found.`);

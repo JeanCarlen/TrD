@@ -120,7 +120,7 @@ const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id, socket 
 		});
 
 		socket.on("deleted", () =>{
-			socket.emit("leave-room", {id : chatData?.chat_id, roomName : chatData?.chat.name})
+			socket.emit("leave-room", {id : chatData?.id, roomName : chatData?.chat.name});
 		})
 		return() => {
 			socket.off("smb-moved");
