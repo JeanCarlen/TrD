@@ -15,9 +15,11 @@ export interface GameData
 	score1: number,
 	score2: number,
 	ball: Ball,
+	bonus: Ball,
 	started: boolean,
 	converted: boolean,
 	paused: number,
+	color: string,
 }
 
 interface Players{
@@ -40,7 +42,6 @@ interface Ball{
 const GameSocket: React.FC = () => {
 let content: {username: string, user: number, avatar: string};
 const [roomName, setRoomName] = useState<string>('');
-const [timer, setTimer] = useState<number>(0);
 const token: string | undefined = Cookies.get("token");
 const [GamePaused, setGamePaused] = useState<boolean>(false);
 const [player1, setPlayer1] = useState<string>('player1');
@@ -78,9 +79,16 @@ let data = useRef<GameData>({
 		speed_y: 1,
 		speed_x: 2,
 	},
+	bonus: {
+		pos_y: 100,
+		pos_x: 100,
+		speed_y: 1,
+		speed_x: 2,
+	},
 	started: false,
 	converted: false,
 	paused: 0,
+	color: 'pink',
 });
 
 const socket = useContext(WebsocketContext);
@@ -132,13 +140,6 @@ useEffect(() => {
 		data.current.player1.pNumber= playerNumber;
 		});
 
-	// socket.on('bounce', (ball: {ballSpeedX: number, ballSpeedY: number})=> {
-	// 	console.log('bounce');
-	// 	data.current.ball.speed_x = ball.ballSpeedX;
-	// 	data.current.ball.speed_y = ball.ballSpeedY;
-	// 	data.current.converted = false;
-	// });
-
 	socket.on('goal', (dataBack: {score1: number, score2: number}) => {
 			console.log(`goal --> new score ${dataBack.score1} - ${dataBack.score2}` )
 			data.current.ball.pos_x = 100;
@@ -153,7 +154,6 @@ useEffect(() => {
 
 	socket.on('leave-game', (roomName: string) => {
 		console.log(socket.id , ' left : ', roomName);
-		socket.leave(roomName);
 	});
 
 	socket.on('paddle-send', (dataBack: any) => {
@@ -299,14 +299,15 @@ const updateGame = async() => {
 		data.current.ball.pos_y = newBallY;
 	}
 	// drawing elements - keep
-	ctx.fillStyle = 'pink';
+	ctx.fillStyle = data.current.color;
 	if (cowLogo) {
 		ctx.drawImage(cowLogoImage, data.current.ball.pos_x - 20, data.current.ball.pos_y - 20, 40, 40);
 	}
 	if (data.current.paused > 0)
-		ctx.fillText(data.current.paused, ctx.width / 2, ctx.height / 2);
+		ctx.fillText(data.current.paused.toString(), canvas.width / 2, canvas.height / 2);
 	ctx.beginPath();
-	//ctx.arc(data.current.ball.pos_x, data.current.ball.pos_y, 10, 0, Math.PI * 2, true);
+	ctx.arc(data.current.bonus.pos_x, data.current.bonus.pos_y, 10, 0, Math.PI * 2, true);
+	//adjuste ball to cow position
 	ctx.roundRect(data.current.player2.pos_x, data.current.player2.pos_y, paddleSize, 10, 5);
 	ctx.roundRect(data.current.player1.pos_x, canvas.height - 10, paddleSize, 10, 5);
 	ctx.fill();
@@ -369,16 +370,9 @@ const WaitingRoom = () => {
 		<span>{player2}: {data.current.score2}</span>
 		</div>
 	</div>
-	<button onClick={CreatePongRoom}>Create Room</button>
-	<input
-	type="text"
-	placeholder="Enter room name"
-	value={roomName}
-	onChange={(e) => setRoomName(e.target.value)}
-	/>
-	<button onClick={sendGame}>Join {roomName}</button>
-	{/* <button onClick={gameOver}>Game Over</button> */}
 	<button onClick={WaitingRoom}>Waiting Room</button>
+	<button onClick={()=>{data.current.color = 'pink'}}>PINK</button>
+	<button onClick={()=>{data.current.color = 'blue'}}>BLUE</button>
 	</div>
 	);
 };

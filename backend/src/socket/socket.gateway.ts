@@ -58,7 +58,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         console.log("into pong init setup, message is ", message);
         client.join(message.roomName);
         const room = this.server.sockets.adapter.rooms.get(message.roomName);
-        if (room && room.size == 2) {
+        if (room && room.size >= 2) {
             console.log("into if, roomName is ", message.roomName);
             client.emit('pong-init-setup', room.size);
             this.server.to(message.roomName).emit('game-start', message.roomName);
