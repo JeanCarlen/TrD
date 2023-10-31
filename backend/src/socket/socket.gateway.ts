@@ -116,12 +116,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define the onGoal method to handle when a goal is scored
     @SubscribeMessage('goal')
     onGoal(client: Socket, data: { score1: number, score2: number, roomName: string }) {
-        if(data.score1 < 10 && data.score2 < 10) {
+        if(data.score1 < 3 && data.score2 < 3) {
             console.log("into goal");
 			console.log('goal scored');
             this.server.to(data.roomName).emit('goal', {score1: data.score1, score2: data.score2});
         };
-        if(data.score1 == 10 || data.score2 == 10) {
+        if(data.score1 == 3 || data.score2 == 3) {
             console.log("into win");
             this.server.to(data.roomName).emit('game-over',  {score1: data.score1, score2: data.score2});
         }

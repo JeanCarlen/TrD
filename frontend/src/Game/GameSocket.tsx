@@ -6,6 +6,7 @@ import decodeToken from '../helpers/helpers';
 import PongGame	from './PongGame';
 import { ThemeConsumer } from "styled-components";
 import cowLogo from '../cow.png';
+import {useNavigate} from 'react-router-dom';
 
 export interface GameData
 {
@@ -20,6 +21,7 @@ export interface GameData
 	converted: boolean,
 	paused: number,
 	color: string,
+	gameID: number,
 }
 
 interface Players{
@@ -41,9 +43,8 @@ interface Ball{
 
 const GameSocket: React.FC = () => {
 let content: {username: string, user: number, avatar: string};
-const [roomName, setRoomName] = useState<string>('');
+const bodyNavigate = useNavigate();
 const token: string | undefined = Cookies.get("token");
-const [GamePaused, setGamePaused] = useState<boolean>(false);
 const [player1, setPlayer1] = useState<string>('player1');
 const [player2, setPlayer2] = useState<string>('player2');
 let intervalId: number= 0;
@@ -89,17 +90,11 @@ let data = useRef<GameData>({
 	converted: false,
 	paused: 0,
 	color: 'pink',
+	gameID: 0,
 });
 
 const socket = useContext(WebsocketContext);
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
-const pause = () => {
-	setGamePaused(true);
-	delay(5000).then(() => {
-		setGamePaused(false);
-	});
-};
 
 useEffect(() => {
 	// once at the start of the component
@@ -150,6 +145,8 @@ useEffect(() => {
 			data.current.score2 = dataBack.score2;
 			data.current.converted = false;
 			data.current.paused = 0;
+			if (data.current.player1.pNumber === 1)
+				postScore(dataBack.score1, dataBack.score2, 0, data.current.gameID);
 	});
 
 	socket.on('leave-game', (roomName: string) => {
@@ -163,7 +160,7 @@ useEffect(() => {
 			data.current.player2.pos_x = 600 - dataBack.pos_x - paddleSize;
 	});
 
-	socket.on('exchange-info', (dataBack: any) => {
+	socket.on('exchange-info', async (dataBack: any) => {
 		console.log("EXCHANGE: ",dataBack.myName);
 		if (data.current.player1.id === 0)
 		{
@@ -183,6 +180,11 @@ useEffect(() => {
 		{
 			setPlayer1(data.current.player1.name);
 			setPlayer2(data.current.player2.name);
+			if (data.current.player1.id !== 0 && data.current.player2.id !== 0)
+			{
+				let fetchback = await createMatch(data.current.player1.id, data.current.player2.id);
+				data.current.gameID = fetchback.id;
+			}
 		}
 		else if (data.current.player1.pNumber === 2)
 		{
@@ -202,7 +204,7 @@ useEffect(() => {
 		}
 	});
 
-	socket.on('game-over', (dataBack: {score1: number, score2: number}) => {
+	socket.on('game-over', async (dataBack: {score1: number, score2: number}) => {
 		data.current.paused = 5;
 		console.log('game over');
 		let Fball: Ball = {
@@ -211,8 +213,15 @@ useEffect(() => {
 			speed_y: 0,
 			speed_x: 0,
 		}
-
 		data.current.ball = Fball;
+		await postScore(dataBack.score1, dataBack.score2, 1, data.current.gameID);
+		await delay(6000);
+		try{
+			bodyNavigate('/Home');
+		}
+		catch (e) {
+			console.log('error sending home', e);
+		}
 	});
 
 	return () => {
@@ -321,12 +330,6 @@ const updateGame = async() => {
 const Paddles = (roomName: string, newDir: number) => {
 	socket.emit('paddle-movement', {roomName:roomName, playerNumber: data.current.player1.pNumber, pos_x: data.current.player1.pos_x, newDir: newDir, speed: data.current.player1.speed});}
 
-const sendGame = () => {
-	console.log('sendGame', roomName);
-	data.current.NameOfRoom = roomName;
-	socket.emit('join-game', { roomName: roomName});
-};
-
 const Bounce = (newBallx: number, newBally: number, newSpeedx: number, newSpeedy: number) => {
 	socket.emit('bounce', {ballSpeedX: newSpeedx, ballSpeedY: newSpeedy, roomName: data.current.NameOfRoom});
 };
@@ -339,6 +342,57 @@ const CreatePongRoom = () => {
 		roomName: roomNamePrompt,
 		client: content?.user
 	});
+};
+
+const sendhome = () => {
+	try {
+		const navigate = useNavigate();
+		navigate('/home');
+	}
+	catch (e) {
+		console.log('error sending home');
+	}
+}
+
+const createMatch = async(user1ID: number, user2ID: number) => {
+	const response = await fetch('http://localhost:8080/api/matches', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + token,
+		},
+		body: JSON.stringify({user_1: user1ID, user_2: user2ID,})
+
+	});
+	if (response.ok)
+	{
+		const data = await response.json();
+		return data;
+	}
+	else
+	{
+		console.log('error creating match');
+	}
+
+};
+
+const postScore = async(score1: number, score2: number, over: number, gameID: number) => {
+	const response = await fetch(`http://localhost:8080/api/matches/${gameID}`, {
+		method: 'PATCH',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + token,
+		},
+		body: JSON.stringify({
+			score_1: score1,
+			score_2: score2,
+			status: over,
+		})
+	});
+	if(!response.ok)
+	{
+		console.log('error posting score');
+	}
 };
 
 const WaitingRoom = () => {

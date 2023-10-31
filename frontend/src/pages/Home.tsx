@@ -26,13 +26,18 @@ import UserInformation from '../Components/UserInformation'
 import LayoutGamestats from './Layout-gamestats'
 import {gameInfo} from './Stats'
 import {ToastContainer, toast} from 'react-toastify'
+import {gameData, User} from './Stats'
 
 type Props = {}
+
+
 
 const Home = (props: Props) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [gameFetched, setGameFetched] = useState<boolean>(false);
+  const [allData, setAllData] = useState<gameData[]>([]);
+  const [dataLast, setDataLast] = useState<gameData[]>([]);
   const [friendsFetched, setFriendsFetched] = useState<boolean>(false);
   const token: string|undefined = Cookies.get("token");
   let content: {username: string, user: number, avatar: string};
@@ -65,9 +70,30 @@ const Home = (props: Props) => {
 		player2: 'Eliott',
 	}
 
-	const alldata: gameInfo[]= [data1, data2, data3, data4];
-	const dataLast: gameInfo[] = alldata.slice(-3)
+	// const dataLast: any[] = allData.slice(-3)
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+	const fetchMatches = async () => {
+		const response = await fetch('http://localhost:8080/api/matches', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			},
+			});
+		if (response.ok)
+		{
+			const data = await response.json();
+			setAllData(data);
+			setGameFetched(true);
+			setDataLast(data.slice(-3));
+			console.log("Data fetched", data);
+		}
+		else
+		{
+			console.log("Error fetching matches");
+		}
+	}
 
 	const yourFunction = async () => {
 		await delay(5000);
@@ -104,7 +130,7 @@ const Home = (props: Props) => {
     };
 
 	useEffect (() => {
-		yourFunction();
+		fetchMatches();
 	}, []);
 
     return (
@@ -147,7 +173,7 @@ const Home = (props: Props) => {
                 match history<br/>
                 {gameFetched ? 
 					<div className='matchBox'>
-					{dataLast.map((achievement) => {
+					{dataLast.map((achievement: gameData) => {
 					return (
 						<LayoutGamestats {...achievement}/>
 					);

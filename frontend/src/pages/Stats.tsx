@@ -12,6 +12,25 @@ export interface gameInfo{
 	player2:string,
 };
 
+export type User = {
+	username: string,
+	login42: string,
+	avatar: string,
+}
+
+export type gameData = {
+	id: number,
+	score_1: number,
+	score_2: number,
+	status: number // 0 = ongoing, 1 = finished
+	status_text_en: string,
+	status_text_fr: string,
+	user_1: number,
+	user_1_data: User,
+	user_2: number,
+	user_2_data: User,
+}
+
 const Stats: React.FunctionComponent = () => {
   
 
