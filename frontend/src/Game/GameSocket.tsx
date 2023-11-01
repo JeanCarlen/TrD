@@ -7,6 +7,7 @@ import PongGame	from './PongGame';
 import { ThemeConsumer } from "styled-components";
 import cowLogo from '../cow.png';
 import {useNavigate} from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
 
 export interface GameData
 {
@@ -175,6 +176,7 @@ useEffect(() => {
 			data.current.player2.name = dataBack.myName;
 			data.current.player2.avatar = dataBack.myAvatar;
 			data.current.player2.pNumber = dataBack.playerNumber;
+			data.current.player2.pos_x = 600 - 10 - paddleSize;
 		}
 		if (data.current.player1.pNumber === 1)
 		{
@@ -237,7 +239,18 @@ useEffect(() => {
 	};
 	}, [socket]);
 
+	useEffect(() => {
+		socket.on('room-join-error', (err: Error) => {
+			console.log("error in joining room: ", err);
+			toast.error(err, {
+				position: toast.POSITION.BOTTOM_LEFT,
+				className: 'toast-error'});
+		});
 
+		return() => {
+			socket.off('room-join-error');
+		}
+	}, [socket]);
 
 	function convert (data: GameData, height: number, width:number) {
 
@@ -427,6 +440,7 @@ const WaitingRoom = () => {
 	<button onClick={WaitingRoom}>Waiting Room</button>
 	<button onClick={()=>{data.current.color = 'pink'}}>PINK</button>
 	<button onClick={()=>{data.current.color = 'blue'}}>BLUE</button>
+	<ToastContainer/>
 	</div>
 	);
 };
