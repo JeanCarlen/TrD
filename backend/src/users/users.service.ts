@@ -12,6 +12,8 @@ import { UsersResponse } from './dto/users.response';
 import { FriendsResponse } from '../friends/dto/friends.response';
 import { BlockedusersService } from 'src/blockedusers/blockedusers.service';
 import { BlockedUsers } from 'src/blockedusers/entities/blockeduser.entity';
+import { UserAchievmentsService } from 'src/user_achievments/user_achievments.service';
+import { UserAchievments } from 'src/user_achievments/entities/user_achievment.entity';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -27,6 +29,8 @@ export class UsersService {
 	private readonly friendsService: FriendsService,
 	@Inject(BlockedusersService)
 	private readonly blockedusersService: BlockedusersService,
+	@Inject(UserAchievmentsService)
+	private readonly userachievmentsService: UserAchievmentsService
 ) {}
 
   public getJWT(
@@ -380,6 +384,20 @@ export class UsersService {
 		}
 	}
 	return ret;
+  }
+
+  public async updateUserAchievment(user_id: number, achievment_id: number, value: number) {
+	const userachievment: UserAchievments = await this.userachievmentsService.findOneByUserAndAchievment(user_id, achievment_id);
+	if (!userachievment) {
+		// create new userachievment
+		const newUserachievment: UserAchievments = new UserAchievments();
+		newUserachievment.user_id = user_id;
+		newUserachievment.achievment_id = achievment_id;
+		newUserachievment.current = value;
+		return await this.userachievmentsService.create(newUserachievment);
+	}
+	userachievment.current += value;
+	return await this.userachievmentsService.update(userachievment.id, userachievment);
   }
 
   public async unblockUser(blocked_id: number, blocker_id: number) {
