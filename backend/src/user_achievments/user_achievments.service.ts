@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserAchievments } from './entities/user_achievment.entity';
 import { Repository } from 'typeorm';
 import { Achievments } from 'src/achievments/entities/achievment.entity';
+import { UserAchievmentResponse } from './dto/userachievment.response';
 
 @Injectable()
 export class UserAchievmentsService {
@@ -15,12 +16,20 @@ export class UserAchievmentsService {
 	private readonly achievmentsRepository: Repository<Achievments>
   ) {}
 
-  public create(createUserAchievmentDto: CreateUserAchievmentDto) {
+  public async create(createUserAchievmentDto: CreateUserAchievmentDto) {
     const userachievment: UserAchievments = new UserAchievments();
+	const achievment: Achievments = await this.achievmentsRepository.findOne({where: {id: createUserAchievmentDto.achievment_id}});
     userachievment.user_id = createUserAchievmentDto.user_id;
     userachievment.achievment_id = createUserAchievmentDto.achievment_id;
     userachievment.current = createUserAchievmentDto.current;
-    return this.userachievmentsRepository.save(userachievment);
+	const ret: UserAchievmentResponse = {
+		achievment_id: userachievment.achievment_id,
+		current: userachievment.current,
+		user_id: userachievment.user_id,
+		achievment_data: achievment
+	}
+	await this.userachievmentsRepository.save(userachievment);
+    return ret;
   }
 
   public async findAll() {
@@ -67,18 +76,30 @@ export class UserAchievmentsService {
     return this.userachievmentsRepository.findOne({ where: { id: id } });
   }
 
-  public update(id: number, updateUserAchievmentDto: UpdateUserAchievmentDto) {
-	const userachievment = this.userachievmentsRepository.findOne({ where: { id: id } });
+  public async findOneByUserAndAchievment(user_id: number, achievment_id: number) {
+	return await this.userachievmentsRepository.findOne({where: {user_id: user_id, achievment_id: achievment_id}});
+  }
+
+  public async update(id: number, updateUserAchievmentDto: UpdateUserAchievmentDto) {
+	const userachievment = await this.userachievmentsRepository.findOne({ where: { id: id } });
 	if (!userachievment) {
 		throw new NotFoundException(['User achievment not found.'], {
 			cause: new Error(),
 			description: `User achievment not found.`,
 		});
 	}
-    return this.userachievmentsRepository.update(
+	const achi: Achievments = await this.achievmentsRepository.findOne({where: {id: userachievment.achievment_id}});
+	const ret: UserAchievmentResponse = {
+		achievment_id: userachievment.achievment_id,
+		current: userachievment.current,
+		user_id: userachievment.user_id,
+		achievment_data: achi
+	}
+    await this.userachievmentsRepository.update(
       { id: id },
       updateUserAchievmentDto,
     );
+	return ret;
   }
 
   public async remove(id: number) {

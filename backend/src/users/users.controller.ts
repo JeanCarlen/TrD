@@ -14,9 +14,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard, CurrentGuard } from 'src/auth.guard';
 import { paramValidator } from 'src/validation/param.validators';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Users } from './entities/users.entity';
 import { UsersResponse } from './dto/users.response';
+import { UpdateUserachievmentDto } from './dto/update-userachievment.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -102,6 +103,17 @@ export class UsersController {
   @ApiResponse({status: 200, description: 'User updated successfully.'})
   update(@Param() params: paramValidator, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+params.id, updateUserDto);
+  }
+
+  @Patch(':id/:achievment_id')
+  @UseGuards(AuthGuard, CurrentGuard)
+  @ApiBearerAuth()
+  @ApiOperation({summary: 'Update a user acchievment.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 200, description: 'User acchievment updated successfully.'})
+  @ApiNotFoundResponse({description: 'Achievment not found.'})
+  updateUserAchievment(@Param('id') user_id: number, @Param('achievment_id') achievment_id: number, @Body() updateUserachievmentDto: UpdateUserachievmentDto) {
+	return this.usersService.updateUserAchievment(user_id, achievment_id, updateUserachievmentDto.value);
   }
 
   @Delete(':id')
