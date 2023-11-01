@@ -24,7 +24,6 @@ import Searchbar from '../Components/Searchbar'
 import FriendList from '../Components/Friends'
 import UserInformation from '../Components/UserInformation'
 import LayoutGamestats from './Layout-gamestats'
-import {gameInfo} from './Stats'
 import {ToastContainer, toast} from 'react-toastify'
 import {gameData, User} from './Stats'
 
@@ -34,47 +33,16 @@ type Props = {}
 
 const Home = (props: Props) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [gameFetched, setGameFetched] = useState<boolean>(false);
-  const [allData, setAllData] = useState<gameData[]>([]);
   const [dataLast, setDataLast] = useState<gameData[]>([]);
   const [friendsFetched, setFriendsFetched] = useState<boolean>(false);
   const token: string|undefined = Cookies.get("token");
   let content: {username: string, user: number, avatar: string};
 
-	const data1: gameInfo= {
-		score1: 11,
-		score2: 2,
-		player1: 'Steve',
-		player2: 'Patrick',
-	}
-
-	const data2: gameInfo= {
-		score1: 6,
-		score2: 11,
-		player1: 'Steve',
-		player2: 'Jcarlen',
-	}
-
-	const data3: gameInfo= {
-		score1: 11,
-		score2: 5,
-		player1: 'Steve',
-		player2: 'ALEX',
-	}
-
-	const data4: gameInfo= {
-		score1: 9,
-		score2: 11,
-		player1: 'Steve',
-		player2: 'Eliott',
-	}
-
-	// const dataLast: any[] = allData.slice(-3)
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 	const fetchMatches = async () => {
-		const response = await fetch('http://localhost:8080/api/matches', {
+		const response = await fetch(`http://localhost:8080/api/matches/users/${content.user}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -83,11 +51,15 @@ const Home = (props: Props) => {
 			});
 		if (response.ok)
 		{
-			const data = await response.json();
-			setAllData(data);
-			setGameFetched(true);
-			setDataLast(data.slice(-3));
-			console.log("Data fetched", data);
+			try {
+				const data = await response.json();
+				setGameFetched(true);
+				console.log("Data fetched", data);
+				setDataLast(data.slice(-3));
+			}
+			catch (e) {
+				console.log("Error in response", e);
+			}
 		}
 		else
 		{
@@ -175,7 +147,7 @@ const Home = (props: Props) => {
 					<div className='matchBox'>
 					{dataLast.map((achievement: gameData) => {
 					return (
-						<LayoutGamestats {...achievement}/>
+						<LayoutGamestats display={achievement} userID={content.user}/>
 					);
 					})}
 					</div>

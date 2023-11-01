@@ -2,14 +2,29 @@ import React from "react";
 import './Stats.css';
 import { gameData, User } from "./Stats";
 
-const LayoutGamestats: React.FunctionComponent<gameData> = (display: gameData) => {
+export type statsProps = {
+	display: gameData,
+	userID: number,
+}
+
+const LayoutGamestats: React.FunctionComponent<statsProps> = ({display, userID}: statsProps) => {
 	
 	let winLoose: string;
 
 	if (display.score_1 > display.score_2)
-		winLoose = 'WON';
+	{
+		if (display.user_1 === userID)
+			winLoose = 'WON'
+		else
+			winLoose = 'LOST'
+	}
 	else
-		winLoose = 'LOST';
+	{
+		if (display.user_2 === userID)
+			winLoose = 'WON'
+		else
+			winLoose = 'LOST'
+	}
 
 	return (
 	<div className="game-stats">
