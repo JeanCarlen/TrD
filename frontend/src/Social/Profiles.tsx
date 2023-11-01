@@ -25,6 +25,8 @@ import { useParams } from 'react-router-dom';
 import handleAddFriend from '../Components/AddFriend'
 import UserInformation from '../Components/UserInformation'
 import AddFriend from '../Components/AddFriend'
+import {gameData} from '../pages/Stats'
+import LayoutGamestats from '../pages/Layout-gamestats'
 
 export interface profiles {
 	username: string | undefined;
@@ -34,19 +36,14 @@ type Props = {}
 const Profiles = (props: Props) => {
   const {users} = useParams();
   const token: string|undefined = Cookies.get("token");
-  // let content: {username: string, user: number};
-  //   if (token != undefined)
-  //   {
-  //     content = decodeToken(token);
-  //   }
-  //   else
-  //   content = { username: 'default', user: 0};
+  const [gameFetched, setGameFetched] = useState<boolean>(false);
+  const [dataMatches, setDataMatches] = useState<gameData[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [achievementName, setAchievementName] = useState<string>('');
   const [friendid, setFriendID] = useState<number|undefined>();
-    // const username = username;
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const GetUserinfo = async () => {
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+	const GetUserinfo = async () => {
       const response = await fetch(`http://localhost:8080/api/users/username/${users}`, {
         method: 'GET',
         headers: {
@@ -58,7 +55,9 @@ const Profiles = (props: Props) => {
       if (response.ok)
       {
         setAvatarUrl(data[0].avatar);
-        setFriendID(data[0].id);
+        await setFriendID(data[0].id);
+		console.log ('friendid', data.id);
+		await fetchMatches(data[0].id);
       }
       let content: {username: string, user: number};
       if (token != undefined)
@@ -95,7 +94,32 @@ const Profiles = (props: Props) => {
         GetUserinfo();
     }, []);
 
-
+	const fetchMatches = async (theID:number) => {
+		console.log("Fetching matches for user", theID);
+		const response = await fetch(`http://localhost:8080/api/matches/users/${theID}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			},
+			});
+		if (response.ok)
+		{
+			try {
+				const data = await response.json();
+				setGameFetched(true);
+				console.log("Data fetched", data);
+				setDataMatches(data.slice(-3));
+			}
+			catch (e) {
+				console.log("Error in response", e);
+			}
+		}
+		else
+		{
+			console.log("Error fetching matches");
+		}
+	}
 
     return (
       <ChakraProvider resetCSS={false}>
@@ -123,15 +147,16 @@ const Profiles = (props: Props) => {
         <div className='displayGrid'>
             <div className='matchHistory'>
                 match history<br/>
-                <div className='matchBox'>
-                  FRIEND 11-5
-                </div>
-                <div className='matchBox'>
-                  FRIEND 8-11
-                </div>
-                <div className='matchBox'>
-                  FRIEND 7-11
-                </div>
+				{gameFetched ? 
+					<div className='matchBox'>
+					{dataMatches.map((stat: gameData) => {
+					return (
+						<LayoutGamestats display={stat} userID={friendid}/>
+					);
+					})}
+					</div>
+				: <div className='history_1' style={{fontSize:"25px"}}>Loading...</div>
+				}
             </div>
             <div className='achievements'>
                 {achievementName}

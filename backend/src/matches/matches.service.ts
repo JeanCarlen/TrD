@@ -137,8 +137,8 @@ export class MatchesService {
   }
 
   public async findByUserId(id: number, current_id: number) {
-	if (id != current_id)
-		throw new NotFoundException('Match not found.');
+	// if (id != current_id)
+	// 	throw new NotFoundException('Match not found.');
 	return await this.findAll(id);
   }
 
