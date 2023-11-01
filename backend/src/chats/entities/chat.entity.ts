@@ -27,4 +27,8 @@ export class Chats extends BaseEntity{
 	@Column({type: 'varchar', length: 100, nullable: true})
 	@ApiProperty({example: 'Password1234', description: 'The password of the chat (for private chat), null in unprotected chats.'})
 	password: string;
+
+	@Column({type: 'boolean', default: false})
+	@ApiProperty({example: false, description: 'Whether the chat is protected by a password or not.'})
+	protected: boolean;
  }

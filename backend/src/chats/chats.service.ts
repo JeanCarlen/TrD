@@ -13,6 +13,8 @@ import { UserchatsService } from 'src/userchats/userchats.service';
 import { UsersResponse } from 'src/users/dto/users.response';
 import { Users } from 'src/users/entities/users.entity';
 import { UserChatsResponse } from 'src/userchats/dto/userchat.response';
+import { ChatsResponse } from './dto/chats.response';
+const bcrypt = require('bcrypt');
 
 @Injectable()
 export class ChatsService {
@@ -39,7 +41,7 @@ export class ChatsService {
 	return true;
   }
 
-  public async create(createChatDto: CreateChatDto) {
+  public async create(createChatDto: CreateChatDto): Promise<ChatsResponse> {
 	if (!createChatDto.name) {
 		createChatDto.name = uuidv4();
 	}
@@ -47,7 +49,14 @@ export class ChatsService {
 	chat.type = createChatDto.type;
 	chat.name = createChatDto.name;
 	chat.owner = createChatDto.owner;
-  chat.password = createChatDto?.password;
+	if (createChatDto.password){
+		chat.password = await bcrypt.hash(createChatDto.password, 10);
+		chat.protected = true;
+	}
+	else {
+		chat.password = null;
+		chat.protected = false;
+	}
 
 	const inserted_chat: Chats = await this.chatsRepository.save(chat);
 	const inserted: UserChatsResponse = await this.userchatsService.create({chat_id: inserted_chat.id, user_id: chat.owner});
@@ -57,7 +66,36 @@ export class ChatsService {
 			description: `Error creating chat.`,
 		});
 	}
-    return inserted_chat;
+	const response: ChatsResponse = {
+		id: inserted_chat.id,
+		type: inserted_chat.type,
+		name: inserted_chat.name,
+		owner: inserted_chat.owner,
+		total_count: 1,
+	}
+    return response;
+  }
+
+  public async isProtected(id: number): Promise<boolean> {
+	const chat: Chats = await this.chatsRepository.findOne({ where: { id: id}})
+	if (!chat) {
+		throw new NotFoundException(['Unknown chat.'], {
+			cause: new Error(),
+			description: `Unknown chat.`,
+		});
+	}
+	return chat.protected;
+  }
+
+  public async isPasswordValid(id: number, password: string): Promise<boolean> {
+	const chat: Chats = await this.chatsRepository.findOne({ where: { id: id}})
+	if (!chat) {
+		throw new NotFoundException(['Unknown chat.'], {
+			cause: new Error(),
+			description: `Unknown chat.`,
+		});
+	}
+	return await bcrypt.compare(password, chat.password);
   }
 
   public async findChatUsers(id: number, current_id: number): Promise<UsersResponse[]> {
