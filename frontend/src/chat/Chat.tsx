@@ -41,7 +41,6 @@ const Chat: React.FC = () => {
 	const [roomName, setRoomName] = useState<string>('');
 	const [messages, setMessages] = useState<sentMessages[]>([]);
 	const [currentChat, setCurrentChat] = useState<chatData>();
-	const [roomFail, setRoomFail] = useState<number>(0);
 	const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
@@ -68,8 +67,6 @@ const Chat: React.FC = () => {
 		})
 		try {
 			const data = await response.json();
-			// const print = JSON.stringify(data);
-			// console.log("data: ", print);
 			if (response.ok)
 			{
 				// console.log("data: ", data);
@@ -86,7 +83,6 @@ const Chat: React.FC = () => {
 	}
 
 	const handleRoomChange = (room: string, password: string | null) => {
-		setRoomFail(1);
 		console.log("next room: ", room);
 		console.log("currentRoom is : ", currentRoom);
 		// socket.emit('leave-room', { roomName: currentRoom, socketID: socket.id, client: content?.user }); -- removed to test
@@ -191,7 +187,7 @@ const Chat: React.FC = () => {
 	}, [loggedIn]);
 
 	useEffect(() => {
-		socket.on('room-join-error', (err) => {
+		socket.on('room-join-error', (err: Error) => {
 			console.log("error in joining room: ", err);
 			toast.error(err, {
 				position: toast.POSITION.BOTTOM_LEFT,
@@ -199,7 +195,6 @@ const Chat: React.FC = () => {
 		setCurrentRoom('default');
 		setCurrentChat(undefined);
 		setMessages([]);
-		setRoomFail(2);
 		});
 
 		return() => {

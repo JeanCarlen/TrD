@@ -230,7 +230,7 @@ const MultipleUsers: React.FC<MultipleUsersInter> = ({chat, members, token, sock
 				</Menu>
 			</li>
 		))}
-		<button onClick={() => deleteChannel(chat, socket)}>delete channel</button>
+		<button onClick={() => deleteChannel(chat, socket)}>leave channel</button>
 		</div>
 	)
 };

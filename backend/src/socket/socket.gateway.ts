@@ -33,12 +33,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         this.server.on('connection', async (socket: Socket) => {
             console.log(`${socket.id} connected`);
             this.handleConnection(socket);
-            // try {
-            //     const roomList = await this.ChatsService.findAll();
-            //     console.log(roomList);
-            // } catch (error) {
-            //     console.error('Error listing rooms:', error.message);
-            // }
         });
     }
 
@@ -58,7 +52,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         console.log("into pong init setup, message is ", message);
         client.join(message.roomName);
         const room = this.server.sockets.adapter.rooms.get(message.roomName);
-        if (room && room.size == 2) {
+        if (room && room.size >= 2) {
             console.log("into if, roomName is ", message.roomName);
             client.emit('pong-init-setup', room.size);
             this.server.to(message.roomName).emit('game-start', message.roomName);
@@ -71,18 +65,30 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @SubscribeMessage('waitList')
     async onWaitList(client: Socket) {
         console.log("into wait list");
-        this.WaitList.push(client);
-		console.log("wait list is (1) ", this.WaitList);
-        if(this.WaitList.length >= 2)
-        {
-            const roomName = this.WaitList[0].id + this.WaitList[1].id;
-            console.log("roomName is ", roomName);
-            console.log("wait list is ", this.WaitList);
-            await this.onPongInitSetup(this.WaitList[0], {roomName: roomName});
-            await this.onPongInitSetup(this.WaitList[1], {roomName: roomName});
-            this.WaitList.pop();
-			this.WaitList.pop();
-        }
+		try {
+			const userInWaitList = this.WaitList.find((one) => (one.id === client.id));
+			if (userInWaitList === undefined)
+			{
+				this.WaitList.push(client);
+			}
+			else
+			{
+				console.log('Found:', userInWaitList.id)
+				throw new Error(`User already in wait list`);
+			}
+			if(this.WaitList.length >= 2)
+			{
+				const roomName = this.WaitList[0].id + this.WaitList[1].id;
+				await this.onPongInitSetup(this.WaitList[0], {roomName: roomName});
+				await this.onPongInitSetup(this.WaitList[1], {roomName: roomName});
+				this.WaitList.pop();
+				this.WaitList.pop();
+			}
+		} catch (error) {
+			console.log('Error joining wait list:', error.message);
+			this.WaitList.map((client) => {console.log(client.id)});
+			this.server.to(client.id).emit('room-join-error', error.message);
+		}
     }
 
     @SubscribeMessage('delete-channel')
@@ -116,13 +122,11 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define the onGoal method to handle when a goal is scored
     @SubscribeMessage('goal')
     onGoal(client: Socket, data: { score1: number, score2: number, roomName: string }) {
-        if(data.score1 < 10 && data.score2 < 10) {
-            console.log("into goal");
+        if(data.score1 < 3 && data.score2 < 3) {
 			console.log('goal scored');
             this.server.to(data.roomName).emit('goal', {score1: data.score1, score2: data.score2});
         };
-        if(data.score1 == 10 || data.score2 == 10) {
-            console.log("into win");
+        if(data.score1 == 3 || data.score2 == 3) {
             this.server.to(data.roomName).emit('game-over',  {score1: data.score1, score2: data.score2});
         }
     }
@@ -139,7 +143,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 					throw new Error(`Room already exists`);
 				}
 			}
-			);			
+			);
 			const createdRoom = await this.ChatsService.create({
                 name: message.roomName,
                 type: ChatType.CHANNEL,
@@ -182,7 +186,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             }
             client.join(message.roomName);
 			const list = await this.UserchatsService.findByChatId(chats.id);
-//            console.log("list is ", list);
 			list.map((userchat) => {
                 if (userchat.user_id == message.client) {
                     console.log(`User ${message.client} already in room ${message.roomName}.`);

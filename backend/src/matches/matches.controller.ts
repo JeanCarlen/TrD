@@ -53,7 +53,7 @@ export class MatchesController {
   }
 
   @Get('/users/:id')
-  @UseGuards(AuthGuard, CurrentGuard)
+  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all matches of a user.', description: 'Get all matches where the current user is involved (same as GET /api/matches).' })
   @ApiResponse({ status: 200, description: 'Return all matches.', type: [MatchesResponse] })

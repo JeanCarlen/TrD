@@ -3,46 +3,65 @@ import './Stats.css';
 import Sidebar from "../Components/Sidebar";
 import LayoutGamestats from "./Layout-gamestats";
 import LayoutPlayerstats from "./Layout-playerstats"
-import { autoGetFetch } from "../helpers/helpers";
+import Cookies from 'js-cookie'
+import decodeToken from '../helpers/helpers'
 
-export interface gameInfo{
-	score1: number,
-	score2: number,
-	player1: string,
-	player2:string,
-};
+export type User = {
+	username: string,
+	login42: string,
+	avatar: string,
+}
+
+export type gameData = {
+	id: number,
+	score_1: number,
+	score_2: number,
+	status: number // 0 = ongoing, 1 = finished
+	status_text_en: string,
+	status_text_fr: string,
+	user_1: number,
+	user_1_data: User,
+	user_2: number,
+	user_2_data: User,
+}
 
 const Stats: React.FunctionComponent = () => {
-  
 
-	const [gameFetched, setGameFetched] = useState<boolean>(false)
-
-	const data1: gameInfo= {
-		score1: 11,
-		score2: 2,
-		player1: 'Steve',
-		player2: 'Patrick',
-	}
-	
-	const data2: gameInfo= {
-		score1: 6,
-		score2: 11,
-		player1: 'Steve',
-		player2: 'Jcarlen',
-	}
-
-	const alldata: gameInfo[]= [data1, data2];
+	const [gameFetched, setGameFetched] = useState<boolean>(false);
+	const [alldata, setAllData] = useState<gameData[]>([]);
+	const token: string|undefined = Cookies.get("token");
+	let content: {username: string, user: number, avatar: string};
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-	const yourFunction = async () => {
-		await delay(5000);
-		setGameFetched(true);
-	  };
-
 	useEffect (() => {
-		yourFunction();
+		fetchMatches();
 	}, []);
+
+	const fetchMatches = async () => {
+		const response = await fetch('http://localhost:8080/api/matches', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			},
+			});
+		if (response.ok)
+		{
+			const data = await response.json();
+			setGameFetched(true);
+			setAllData(data);
+		}
+		else
+		{
+			console.log("Error fetching matches");
+		}
+	}
+
+	if (token != undefined)
+      content = decodeToken(token);
+    else
+      content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
 
 	return (
     <div className='stats-container'>
@@ -57,9 +76,9 @@ const Stats: React.FunctionComponent = () => {
 
 		{gameFetched ? 
 			<div className='history_1'>
-			{alldata.map((achievement) => {
+			{alldata.map((stat: gameData) => {
 					return (
-						<LayoutGamestats {...achievement}/>
+						<LayoutGamestats display={stat} userID={content.user}/>
 					);
 			})}
 			</div>

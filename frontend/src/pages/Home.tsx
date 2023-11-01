@@ -24,50 +24,48 @@ import Searchbar from '../Components/Searchbar'
 import FriendList from '../Components/Friends'
 import UserInformation from '../Components/UserInformation'
 import LayoutGamestats from './Layout-gamestats'
-import {gameInfo} from './Stats'
 import {ToastContainer, toast} from 'react-toastify'
+import {gameData, User} from './Stats'
 
 type Props = {}
 
+
+
 const Home = (props: Props) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [gameFetched, setGameFetched] = useState<boolean>(false);
+  const [dataLast, setDataLast] = useState<gameData[]>([]);
   const [friendsFetched, setFriendsFetched] = useState<boolean>(false);
   const token: string|undefined = Cookies.get("token");
   let content: {username: string, user: number, avatar: string};
 
-	const data1: gameInfo= {
-		score1: 11,
-		score2: 2,
-		player1: 'Steve',
-		player2: 'Patrick',
-	}
-
-	const data2: gameInfo= {
-		score1: 6,
-		score2: 11,
-		player1: 'Steve',
-		player2: 'Jcarlen',
-	}
-
-	const data3: gameInfo= {
-		score1: 11,
-		score2: 5,
-		player1: 'Steve',
-		player2: 'ALEX',
-	}
-
-	const data4: gameInfo= {
-		score1: 9,
-		score2: 11,
-		player1: 'Steve',
-		player2: 'Eliott',
-	}
-
-	const alldata: gameInfo[]= [data1, data2, data3, data4];
-	const dataLast: gameInfo[] = alldata.slice(-3)
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+	const fetchMatches = async () => {
+		const response = await fetch(`http://localhost:8080/api/matches/users/${content.user}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			},
+			});
+		if (response.ok)
+		{
+			try {
+				const data = await response.json();
+				setGameFetched(true);
+				console.log("Data fetched", data);
+				setDataLast(data.slice(-3));
+			}
+			catch (e) {
+				console.log("Error in response", e);
+			}
+		}
+		else
+		{
+			console.log("Error fetching matches");
+		}
+	}
 
 	const yourFunction = async () => {
 		await delay(5000);
@@ -104,7 +102,7 @@ const Home = (props: Props) => {
     };
 
 	useEffect (() => {
-		yourFunction();
+		fetchMatches();
 	}, []);
 
     return (
@@ -147,9 +145,9 @@ const Home = (props: Props) => {
                 match history<br/>
                 {gameFetched ? 
 					<div className='matchBox'>
-					{dataLast.map((achievement) => {
+					{dataLast.map((achievement: gameData) => {
 					return (
-						<LayoutGamestats {...achievement}/>
+						<LayoutGamestats display={achievement} userID={content.user}/>
 					);
 					})}
 					</div>
