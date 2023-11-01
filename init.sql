@@ -33,6 +33,8 @@ CREATE TABLE chats (
 	"type" integer NOT NULL,
 	"name" varchar(100) NULL,
 	"owner" integer NOT NULL,
+	"password" varchar(72) NULL,
+	"protected" boolean NOT NULL DEFAULT false,
 	CONSTRAINT "chats_pk" PRIMARY KEY ("id")
 );
 CREATE TABLE friends (
