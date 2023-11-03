@@ -50,7 +50,7 @@ const Stats: React.FunctionComponent = () => {
 		{
 			const data = await response.json();
 			setGameFetched(true);
-			setAllData(data);
+			setAllData(data.reverse());
 		}
 		else
 		{

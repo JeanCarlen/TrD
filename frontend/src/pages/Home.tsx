@@ -55,7 +55,7 @@ const Home = (props: Props) => {
 				const data = await response.json();
 				setGameFetched(true);
 				console.log("Data fetched", data);
-				setDataLast(data.slice(-3));
+				setDataLast(data.slice(-3).reverse());
 			}
 			catch (e) {
 				console.log("Error in response", e);

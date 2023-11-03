@@ -42,6 +42,24 @@ interface Ball{
 	speed_x: number
 }
 
+function usePageVisibility() {
+	const [isVisible, setIsVisible] = useState(!document.hidden);
+
+	useEffect(() => {
+	const handleVisibilityChange = () => {
+		setIsVisible(!document.hidden);
+	};
+
+	window.addEventListener('visibilitychange', handleVisibilityChange);
+
+	return () => {
+		window.removeEventListener('visibilitychange', handleVisibilityChange);
+	};
+	}, []);
+	return isVisible;
+}
+
+
 const GameSocket: React.FC = () => {
 let content: {username: string, user: number, avatar: string};
 const bodyNavigate = useNavigate();
@@ -52,6 +70,8 @@ let intervalId: number= 0;
 let paddleSize: number = 150;
 let cowLogoImage: HTMLImageElement = new Image();
 const canvasRef = useRef<HTMLCanvasElement>();
+const isVisible = usePageVisibility();
+
 
 let data = useRef<GameData>({
 	NameOfRoom: '',
@@ -136,7 +156,7 @@ useEffect(() => {
 		data.current.player1.pNumber= playerNumber;
 		});
 
-	socket.on('goal', (dataBack: {score1: number, score2: number}) => {
+	socket.on('goal', async (dataBack: {score1: number, score2: number}) => {
 			console.log(`goal --> new score ${dataBack.score1} - ${dataBack.score2}` )
 			data.current.ball.pos_x = 100;
 			data.current.ball.pos_y = 100;
@@ -145,9 +165,26 @@ useEffect(() => {
 			data.current.score1 = dataBack.score1;
 			data.current.score2 = dataBack.score2;
 			data.current.converted = false;
-			data.current.paused = 0;
+			data.current.paused = 5;
 			if (data.current.player1.pNumber === 1)
-				postScore(dataBack.score1, dataBack.score2, 0, data.current.gameID);
+			{
+				await postScore(dataBack.score1, dataBack.score2, 0, data.current.gameID);
+				socket.emit('ready', {roomName: data.current.NameOfRoom});
+			}
+
+	});
+
+	socket.on('ready', ()=>{
+		data.current.paused=5;
+		let intervalPause = setInterval(()=>{
+			if (data.current.paused > 0){
+				data.current.paused -= 1;
+				console.log('paused: ', data.current.paused);
+			}
+		}, 1000);
+		if (data.current.paused == 0)
+			clearInterval(intervalPause);
+
 	});
 
 	socket.on('leave-game', (roomName: string) => {
@@ -186,6 +223,7 @@ useEffect(() => {
 			{
 				let fetchback = await createMatch(data.current.player1.id, data.current.player2.id);
 				data.current.gameID = fetchback.id;
+				socket.emit('ready', {roomName: data.current.NameOfRoom});
 			}
 		}
 		else if (data.current.player1.pNumber === 2)
@@ -220,6 +258,7 @@ useEffect(() => {
 		await delay(6000);
 		try{
 			bodyNavigate('/Home');
+			clearInterval(intervalId);
 		}
 		catch (e) {
 			console.log('error sending home', e);
@@ -262,6 +301,14 @@ useEffect(() => {
 		return data;
 	}
 
+	useEffect(() => {
+		if (isVisible) {
+		  console.log('User came back to the page');
+		} else {
+		  console.log('User left the page');
+		}
+	  }, [isVisible]);
+	  
 const updateGame = async() => {
 	if (!data.current.started)
 	{

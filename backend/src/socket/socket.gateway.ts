@@ -76,7 +76,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				console.log('Found:', userInWaitList.id)
 				throw new Error(`User already in wait list`);
 			}
-			if(this.WaitList.length >= 2)
+			if(this.WaitList !== undefined && this.WaitList.length >= 2)
 			{
 				const roomName = this.WaitList[0].id + this.WaitList[1].id;
 				await this.onPongInitSetup(this.WaitList[0], {roomName: roomName});
@@ -97,6 +97,14 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         this.server.to(data.roomName).emit('deleted', data);
     }
 
+	@SubscribeMessage('ready')
+	async onReady(@MessageBody() data: {roomName:string})
+	{
+		console.log('ready for room:', data.roomName);
+		this.server.to(data.roomName).emit('ready');
+		//wait 5 seconds
+		this.server.to(data.roomName).emit('go');
+	}
 
     @SubscribeMessage('exchange-info')
     onExchangeInfo(client: Socket, data: { myId : number, myName : string, myAvatar : string, roomName: string, playerNumber: number }) {

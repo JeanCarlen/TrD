@@ -99,10 +99,12 @@ const muteUser = async (chat: chatData|undefined, user: User, token: string|unde
 		socket.emit("delete-channel", {chat_id: chat.chat_id, roomName: chat.chat.name});
 	};
 
-const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id, socket }) => {
+const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id, socket }: FUCKLINTERFACESAMERE) => {
 	const token = Cookies.get('token');
 	const [chatMembers, setchatMembers] = useState<User[]>()
+	const [fetched, setFetched] = useState<boolean>(false);
 	const ChatType: number = 0;
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		socket.connect();
@@ -129,9 +131,12 @@ const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id, socket 
 	}, [socket, chatMembers]);
 
 
-
+	const goToProfile = (user: User) => {
+		navigate(`/profiles/${user.username}`);
+	};
 
 	async function getData (chatData: chatData|undefined) {
+		setFetched(false);
 		console.log('user_id', user_id);
 		console.log('chatData: ',chatData);
 		if (chatData === undefined)
@@ -150,6 +155,7 @@ const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id, socket 
 		{
 			const data = await response.json()
 			setchatMembers(data)
+			setFetched(true);
 		}
 		else
 		{
@@ -158,61 +164,10 @@ const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id, socket 
 		}
 	}
 
-
-	if (ChatType === 0)
-	{
-		return (
-			<div className='chat-interface'>
-				<h2>Online Users</h2>
-				<ul>
-					{chatMembers && <MultipleUsers chat={chatData} members={chatMembers} token={token} socket={socket}/>}
-				</ul>
-			</div>
-		);
-	}
-	else if (ChatType === 1)
-	if (Array.isArray(chatMembers) && chatMembers.length > 0) {
-		return (
-			<div className='chat-interface'>
-				<h2>Online Users</h2>	
-				<ul>
-					<OnlyOneUser user={chatMembers[0]}/>
-				</ul>
-			</div>
-		);
-	} else {
-		return (
-			<div className='chat-interface'>
-				<h2>Online Users</h2>
-				<div>No users online</div>
-			</div>
-		);
-	}
-	else
-	{
-		return (
-			<div className='chat-interface'>
-			I don't know what you did, but somehow you broke our stuff!
-			</div>
-		)
-	}
-};
-
-const OnlyOneUser: React.FC<OneUserInter> = ({user}) => {
-
 	return (
 		<div>
-			<span className="messages">
-					{user.username}
-			</span>
-		</div>
-	)
-};
-
-const MultipleUsers: React.FC<MultipleUsersInter> = ({chat, members, token, socket}) => {
-	return (
-		<div>
-			{members.map((user: User) => (
+			{fetched ? <div>
+			{chatMembers.map((user: User) => (
 			<li key={user.id} className= "friendslist" >
 				<span className="messages">
 					{user.username}
@@ -225,14 +180,15 @@ const MultipleUsers: React.FC<MultipleUsersInter> = ({chat, members, token, sock
 					<MenuItem className='Addfriend' onClick={() => handleAddUser(user)}>Add as a friend</MenuItem>
 					<MenuItem className='Addfriend' onClick={() => handleBlockUser(user)}> Block User </MenuItem>
 					<MenuItem className='Addfriend' onClick={() => invitePong(user)}> Invite for a pong </MenuItem>
-					<MenuItem className='Addfriend' onClick={() => muteUser(chat, user, token)}> set User as Admin </MenuItem>
+					<MenuItem className='Addfriend' onClick={() => muteUser(chatData, user, token)}> set User as Admin </MenuItem>
+					<MenuItem className='Addfriend' onClick={() => goToProfile(user)}> See Profile </MenuItem>
 				</MenuList>
 				</Menu>
 			</li>
-		))}
-		<button onClick={() => deleteChannel(chat, socket)}>leave channel</button>
+		))} </div> : <div className="history_1">Loading...</div>}
+		<button onClick={() => deleteChannel(chatData, socket)}>leave channel</button>
 		</div>
 	)
-};
+}
 
 	export default IdChatUser;
