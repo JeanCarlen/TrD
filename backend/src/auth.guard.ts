@@ -20,7 +20,7 @@ export class AuthGuard implements CanActivate {
       const payload = jwt.verify(token, process.env.JWT_SECRET, {
         algorithm: 'RS256',
       });
-      if (payload.twofaenabled) throw new UnauthorizedException();
+      if (payload.twofacodereq) throw new UnauthorizedException();
       request['user'] = payload;
     } catch {
       throw new UnauthorizedException();
