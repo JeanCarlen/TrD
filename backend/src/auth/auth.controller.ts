@@ -101,6 +101,7 @@ export class AuthController {
     );
     if (!isCodeValid)
       throw new UnauthorizedException('Wrong authentication code.');
+	request.user.id = request.user.user;
     return {
       message: ['Succesffully logged in'],
       token: this.usersService.getJWT(request.user, false, true),
