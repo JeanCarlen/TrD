@@ -38,6 +38,7 @@ const Stats: React.FunctionComponent = () => {
 		fetchMatches();
 	}, []);
 
+
 	const fetchMatches = async () => {
 		const response = await fetch('http://localhost:8080/api/matches', {
 			method: 'GET',
@@ -71,7 +72,7 @@ const Stats: React.FunctionComponent = () => {
       <div className='grid' style={{paddingBottom:"10vh"}}>
           {/* <h2>Match History</h2> */}
         <div className='history_1' style={{overflowY:"auto"}}>
-			<LayoutPlayerstats/>
+			<LayoutPlayerstats data={alldata} User={content}/>
 		</div>
 
 		{gameFetched ? 

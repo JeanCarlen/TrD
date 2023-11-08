@@ -244,6 +244,10 @@ useEffect(() => {
 		}
 	});
 
+	socket.on('forfeit', (dataBack: {playerNumber: number}) => {
+		console.log('user ', dataBack.playerNumber, 'forfeited');
+	});
+
 	socket.on('game-over', async (dataBack: {score1: number, score2: number}) => {
 		data.current.paused = 5;
 		console.log('game over');
@@ -304,8 +308,10 @@ useEffect(() => {
 	useEffect(() => {
 		if (isVisible) {
 		  console.log('User came back to the page');
+		  socket.emit('user-left', {way: 0,roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, time: Date.now()});
 		} else {
 		  console.log('User left the page');
+		  socket.emit('user-left', {way: 1,roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, time: Date.now()});
 		}
 	  }, [isVisible]);
 	  

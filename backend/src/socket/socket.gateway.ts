@@ -17,13 +17,16 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define a logger and a map of rooms
     private readonly logger = new Logger(SocketGateway.name);
     private readonly rooms = new Map<string, Set<string>>();
+	private intervalID = setInterval(() => this.checkForfeit(), 5000);
+	private LeftList = new Map<string, {roomName: string, playerNumber: number, date: number}>;
+
     
     // Inject the ChatsService into the constructor
     constructor(private readonly ChatsService: ChatsService,
                 private readonly UserchatsService: UserchatsService,
                 private readonly MessageService: MessagesService,
                 private readonly ChatadminsService: ChatadminsService) {}
-    
+
     // Define the WebSocketServer and an array of clients
     @WebSocketServer()
     private server: Server;
@@ -35,6 +38,18 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             this.handleConnection(socket);
         });
     }
+
+	checkForfeit() {
+		this.LeftList.forEach((value, key) => {
+			console.log("checking forfeit for ", key);
+			if (Date.now() - value.date > 10000)
+			{
+				console.log("forfeit");
+				this.server.to(value.roomName).emit('forfeit', value.playerNumber);
+				this.LeftList.delete(key);
+			}
+		});
+	}
 
     // Define the handleConnection method to log when a client connects
     handleConnection(client: Socket, ...args: any[]) {
@@ -209,6 +224,16 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			}
         }
     }
+
+	@SubscribeMessage('user-left')
+	async onUserLeft(client: Socket, message:{way:number, roomName: string, playerNumber: number, date:number }): Promise<void> {
+		
+		if (message.way == 1)
+			this.LeftList[client.id] = {roomName: message.roomName, date: message.date, playerNumber: message.playerNumber};
+		else if (message.way == 0)
+			this.LeftList.delete(client.id);
+		console.log("into user left", message.playerNumber);
+	}
 
     // Define the onCreateSomething method to handle creating something
     @SubscribeMessage('create-something')
