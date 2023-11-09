@@ -244,8 +244,36 @@ useEffect(() => {
 		}
 	});
 
-	socket.on('forfeit', (dataBack: {playerNumber: number}) => {
-		console.log('user ', dataBack.playerNumber, 'forfeited');
+	socket.on('forfeit', async (dataBack: {player: number, max: number, gameID: number}) => {
+		console.log('user ', dataBack.player, 'forfeited');
+		if (dataBack.player !== data.current.player1.pNumber)
+		{
+			if (dataBack.gameID != 0)
+				data.current.gameID = dataBack.gameID;
+			if (data.current.player1.pNumber === 1)
+				data.current.score1 = dataBack.max;
+			else if (data.current.player1.pNumber === 2)
+				data.current.score2 = dataBack.max;
+
+			data.current.paused = 5;
+			await postScore(data.current.score1, data.current.score2, 1, data.current.gameID);
+			await delay(6000);
+			try{
+				bodyNavigate('/Home');
+			}
+			catch (e) {
+				console.log('error sending home', e);
+			}
+		}
+		else
+		{
+			try{
+				bodyNavigate('/Home');
+			}
+			catch (e) {
+				console.log('error sending home', e);
+			}
+		}
 	});
 
 	socket.on('game-over', async (dataBack: {score1: number, score2: number}) => {
@@ -278,6 +306,7 @@ useEffect(() => {
 		socket.off('paddle-send');
 		socket.off('exchange-info');
 		socket.off('goal');
+		socket.off('forfeit');
 		socket.off('game-over');
 	};
 	}, [socket]);
@@ -308,10 +337,10 @@ useEffect(() => {
 	useEffect(() => {
 		if (isVisible) {
 		  console.log('User came back to the page');
-		  socket.emit('user-left', {way: 0,roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, time: Date.now()});
+		//   socket.emit('user-left', {way: 0,roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, time: Date.now()});
 		} else {
 		  console.log('User left the page');
-		  socket.emit('user-left', {way: 1,roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, time: Date.now()});
+		  socket.emit('user-left', {roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, gameID: data.current.gameID});
 		}
 	  }, [isVisible]);
 	  
