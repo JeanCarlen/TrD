@@ -52,7 +52,8 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         console.log("into pong init setup, message is ", message);
         client.join(message.roomName);
         const room = this.server.sockets.adapter.rooms.get(message.roomName);
-        if (room && room.size >= 2) {
+        console.log("size is ", room.size);
+        if (room != undefined && room.size >= 2) {
             console.log("into if, roomName is ", message.roomName);
             client.emit('pong-init-setup', room.size);
             this.server.to(message.roomName).emit('game-start', message.roomName);
@@ -76,7 +77,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				console.log('Found:', userInWaitList.id)
 				throw new Error(`User already in wait list`);
 			}
-			if(this.WaitList.length >= 2)
+			if(this.WaitList !== undefined && this.WaitList.length >= 2)
 			{
 				const roomName = this.WaitList[0].id + this.WaitList[1].id;
 				await this.onPongInitSetup(this.WaitList[0], {roomName: roomName});
@@ -129,6 +130,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         if(data.score1 == 3 || data.score2 == 3) {
             this.server.to(data.roomName).emit('game-over',  {score1: data.score1, score2: data.score2});
         }
+    }
+
+    @SubscribeMessage('bonus')
+    onBonus(client: Socket, data: { roomName: string, playerNumber: number }) {
+        console.log("into bonus");
+        this.server.to(data.roomName).emit('bonus-player', data);
     }
 
     // Define the onCreateRoom method to handle creating a chat room

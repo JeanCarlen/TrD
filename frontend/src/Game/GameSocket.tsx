@@ -20,9 +20,11 @@ export interface GameData
 	bonus: Ball,
 	started: boolean,
 	converted: boolean,
+	bonusconverted: boolean,
 	paused: number,
 	color: string,
 	gameID: number,
+	bonusActive: boolean,
 }
 
 interface Players{
@@ -89,9 +91,11 @@ let data = useRef<GameData>({
 	},
 	started: false,
 	converted: false,
+	bonusconverted: false,
 	paused: 0,
 	color: 'pink',
 	gameID: 0,
+	bonusActive: true,
 });
 
 const socket = useContext(WebsocketContext);
@@ -119,6 +123,14 @@ useEffect(() => {
 },[]);
 
 useEffect(() => {
+
+	setInterval(() => {
+		let rand = randomNumberInRange(1, 100);
+		console.log('random number: ', rand);
+		if(rand >= 50)
+			data.current.bonusActive = true;
+	}
+	, 5000);
 
 	socket.on('connect', () => {
 		console.log(socket.id);
@@ -161,6 +173,41 @@ useEffect(() => {
 			data.current.player2.pos_x = 600 - dataBack.pos_x - paddleSize;
 	});
 
+	socket.on('bonus-player', (dataBack: any) => {
+		let rand = randomNumberInRange(0, 3);
+		if (dataBack.playerNumber === 1)
+		{
+			if (dataBack.playerNumber === data.current.player1.pNumber)
+			{
+				data.current.ball.speed_y = 6;
+				data.current.bonusActive = false;
+
+			}
+			else if (dataBack.playerNumber === data.current.player2.pNumber)
+			{
+				data.current.ball.speed_y = -6;
+				data.current.bonusActive = false;
+
+			}
+		}
+		else if (dataBack.playerNumber === 2)
+		{
+			if(dataBack.playerNumber === data.current.player1.pNumber)
+			{
+				data.current.ball.speed_y = -6;
+				data.current.bonusActive = false;
+
+			}
+			else if (dataBack.playerNumber === data.current.player2.pNumber)
+			{	
+				data.current.ball.speed_y = 6;
+				data.current.bonusActive = false;
+
+			}
+		}
+		}
+	);
+
 	socket.on('exchange-info', async (dataBack: any) => {
 		console.log("EXCHANGE: ",dataBack.myName);
 		if (data.current.player1.id === 0)
@@ -199,6 +246,12 @@ useEffect(() => {
 		pos_x: 100,
 		speed_y: 1,
 		speed_x: 2,
+		}
+		data.current.bonus = {
+		pos_y: 100,
+		pos_x: 100,
+		speed_y: 1,
+		speed_x: 3,
 		}
 		if (data.current.player1.pNumber === 2)
 		{
@@ -252,17 +305,30 @@ useEffect(() => {
 		}
 	}, [socket]);
 
-	function convert (data: GameData, height: number, width:number) {
+	function randomNumberInRange(min: number, max: number) {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
 
+	function convert (data: GameData, height: number, width:number) {
 		data.ball.speed_y *= -1;
 		data.ball.speed_x *= -1;
 		data.ball.pos_y = height - data.ball.pos_y;
 		data.ball.pos_x = width - data.ball.pos_x;
+		convertBonus(data, height, width);
 		data.converted = true;
 		return data;
 	}
 
-const updateGame = async() => {
+	function convertBonus (data: GameData, height: number, width:number) {
+		data.bonus.speed_y *= -1;
+		data.bonus.speed_x *= -1;
+		data.bonus.pos_y = height - data.bonus.pos_y;
+		data.bonus.pos_x = width - data.bonus.pos_x;
+		data.bonusconverted = true;
+		return data;
+	}
+
+	const updateGame = async() => {
 	if (!data.current.started)
 	{
 		return ;
@@ -276,11 +342,16 @@ const updateGame = async() => {
 
 	const ctx = canvas.getContext('2d')!;
 	if (data.current.player1.pNumber === 2 && !data.current.converted)
+	{
 		data.current = convert(data.current, canvas.height, canvas.width);
+		data.current = convertBonus(data.current, canvas.height, canvas.width);
+	}
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	const newBallX = data.current.ball.pos_x + data.current.ball.speed_x;
 	const newBallY = data.current.ball.pos_y + data.current.ball.speed_y;
+	const newBonusX = data.current.bonus.pos_x + data.current.bonus.speed_x;
+	const newBonusY = data.current.bonus.pos_y + data.current.bonus.speed_y;
 	// limit max ball speed
 	if ((data.current.ball.speed_x > 20) || (data.current.ball.speed_x < - 20)) {
 		data.current.ball.speed_x = 20;
@@ -288,8 +359,15 @@ const updateGame = async() => {
 	}
 	// bounce off of left/right walls
 	if ((newBallX < 0) || (newBallX > canvas.width)) {
-		// a garder
 		data.current.ball.speed_x = -data.current.ball.speed_x;
+	}
+
+	if(newBonusY < 0 || newBonusY > canvas.height) {
+		data.current.bonus.speed_y = -data.current.bonus.speed_y;
+	}
+
+	if(newBonusX < 0 || newBonusX > canvas.width) {
+		data.current.bonus.speed_x = -data.current.bonus.speed_x;
 	}
 	// check for collision with paddle
 	if ((newBallY < 20 && (newBallX >= data.current.player2.pos_x && newBallX <= data.current.player2.pos_x + paddleSize))
@@ -301,9 +379,30 @@ const updateGame = async() => {
 		// 	Bounce(newBallX, newBallY, data.current.ball.speed_x, data.current.ball.speed_y);
 		// else if (data.current.player1.pNumber === 2)
 		// 	Bounce(newBallX, newBallY, -data.current.ball.speed_x, -data.current.ball.speed_y);
-
 	}
 
+	if((newBonusY < 20 && (newBonusX >= data.current.player2.pos_x && newBonusX <= data.current.player2.pos_x + paddleSize)) || 
+	(newBonusY > canvas.height - 20 && (newBonusX >= data.current.player1.pos_x && newBonusX <= data.current.player1.pos_x + paddleSize))) {
+		if(data.current.bonusActive = true)
+		{
+			console.log('bonus collected');
+			data.current.bonusActive = false;
+
+			if (data.current.player1.pNumber === 1)
+			{
+				data.current.bonus.pos_x = 100;
+				data.current.bonus.pos_y = 100;
+				socket.emit('bonus', {roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber});
+			}
+			if (data.current.player2.pNumber === 2)
+			{
+				data.current.bonus.pos_x = -100;
+				data.current.bonus.pos_y = -100;
+				socket.emit('bonus', {roomName: data.current.NameOfRoom, playerNumber: data.current.player2.pNumber});
+			}
+		}
+		}
+		
 	// check for goal on player 1 side - change into socket goal
 	// add a paused effect
 	if(newBallY > canvas.height && data.current.paused === 0) {
@@ -319,6 +418,11 @@ const updateGame = async() => {
 		// calculating new position - keep
 		data.current.ball.pos_x = newBallX;
 		data.current.ball.pos_y = newBallY;
+		if(data.current.bonusActive === true)
+		{
+			data.current.bonus.pos_x = newBonusX;
+			data.current.bonus.pos_y = newBonusY;
+		}
 	}
 	// drawing elements - keep
 	ctx.fillStyle = data.current.color;
@@ -328,7 +432,10 @@ const updateGame = async() => {
 	if (data.current.paused > 0)
 		ctx.fillText(data.current.paused.toString(), canvas.width / 2, canvas.height / 2);
 	ctx.beginPath();
-	ctx.arc(data.current.bonus.pos_x, data.current.bonus.pos_y, 10, 0, Math.PI * 2, true);
+	if (data.current.bonusActive === true)
+	{
+		ctx.arc(data.current.bonus.pos_x, data.current.bonus.pos_y, 10, 0, Math.PI * 2, true);
+	}
 	//adjuste ball to cow position
 	ctx.roundRect(data.current.player2.pos_x, data.current.player2.pos_y, paddleSize, 10, 5);
 	ctx.roundRect(data.current.player1.pos_x, canvas.height - 10, paddleSize, 10, 5);
@@ -416,10 +523,12 @@ const WaitingRoom = () => {
 	const handleKeyPress = (e: React.KeyboardEvent) => {
 	switch (e.key) {
 		case 'ArrowLeft':
-		Paddles(data.current.NameOfRoom, -1);
+		if(data.current.player1.pos_x >= 25)
+			Paddles(data.current.NameOfRoom, -1);
 		break;
 		case 'ArrowRight':
-		Paddles(data.current.NameOfRoom, 1);
+		if(data.current.player1.pos_x <= 425)
+			Paddles(data.current.NameOfRoom, 1);
 		break;
 		default:
 		break;
@@ -440,6 +549,7 @@ const WaitingRoom = () => {
 	<button onClick={WaitingRoom}>Waiting Room</button>
 	<button onClick={()=>{data.current.color = 'pink'}}>PINK</button>
 	<button onClick={()=>{data.current.color = 'blue'}}>BLUE</button>
+	<button onClick={()=>{paddleSize = 150}}>reset</button>
 	<ToastContainer/>
 	</div>
 	);
