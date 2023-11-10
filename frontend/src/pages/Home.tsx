@@ -112,14 +112,14 @@ const Home = (props: Props) => {
         <Sidebar/>
         <div>
           <div className='topBox'>
-            <form action=''>
+            {/* <form action=''>
               <input
               type="file"
               accept="image/*"
               ref={fileInputRef}
               onChange={handleAvatarChange}
               />
-            </form>
+            </form> */}
             <Wrap>
             <WrapItem className='profile-border'>
             <VStack spacing={4} alignItems="center">
@@ -127,9 +127,6 @@ const Home = (props: Props) => {
             size="2xl"
             src={content.avatar}
             />
-            <EditIcon
-            boxSize={10}
-        />
             </VStack>
               <h1 className="welcome">Hello {content.username}! </h1>
              </WrapItem>
@@ -141,7 +138,7 @@ const Home = (props: Props) => {
         <div className='displayGrid'>
             <div className='matchHistory'>
                 match history<br/>
-                {gameFetched ? 
+                {gameFetched ?
 					<div className='matchBox'>
 					{dataLast.map((achievement) => {
 					return (

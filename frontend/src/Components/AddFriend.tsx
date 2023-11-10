@@ -22,17 +22,19 @@ const AddFriend: React.FC<UserProps> = ({userID}) => {
 				content = decodeToken(token);
 			else
 			content = { username: 'default', user: 0}
-		const response = await fetch(`http://localhost:8080/api/friends`, {
+		const response = await fetch(`http://localhost:8080/api/friends/add/id/${userID}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				'Authorization': 'Bearer ' + token
 			},
-			body: JSON.stringify({requester: content.user , requested: userID, status: 0})
+			body: JSON.stringify({requester: content.user, requested: userID, status: "pending"}),
 		});
 		const data = await response.json()
 		console.log(data);
-		toast.info("Friend request sent!")
+		if (response.ok)
+			toast.success("Friend request sent!", { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-success' });
+
 	}
 
 	return (

@@ -49,7 +49,7 @@ const PrivateRoutes = () => {
 const Routes = (props: Props) => {
 	const navigate = useNavigate();
 	return (
-		<div className='loginTest'>
+		<div className="loginTest">
 			<Router>
 					<Route path="/login" element={<RegisterButton />} />
 					<Route path="/authenticate" element={<Enter2Fa />} />
