@@ -16,14 +16,15 @@ import { error } from "console";
 export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define a logger and a map of rooms
     private readonly logger = new Logger(SocketGateway.name);
-    private readonly rooms = new Map<string, Set<string>>();
+    private readonly rooms = new Map<string, Set<string>>();$
+	private readonly maxScore: number = 3;
     
     // Inject the ChatsService into the constructor
     constructor(private readonly ChatsService: ChatsService,
                 private readonly UserchatsService: UserchatsService,
                 private readonly MessageService: MessagesService,
                 private readonly ChatadminsService: ChatadminsService) {}
-    
+
     // Define the WebSocketServer and an array of clients
     @WebSocketServer()
     private server: Server;
@@ -98,6 +99,14 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         this.server.to(data.roomName).emit('deleted', data);
     }
 
+	@SubscribeMessage('ready')
+	async onReady(@MessageBody() data: {roomName:string})
+	{
+		console.log('ready for room:', data.roomName);
+		this.server.to(data.roomName).emit('ready');
+		//wait 5 seconds
+		this.server.to(data.roomName).emit('go');
+	}
 
     @SubscribeMessage('exchange-info')
     onExchangeInfo(client: Socket, data: { myId : number, myName : string, myAvatar : string, roomName: string, playerNumber: number }) {
@@ -123,11 +132,11 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define the onGoal method to handle when a goal is scored
     @SubscribeMessage('goal')
     onGoal(client: Socket, data: { score1: number, score2: number, roomName: string }) {
-        if(data.score1 < 3 && data.score2 < 3) {
+        if(data.score1 < this.maxScore && data.score2 < this.maxScore) {
 			console.log('goal scored');
             this.server.to(data.roomName).emit('goal', {score1: data.score1, score2: data.score2});
         };
-        if(data.score1 == 3 || data.score2 == 3) {
+        if(data.score1 == this.maxScore || data.score2 == this.maxScore) {
             this.server.to(data.roomName).emit('game-over',  {score1: data.score1, score2: data.score2});
         }
     }
@@ -208,6 +217,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			}
         }
     }
+
+	@SubscribeMessage('user-left')
+	async onUserLeft(client: Socket, message:{roomName: string, playerNumber: number, gameID: number}): Promise<void> {
+		console.log("into user left", message.playerNumber);
+		this.server.to(message.roomName).emit('forfeit', {player: message.playerNumber, max: this.maxScore, gameID: message.gameID});
+	}
 
     // Define the onCreateSomething method to handle creating something
     @SubscribeMessage('create-something')

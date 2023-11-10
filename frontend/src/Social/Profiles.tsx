@@ -109,7 +109,7 @@ const Profiles = (props: Props) => {
 				const data = await response.json();
 				setGameFetched(true);
 				console.log("Data fetched", data);
-				setDataMatches(data.slice(-3));
+				setDataMatches(data.slice(-3).reverse());
 			}
 			catch (e) {
 				console.log("Error in response", e);
