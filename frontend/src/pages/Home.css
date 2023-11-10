@@ -9,6 +9,15 @@
 
 }
 
+.settings
+{
+    flex-direction: row;
+    margin-right: -130vh;
+    margin-top: -8vh;
+    margin-bottom: 8vh;
+    gap: 1vh;
+}
+
 
 .displayGrid{
     display: flex;

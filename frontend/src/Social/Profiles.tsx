@@ -140,7 +140,6 @@ const Profiles = (props: Props) => {
             </Wrap>
             <div className='profile-border'>
               <AddFriend userID={friendid}/>
-            {/* <AddIcon cursor='pointer' boxSize={5} onClick={() => AddFriend(users)}/> */}
             Add {users} as a friend
             </div>
         </div>

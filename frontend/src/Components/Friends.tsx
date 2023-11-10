@@ -74,8 +74,8 @@ const FriendList: React.FC<{}> = () => {
               ) : (
                 <Icon viewBox='200' color='red.500'/>
               )}
-              	<Link to={`/profiles/${friend.requester}`}>
-                <Text marginLeft="2">{friend.requester}</Text>
+              	<Link to={`/profiles/${friend.requester_user.username}`}>
+                <Text marginLeft="2">{friend.requester_user.username}</Text>
               </Link>
             </Flex>
           </ListItem>
