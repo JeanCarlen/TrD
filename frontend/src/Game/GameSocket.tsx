@@ -98,14 +98,14 @@ let data = useRef<GameData>({
 	score1: 0,
 	score2: 0,
 	ball: {
-		pos_y: 100,
-		pos_x: 100,
+		pos_y: randomNumberInRange(100, 700),
+		pos_x: randomNumberInRange(100, 500),
 		speed_y: 1,
 		speed_x: 2,
 	},
 	bonus: {
-		pos_y: 100,
-		pos_x: 100,
+		pos_x : 100,
+		pos_y : 100,
 		speed_y: 1,
 		speed_x: 2,
 	},
@@ -124,7 +124,7 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 useEffect(() => {
 	// once at the start of the component
 	intervalId = window.setInterval(updateGame, 1000 / 30, data);
-	window.addEventListener('keydown', (e: KeyboardEvent) => handleKeyPress(e));
+	window.addEventListener('keydown' , (e: KeyboardEvent<Elemen>) => handleKeyPress(e));
 
 	cowLogoImage.src = cowLogo;
 	if (token != undefined)
@@ -148,7 +148,9 @@ useEffect(() => {
 		let rand = randomNumberInRange(1, 100);
 		console.log('random number: ', rand);
 		if(rand >= 50)
+		{
 			data.current.bonusActive = true;
+		}
 	}
 	, 5000);
 
@@ -211,18 +213,17 @@ useEffect(() => {
 	});
 
 	socket.on('bonus-player', (dataBack: any) => {
-		let rand = randomNumberInRange(0, 3);
 		if (dataBack.playerNumber === 1)
 		{
 			if (dataBack.playerNumber === data.current.player1.pNumber)
 			{
-				data.current.ball.speed_y = 6;
+				data.current.ball.speed_y = -6;
 				data.current.bonusActive = false;
 
 			}
 			else if (dataBack.playerNumber === data.current.player2.pNumber)
 			{
-				data.current.ball.speed_y = -6;
+				data.current.ball.speed_y = 6;
 				data.current.bonusActive = false;
 
 			}
@@ -231,13 +232,13 @@ useEffect(() => {
 		{
 			if(dataBack.playerNumber === data.current.player1.pNumber)
 			{
-				data.current.ball.speed_y = -6;
+				data.current.ball.speed_y = 6;
 				data.current.bonusActive = false;
 
 			}
 			else if (dataBack.playerNumber === data.current.player2.pNumber)
 			{	
-				data.current.ball.speed_y = 6;
+				data.current.ball.speed_y = -6;
 				data.current.bonusActive = false;
 
 			}
@@ -286,8 +287,8 @@ useEffect(() => {
 		speed_x: 2,
 		}
 		data.current.bonus = {
-		pos_y: 100,
-		pos_x: 100,
+		pos_y: randomNumberInRange(100, 700),
+		pos_x: randomNumberInRange(100, 500),
 		speed_y: 1,
 		speed_x: 3,
 		}
@@ -367,7 +368,7 @@ useEffect(() => {
 	useEffect(() => {
 		socket.on('room-join-error', (err: Error) => {
 			console.log("error in joining room: ", err);
-			toast.error(err, {
+			toast.error(err.message, {
 				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-error'});
 		});
@@ -401,8 +402,6 @@ useEffect(() => {
 		return data;
 	}
 
-	const updateGame = async() => {
-
 	useEffect(() => {
 		if (isVisible) {
 		  console.log('User came back to the page');
@@ -413,7 +412,7 @@ useEffect(() => {
 		}
 	  }, [isVisible]);
 	  
-const updateGame = async() => {
+	const updateGame = async() => {
 	if (!data.current.started)
 	{
 		return ;
@@ -472,18 +471,16 @@ const updateGame = async() => {
 		{
 			console.log('bonus collected');
 			data.current.bonusActive = false;
+			data.current.bonus.pos_x = 100;
+			data.current.bonus.pos_y = 100;
 
 			if (data.current.player1.pNumber === 1)
 			{
-				data.current.bonus.pos_x = 100;
-				data.current.bonus.pos_y = 100;
 				socket.emit('bonus', {roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber});
 			}
-			if (data.current.player2.pNumber === 2)
+			if(data.current.player1.pNumber === 2)
 			{
-				data.current.bonus.pos_x = -100;
-				data.current.bonus.pos_y = -100;
-				socket.emit('bonus', {roomName: data.current.NameOfRoom, playerNumber: data.current.player2.pNumber});
+				socket.emit('bonus', {roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber});
 			}
 		}
 		}
@@ -601,11 +598,19 @@ const postScore = async(score1: number, score2: number, over: number, gameID: nu
 };
 
 const WaitingRoom = () => {
-	socket.emit('waitList');
+	socket.emit('waitList', {bonus : 0});
+	data.current.bonusActive = false;
 	console.log('in the waiting-room');
 };
 
-	const handleKeyPress = (e: React.KeyboardEvent) => {
+const WaitingRoom_bonus = () => {
+	socket.emit('waitList', {bonus : 1});
+	data.current.bonusActive = true;
+	console.log('in the waiting-room');
+};
+
+
+	const handleKeyPress = (e: React.KeyboardEvent<Element>) => {
 	switch (e.key) {
 		case 'ArrowLeft':
 		if(data.current.player1.pos_x >= 25)
@@ -632,12 +637,21 @@ const WaitingRoom = () => {
 		</div>
 	</div>
 	<button onClick={WaitingRoom}>Waiting Room</button>
+	<button onClick={WaitingRoom_bonus}>Waiting Room bonus</button>
 	<button onClick={()=>{data.current.color = 'pink'}}>PINK</button>
 	<button onClick={()=>{data.current.color = 'blue'}}>BLUE</button>
-	<button onClick={()=>{paddleSize = 150}}>reset</button>
 	<ToastContainer/>
 	</div>
 	);
 };
 
 export default GameSocket;
+
+
+/*
+les différentes waitlist pour bonus ou pas de bonus n'ont pas d'impacte sur le bonus dans la partie
+le bonus n'apparait pas la même chose sur les deux utilisateurs
+la balle va trop vite quand le bonus est activé
+le bonus n'ai pas activé quand la balle est sur le joueur 2
+
+*/
