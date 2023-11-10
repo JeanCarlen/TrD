@@ -16,7 +16,7 @@ import { error } from "console";
 export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define a logger and a map of rooms
     private readonly logger = new Logger(SocketGateway.name);
-    private readonly rooms = new Map<string, Set<string>>();$
+    // private readonly rooms = new Map<string, Set<string>>();
 	private readonly maxScore: number = 3;
     
     // Inject the ChatsService into the constructor
@@ -29,6 +29,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @WebSocketServer()
     private server: Server;
     private WaitList: Socket[] = [];
+	private Waitlist_bonus: Socket[] = [];
     // Define the onModuleInit method to handle connections and list rooms
     onModuleInit() {
         this.server.on('connection', async (socket: Socket) => {
@@ -65,26 +66,50 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     }
 
     @SubscribeMessage('waitList')
-    async onWaitList(client: Socket) {
+    async onWaitList(client: Socket, message: { bonus: number }) {
         console.log("into wait list");
 		try {
-			const userInWaitList = this.WaitList.find((one) => (one.id === client.id));
-			if (userInWaitList === undefined)
+			if(message.bonus == 0)
 			{
-				this.WaitList.push(client);
+				const userInWaitList = this.WaitList.find((one) => (one.id === client.id));
+				if (userInWaitList === undefined)
+				{
+					this.WaitList.push(client);
+				}
+				else
+				{
+					console.log('Found:', userInWaitList.id)
+					throw new Error(`User already in wait list`);
+				}
+				if(this.WaitList !== undefined && this.WaitList.length >= 2)
+				{
+					const roomName = this.WaitList[0].id + this.WaitList[1].id;
+					await this.onPongInitSetup(this.WaitList[0], {roomName: roomName});
+					await this.onPongInitSetup(this.WaitList[1], {roomName: roomName});
+					this.WaitList.pop();
+					this.WaitList.pop();
+				}
 			}
-			else
+			if(message.bonus == 1)
 			{
-				console.log('Found:', userInWaitList.id)
-				throw new Error(`User already in wait list`);
-			}
-			if(this.WaitList !== undefined && this.WaitList.length >= 2)
-			{
-				const roomName = this.WaitList[0].id + this.WaitList[1].id;
-				await this.onPongInitSetup(this.WaitList[0], {roomName: roomName});
-				await this.onPongInitSetup(this.WaitList[1], {roomName: roomName});
-				this.WaitList.pop();
-				this.WaitList.pop();
+				const userInWaitList = this.Waitlist_bonus.find((one) => (one.id === client.id));
+				if (userInWaitList === undefined)
+				{
+					this.Waitlist_bonus.push(client);
+				}
+				else
+				{
+					console.log('Found:', userInWaitList.id)
+					throw new Error(`User already in wait list`);
+				}
+				if(this.Waitlist_bonus !== undefined && this.Waitlist_bonus.length >= 2)
+				{
+					const roomName = this.Waitlist_bonus[0].id + this.Waitlist_bonus[1].id;
+					await this.onPongInitSetup(this.Waitlist_bonus[0], {roomName: roomName});
+					await this.onPongInitSetup(this.Waitlist_bonus[1], {roomName: roomName});
+					this.Waitlist_bonus.pop();
+					this.Waitlist_bonus.pop();
+				}
 			}
 		} catch (error) {
 			console.log('Error joining wait list:', error.message);
@@ -222,6 +247,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	async onUserLeft(client: Socket, message:{roomName: string, playerNumber: number, gameID: number}): Promise<void> {
 		console.log("into user left", message.playerNumber);
 		this.server.to(message.roomName).emit('forfeit', {player: message.playerNumber, max: this.maxScore, gameID: message.gameID});
+		this.server.to(message.roomName).emit('leave-room', {roomName: message.roomName, id: client.id});
 	}
 
     // Define the onCreateSomething method to handle creating something
