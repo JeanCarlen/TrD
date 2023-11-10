@@ -167,10 +167,22 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     }
 
     @SubscribeMessage('bonus')
-    onBonus(client: Socket, data: { roomName: string, playerNumber: number }) {
+    onBonus(client: Socket, data: { roomName: string, playerNumber: number })
+	{
         console.log("into bonus");
         this.server.to(data.roomName).emit('bonus-player', data);
     }
+
+	@SubscribeMessage('bonus-pos')
+	onBonusPos(client: Socket, data: {roomName:string, pos_x: number, pos_y: number, playerNumber: number, speed_y: number, speed_x: number})
+	{
+        console.log('bonus recieved', data);
+        if(data.playerNumber == 1)
+		{
+            console.log('sending bonus', data);
+			this.server.to(data.roomName).emit('bonus-send', data);
+		}
+	}
 
     // Define the onCreateRoom method to handle creating a chat room
     @SubscribeMessage('create-room')

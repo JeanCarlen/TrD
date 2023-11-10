@@ -25,6 +25,7 @@ export interface GameData
 	color: string,
 	gameID: number,
 	bonusActive: boolean,
+	gameType: number,
 }
 
 interface Players{
@@ -69,7 +70,8 @@ const token: string | undefined = Cookies.get("token");
 const [player1, setPlayer1] = useState<string>('player1');
 const [player2, setPlayer2] = useState<string>('player2');
 let intervalId: number= 0;
-let paddleSize: number = 150;
+let intervalBonus: number = 0;
+let paddleSize: number = 1500;
 let cowLogoImage: HTMLImageElement = new Image();
 const canvasRef = useRef<HTMLCanvasElement>();
 const isVisible = usePageVisibility();
@@ -98,8 +100,8 @@ let data = useRef<GameData>({
 	score1: 0,
 	score2: 0,
 	ball: {
-		pos_y: randomNumberInRange(100, 700),
-		pos_x: randomNumberInRange(100, 500),
+		pos_y: 100,
+		pos_x: 100,
 		speed_y: 1,
 		speed_x: 2,
 	},
@@ -115,7 +117,8 @@ let data = useRef<GameData>({
 	paused: 0,
 	color: 'pink',
 	gameID: 0,
-	bonusActive: true,
+	bonusActive: false,
+	gameType: 0,
 });
 
 const socket = useContext(WebsocketContext);
@@ -124,7 +127,7 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 useEffect(() => {
 	// once at the start of the component
 	intervalId = window.setInterval(updateGame, 1000 / 30, data);
-	window.addEventListener('keydown' , (e: KeyboardEvent<Elemen>) => handleKeyPress(e));
+	window.addEventListener('keydown' , (e: KeyboardEvent<Element>) => handleKeyPress(e));
 
 	cowLogoImage.src = cowLogo;
 	if (token != undefined)
@@ -140,19 +143,25 @@ useEffect(() => {
 	{
 	content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
 	}
-},[]);
-
-useEffect(() => {
-
-	setInterval(() => {
-		let rand = randomNumberInRange(1, 100);
-		console.log('random number: ', rand);
-		if(rand >= 50)
+	intervalBonus = window.setInterval(() => {
+	let rand = randomNumberInRange(1, 100);
+		if(data.current.gameType === 1 && data.current.player1.pNumber === 1 && data.current.bonusActive === false)
 		{
-			data.current.bonusActive = true;
+			if(rand >= 50)
+			{
+				console.log('bonus appear');
+				socket.emit('bonus-pos', {	roomName: data.current.NameOfRoom,
+											pos_x: randomNumberInRange(100,500),
+											pos_y: randomNumberInRange(150,650),
+											playerNumber: data.current.player1.pNumber,
+											speed_x: data.current.bonus.speed_x, speed_y:data.current.bonus.speed_y});
+			}
 		}
 	}
 	, 5000);
+},[]);
+
+useEffect(() => {
 
 	socket.on('connect', () => {
 		console.log(socket.id);
@@ -212,9 +221,30 @@ useEffect(() => {
 			data.current.player2.pos_x = 600 - dataBack.pos_x - paddleSize;
 	});
 
+	socket.on('bonus-send', (dataBack: {roomName:string, pos_x: number, pos_y: number, playerNumber: number, speed_y: number, speed_x: number}) => {
+		console.log('bonus recieved');
+		data.current.bonusActive = true;
+		if(dataBack.playerNumber === data.current.player1.pNumber)
+		{
+			data.current.bonus.pos_x = dataBack.pos_x;
+			data.current.bonus.pos_y = dataBack.pos_y;
+			data.current.bonus.speed_x = dataBack.speed_x;
+			data.current.bonus.speed_y = dataBack.speed_y;
+		}
+		if(dataBack.playerNumber === data.current.player2.pNumber)
+		{
+			data.current.bonus.pos_x = 600 - dataBack.pos_x;
+			data.current.bonus.pos_y = 800 - dataBack.pos_y;
+			data.current.bonus.speed_x = -dataBack.speed_x;
+			data.current.bonus.speed_y = -dataBack.speed_y;
+			// data.current = convertBonus(data.current, 800, 600);
+		}
+	});
+
 	socket.on('bonus-player', (dataBack: any) => {
 		if (dataBack.playerNumber === 1)
 		{
+			console.log('bonus player 1');
 			if (dataBack.playerNumber === data.current.player1.pNumber)
 			{
 				data.current.ball.speed_y = -6;
@@ -230,6 +260,7 @@ useEffect(() => {
 		}
 		else if (dataBack.playerNumber === 2)
 		{
+			console.log('bonus player 2');
 			if(dataBack.playerNumber === data.current.player1.pNumber)
 			{
 				data.current.ball.speed_y = 6;
@@ -273,6 +304,15 @@ useEffect(() => {
 				data.current.gameID = fetchback.id;
 				socket.emit('ready', {roomName: data.current.NameOfRoom});
 			}
+			data.current.bonus = 
+			{
+			pos_y: 100,
+			pos_x: 100,
+			speed_y: 1,
+			speed_x: 3,
+			}
+			// socket.emit('bonus_pos', {roomName: data.current.NameOfRoom, bonus_pos_x: data.current.bonus.pos_x, bonus_pos_y: data.current.bonus.pos_y, pNumber: data.current.player1.pNumber, speed_x: data.current.bonus.speed_x, speed_y: data.current.bonus.speed_y});
+		
 		}
 		else if (data.current.player1.pNumber === 2)
 		{
@@ -281,21 +321,13 @@ useEffect(() => {
 		}
 		data.current.started = true;
 		data.current.ball = {
-		pos_y: 100,
-		pos_x: 100,
-		speed_y: 1,
-		speed_x: 2,
+			pos_y: 100,
+			pos_x: 100,
+			speed_y: 1,
+			speed_x: 2,
 		}
-		data.current.bonus = {
-		pos_y: randomNumberInRange(100, 700),
-		pos_x: randomNumberInRange(100, 500),
-		speed_y: 1,
-		speed_x: 3,
-		}
-		if (data.current.player1.pNumber === 2)
-		{
-			data.current = convert(data.current, 800, 600);
-		}
+		// if(data.current.player1.pNumber === 2)
+		// 	data.current = convert(data.current, 800, 600);
 	});
 
 	socket.on('forfeit', async (dataBack: {player: number, max: number, gameID: number}) => {
@@ -340,11 +372,12 @@ useEffect(() => {
 			speed_x: 0,
 		}
 		data.current.ball = Fball;
-		await postScore(dataBack.score1, dataBack.score2, 1, data.current.gameID);
+		if (data.current.player1.pNumber === 1)
+			await postScore(dataBack.score1, dataBack.score2, 1, data.current.gameID);
 		await delay(6000);
 		try{
 			bodyNavigate('/Home');
-			clearInterval(intervalId);
+			console.log('cleared: ', clearInterval(intervalId)) ;
 		}
 		catch (e) {
 			console.log('error sending home', e);
@@ -362,6 +395,8 @@ useEffect(() => {
 		socket.off('goal');
 		socket.off('forfeit');
 		socket.off('game-over');
+		socket.off('bonus-send');
+		socket.off('bonus-player');
 	};
 	}, [socket]);
 
@@ -387,7 +422,7 @@ useEffect(() => {
 		data.ball.speed_x *= -1;
 		data.ball.pos_y = height - data.ball.pos_y;
 		data.ball.pos_x = width - data.ball.pos_x;
-		convertBonus(data, height, width);
+		// convertBonus(data, height, width);
 		data.converted = true;
 		return data;
 	}
@@ -412,7 +447,7 @@ useEffect(() => {
 		}
 	  }, [isVisible]);
 	  
-	const updateGame = async() => {
+const updateGame = async() => {
 	if (!data.current.started)
 	{
 		return ;
@@ -428,7 +463,7 @@ useEffect(() => {
 	if (data.current.player1.pNumber === 2 && !data.current.converted)
 	{
 		data.current = convert(data.current, canvas.height, canvas.width);
-		data.current = convertBonus(data.current, canvas.height, canvas.width);
+		//data.current = convertBonus(data.current, canvas.height, canvas.width);
 	}
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -470,6 +505,7 @@ useEffect(() => {
 		if(data.current.bonusActive = true)
 		{
 			console.log('bonus collected');
+			console.log('pnunber: ', data.current.player1.pNumber);
 			data.current.bonusActive = false;
 			data.current.bonus.pos_x = 100;
 			data.current.bonus.pos_y = 100;
@@ -514,7 +550,7 @@ useEffect(() => {
 	if (data.current.paused > 0)
 		ctx.fillText(data.current.paused.toString(), canvas.width / 2, canvas.height / 2);
 	ctx.beginPath();
-	if (data.current.bonusActive === true)
+	if (data.current.bonusActive === true && data.current.gameType === 1)
 	{
 		ctx.arc(data.current.bonus.pos_x, data.current.bonus.pos_y, 10, 0, Math.PI * 2, true);
 	}
@@ -599,14 +635,12 @@ const postScore = async(score1: number, score2: number, over: number, gameID: nu
 
 const WaitingRoom = () => {
 	socket.emit('waitList', {bonus : 0});
-	data.current.bonusActive = false;
-	console.log('in the waiting-room');
+	data.current.gameType = 0;
 };
 
 const WaitingRoom_bonus = () => {
 	socket.emit('waitList', {bonus : 1});
-	data.current.bonusActive = true;
-	console.log('in the waiting-room');
+	data.current.gameType = 1;
 };
 
 
