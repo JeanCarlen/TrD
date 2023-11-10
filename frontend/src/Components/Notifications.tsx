@@ -61,13 +61,13 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 
 	const handleAcceptRequest = async(senderName:string, senderID: number) => {
 		console.log(`Accepted friend request from ${senderName}`);
-		const response = await fetch(`http://localhost:8080/api/friends/3`, {
+		const response = await fetch(`http://localhost:8080/api/friends/4`, {
 			method: 'PATCH',
 			headers: {
 				'Content-Type': 'application/json',
 				'Authorization': 'Bearer ' + token,
 			},
-			body: JSON.stringify({status: 'ACCEPTED'})
+			body: JSON.stringify({status: 1})
 		});
 		const data = await response.json()
 		console.log("accept", data)
