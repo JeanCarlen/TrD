@@ -99,6 +99,7 @@ export class ChatsService {
   }
 
   public async findChatUsers(id: number, current_id: number): Promise<UsersResponse[]> {
+	let userRet: UsersResponse[] = [];
 	const chats = await this.userchatsService.getChatIdListByUser(current_id);
 	if (!chats.includes(id)) {
 		throw new UnauthorizedException(['You\'re not in this chat.'], {
@@ -110,11 +111,22 @@ export class ChatsService {
 	const user_ids: number[] = userschats.map((userchat) => {
 		return userchat.user_id;
 	})
+
 	let users: UsersResponse[] =  await this.usersRepository.find({
 		where: { id: In(user_ids) },
 		select: ['id', 'username', 'login42', 'avatar']
 	});
-	return users;
+	await Promise.all(users.map(async (user: UsersResponse) => {
+		const userAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: user.id}});
+		if (userAdmin === null)
+			user.isAdmin = false;
+		else
+		{
+			user.isAdmin = true;
+		}
+		userRet.push(user);
+	}))
+	return userRet;
   }
 
   public async findUserChats(id: number) {
@@ -198,7 +210,7 @@ export class ChatsService {
   }
 
   public async unsetAdminInChat(id: number, body) {
-	await this.isChatAdmin(id, body.user_id);
+	await this.isChatAdmin(id, body.requester);
 	const chatAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
 	return await this.chatadminsRepository.remove(chatAdmin);
   }

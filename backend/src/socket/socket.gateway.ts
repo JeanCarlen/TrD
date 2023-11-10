@@ -84,6 +84,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				await this.onPongInitSetup(this.WaitList[1], {roomName: roomName});
 				this.WaitList.pop();
 				this.WaitList.pop();
+				//add a chak to see if both users were still connected
 			}
 		} catch (error) {
 			console.log('Error joining wait list:', error.message);
@@ -104,7 +105,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		console.log('ready for room:', data.roomName);
 		this.server.to(data.roomName).emit('ready');
 		//wait 5 seconds
-		this.server.to(data.roomName).emit('go');
+		//this.server.to(data.roomName).emit('go');
 	}
 
     @SubscribeMessage('exchange-info')

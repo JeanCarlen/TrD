@@ -41,10 +41,18 @@ const token: string | undefined = Cookies.get("token");
 const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
 const [roomName, setRoomName] = useState<string>('');
 const socketRef = useRef(null);
+// let messagesEnd;
 
-// useEffect(() => {
-// 	socket.connect();
-// 	}, []);
+// const scrollToBottom = () => {
+// 	messagesEnd.scrollIntoView({ behavior: "smooth" });
+//   };
+  
+
+	useEffect(() => {
+		window.addEventListener('keydown', handleKeyPress);
+		// scrollToBottom();
+		return () => window.removeEventListener('keydown', handleKeyPress);
+	}, []);
 
 	useEffect(() => {
 		console.log("messagesData: ", messagesData);
@@ -113,6 +121,18 @@ function handleSendMessage(sender: string = content?.username || 'user') {
 	setNewMessage({ id: 0, text: '', sender: '', sender_Name: '', date: '' });
 }
 
+const handleKeyPress = (e: React.KeyboardEvent) => {
+	switch (e.key) {
+		case 'Enter':
+		// handleSendMessage();
+		if (document !== null && document.getElementById("myButton") !== null)
+			document.getElementById("myButton")?.click()
+		break;
+		default:
+		break;
+	}
+	};
+
 return (
 	<div>
 	<div className="message-display">
@@ -122,6 +142,9 @@ return (
 			<span className="message-sender">{message.sender_Name}</span> <br/>
 			<span className="message-text">{message.text}</span> <br/>
 			<span className="message-date">{message.date}</span>
+			{/* <div style={{ float:"left", clear: "both" }}
+			ref={(el) => { messagesEnd = el; }}>
+			</div> */}
 			</div>
 		))}
 		</div>
@@ -138,8 +161,8 @@ return (
 			setNewMessage({ id: messages.length + 1, text: e.target.value, sender: '', sender_Name: username, date: Date.now().toString() })}
 		}
 		/>
-		<button className="sendButton" onClick={() => handleSendMessage()}>
-			user
+		<button id="myButton" className="sendButton" onClick={() => handleSendMessage()}>
+			Send
 		</button>
 		</div>
 	</div>

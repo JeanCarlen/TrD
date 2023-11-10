@@ -354,7 +354,7 @@ public async findPendingFriendsByUsername(username: string) {
 			description: `Friend request not found.`,
 		});
 	}
-    return await this.friendsRepository.update(id, friend);
+    return await this.friendsRepository.update({id: id}, updateFriendDto);
   }
 
   public async delete(id: number) {

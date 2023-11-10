@@ -27,6 +27,7 @@ interface User{
 	login42: string,
 	username: string,
 	avatar: string,
+	isAdmin: boolean,
 }
 
 interface FUCKLINTERFACESAMERE{
@@ -69,8 +70,9 @@ const invitePong = (user: User) => {
 	//navigate('/Game');
 };
 
-const muteUser = async (chat: chatData|undefined, user: User, token: string|undefined) => {
-	console.log(`Muting user: ${user.username}`);
+const adminUser = async (chat: chatData|undefined, user: User, token: string|undefined) => {
+	let way: string = user.isAdmin == true ? 'unadmin' : 'admin';
+	console.log(`setting user ${user.username} as ${way} `);
 	if (chat == undefined)
 		return;
 	let content: {username: string, user: number, avatar: string};
@@ -80,7 +82,7 @@ const muteUser = async (chat: chatData|undefined, user: User, token: string|unde
 	}
 	else
 		return;
-	const response = await fetch(`http://localhost:8080/api/${chat.chat_id}/users/admin`, {
+	const response = await fetch(`http://localhost:8080/api/chats/${chat.chat_id}/users/${way}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -88,8 +90,7 @@ const muteUser = async (chat: chatData|undefined, user: User, token: string|unde
 			},
 			body: JSON.stringify({user_id: user.id, requester: content?.user})
 		});
-		const data = await response.json()
-		console.log(data);
+		const data = await response.json();
 };
 
 	const deleteChannel = async (chat: chatData|undefined, socket: Socket) => {
@@ -156,6 +157,7 @@ const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id, socket 
 			const data = await response.json()
 			setchatMembers(data)
 			setFetched(true);
+			console.log('members: ', data);
 		}
 		else
 		{
@@ -169,7 +171,7 @@ const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id, socket 
 			{fetched ? <div>
 			{chatMembers.map((user: User) => (
 			<li key={user.id} className= "friendslist" >
-				<span className="messages">
+				<span className="messages" style={user.isAdmin == true ? {color: "green"} : {color: "red"}}>
 					{user.username}
 				</span>
 				<Menu>
@@ -180,7 +182,7 @@ const IdChatUser: React.FC<FUCKLINTERFACESAMERE> = ({ chatData, user_id, socket 
 					<MenuItem className='Addfriend' onClick={() => handleAddUser(user)}>Add as a friend</MenuItem>
 					<MenuItem className='Addfriend' onClick={() => handleBlockUser(user)}> Block User </MenuItem>
 					<MenuItem className='Addfriend' onClick={() => invitePong(user)}> Invite for a pong </MenuItem>
-					<MenuItem className='Addfriend' onClick={() => muteUser(chatData, user, token)}> set User as Admin </MenuItem>
+					<MenuItem className='Addfriend' onClick={() => adminUser(chatData, user, token)}> set User as Admin </MenuItem>
 					<MenuItem className='Addfriend' onClick={() => goToProfile(user)}> See Profile </MenuItem>
 				</MenuList>
 				</Menu>
