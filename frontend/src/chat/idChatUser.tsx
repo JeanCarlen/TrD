@@ -21,6 +21,9 @@ import '../pages/Chat.css';
 import decodeToken from '../helpers/helpers';
 import { Socket } from 'socket.io-client';
 import {toast, ToastContainer } from 'react-toastify';
+import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
+import {ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
+
 
 
 interface User{
@@ -72,12 +75,14 @@ const invitePong = (user: User) => {
 	//navigate('/Game');
 };
 
-const adminUser = async (chat: chatData|undefined, user: User, token: string|undefined, mode: string) => {
+const adminUser = async (chat: chatData|undefined, user: User, token: string|undefined, mode: string, until: Date | undefined) => {
 	let way: string = user.isAdmin == true ? 'unadmin' : 'admin';
 	if (mode == 'admin')
 		way = user.isAdmin == true ? 'unadmin' : 'admin';
-	if (mode == 'mute')
+	else if (mode == 'mute')
 		way = user.isMuted == true ? 'unmute' : 'mute';
+	else
+		way = mode;
 	console.log(`setting user ${user.username} as ${way} `);
 	if (chat == undefined)
 		return;
@@ -94,12 +99,12 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 				'Content-Type': 'application/json',
 				'Authorization': 'Bearer ' + token
 			},
-			body: JSON.stringify({user_id: user.id, requester: content?.user})
+			body: JSON.stringify({user_id: user.id, requester: content?.user, })
 		});
 		if (response.ok)
-		{
-			toast.info(user.username + ' was successfully ' + way, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' })
-		}
+			toast.info(user.username + ' was successfully ' + way, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
+		else 
+			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
 		const data = await response.json();
 		console.log('updated:', data);
 };
@@ -115,6 +120,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	const token = Cookies.get('token');
 	const [chatMembers, setchatMembers] = useState<User[]>()
 	const [fetched, setFetched] = useState<boolean>(false);
+	const [currentUser, setCurrentUser] = useState<User>();
 	const ChatType: number = 0;
 	const navigate = useNavigate();
 
@@ -142,6 +148,15 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		}
 	}, [socket, chatMembers]);
 
+
+	useEffect(()=>{
+		chatMembers?.forEach((user: User) => {
+			if (user.id === user_id)
+			{
+				setCurrentUser(user);
+			}
+		})
+	},[chatMembers]);
 
 	const setNewMode = async (user: User, mode: string) => {
 		await adminUser(chatData, user, token, mode);
@@ -183,10 +198,14 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	}
 
 	return (
+		<ChakraProvider>
 		<div>
 			{fetched ? <div>
 			{chatMembers.map((user: User) => (
 			<li key={user.id} className= "friendslist" >
+				<WrapItem>
+					<Avatar size='md' src={user.avatar}/>
+				</WrapItem>
 				<span className="messages" style={user.isAdmin == true ? {color: "green"} : {color: "red"}}>
 					{user.username}
 				</span>
@@ -198,8 +217,14 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 					<MenuItem className='Addfriend' onClick={() => handleAddUser(user)}>Add as a friend</MenuItem>
 					<MenuItem className='Addfriend' onClick={() => handleBlockUser(user)}> Block User </MenuItem>
 					<MenuItem className='Addfriend' onClick={() => invitePong(user)}> Invite for a pong </MenuItem>
+					{currentUser?.isAdmin === true ? 
+					<>
 					<MenuItem className='Addfriend' onClick={() => setNewMode(user, 'admin')}> {user.isAdmin === true ? 'Remove user as Admin' : 'Set user as Admin'} </MenuItem>
-					{/* <MenuItem className='Addfriend' onClick={() => adminUser(chatData, user, token, 'admin')}> set User as Admin </MenuItem> */}
+					<MenuItem className='Addfriend' onClick={() => setNewMode(user, 'mute')}> {user.isMuted === true ? 'Unmute user' : 'Mute user'} </MenuItem>
+					<MenuItem className='Addfriend' onClick={() => setNewMode(user, 'ban')}> Ban user </MenuItem>
+					</>
+					: <div></div>
+					}
 					<MenuItem className='Addfriend' onClick={() => goToProfile(user)}> See Profile </MenuItem>
 				</MenuList>
 				</Menu>
@@ -208,6 +233,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		<button onClick={() => deleteChannel(chatData, socket)}>leave channel</button>
 		<ToastContainer/>
 		</div>
+		</ChakraProvider>
 	)
 }
 

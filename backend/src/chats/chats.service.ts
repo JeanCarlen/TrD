@@ -141,6 +141,16 @@ export class ChatsService {
 	return await this.userchatsRepository.find({where: {user_id: id}})
   }
 
+  public async isUserInChat(chat_id: number, user_id: number) {
+	let foundUser = await this.userchatsRepository.findOne({where: {user_id: user_id, chat_id: chat_id}});
+	if (!foundUser)
+		throw new BadRequestException(['You\'re not in this chat.'], {
+			cause: new Error(),
+			description: `You're not in this chat.`,
+		});
+	return true;
+  }
+
   public async addUserToChat(id: number, body) {
 	const userChat: CreateUserchatDto = {
 		user_id: body.user_id,
@@ -178,16 +188,24 @@ export class ChatsService {
 
   public async banUserFromChat(id: number, body) {
 	await this.isChatAdmin(id, body.requester);
-	const chatAdmin = new ChatAdmins();
-	chatAdmin.user_id = body.user_id;
-	chatAdmin.chat_id = id;
-	return await this.bannedusersRepository.save(chatAdmin);
+	const newBan = new BannedUsers();
+	newBan.user_id = body.user_id;
+	newBan.chat_id = id;
+	newBan.until = new Date();
+	return await this.bannedusersRepository.save(newBan);
   }
 
   public async unbanUserFromChat(id: number, body) {
 	await this.isChatAdmin(id, body.requester);
-	const chatAdmin = await this.bannedusersRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
-	return await this.bannedusersRepository.remove(chatAdmin);
+	const newUnban = await this.bannedusersRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
+	return await this.bannedusersRepository.remove(newUnban);
+  }
+
+  public async isUserBanned(chat_id: number, user_id: number) {
+	let foundUser = await this.bannedusersRepository.findOne({where: {user_id: user_id, chat_id: chat_id}});
+	if (!foundUser)
+		return false;
+	return true;
   }
 
   public async leaveChat(id: number, body) {
@@ -200,6 +218,7 @@ export class ChatsService {
 	const mutedUser = new MutedUsers();
 	mutedUser.user_id = body.user_id;
 	mutedUser.chat_id = id;
+	mutedUser.until = new Date();
 	return await this.mutedusersRepository.save(mutedUser);
   }
 
@@ -207,6 +226,13 @@ export class ChatsService {
 	await this.isChatAdmin(id, body.requester);
 	const mutedUser = await this.mutedusersRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
 	return await this.mutedusersRepository.remove(mutedUser);
+  }
+
+  public async isUserMuted(chat_id: number, user_id: number) {
+	let foundUser = await this.mutedusersRepository.findOne({where: {user_id: user_id, chat_id: chat_id}});
+	if (!foundUser)
+		return false;
+	return true;
   }
 
   public async setAdminInChat(id: number, body) {
