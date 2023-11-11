@@ -14,6 +14,7 @@ import { UsersResponse } from 'src/users/dto/users.response';
 import { Users } from 'src/users/entities/users.entity';
 import { UserChatsResponse } from 'src/userchats/dto/userchat.response';
 import { ChatsResponse } from './dto/chats.response';
+import { BannedUsers } from 'src/bannedusers/entities/banneduser.entity';
 const bcrypt = require('bcrypt');
 
 @Injectable()
@@ -21,6 +22,10 @@ export class ChatsService {
 	constructor(
 		@InjectRepository(UserChats)
 		private readonly userchatsRepository: Repository<UserChats>,
+		@InjectRepository(MutedUsers)
+		private readonly mutedusersRepository: Repository<MutedUsers>,
+		@InjectRepository(BannedUsers)
+		private readonly bannedusersRepository: Repository<BannedUsers>,
 		@InjectRepository(Chats)
 		private readonly chatsRepository: Repository<Chats>,
 		@InjectRepository(ChatAdmins)
@@ -118,12 +123,15 @@ export class ChatsService {
 	});
 	await Promise.all(users.map(async (user: UsersResponse) => {
 		const userAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: user.id}});
+		const userMuted = await this.mutedusersRepository.findOne({where: {chat_id: id, user_id: user.id}});
 		if (userAdmin === null)
 			user.isAdmin = false;
 		else
-		{
 			user.isAdmin = true;
-		}
+		if (userMuted === null)
+			user.isMuted = false;
+		else
+			user.isMuted = true;
 		userRet.push(user);
 	}))
 	return userRet;
@@ -169,17 +177,17 @@ export class ChatsService {
   }
 
   public async banUserFromChat(id: number, body) {
-	await this.isChatAdmin(id, body.user_id);
+	await this.isChatAdmin(id, body.requester);
 	const chatAdmin = new ChatAdmins();
 	chatAdmin.user_id = body.user_id;
 	chatAdmin.chat_id = id;
-	return await this.chatadminsRepository.save(chatAdmin);
+	return await this.bannedusersRepository.save(chatAdmin);
   }
 
   public async unbanUserFromChat(id: number, body) {
-	await this.isChatAdmin(id, body.user_id);
-	const chatAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
-	return await this.chatadminsRepository.remove(chatAdmin);
+	await this.isChatAdmin(id, body.requester);
+	const chatAdmin = await this.bannedusersRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
+	return await this.bannedusersRepository.remove(chatAdmin);
   }
 
   public async leaveChat(id: number, body) {
@@ -188,17 +196,17 @@ export class ChatsService {
   }
 
   public async muteUserInChat(id: number, body) {
-	await this.isChatAdmin(id, body.user_id);
+	await this.isChatAdmin(id, body.requester);
 	const mutedUser = new MutedUsers();
 	mutedUser.user_id = body.user_id;
 	mutedUser.chat_id = id;
-	return await this.chatadminsRepository.save(mutedUser);
+	return await this.mutedusersRepository.save(mutedUser);
   }
 
   public async unmuteUserInChat(id: number, body) {
-	await this.isChatAdmin(id, body.user_id);
-	const mutedUser = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
-	return await this.chatadminsRepository.remove(mutedUser);
+	await this.isChatAdmin(id, body.requester);
+	const mutedUser = await this.mutedusersRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
+	return await this.mutedusersRepository.remove(mutedUser);
   }
 
   public async setAdminInChat(id: number, body) {
@@ -234,7 +242,7 @@ export class ChatsService {
 			description: `You're not in this chat.`,
 		});
 	}
-	return await this.chatadminsRepository.find({where: {chat_id: id}})
+	return await this.mutedusersRepository.find({where: {chat_id: id}})
   }
 
   public async findChatBannedUsers(id: number, current_id: number) {
@@ -245,7 +253,7 @@ export class ChatsService {
 			description: `You're not in this chat.`,
 		});
 	}
-	return await this.chatadminsRepository.find({where: {chat_id: id}})
+	return await this.bannedusersRepository.find({where: {chat_id: id}})
   }
 
   public async update(id: number, updateChatDto: UpdateChatDto) {
