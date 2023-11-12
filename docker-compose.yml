@@ -69,13 +69,13 @@ volumes:
     name: db_data
     driver: local
     driver_opts:
-      device: ./data/db
+      device: /Users/nikki/42Lausanne/TrD/data/db
       type: none
       o: bind
   images_data:
     name: images_data
     driver: local
     driver_opts:
-      device: ./data/images
+      device: /Users/nikki/42Lausanne/TrD/data/images
       type: none
       o: bind
