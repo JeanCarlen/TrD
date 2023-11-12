@@ -64,6 +64,8 @@ function usePageVisibility() {
 
 
 const GameSocket: React.FC = () => {
+const [canvas, setCanvas] = useState(null);
+const [shouldRun, setShouldRun] = useState(true);
 let content: {username: string, user: number, avatar: string};
 const bodyNavigate = useNavigate();
 const token: string | undefined = Cookies.get("token");
@@ -125,8 +127,22 @@ const socket = useContext(WebsocketContext);
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 useEffect(() => {
+	const canvas = canvasRef.current!;
+    if (!canvas) {
+      console.log("canvas is null");
+      setShouldRun(false);
+    }
+  }, [canvas]);
+
+  if (!shouldRun) {
+    return null;
+  }
+
+useEffect(() => {
 	// once at the start of the component
-	intervalId = window.setInterval(updateGame, 1000 / 30, data);
+	console.log('in the use effect');
+	if(shouldRun)
+		intervalId = window.setInterval(updateGame, 1000 / 30, data);
 	window.addEventListener('keydown' , (e: KeyboardEvent<Element>) => handleKeyPress(e));
 
 	cowLogoImage.src = cowLogo;
@@ -159,6 +175,14 @@ useEffect(() => {
 		}
 	}
 	, 5000);
+	return () => {
+		if(!data.current.started)
+		{
+		window.removeEventListener('keydown' , (e: KeyboardEvent<Element>) => handleKeyPress(e));
+		window.clearInterval(intervalId);
+		window.clearInterval(intervalBonus);
+		}
+	}
 },[]);
 
 useEffect(() => {
@@ -382,6 +406,7 @@ useEffect(() => {
 		catch (e) {
 			console.log('error sending home', e);
 		}
+		data.current.started = false;
 	});
 
 	return () => {
@@ -450,16 +475,18 @@ useEffect(() => {
 const updateGame = async() => {
 	if (!data.current.started)
 	{
+		console.log('game not started');
 		return ;
 	}
 	const canvas = canvasRef.current!;
 	if (!canvas)
 	{
 		console.log("canvas is null");
-		return;
 	}
-
-	const ctx = canvas.getContext('2d')!;
+	let ctx = null;
+	if(canvas)
+	{
+	ctx = canvas.getContext('2d')!;
 	if (data.current.player1.pNumber === 2 && !data.current.converted)
 	{
 		data.current = convert(data.current, canvas.height, canvas.width);
@@ -548,7 +575,7 @@ const updateGame = async() => {
 		ctx.drawImage(cowLogoImage, data.current.ball.pos_x - 20, data.current.ball.pos_y - 20, 40, 40);
 	}
 	if (data.current.paused > 0)
-		ctx.fillText(data.current.paused.toString(), canvas.width / 2, canvas.height / 2);
+	ctx.fillText(data.current.paused.toString(), canvas.width / 2, canvas.height / 2);
 	ctx.beginPath();
 	if (data.current.bonusActive === true && data.current.gameType === 1)
 	{
@@ -559,6 +586,8 @@ const updateGame = async() => {
 	ctx.roundRect(data.current.player1.pos_x, canvas.height - 10, paddleSize, 10, 5);
 	ctx.fill();
 };
+	}
+
 
 	const SendInfo = (roomToSend: string) => {
 		console.log('game-start-> message: ', {roomName: roomToSend, myId: content?.user, myName: content?.username, myAvatar: content?.avatar, playerNumber: data.current.player1.pNumber});
