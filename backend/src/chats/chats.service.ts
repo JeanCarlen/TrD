@@ -103,6 +103,19 @@ export class ChatsService {
 	return await bcrypt.compare(password, chat.password);
   }
 
+  public async isUserOwner(chat_id: number, user_id: number): Promise<boolean> {
+	const chat: Chats = await this.chatsRepository.findOne({ where: { id: chat_id}})
+	if (!chat) {
+		throw new NotFoundException(['Unknown chat.'], {
+			cause: new Error(),
+			description: `Unknown chat.`,
+		});
+	}
+	if (chat.owner != user_id)
+		return false;
+	return true;
+  }
+
   public async findChatUsers(id: number, current_id: number): Promise<UsersResponse[]> {
 	let userRet: UsersResponse[] = [];
 	const chats = await this.userchatsService.getChatIdListByUser(current_id);
@@ -122,16 +135,19 @@ export class ChatsService {
 		select: ['id', 'username', 'login42', 'avatar']
 	});
 	await Promise.all(users.map(async (user: UsersResponse) => {
-		const userAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: user.id}});
-		const userMuted = await this.mutedusersRepository.findOne({where: {chat_id: id, user_id: user.id}});
-		if (userAdmin === null)
-			user.isAdmin = false;
-		else
-			user.isAdmin = true;
-		if (userMuted === null)
-			user.isMuted = false;
-		else
-			user.isMuted = true;
+		// const userAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: user.id}});
+		// const userMuted = await this.mutedusersRepository.findOne({where: {chat_id: id, user_id: user.id}});
+		user.isAdmin = await this.isChatAdmin(id, user.id);
+		user.isMuted = await this.isUserMuted(id, user.id);
+		user.isOwner = await this.isUserOwner(id, user.id);
+		// if (userAdmin === null)
+		// 	user.isAdmin = false;
+		// else
+		// 	user.isAdmin = true;
+		// if (userMuted === null)
+		// 	user.isMuted = false;
+		// else
+		// 	user.isMuted = true;
 		userRet.push(user);
 	}))
 	return userRet;

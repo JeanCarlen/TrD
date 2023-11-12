@@ -33,6 +33,7 @@ interface User{
 	avatar: string,
 	isAdmin: boolean,
 	isMuted: boolean,
+	isOwner: boolean,
 }
 
 interface IdChatProps{
@@ -75,7 +76,7 @@ const invitePong = (user: User) => {
 	//navigate('/Game');
 };
 
-const adminUser = async (chat: chatData|undefined, user: User, token: string|undefined, mode: string, until: Date | undefined) => {
+const adminUser = async (chat: chatData|undefined, user: User, token: string|undefined, mode: string) => {
 	let way: string = user.isAdmin == true ? 'unadmin' : 'admin';
 	if (mode == 'admin')
 		way = user.isAdmin == true ? 'unadmin' : 'admin';
@@ -167,6 +168,10 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		navigate(`/profiles/${user.username}`);
 	};
 
+	const changePassword = () => {
+		console.log('change password');
+	};
+
 	async function getData (chatData: chatData|undefined) {
 		setFetched(false);
 		console.log('user_id', user_id);
@@ -202,9 +207,10 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		<div>
 			{fetched ? <div>
 			{chatMembers.map((user: User) => (
+			<div>
 			<li key={user.id} className= "friendslist" >
 				<WrapItem>
-					<Avatar size='md' src={user.avatar}/>
+					<Avatar size='md' src={user.avatar} name={user.username}/>
 				</WrapItem>
 				<span className="messages" style={user.isAdmin == true ? {color: "green"} : {color: "red"}}>
 					{user.username}
@@ -229,6 +235,11 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 				</MenuList>
 				</Menu>
 			</li>
+			{currentUser?.isOwner === true ?
+			<>
+			<button onClick={() => changePassword()}/>
+			</> : <div></div>}
+			</div>
 		))} </div> : <div className="history_1">Loading...</div>}
 		<button onClick={() => deleteChannel(chatData, socket)}>leave channel</button>
 		<ToastContainer/>

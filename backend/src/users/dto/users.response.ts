@@ -22,6 +22,9 @@ export class UsersResponse {
 	@ApiPropertyOptional({example: false, description: 'If the user is muted in the current chat'})
 	isMuted?: boolean;
 
+	@ApiPropertyOptional({example: false, description: 'If the user is the owner of the chat'})
+	isOwner?: boolean;
+
 	@ApiPropertyOptional({example: 2, description: 'The count of active friends of the user.'})
 	active_friends?: number;
 
