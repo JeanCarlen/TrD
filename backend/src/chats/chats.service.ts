@@ -36,6 +36,13 @@ export class ChatsService {
 		private readonly userchatsService: UserchatsService,
 	) {}
 
+	private async isUserAdmin(chat_id: number, user_id: number) {
+		const chatAdmin = await this.chatadminsRepository.findOne({where: {chat_id: chat_id, user_id: user_id}})
+		if (!chatAdmin)
+			return false;
+		return true;
+	}
+
   private async isChatAdmin(chat_id: number, user_id: number) {
 	const chatAdmin = await this.chatadminsRepository.findOne({where: {chat_id: chat_id, user_id: user_id}})
 	if (!chatAdmin)
@@ -137,7 +144,7 @@ export class ChatsService {
 	await Promise.all(users.map(async (user: UsersResponse) => {
 		// const userAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: user.id}});
 		// const userMuted = await this.mutedusersRepository.findOne({where: {chat_id: id, user_id: user.id}});
-		user.isAdmin = await this.isChatAdmin(id, user.id);
+		user.isAdmin = await this.isUserAdmin(id, user.id);
 		user.isMuted = await this.isUserMuted(id, user.id);
 		user.isOwner = await this.isUserOwner(id, user.id);
 		// if (userAdmin === null)
@@ -311,6 +318,7 @@ export class ChatsService {
 		chat.name = updateChatDto.name;
 	if (updateChatDto.password)
 		chat.password = updateChatDto.password;
+	console.log('updating chat to', chat);
 	await this.chatsRepository.save(chat);
   }
 

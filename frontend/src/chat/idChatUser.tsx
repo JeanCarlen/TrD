@@ -23,6 +23,7 @@ import { Socket } from 'socket.io-client';
 import {toast, ToastContainer } from 'react-toastify';
 import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
 import {ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
+import './ChatInterface.css'
 
 
 
@@ -168,8 +169,33 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		navigate(`/profiles/${user.username}`);
 	};
 
-	const changePassword = () => {
+	const changePassword = async () => {
 		console.log('change password');
+		let newPassword = prompt('Enter new password');
+		if (newPassword && newPassword.trim() === '')
+			newPassword = null;
+		if (chatData=== undefined)
+			return;
+		const response = await fetch(`http://localhost:8080/api/chats/${chatData.chat_id}`, {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			},
+			body: JSON.stringify({
+				password: newPassword,
+			})
+		});
+		if(response.ok)
+		{
+			toast.info('Password changed', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
+		}
+		else
+		{
+			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
+			console.log('error in the change password', response);
+		}
+
 	};
 
 	async function getData (chatData: chatData|undefined) {
@@ -185,7 +211,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': 'Bearer ' + token
+				'Authorization': 'Bearer ' + token,
 			},
 		});
 		if(response.ok)
@@ -197,7 +223,8 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		}
 		else
 		{
-			console.log("error in the get data")
+			const data = await response.json()
+			console.log("error in the get data", data);
 			setchatMembers([]);
 		}
 	}
@@ -207,7 +234,6 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		<div>
 			{fetched ? <div>
 			{chatMembers.map((user: User) => (
-			<div>
 			<li key={user.id} className= "friendslist" >
 				<WrapItem>
 					<Avatar size='md' src={user.avatar} name={user.username}/>
@@ -235,13 +261,15 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 				</MenuList>
 				</Menu>
 			</li>
+			))} </div> : <div className="history_1">Loading...</div>}
+			<>
 			{currentUser?.isOwner === true ?
 			<>
-			<button onClick={() => changePassword()}/>
-			</> : <div></div>}
-			</div>
-		))} </div> : <div className="history_1">Loading...</div>}
-		<button onClick={() => deleteChannel(chatData, socket)}>leave channel</button>
+			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => changePassword()}>Change Password</button>
+			</> : <></>}
+			</>
+			<br/>
+		<button className="sendButton" onClick={() => deleteChannel(chatData, socket)}>leave channel</button>
 		<ToastContainer/>
 		</div>
 		</ChakraProvider>
