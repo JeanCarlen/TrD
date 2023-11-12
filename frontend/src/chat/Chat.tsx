@@ -69,7 +69,6 @@ const Chat: React.FC = () => {
 			const data = await response.json();
 			if (response.ok)
 			{
-				// console.log("data: ", data);
 				setFetched(true);
 				setData(data);
 				return data as chatData[];
@@ -83,9 +82,6 @@ const Chat: React.FC = () => {
 	}
 
 	const handleRoomChange = (room: string, password: string | null) => {
-		console.log("next room: ", room);
-		console.log("currentRoom is : ", currentRoom);
-		// socket.emit('leave-room', { roomName: currentRoom, socketID: socket.id, client: content?.user }); -- removed to test
 		socket.emit('join-room', { roomName: room, socketID: socket.id, client: content?.user, password: password });
 		//check if the password was right -- otherwise set room to default
 		setCurrentRoom(room);
@@ -101,8 +97,6 @@ const Chat: React.FC = () => {
 			});
 			return;
 		}
-		console.log("data in join: ", data);
-		console.log("Joining room: ", chat.chat.name);
 		//ask the password if there is one
 		let passwordPrompt: string | null = null;
 		if (chat.chat.protected === true)
@@ -136,25 +130,21 @@ const Chat: React.FC = () => {
 		{
 			const messages: sentMessages[] = await response.json();
 			setMessages(messages);
-			// const printMessages = JSON.stringify(messages);
-			console.log("messages: ", messages);
 		}
 		else
 			console.log("error in the getMessages");
 	}
 
 	const joinChatRooms = async (client : Socket) => {
-		await delay(1000);
-		console.log("data: is ", data);
+		let joinData = await getChats();
+		await joinData?.map((chat : chatData) => {
+			socket.emit('quick-join-room', {
+				roomName: chat.chat.name,
+				socketID: client.id,
+				client: content?.user,
+			});
+		});
 		setLoggedIn(true);
-		data.forEach((chat : chatData) => {
-		socket.emit('join-room', {
-			roomName: chat.chat.name,
-			socketID: client.id,
-			client: content?.user,
-			password: null,
-		});
-		});
 	};
 
 	useEffect(() => {
@@ -173,28 +163,21 @@ const Chat: React.FC = () => {
 	useEffect(() => {
 		socket.connect();
 		console.log("socket: is ->", socket);
-		getChats();
+		joinChatRooms(socket);
 	}, []);
-	
-	useEffect(() => {
-		if(loggedIn === false)
-		{
-			if(data.length > 0) {
-			joinChatRooms(socket);
-			console.log("data: is ", data);
-		}
-	}
-	}, [loggedIn]);
 
 	useEffect(() => {
-		socket.on('room-join-error', (err: Error) => {
-			console.log("error in joining room: ", err);
-			toast.error(err, {
+		socket.on('room-join-error', (message:{error: string, reset: boolean}) => {
+			console.log("error in joining room: ", message.error);
+			toast.error(message.error, {
 				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-error'});
-		setCurrentRoom('default');
-		setCurrentChat(undefined);
-		setMessages([]);
+		if (message.reset === true)
+		{
+			setCurrentRoom('default');
+			setCurrentChat(undefined);
+			setMessages([]);
+		}
 		});
 
 		return() => {
@@ -207,7 +190,6 @@ const Chat: React.FC = () => {
 		const roomNamePrompt = prompt("Enter the name of the room you want to join:");
 		if (roomNamePrompt)
 		{
-			console.log("roomNamePrompt: ", roomNamePrompt);
 			if (roomNamePrompt.trim() !== '') 
 			{
 				if(!fetched)
@@ -216,8 +198,6 @@ const Chat: React.FC = () => {
 					return;
 				}
 				let newRoom: chatData | undefined = dataPass.find((chat: chatData) => chat.chat.name === roomNamePrompt);
-				console.log("data in HandleJoinRoomClick : ", data);
-				console.log("newRoom: ", newRoom);
 				if (newRoom === undefined)
 				{
 					let emptyroom: chatData = {
@@ -239,13 +219,11 @@ const Chat: React.FC = () => {
 					}
 					newRoom = emptyroom;
 				}
-				console.log("newRoom before click: ", newRoom);
 				await handleJoinRoom(newRoom);
 				await delay(1000);
 				let newFetch =  await getChats();
 				if (newFetch !== undefined)
 					newRoom = newFetch.find((chat: chatData) => chat.chat.name === roomNamePrompt);
-				console.log("newRoom after click: ", newRoom);
 				delay(1000);
 				getMessages(newRoom);
 				if (newRoom !== undefined)

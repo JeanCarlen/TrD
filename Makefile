@@ -34,6 +34,7 @@ upfront:
 upback:
 	@echo "updating the back :]"
 	@docker cp ./backend/src trd-backend-1:/app
+	@docker restart trd-backend-1
 
 reload: upfront upback
 	@echo "updating the back and the front :]"

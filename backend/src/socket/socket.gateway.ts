@@ -114,7 +114,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		} catch (error) {
 			console.log('Error joining wait list:', error.message);
 			this.WaitList.map((client) => {console.log(client.id)});
-			this.server.to(client.id).emit('room-join-error', error.message);
+			this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
 		}
     }
 
@@ -130,7 +130,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		console.log('ready for room:', data.roomName);
 		this.server.to(data.roomName).emit('ready');
 		//wait 5 seconds
-		this.server.to(data.roomName).emit('go');
+		//this.server.to(data.roomName).emit('go');
 	}
 
     @SubscribeMessage('exchange-info')
@@ -196,7 +196,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             this.ChatadminsService.create({user_id: parseInt(message.client), chat_id: createdRoom.id});
         } catch (error) {
             console.error('Error creating room:', error.message);
-			this.server.to(client.id).emit('room-join-error', error.message);
+			this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
         }
     }
 
@@ -213,6 +213,31 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	}
 
     // Define the onJoinRoom method to handle joining a chat room
+    @SubscribeMessage('quick-join-room')
+	async onQuickJoinRoom(client: Socket, message:{ roomName: string, socketID: string, client: number}): Promise<void> {
+		try {
+			const chats = await this.ChatsService.findName(message.roomName);
+			if (!chats) {
+				throw new Error(`Room ${message.roomName} not found.`);
+			}
+			if (await this.ChatsService.isUserBanned(chats.id, message.client) === true)
+			{
+				throw new Error(`You are banned from ${message.roomName}.`);
+			}
+			if (chats.password != null) {
+				throw new Error(`protected`);
+			}
+			client.join(message.roomName);
+		}
+		catch (error) {
+			console.error('Error joining room:', error.message);
+			if (error.message !== 'Already in room' || 'protected') {
+				this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
+			}
+		}
+	}
+
+
     @SubscribeMessage('join-room')
 	@Inject('ChatsService')
 	@Inject('UserchatsService')
@@ -222,6 +247,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             if (!chats) {
                 throw new Error(`Room ${message.roomName} not found.`);
             }
+			if (await this.ChatsService.isUserBanned(chats.id, message.client) === true)
+			{
+				throw new Error(`You are banned from ${message.roomName}.`);
+			}
             if (chats.password != message.password) {
                 throw new Error(`Wrong password.`);
             }
@@ -238,7 +267,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         } catch (error) {
             console.error('Error joining room:', error.message);
             if (error.message !== 'Already in room') {
-				this.server.to(client.id).emit('room-join-error', error.message);
+				this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
 			}
         }
     }
@@ -252,11 +281,21 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 
     // Define the onCreateSomething method to handle creating something
     @SubscribeMessage('create-something')
-    async onCreateSomething(@MessageBody() data: any) {
+    async onCreateSomething(client: Socket, data: {room: string, user_id: number, text: string, sender_Name: string}) {
         // console.log('Create something:', data);
         const chats = await this.ChatsService.findName(data.room);
-		this.MessageService.create({chat_id: chats.id, user_id: data.user_id, text: data.text, user_name: data.sender_Name});
-        this.server.to(data.room).emit('srv-message', data);
-        console.log('sent this: ', data);
+		if (await this.ChatsService.isUserInChat(chats.id, data.user_id) === true)
+		{
+			if (await this.ChatsService.isUserMuted(chats.id, data.user_id) === false)
+			{
+				this.MessageService.create({chat_id: chats.id, user_id: data.user_id, text: data.text, user_name: data.sender_Name});
+				this.server.to(data.room).emit('srv-message', data);
+				console.log('sent this: ', data);
+			}
+			else
+			{
+				this.server.to(client.id).emit('room-join-error', {error: 'You are muted in this chat', reset: false});
+			}
+		}
     }
 }
