@@ -24,6 +24,8 @@ import {toast, ToastContainer } from 'react-toastify';
 import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
 import {ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
 import './ChatInterface.css'
+import * as FaIcons from 'react-icons/fa'
+
 
 
 
@@ -107,8 +109,6 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 			toast.info(user.username + ' was successfully ' + way, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
 		else 
 			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
-		const data = await response.json();
-		console.log('updated:', data);
 };
 
 	const deleteChannel = async (chat: chatData|undefined, socket: Socket) => {
@@ -144,9 +144,15 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		socket.on("deleted", () =>{
 			socket.emit("leave-room", {id : chatData?.id, roomName : chatData?.chat.name});
 		})
+
+		socket.on('refresh-id', ()=>{
+			getData(chatData);
+		});
+
 		return() => {
 			socket.off("smb-moved");
 			socket.off("deleted");
+			socket.off("refresh-id");
 		}
 	}, [socket, chatMembers]);
 
@@ -162,7 +168,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 
 	const setNewMode = async (user: User, mode: string) => {
 		await adminUser(chatData, user, token, mode);
-		getData(chatData);
+		socket.emit('refresh', {roomName: chatData?.chat.name, type: 'id'});
 	};
 
 	const goToProfile = (user: User) => {
@@ -171,9 +177,11 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 
 	const changePassword = async () => {
 		console.log('change password');
-		let newPassword = prompt('Enter new password');
-		if (newPassword && newPassword.trim() === '')
-			newPassword = null;
+		let newPassword: string | undefined | null;
+		newPassword = prompt('Enter new password');
+		if (newPassword == null || newPassword.trim() === '')
+			newPassword = undefined;
+		console.log('new password:', newPassword);
 		if (chatData=== undefined)
 			return;
 		const response = await fetch(`http://localhost:8080/api/chats/${chatData.chat_id}`, {
@@ -189,11 +197,13 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		if(response.ok)
 		{
 			toast.info('Password changed', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
+			socket.emit('refresh', {roomName: chatData.chat.name, type: 'chat'});
 		}
 		else
 		{
+			const error_data = await response.json();
 			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
-			console.log('error in the change password', response);
+			console.log('error in the change password', error_data);
 		}
 
 	};
@@ -238,8 +248,10 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 				<WrapItem>
 					<Avatar size='md' src={user.avatar} name={user.username}/>
 				</WrapItem>
-				<span className="messages" style={user.isAdmin == true ? {color: "green"} : {color: "red"}}>
+				<span className="messages">
 					{user.username}
+					{user.isAdmin === true ? <FaIcons.FaCrown style={{marginLeft: '5px'}}/> : <></>}
+					{user.isMuted === true ? <FaIcons.FaVolumeMute style={{marginLeft: '5px'}}/> : <></>}
 				</span>
 				<Menu>
 				<MenuButton className='sendButton' as={Button} rightIcon={<ChevronDownIcon />}>

@@ -12,6 +12,8 @@ import Sidebar from '../Components/Sidebar';
 import { sentMessages } from './ChatInterface';
 import { ToastContainer, toast } from 'react-toastify';
 import { Socket } from "socket.io-client";
+import * as FaIcons from 'react-icons/fa'
+
 
 export type chatData = {
 	id: number;
@@ -146,19 +148,6 @@ const Chat: React.FC = () => {
 		});
 		setLoggedIn(true);
 	};
-
-	useEffect(() => {
-		socket.on("smb-movede", () => {
-		console.log("refreshing chats");
-		getChats();
-		setCurrentRoom('default');
-		setCurrentChat(undefined);
-		setMessages([]);
-		});
-		return () => {
-			socket.off("smb-movede");
-		};
-	}, [socket]);
 	
 	useEffect(() => {
 		socket.connect();
@@ -180,8 +169,21 @@ const Chat: React.FC = () => {
 		}
 		});
 
+		socket.on("smb-movede", () => {
+			console.log("refreshing chats");
+			getChats();
+			setCurrentRoom('default');
+			setCurrentChat(undefined);
+			setMessages([]);
+			});
+
+		socket.on('refresh-chat', () => {
+			console.log("refreshing chats");
+			getChats();
+		})
 		return() => {
 			socket.off('room-join-error');
+			socket.off("smb-movede");
 		}
 	}, [socket]);
 
@@ -286,7 +288,9 @@ const Chat: React.FC = () => {
 		{data.map((chat: chatData) => {
 			return (
 				<button onClick={() => handleJoinRoom(chat)} key={chat.id} className="game-stats" style={{flexDirection: "column"}}>
-					<div className="box">{chat.chat.name}</div>
+					<div className="box">{chat.chat.name}
+					{chat.chat.protected ? <FaIcons.FaLock/> : <></>}
+					</div>
 				</button>
 			);
 		})}

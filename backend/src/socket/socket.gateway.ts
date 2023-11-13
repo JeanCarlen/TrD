@@ -272,6 +272,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         }
     }
 
+	@SubscribeMessage('refresh')
+	onRefresh(client: Socket, message:{ roomName: string, type: string}): void {
+		console.log("into refresh");
+		this.server.to(message.roomName).emit(`refresh-${message.type}`);
+	}
+
 	@SubscribeMessage('user-left')
 	async onUserLeft(client: Socket, message:{roomName: string, playerNumber: number, gameID: number}): Promise<void> {
 		console.log("into user left", message.playerNumber);

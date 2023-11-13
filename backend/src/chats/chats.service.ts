@@ -318,6 +318,8 @@ export class ChatsService {
 		chat.name = updateChatDto.name;
 	if (updateChatDto.password)
 		chat.password = updateChatDto.password;
+	if (updateChatDto.password == undefined)
+		chat.password = null;
 	console.log('updating chat to', chat);
 	await this.chatsRepository.save(chat);
   }
