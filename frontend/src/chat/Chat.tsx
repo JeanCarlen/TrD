@@ -137,13 +137,14 @@ const Chat: React.FC = () => {
 			console.log("error in the getMessages");
 	}
 
-	const joinChatRooms = async (client : Socket) => {
+	const joinChatRooms = async (client: Socket) => {
 		let joinData = await getChats();
+		let contentJoin: {username: string, user: number, avatar: string} = await decodeToken(Cookies.get("token"));
 		await joinData?.map((chat : chatData) => {
 			socket.emit('quick-join-room', {
 				roomName: chat.chat.name,
 				socketID: client.id,
-				client: content?.user,
+				client: contentJoin?.user,
 			});
 		});
 		setLoggedIn(true);

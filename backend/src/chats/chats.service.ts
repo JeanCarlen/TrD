@@ -142,19 +142,9 @@ export class ChatsService {
 		select: ['id', 'username', 'login42', 'avatar']
 	});
 	await Promise.all(users.map(async (user: UsersResponse) => {
-		// const userAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: user.id}});
-		// const userMuted = await this.mutedusersRepository.findOne({where: {chat_id: id, user_id: user.id}});
 		user.isAdmin = await this.isUserAdmin(id, user.id);
 		user.isMuted = await this.isUserMuted(id, user.id);
 		user.isOwner = await this.isUserOwner(id, user.id);
-		// if (userAdmin === null)
-		// 	user.isAdmin = false;
-		// else
-		// 	user.isAdmin = true;
-		// if (userMuted === null)
-		// 	user.isMuted = false;
-		// else
-		// 	user.isMuted = true;
 		userRet.push(user);
 	}))
 	return userRet;
@@ -226,8 +216,9 @@ export class ChatsService {
 
   public async isUserBanned(chat_id: number, user_id: number) {
 	let foundUser = await this.bannedusersRepository.findOne({where: {user_id: user_id, chat_id: chat_id}});
-	if (!foundUser)
+	if (foundUser === null)
 		return false;
+	console.log('foundUser', foundUser, 'user_id', user_id);
 	return true;
   }
 
@@ -302,7 +293,15 @@ export class ChatsService {
 			description: `You're not in this chat.`,
 		});
 	}
-	return await this.bannedusersRepository.find({where: {chat_id: id}})
+	let banList = await this.bannedusersRepository.find({where: {chat_id: id}})
+	const user_ids: number[] = banList.map((banned) => {
+		return banned.user_id;
+	})
+	let users: UsersResponse[] =  await this.usersRepository.find({
+		where: { id: In(user_ids) },
+		select: ['id', 'username', 'login42', 'avatar']
+	});
+	return users;
   }
 
   public async update(id: number, updateChatDto: UpdateChatDto) {

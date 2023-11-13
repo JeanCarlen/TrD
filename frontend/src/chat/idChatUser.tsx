@@ -10,13 +10,11 @@ import {
 	MenuDivider,
 	Button,
   } from '@chakra-ui/react'
-  import { ChevronDownIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
 import { useNavigate } from 'react-router-dom';
 import '../pages/LetsPlay'
 import Cookies from 'js-cookie';
 import { chatData } from './Chat';
-import { ChatForm } from 'react-chat-engine-advanced';
-import { WebsocketContext } from '../context/websocket.context';
 import '../pages/Chat.css';
 import decodeToken from '../helpers/helpers';
 import { Socket } from 'socket.io-client';
@@ -25,8 +23,7 @@ import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
 import {ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
 import './ChatInterface.css'
 import * as FaIcons from 'react-icons/fa'
-
-
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, useDisclosure } from "@chakra-ui/react";
 
 
 interface User{
@@ -123,8 +120,10 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	const [chatMembers, setchatMembers] = useState<User[]>()
 	const [fetched, setFetched] = useState<boolean>(false);
 	const [currentUser, setCurrentUser] = useState<User>();
+	const [bannedUsers, setBannedUsers] = useState<User[]>();
 	const ChatType: number = 0;
 	const navigate = useNavigate();
+	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	useEffect(() => {
 		socket.connect();
@@ -178,8 +177,10 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	const changePassword = async () => {
 		console.log('change password');
 		let newPassword: string | undefined | null;
-		newPassword = prompt('Enter new password');
-		if (newPassword == null || newPassword.trim() === '')
+		newPassword = prompt('Enter new password, leave empty to remove password');
+		if (newPassword === null || newPassword === undefined)
+			return ;
+		if (newPassword.trim() === '')
 			newPassword = undefined;
 		console.log('new password:', newPassword);
 		if (chatData=== undefined)
@@ -207,6 +208,23 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		}
 
 	};
+
+	async function unbanUsers () {
+		const response = await fetch(`http://localhost:8080/api/chats/${chatData?.chat_id}/users/banned`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			},
+		});
+		if (response.ok)
+		{
+			let bannedList = await response.json();
+			console.log('banned list: ', bannedList);
+			await setBannedUsers(bannedList);
+			onOpen();
+		}
+	}
 
 	async function getData (chatData: chatData|undefined) {
 		setFetched(false);
@@ -242,9 +260,9 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	return (
 		<ChakraProvider>
 		<div>
-			{fetched ? <div>
+			{fetched ? <div syle={{overflowY: 'scroll'}}>
 			{chatMembers.map((user: User) => (
-			<li key={user.id} className= "friendslist" >
+			<li key={user.id} className="friendlist" >
 				<WrapItem>
 					<Avatar size='md' src={user.avatar} name={user.username}/>
 				</WrapItem>
@@ -278,14 +296,37 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 			{currentUser?.isOwner === true ?
 			<>
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => changePassword()}>Change Password</button>
+			<br/>
+			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => unbanUsers()}>Unban users </button>
 			</> : <></>}
 			</>
 			<br/>
 		<button className="sendButton" onClick={() => deleteChannel(chatData, socket)}>leave channel</button>
+		<Modal isOpen={isOpen} onClose={onClose}>
+		<ModalOverlay />
+		<ModalContent>
+		<ModalHeader>Banned Users</ModalHeader>
+		<ModalCloseButton />
+		<ModalBody>
+			{bannedUsers?.map((user: User) => {
+				return (
+				<div className="banBox">
+					<Avatar size='md' src={user.avatar} name={user.username}/>
+					<div>{user.username}</div>
+					<Button style={{marginLeft: 'auto'}} onClick={() => {
+						setNewMode(user, 'unban');
+						onClose();
+					}}>Unban</Button>
+				</div>
+				)
+			})}
+		</ModalBody>
+		</ModalContent>
+		</Modal>
 		<ToastContainer/>
 		</div>
 		</ChakraProvider>
 	)
 }
 
-	export default IdChatUser;
+export default IdChatUser;
