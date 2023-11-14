@@ -12,6 +12,8 @@ import Sidebar from '../Components/Sidebar';
 import { sentMessages } from './ChatInterface';
 import { ToastContainer, toast } from 'react-toastify';
 import { Socket } from "socket.io-client";
+import * as FaIcons from 'react-icons/fa'
+
 
 export type chatData = {
 	id: number;
@@ -69,7 +71,6 @@ const Chat: React.FC = () => {
 			const data = await response.json();
 			if (response.ok)
 			{
-				// console.log("data: ", data);
 				setFetched(true);
 				setData(data);
 				return data as chatData[];
@@ -83,9 +84,6 @@ const Chat: React.FC = () => {
 	}
 
 	const handleRoomChange = (room: string, password: string | null) => {
-		console.log("next room: ", room);
-		console.log("currentRoom is : ", currentRoom);
-		// socket.emit('leave-room', { roomName: currentRoom, socketID: socket.id, client: content?.user }); -- removed to test
 		socket.emit('join-room', { roomName: room, socketID: socket.id, client: content?.user, password: password });
 		//check if the password was right -- otherwise set room to default
 		setCurrentRoom(room);
@@ -101,8 +99,6 @@ const Chat: React.FC = () => {
 			});
 			return;
 		}
-		console.log("data in join: ", data);
-		console.log("Joining room: ", chat.chat.name);
 		//ask the password if there is one
 		let passwordPrompt: string | null = null;
 		if (chat.chat.protected === true)
@@ -136,78 +132,84 @@ const Chat: React.FC = () => {
 		{
 			const messages: sentMessages[] = await response.json();
 			setMessages(messages);
-			// const printMessages = JSON.stringify(messages);
-			console.log("messages: ", messages);
 		}
 		else
 			console.log("error in the getMessages");
 	}
 
-	const joinChatRooms = async (client : Socket) => {
-		await delay(1000);
-		console.log("data: is ", data);
+	const joinChatRooms = async (client: Socket) => {
+		let joinData = await getChats();
+		let contentJoin: {username: string, user: number, avatar: string} = await decodeToken(Cookies.get("token"));
+		await joinData?.map((chat : chatData) => {
+			socket.emit('quick-join-room', {
+				roomName: chat.chat.name,
+				socketID: client.id,
+				client: contentJoin?.user,
+			});
+		});
 		setLoggedIn(true);
-		data.forEach((chat : chatData) => {
-		socket.emit('join-room', {
-			roomName: chat.chat.name,
-			socketID: client.id,
-			client: content?.user,
-			password: null,
-		});
-		});
 	};
-
-	useEffect(() => {
-		socket.on("smb-movede", () => {
-		console.log("refreshing chats");
-		getChats();
-		setCurrentRoom('default');
-		setCurrentChat(undefined);
-		setMessages([]);
-		});
-		return () => {
-			socket.off("smb-movede");
-		};
-	}, [socket]);
 	
 	useEffect(() => {
 		socket.connect();
 		console.log("socket: is ->", socket);
-		getChats();
+		joinChatRooms(socket);
 	}, []);
-	
-	useEffect(() => {
-		if(loggedIn === false)
-		{
-			if(data.length > 0) {
-			joinChatRooms(socket);
-			console.log("data: is ", data);
-		}
-	}
-	}, [loggedIn]);
 
 	useEffect(() => {
-		socket.on('room-join-error', (err: Error) => {
-			console.log("error in joining room: ", err);
-			toast.error(err, {
+		socket.on('room-join-error', (message:{error: string, reset: boolean}) => {
+			console.log("error in joining room: ", message.error);
+			toast.error(message.error, {
 				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-error'});
-		setCurrentRoom('default');
-		setCurrentChat(undefined);
-		setMessages([]);
+		if (message.reset === true)
+		{
+			setCurrentRoom('default');
+			setCurrentChat(undefined);
+			setMessages([]);
+		}
 		});
+
+		socket.on("smb-movede", () => {
+			console.log("refreshing chats");
+			getChats();
+			setCurrentRoom('default');
+			setCurrentChat(undefined);
+			setMessages([]);
+			});
+
+		socket.on('refresh-chat', () => {
+			console.log("refreshing chats");
+			getChats();
+		})
+
+		socket.on('kick', (dataBack:{roomToLeave:string, UserToKick: number}) => {
+			console.log("kicked: ", dataBack.UserToKick, "content: ", content?.user);
+			if (dataBack.UserToKick !== content?.user)
+				return ;
+			console.log("you have been kicked")
+			toast.error("You have been kicked", {
+				position: toast.POSITION.BOTTOM_LEFT,
+				className: 'toast-error'
+			});
+			setCurrentRoom('default');
+			setCurrentChat(undefined);
+			setMessages([]);
+			getChats();
+		})
 
 		return() => {
 			socket.off('room-join-error');
+			socket.off("smb-movede");
+			socket.off('kick');
 		}
-	}, [socket]);
+	}, [socket, content]);
 
 
 	const handleJoinRoomClick = async (dataPass: chatData[]) => {
 		const roomNamePrompt = prompt("Enter the name of the room you want to join:");
 		if (roomNamePrompt)
 		{
-			console.log("roomNamePrompt: ", roomNamePrompt);
 			if (roomNamePrompt.trim() !== '') 
 			{
 				if(!fetched)
@@ -216,8 +218,6 @@ const Chat: React.FC = () => {
 					return;
 				}
 				let newRoom: chatData | undefined = dataPass.find((chat: chatData) => chat.chat.name === roomNamePrompt);
-				console.log("data in HandleJoinRoomClick : ", data);
-				console.log("newRoom: ", newRoom);
 				if (newRoom === undefined)
 				{
 					let emptyroom: chatData = {
@@ -239,13 +239,11 @@ const Chat: React.FC = () => {
 					}
 					newRoom = emptyroom;
 				}
-				console.log("newRoom before click: ", newRoom);
 				await handleJoinRoom(newRoom);
 				await delay(1000);
 				let newFetch =  await getChats();
 				if (newFetch !== undefined)
 					newRoom = newFetch.find((chat: chatData) => chat.chat.name === roomNamePrompt);
-				console.log("newRoom after click: ", newRoom);
 				delay(1000);
 				getMessages(newRoom);
 				if (newRoom !== undefined)
@@ -301,14 +299,15 @@ const Chat: React.FC = () => {
 		<div className="leftColumn">
 		<button onClick={handleCreateRoom}>Create New Room</button>
 		<button onClick={() => handleJoinRoomClick(data)}>Join Room</button>
-		<button onClick={() => handleLeaveRoom(currentRoom)}>Leave Room</button>
 		<div className="chatList">
 		<p>currentRoom: {currentRoom}</p>
 		{fetched ? <div className="history-1">
 		{data.map((chat: chatData) => {
 			return (
 				<button onClick={() => handleJoinRoom(chat)} key={chat.id} className="game-stats" style={{flexDirection: "column"}}>
-					<div className="box">{chat.chat.name}</div>
+					<div className="box">{chat.chat.name}
+					{chat.chat.protected ? <FaIcons.FaLock/> : <></>}
+					</div>
 				</button>
 			);
 		})}

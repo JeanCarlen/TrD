@@ -11,6 +11,19 @@ Chat bubble container
 	clear: both;
 	width: auto;
 	min-height: 40px;
+	flex-grow: 1;
+}
+
+.banBox {
+	display: flex;
+	width: auto;
+	flex-direction: row;
+	height: auto;
+	margin-bottom: 10px;
+	align-items: center;
+	gap: 10px;
+	row-gap: 10px;
+	justify-content: left;
 }
 
 /* Sender's name (top right) */
@@ -48,11 +61,11 @@ Chat bubble container
 	padding: 10px;
 	margin: 10px;
 	max-width: 70%;
-	word-wrap: break-word;
+	/* word-wrap: break-word;
 	position: relative;
 	clear: both;
-	width: auto;
-	min-height: 40px;
+	width: auto; */
+	/* min-height: 40px; */
 
 	background-color: #4caf50;
 	color: white;
@@ -65,11 +78,11 @@ Chat bubble container
 	padding: 10px;
 	margin: 10px;
 	max-width: 70%;
-	word-wrap: break-word;
+	/* word-wrap: break-word;
 	position: relative;
 	clear: both;
-	width: auto;
-	min-height: 40px;
+	width: auto; */
+	/* min-height: 40px; */
 
 	background-color: #2196F3;
 	color: white;

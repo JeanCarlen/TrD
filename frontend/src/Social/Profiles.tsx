@@ -28,6 +28,10 @@ import AddFriend from '../Components/AddFriend'
 import {gameData} from '../pages/Stats'
 import LayoutGamestats from '../pages/Layout-gamestats'
 import FriendListProfile from '../Components/FriendlistOther'
+import { handleBlockUser } from '../chat/idChatUser'
+import * as FaIcons from 'react-icons/fa'
+import { ToastContainer } from 'react-toastify';
+import {User} from '../chat/idChatUser'
 
 export interface profiles {
 	username: string | undefined;
@@ -46,9 +50,12 @@ const Profiles = (props: Props) => {
   const [dataMatches, setDataMatches] = useState<gameData[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [achievementName, setAchievementName] = useState<string>('');
-  const [friendid, setFriendID] = useState<number>();
+//   const [friendid, setFriendID] = useState<number>();
 	const [friends, setFriends] = useState<FriendData[]>([]);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [friendid, setFriendID] = useState<number|undefined>();
+  const [friend, setFriend] = useState<User>();
+// 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() =>{
     const token: string|undefined = Cookies.get("token");
@@ -59,24 +66,24 @@ const Profiles = (props: Props) => {
       }
       else
         content = { username: 'default', user: 0};
-
-      const GetUserinfo = async () => {
-          const response = await fetch(`http://localhost:8080/api/users/username/${users}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + token,
-            }
-          });
-          const data = await response.json()
-          if (response.ok)
-          {
-            setAvatarUrl(data[0].avatar);
-            setFriendID(data[0].id);
-            // fetchMatches(data[0].id);
-          }
-          console.log ('data', data);
+    
+	const GetUserinfo = async () => {
+      const response = await fetch(`http://localhost:8080/api/users/username/${users}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+				  'Authorization': 'Bearer ' + token,
         }
+      });
+      const data = await response.json()
+      if (response.ok)
+      {
+        setAvatarUrl(data[0].avatar);
+        await setFriendID(data[0].id);
+        console.log ('friendid', data.id);
+        setFriend(data[0]);
+        await fetchMatches(data[0].id);
+      }
 
       GetUserinfo();
       fetchMatches(content.user);
@@ -104,7 +111,8 @@ const Profiles = (props: Props) => {
 		if (response.ok)
 		{
 			try {
-				const data = await response.json();
+				let data = await response.json();
+				data.sort((a: gameData, b: gameData) => (a.id > b.id) ? 1 : -1);
 				setGameFetched(true);
 				console.log("Data fetched", data);
 				setDataMatches(data.slice(-3).reverse());
@@ -136,12 +144,16 @@ const Profiles = (props: Props) => {
              </WrapItem>
             </Wrap>
             <div className='profile-border'>
-              <AddFriend userID={friendid}/>
-            Add {users} as a friend
+				<AddFriend userID={friendid}/>
+				Add {users} as a friend
             </div>
             <div className='profile-border'>
             Invite {users} for a game
             </div>
+			<div className='profile-border'>
+				<FaIcons.FaHandPaper cursor='pointer' style={{marginLeft: '5px', fontSize: '30pt'}} onClick={() => handleBlockUser(friend, token)}/><br/>
+				Block {users}
+			</div>
         </div>
         <div className='displayGrid'>
             <div className='matchHistory'>
@@ -167,6 +179,7 @@ const Profiles = (props: Props) => {
             </div>
             </div>
         </div>
+		<ToastContainer/>
         </div>
         </ChakraProvider>
 )

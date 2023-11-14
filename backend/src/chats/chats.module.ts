@@ -8,9 +8,11 @@ import { UserChats } from 'src/userchats/entities/userchat.entity';
 import { ChatAdmins } from 'src/chatadmins/entities/chatadmin.entity';
 import { UserchatsModule } from 'src/userchats/userchats.module';
 import { Users } from 'src/users/entities/users.entity';
+import { MutedUsers } from 'src/mutedusers/entities/muteduser.entity';
+import { BannedUsers } from 'src/bannedusers/entities/banneduser.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Chats, UserChats, ChatAdmins, Users]), MessagesModule, UserchatsModule],
+  imports: [TypeOrmModule.forFeature([Chats, UserChats, ChatAdmins, Users, MutedUsers, BannedUsers]), MessagesModule, UserchatsModule],
   controllers: [ChatsController],
   providers: [ChatsService],
   exports: [ChatsService]
