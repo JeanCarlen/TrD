@@ -26,14 +26,14 @@ import * as FaIcons from 'react-icons/fa'
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, useDisclosure } from "@chakra-ui/react";
 
 
-interface User{
+export interface User{
 	id:number,
 	login42: string,
 	username: string,
 	avatar: string,
-	isAdmin: boolean,
-	isMuted: boolean,
-	isOwner: boolean,
+	isAdmin?: boolean,
+	isMuted?: boolean,
+	isOwner?: boolean,
 }
 
 interface IdChatProps{
@@ -61,10 +61,25 @@ const handleAddUser = (user: User) => {
 	console.log(`Adding user: ${user.username}`);
   };
 
-  const handleBlockUser = (user: User) => {
-	// Implement logic to block the user or perform the desired action.
-	// This could involve making an API request to your server.
+export  const handleBlockUser = async (user: User, token: string|undefined) => {
 	console.log(`Blocking user: ${user.username}`);
+	let content: {username: string, user: number, avatar: string};
+	if (token != undefined)
+		content = decodeToken(token);
+	else
+		return;
+	const response = await fetch(`http://localhost:8080/api/users/block/${user.id}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token
+			},
+			body: JSON.stringify({user_id: user.id})
+		});
+		if (response.ok)
+			toast.info(user.username + ' was successfully blocked', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
+		else 
+			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
 };
 
 const invitePong = (user: User) => {
@@ -166,6 +181,8 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	},[chatMembers]);
 
 	const setNewMode = async (user: User, mode: string) => {
+		if (mode === 'ban')
+		socket.emit('kick', {roomName: chatData?.chat.name, UserToKick: user.id});
 		await adminUser(chatData, user, token, mode);
 		socket.emit('refresh', {roomName: chatData?.chat.name, type: 'id'});
 	};
@@ -277,7 +294,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 				</MenuButton>
 				<MenuList>
 					<MenuItem className='Addfriend' onClick={() => handleAddUser(user)}>Add as a friend</MenuItem>
-					<MenuItem className='Addfriend' onClick={() => handleBlockUser(user)}> Block User </MenuItem>
+					<MenuItem className='Addfriend' onClick={() => handleBlockUser(user, token)}> Block User </MenuItem>
 					<MenuItem className='Addfriend' onClick={() => invitePong(user)}> Invite for a pong </MenuItem>
 					{currentUser?.isAdmin === true ? 
 					<>

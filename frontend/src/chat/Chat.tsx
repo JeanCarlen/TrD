@@ -182,11 +182,28 @@ const Chat: React.FC = () => {
 			console.log("refreshing chats");
 			getChats();
 		})
+
+		socket.on('kick', (dataBack:{roomToLeave:string, UserToKick: number}) => {
+			console.log("kicked: ", dataBack.UserToKick, "content: ", content?.user);
+			if (dataBack.UserToKick !== content?.user)
+				return ;
+			console.log("you have been kicked")
+			toast.error("You have been kicked", {
+				position: toast.POSITION.BOTTOM_LEFT,
+				className: 'toast-error'
+			});
+			setCurrentRoom('default');
+			setCurrentChat(undefined);
+			setMessages([]);
+			getChats();
+		})
+
 		return() => {
 			socket.off('room-join-error');
 			socket.off("smb-movede");
+			socket.off('kick');
 		}
-	}, [socket]);
+	}, [socket, content]);
 
 
 	const handleJoinRoomClick = async (dataPass: chatData[]) => {

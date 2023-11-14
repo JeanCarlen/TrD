@@ -27,6 +27,10 @@ import UserInformation from '../Components/UserInformation'
 import AddFriend from '../Components/AddFriend'
 import {gameData} from '../pages/Stats'
 import LayoutGamestats from '../pages/Layout-gamestats'
+import { handleBlockUser } from '../chat/idChatUser'
+import * as FaIcons from 'react-icons/fa'
+import { ToastContainer } from 'react-toastify';
+import {User} from '../chat/idChatUser'
 
 export interface profiles {
 	username: string | undefined;
@@ -41,6 +45,7 @@ const Profiles = (props: Props) => {
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [achievementName, setAchievementName] = useState<string>('');
   const [friendid, setFriendID] = useState<number|undefined>();
+  const [friend, setFriend] = useState<User>();
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 	const GetUserinfo = async () => {
@@ -57,6 +62,7 @@ const Profiles = (props: Props) => {
         setAvatarUrl(data[0].avatar);
         await setFriendID(data[0].id);
 		console.log ('friendid', data.id);
+		setFriend(data[0]);
 		await fetchMatches(data[0].id);
       }
       let content: {username: string, user: number};
@@ -139,9 +145,13 @@ const Profiles = (props: Props) => {
              </WrapItem>
             </Wrap>
             <div className='profile-border'>
-              <AddFriend userID={friendid}/>
-            Add {users} as a friend
+				<AddFriend userID={friendid}/>
+				Add {users} as a friend
             </div>
+			<div className='profile-border'>
+				<FaIcons.FaHandPaper cursor='pointer' style={{marginLeft: '5px', fontSize: '30pt'}} onClick={() => handleBlockUser(friend, token)}/><br/>
+				Block {users}
+			</div>
         </div>
         <div className='displayGrid'>
             <div className='matchHistory'>
@@ -173,6 +183,7 @@ const Profiles = (props: Props) => {
             </div>
             </div>
         </div>
+		<ToastContainer/>
         </div>
         </ChakraProvider>
 )

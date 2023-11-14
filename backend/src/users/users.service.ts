@@ -347,7 +347,7 @@ export class UsersService {
   }
 
   public async blockUser(blocked_id: number, blocker_id: number) {
-
+	console.log("info:", blocked_id, blocker_id);
 	if (blocker_id == blocked_id) {
 		throw new BadRequestException(['You cannot block yourself.'], {
 			cause: new Error(),
@@ -364,9 +364,10 @@ export class UsersService {
 	const [fb, fid] = await this.friendsService.areFriends(blocker_id, blocked_id);
 	if (fb)
 		await this.friendsService.delete(fid);
-	const [cb, cid] = await this.userchatsService.areInOneToOneChat(blocker_id, blocked_id);
-	if (cb)
-		await this.userchatsService.remove(cid);
+	// const [cb, cid] = await this.userchatsService.areInOneToOneChat(blocker_id, blocked_id);
+	// console.log("cb:", cb);
+	// if (cb)
+		// await this.userchatsService.remove(cid);
 
 	const blockedUser = new BlockedUsers();
 	blockedUser.blockeduser_id = blocked_id;
