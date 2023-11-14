@@ -309,7 +309,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 				</MenuList>
 				</Menu>
 			</li>
-			))} </ol> : <div className="history_1">Loading...</div>}
+			))} </div> : <div className="history_1">Loading...</div>}
 			<>
 			{currentUser?.isOwner === true ?
 			<>
