@@ -27,12 +27,18 @@ import UserInformation from '../Components/UserInformation'
 import AddFriend from '../Components/AddFriend'
 import {gameData} from '../pages/Stats'
 import LayoutGamestats from '../pages/Layout-gamestats'
+import FriendListProfile from '../Components/FriendlistOther'
 
 export interface profiles {
 	username: string | undefined;
   }
 type Props = {}
 
+export interface FriendData{
+	requester: string;
+	status: string;
+	id: number;
+}
 const Profiles = (props: Props) => {
   const {users} = useParams();
   const token: string|undefined = Cookies.get("token");
@@ -40,60 +46,52 @@ const Profiles = (props: Props) => {
   const [dataMatches, setDataMatches] = useState<gameData[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [achievementName, setAchievementName] = useState<string>('');
-  const [friendid, setFriendID] = useState<number|undefined>();
+  const [friendid, setFriendID] = useState<number>();
+	const [friends, setFriends] = useState<FriendData[]>([]);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-	const GetUserinfo = async () => {
-      const response = await fetch(`http://localhost:8080/api/users/username/${users}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-				  'Authorization': 'Bearer ' + token,
-        }
-      });
-      const data = await response.json()
-      if (response.ok)
-      {
-        setAvatarUrl(data[0].avatar);
-        await setFriendID(data[0].id);
-		console.log ('friendid', data.id);
-		await fetchMatches(data[0].id);
-      }
-      let content: {username: string, user: number};
+  useEffect(() =>{
+    const token: string|undefined = Cookies.get("token");
+    let content: {username: string, user: number};
       if (token != undefined)
       {
         content = decodeToken(token);
       }
       else
         content = { username: 'default', user: 0};
-      // const response1 = await fetch(`http://localhost:8080/api/achievement/${content.user}`, {
-      //   method: 'GET',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-			// 	  'Authorization': 'Bearer ' + token,
-      //   }
-      // });
-      // const achievementData = await response1.json()
-      // if (response1.ok)
-      // {
-      //   setAchievementName(achievementData[0].title);
-      //   setAvatarUrl(data[0].avatar);
-      // }
-    }
 
-    useEffect(() =>{
-      const token: string|undefined = Cookies.get("token");
-      let content: {username: string, user: number};
-        if (token != undefined)
-        {
-          content = decodeToken(token);
+      const GetUserinfo = async () => {
+          const response = await fetch(`http://localhost:8080/api/users/username/${users}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token,
+            }
+          });
+          const data = await response.json()
+          if (response.ok)
+          {
+            setAvatarUrl(data[0].avatar);
+            setFriendID(data[0].id);
+            // fetchMatches(data[0].id);
+          }
+          console.log ('data', data);
         }
-        else
-          content = { username: 'default', user: 0};
-        // setContent(content);
-        GetUserinfo();
-    }, []);
 
+      GetUserinfo();
+      fetchMatches(content.user);
+  }, []);
+
+    //   let content: {username: string, user: number};
+    //   if (token != undefined)
+    //   {
+    //     content = decodeToken(token);
+    //   }
+    //   else
+    //   {
+    //     content = { username: 'default', user: 0};
+    // }
+    
 	const fetchMatches = async (theID:number) => {
 		console.log("Fetching matches for user", theID);
 		const response = await fetch(`http://localhost:8080/api/matches/users/${theID}`, {
@@ -120,7 +118,6 @@ const Profiles = (props: Props) => {
 			console.log("Error fetching matches");
 		}
 	}
-
     return (
       <ChakraProvider resetCSS={false}>
           <Searchbar/>
@@ -142,6 +139,9 @@ const Profiles = (props: Props) => {
               <AddFriend userID={friendid}/>
             Add {users} as a friend
             </div>
+            <div className='profile-border'>
+            Invite {users} for a game
+            </div>
         </div>
         <div className='displayGrid'>
             <div className='matchHistory'>
@@ -162,13 +162,7 @@ const Profiles = (props: Props) => {
             </div>
             <div className='friends'>
                 <div className='matchBox'>
-                  FRIENDS
-                </div>
-                <div className='matchBox'>
-                  FRIENDS
-                </div>
-                <div className='matchBox'>
-                  FRIENDS
+                <FriendListProfile FriendData={friends}/>
                 </div>
             </div>
             </div>
@@ -178,5 +172,4 @@ const Profiles = (props: Props) => {
 )
 }
 
-export default Profiles
-
+export default Profiles;
