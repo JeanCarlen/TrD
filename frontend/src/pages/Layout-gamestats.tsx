@@ -4,12 +4,14 @@ import { gameData, User } from "./Stats";
 
 export type statsProps = {
 	display: gameData,
-	userID: number,
+	userID: number|undefined,
 }
 
 const LayoutGamestats: React.FunctionComponent<statsProps> = ({display, userID}: statsProps) => {
 	
 	let winLoose: string;
+	if (userID === undefined)
+		return;
 
 	if (display.score_1 > display.score_2)
 	{
