@@ -28,6 +28,8 @@ import {
 	MenuOptionGroup,
 	MenuDivider,
   } from '@chakra-ui/react'
+  import MFASetup from '../pages/mfasetup'
+  import {useNavigate} from 'react-router-dom'
 
 
 type CookieProps = {
@@ -36,19 +38,25 @@ type CookieProps = {
 
 const UserInformation: React.FC<CookieProps> = ({username}) => {
 	const [userID, setUserID] = useState<number>();
+	const navigate = useNavigate();
 	const { isOpen, onOpen, onClose } = useDisclosure()
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const { isOpen: isOpen1 , onOpen: onOpen1, onClose: onClose1 } = useDisclosure()
+	const { isOpen: isOpen2 , onOpen: onOpen2, onClose: onClose2 } = useDisclosure()
 	// const [count, setCount] = useState<number>();
   	const initialRef = React.useRef(null)
   	const finalRef = React.useRef(null)
 	const initialRef1 = React.useRef(null)
   	const finalRef1 = React.useRef(null)
+	const initialRef2 = React.useRef(null)
+  	const finalRef2 = React.useRef(null)
 	const [newName, setNewName] = useState<string>('');
 	const [senderID, setSenderID] = useState([]);
 	const [senderName, setSenderName] = useState<string>('');
 	const [fetched, setFetched] = useState<boolean>(false);
+	const [pendingfriends, setPendingFriends] = useState<([])>();
+	const [friendRequests, setFriendRequests] = useState<(number[])>();
 	const token: string|undefined = Cookies.get("token");
 	let content: {username: string, user: number};
 		if (token != undefined)
@@ -60,7 +68,6 @@ const UserInformation: React.FC<CookieProps> = ({username}) => {
 	const [tokens, setToken] = useState<any>('');
 	let count = 0;
 	let sender;
-	let ID;
 	const updateUser = async () => {
 		const response = await fetch(`http://localhost:8080/api/users/username/${username}`, {
 			method: 'GET',
@@ -84,16 +91,23 @@ const UserInformation: React.FC<CookieProps> = ({username}) => {
 				count = data2.length;
 				console.log("length", count)
 				setSenderID(data2[0].requester);
-				console.log("data", data2);
+				console.log("data2", data2);
 				sender = data2[0].requester_user.username;
 				console.log("this is the sender", sender);
 				setFetched(true);
 				// console.log("this is the sendername", data2[0].requester_user.username);
-				setSenderName(data2[0].requester_user.username);
-
+				for (let i = 0; i < data2.length; i++)
+				{
+					setSenderName(data2[i].requester_user.username);
+					setPendingFriends(data2[i].id);
+					setFriendRequests((prevNumbers: number[]) => [...prevNumbers || [], data2[i].id]);
+					// ID[i].id = data2[i].id;
+					console.log("id", data2[i].id);
+				}
 			}
-		console.log(data2);
-	}
+		}
+		console.log("pending", friendRequests);
+		console.log("pending2", pendingfriends);
 
 			useEffect(() =>{
 				const token: string|undefined = Cookies.get("token");
@@ -152,6 +166,12 @@ const UserInformation: React.FC<CookieProps> = ({username}) => {
 		//setcookies to change the decode token
 	}
 
+	const twofa = () => {
+		navigate('/mfasetup');
+	}
+
+
+
 	return (
 		<>
 		<Menu>
@@ -162,6 +182,7 @@ const UserInformation: React.FC<CookieProps> = ({username}) => {
 			<MenuGroup title='Profile'>
 			<MenuItem onClick={onOpen}>Change Username</MenuItem>
 			<MenuItem onClick={onOpen1}>Change my Avatar</MenuItem>
+			<MenuItem onClick={onOpen2}>Setup my 2FA </MenuItem>
 			</MenuGroup>
 			<MenuDivider />
 		</MenuList>
@@ -170,20 +191,19 @@ const UserInformation: React.FC<CookieProps> = ({username}) => {
       {/* <Button ml={4} ref={finalRef}>
         I'll receive focus on close
 	</Button> */}
-		{/* <div> */}
-			{/* {fetched} */}
-			{/* {senderID.map((requests:any) => {
-				return (
-					<div key={requests}> */}
-					<NotificationIcon
-					count={count}
-					message={"Friend Requests"}
-					senderName={senderName}
-					senderID={senderID}/>
-					{/* </div> */}
-				{/* /* ); */}
-			{/* })} */ }
-	 {/* </div> */}
+		<div>
+		{fetched && friendRequests.map((request: number) => (
+			<div key={request}>
+			<NotificationIcon
+				count={count}
+				message={"Friend Requests"}
+				senderName={senderName[request]}
+				senderID={senderID[request]}
+				pendingfriends={pendingfriends}
+			/>
+			</div>
+		))}
+		</div>
       <Modal
         initialFocusRef={initialRef}
         finalFocusRef={finalRef}
@@ -234,6 +254,28 @@ const UserInformation: React.FC<CookieProps> = ({username}) => {
               Save
             </Button>
             <Button onClick={onClose1}>Cancel</Button>
+          </ModalFooter>
+		</ModalContent>
+      </Modal>
+
+	  <Modal
+		initialFocusRef={initialRef2}
+        finalFocusRef={finalRef2}
+        isOpen={isOpen2}
+        onClose={onClose2}
+		>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Setup 2FA</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={7}>
+		  <FormLabel>Setup 2FA</FormLabel>
+          </ModalBody>
+		  <ModalFooter>
+            <Button onClick={twofa} colorScheme='blue' mr={3}>
+              Go
+            </Button>
+            <Button onClick={onClose2}>Cancel</Button>
           </ModalFooter>
 		</ModalContent>
       </Modal>

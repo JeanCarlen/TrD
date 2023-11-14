@@ -3,18 +3,26 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import decodeToken from "../helpers/helpers";
 import FriendList from "./Friends";
-import { PhoneIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
+import { DeleteIcon, PhoneIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
 import { profiles } from "../Social/Profiles";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css'
 
 type UserProps = {
 	userID: number|undefined;
-  };
+};
 
 const AddFriend: React.FC<UserProps> = ({userID}) => {
 	// const [friends, setFriends] = useState<FriendData[]>([]);
 	console.log(userID)
+	
+	const token = Cookies.get('token');
+		let content: {username: string, user: number};
+		if (token != undefined)
+			content = decodeToken(token);
+		else
+			content = { username: 'default', user: 0}
+	
 	const handleAddFriend = async (userID: number|undefined) => {
 		const token = Cookies.get('token');
 			let content: {username: string, user: number};
@@ -34,12 +42,41 @@ const AddFriend: React.FC<UserProps> = ({userID}) => {
 		console.log(data);
 		if (response.ok)
 			toast.success("Friend request sent!", { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-success' });
+		else{
+			toast.error("You are already friends!", { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
+		}
+	}
 
+	const handleRemoveFriend = async (userID: number|undefined) => {
+		const response = await fetch(`http://localhost:8080/api/friends/active/list/${userID}`,
+			{ method: 'GET',
+				headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+				},
+			});
+			const data = await response.json()
+			if (response.ok)
+			{
+				console.log("friendlist", data);
+			}
+
+		// const response1 = await fetch(`http://localhost:8080/api/friends/${}`, {
+		// 	method: 'DELETE',
+		// 	headers: {
+		// 		'Content-Type': 'application/json',
+		// 		'Authorization': 'Bearer ' + token
+		// 	},
+		// 	body: JSON.stringify({requester: content.user, requested: userID, status: "pending"}),
+		// });
+		// const data1 = await response1.json()
+		// console.log("data1", data1);
 	}
 
 	return (
 	  <div>
 		<AddIcon cursor='pointer' boxSize={5} onClick={() => handleAddFriend(userID)}/>
+		{/* <DeleteIcon cursor='pointer' boxSize={5} onClick={() => handleRemoveFriend(userID)}/> */}
 		{/* <AddIcon boxSize={5} onClick={() => handleAddFriend()}/> */}
 		{/* {friends.map((friend) => (
 			<div key={friend.id}>

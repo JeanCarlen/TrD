@@ -106,7 +106,7 @@
     padding: 10px 10px;
     box-shadow: rgba(0,0,0,0.1) 0 0 5px;
     border: 0px solid #ccc;
-    font-size: larger;
+    font-size:medium;
 }
 
 .matchBox{
@@ -120,14 +120,17 @@
 
 .profile-border{
 
-    box-sizing: content-box;
+    box-sizing:content-box;
     box-shadow: rgba(145, 138, 138, 0.1) 0 0 10px;
     width: 90vh;
     background-color:rgba(49, 11, 34, 0.3);
     overflow: hidden;
     border-radius: 15px;
     align-content: center;
-    padding-top: 5px;
+    /* padding-top: 5px; */
+    padding-top: 18px;
+    margin-right: 5px;
+    margin-left: 50px;
 }
 
 .welcome{

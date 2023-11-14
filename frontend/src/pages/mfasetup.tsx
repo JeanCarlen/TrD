@@ -24,7 +24,7 @@ const MFASetup: React.FC<{}> = () => {
 	return (
 		<>
 			<Sidebar />
-			<h3>MFA SETUP PAGE</h3>
+			<h3>Setup your 2FA</h3>
 			{ !tokenContent?.twofaenabled ?
 				<TurnOn2fa />
 			:

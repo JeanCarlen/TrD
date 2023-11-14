@@ -27,6 +27,7 @@ import UserInformation from '../Components/UserInformation'
 import AddFriend from '../Components/AddFriend'
 import {gameData} from '../pages/Stats'
 import LayoutGamestats from '../pages/Layout-gamestats'
+import FriendListProfile from '../Components/FriendlistOther'
 import { handleBlockUser } from '../chat/idChatUser'
 import * as FaIcons from 'react-icons/fa'
 import { ToastContainer } from 'react-toastify';
@@ -37,6 +38,11 @@ export interface profiles {
   }
 type Props = {}
 
+export interface FriendData{
+	requester: string;
+	status: string;
+	id: number;
+}
 const Profiles = (props: Props) => {
   const {users} = useParams();
   const token: string|undefined = Cookies.get("token");
@@ -44,11 +50,23 @@ const Profiles = (props: Props) => {
   const [dataMatches, setDataMatches] = useState<gameData[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [achievementName, setAchievementName] = useState<string>('');
-
+//   const [friendid, setFriendID] = useState<number>();
+	const [friends, setFriends] = useState<FriendData[]>([]);
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [friendid, setFriendID] = useState<number|undefined>();
   const [friend, setFriend] = useState<User>();
-	const fileInputRef = useRef<HTMLInputElement | null>(null);
+// 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  useEffect(() =>{
+    const token: string|undefined = Cookies.get("token");
+    let content: {username: string, user: number};
+      if (token != undefined)
+      {
+        content = decodeToken(token);
+      }
+      else
+        content = { username: 'default', user: 0};
+    
 	const GetUserinfo = async () => {
       const response = await fetch(`http://localhost:8080/api/users/username/${users}`, {
         method: 'GET',
@@ -62,45 +80,25 @@ const Profiles = (props: Props) => {
       {
         setAvatarUrl(data[0].avatar);
         await setFriendID(data[0].id);
-		console.log ('friendid', data.id);
-		setFriend(data[0]);
-		await fetchMatches(data[0].id);
+        console.log ('friendid', data.id);
+        setFriend(data[0]);
+        await fetchMatches(data[0].id);
       }
-      let content: {username: string, user: number};
-      if (token != undefined)
-      {
-        content = decodeToken(token);
-      }
-      else
-        content = { username: 'default', user: 0};
-      // const response1 = await fetch(`http://localhost:8080/api/achievement/${content.user}`, {
-      //   method: 'GET',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-			// 	  'Authorization': 'Bearer ' + token,
-      //   }
-      // });
-      // const achievementData = await response1.json()
-      // if (response1.ok)
-      // {
-      //   setAchievementName(achievementData[0].title);
-      //   setAvatarUrl(data[0].avatar);
-      // }
-    }
 
-    useEffect(() =>{
-      const token: string|undefined = Cookies.get("token");
-      let content: {username: string, user: number};
-        if (token != undefined)
-        {
-          content = decodeToken(token);
-        }
-        else
-          content = { username: 'default', user: 0};
-        // setContent(content);
-        GetUserinfo();
-    }, []);
+      GetUserinfo();
+      fetchMatches(content.user);
+  }, []);
 
+    //   let content: {username: string, user: number};
+    //   if (token != undefined)
+    //   {
+    //     content = decodeToken(token);
+    //   }
+    //   else
+    //   {
+    //     content = { username: 'default', user: 0};
+    // }
+    
 	const fetchMatches = async (theID:number) => {
 		console.log("Fetching matches for user", theID);
 		const response = await fetch(`http://localhost:8080/api/matches/users/${theID}`, {
@@ -128,7 +126,6 @@ const Profiles = (props: Props) => {
 			console.log("Error fetching matches");
 		}
 	}
-
     return (
       <ChakraProvider resetCSS={false}>
           <Searchbar/>
@@ -149,6 +146,9 @@ const Profiles = (props: Props) => {
             <div className='profile-border'>
 				<AddFriend userID={friendid}/>
 				Add {users} as a friend
+            </div>
+            <div className='profile-border'>
+            Invite {users} for a game
             </div>
 			<div className='profile-border'>
 				<FaIcons.FaHandPaper cursor='pointer' style={{marginLeft: '5px', fontSize: '30pt'}} onClick={() => handleBlockUser(friend, token)}/><br/>
@@ -174,13 +174,7 @@ const Profiles = (props: Props) => {
             </div>
             <div className='friends'>
                 <div className='matchBox'>
-                  FRIENDS
-                </div>
-                <div className='matchBox'>
-                  FRIENDS
-                </div>
-                <div className='matchBox'>
-                  FRIENDS
+                <FriendListProfile FriendData={friends}/>
                 </div>
             </div>
             </div>
@@ -191,5 +185,4 @@ const Profiles = (props: Props) => {
 )
 }
 
-export default Profiles
-
+export default Profiles;
