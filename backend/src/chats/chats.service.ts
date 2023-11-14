@@ -14,6 +14,7 @@ import { UsersResponse } from 'src/users/dto/users.response';
 import { Users } from 'src/users/entities/users.entity';
 import { UserChatsResponse } from 'src/userchats/dto/userchat.response';
 import { ChatsResponse } from './dto/chats.response';
+import { BannedUsers } from 'src/bannedusers/entities/banneduser.entity';
 const bcrypt = require('bcrypt');
 
 @Injectable()
@@ -27,6 +28,8 @@ export class ChatsService {
 		private readonly chatadminsRepository: Repository<ChatAdmins>,
 		@InjectRepository(Users)
 		private readonly usersRepository: Repository<Users>,
+		@InjectRepository(BannedUsers)
+		private readonly bannedUsersRepository: Repository<BannedUsers>,
 		@Inject(UserchatsService)
 		private readonly userchatsService: UserchatsService,
 	) {}
@@ -34,10 +37,20 @@ export class ChatsService {
   private async isChatAdmin(chat_id: number, user_id: number) {
 	const chatAdmin = await this.chatadminsRepository.findOne({where: {chat_id: chat_id, user_id: user_id}})
 	if (!chatAdmin)
-		throw new BadRequestException(['You\'re not an admin on this chat.'], {
+		return false;
+	return true;
+  }
+
+  private async isOwner(chat_id: number, user_id: number) {
+	const chat = await this.chatsRepository.findOne({where: {id: chat_id}});
+	if (!chat) {
+		throw new NotFoundException(['Chat not found.'], {
 			cause: new Error(),
-			description: `You're not an admin on this chat.`,
+			description: `Chat not found.`,
 		});
+	}
+	if (chat.owner != user_id)
+		return false;
 	return true;
   }
 
@@ -157,17 +170,58 @@ export class ChatsService {
   }
 
   public async banUserFromChat(id: number, body) {
-	await this.isChatAdmin(id, body.user_id);
-	const chatAdmin = new ChatAdmins();
-	chatAdmin.user_id = body.user_id;
-	chatAdmin.chat_id = id;
-	return await this.chatadminsRepository.save(chatAdmin);
+	// if requester is owner : always okay
+	// if requester is admin : only okay for "simple" user
+	// if requester is simple user : never okay
+
+	if (await this.isOwner(id, body.requester)) {
+		const banneduser = new BannedUsers();
+		banneduser.user_id = body.user_id;
+		banneduser.chat_id = id;
+		await this.bannedUsersRepository.save(banneduser);
+/*TODO better response*/		return {message: 'User banned from chat.'};
+	}
+
+	if (await this.isChatAdmin(id, body.requester)) {
+		if (await this.isChatAdmin(id, body.user_id)) {
+			throw new BadRequestException(['You can\'t ban an admin.'], {
+				cause: new Error(),
+				description: `You can't ban an admin.`,
+			});
+		}
+		const banneduser = new BannedUsers();
+		banneduser.user_id = body.user_id;
+		banneduser.chat_id = id;
+		await this.bannedUsersRepository.save(banneduser);
+/*TODO better response*/		return {message: 'User banned from chat.'};
+	}
+
+	throw new UnauthorizedException(['You\'re not an admin on this chat.'], {
+		cause: new Error(),
+		description: `You're not an admin on this chat.`,
+	});
   }
 
   public async unbanUserFromChat(id: number, body) {
-	await this.isChatAdmin(id, body.user_id);
-	const chatAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
-	return await this.chatadminsRepository.remove(chatAdmin);
+	// if requester admin or owner : okay
+	// if requester "simple" user : never okay
+
+	if (await this.isChatAdmin(id, body.requester) || await this.isOwner(id, body.requester)) {
+		const banneduser: BannedUsers = await this.bannedUsersRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
+		if (!banneduser) {
+			throw new NotFoundException(['User not banned from chat.'], {
+				cause: new Error(),
+				description: `User not banned from chat.`,
+			});
+		}
+		await this.bannedUsersRepository.remove(banneduser);
+/*TODO better response*/		return {message: 'User unbanned from chat.'};
+	}
+
+	throw new UnauthorizedException(['You\'re not an admin on this chat.'], {
+		cause: new Error(),
+		description: `You're not an admin on this chat.`,
+	});
   }
 
   public async leaveChat(id: number, body) {
@@ -176,7 +230,12 @@ export class ChatsService {
   }
 
   public async muteUserInChat(id: number, body) {
-	await this.isChatAdmin(id, body.user_id);
+	if (!(await this.isChatAdmin(id, body.user_id))) {
+		throw new UnauthorizedException(['You\'re not an admin on this chat.'], {
+			cause: new Error(),
+			description: `You're not an admin on this chat.`,
+		});
+	}
 	const mutedUser = new MutedUsers();
 	mutedUser.user_id = body.user_id;
 	mutedUser.chat_id = id;
@@ -184,13 +243,23 @@ export class ChatsService {
   }
 
   public async unmuteUserInChat(id: number, body) {
-	await this.isChatAdmin(id, body.user_id);
+	if (!(await this.isChatAdmin(id, body.user_id))) {
+		throw new UnauthorizedException(['You\'re not an admin on this chat.'], {
+			cause: new Error(),
+			description: `You're not an admin on this chat.`,
+		});
+	}
 	const mutedUser = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
 	return await this.chatadminsRepository.remove(mutedUser);
   }
 
   public async setAdminInChat(id: number, body) {
-	await this.isChatAdmin(id, body.requester);
+	if (!(await this.isChatAdmin(id, body.requester))) {
+		throw new UnauthorizedException(['You\'re not an admin on this chat.'], {
+			cause: new Error(),
+			description: `You're not an admin on this chat.`,
+		});
+	}
 	const chatAdmin = new ChatAdmins();
 	chatAdmin.user_id = body.user_id;
 	chatAdmin.chat_id = id;
@@ -198,7 +267,12 @@ export class ChatsService {
   }
 
   public async unsetAdminInChat(id: number, body) {
-	await this.isChatAdmin(id, body.user_id);
+	if (!(await this.isChatAdmin(id, body.user_id))) {
+		throw new UnauthorizedException(['You\'re not an admin on this chat.'], {
+			cause: new Error(),
+			description: `You're not an admin on this chat.`,
+		});
+	}
 	const chatAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
 	return await this.chatadminsRepository.remove(chatAdmin);
   }

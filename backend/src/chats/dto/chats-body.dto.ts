@@ -6,7 +6,7 @@ export class ChatsBodyDto {
 	@IsNumber({}, {message: '$property should be a number.'})
 	user_id: number;
 
-	@ApiProperty({example: 1, description: 'The id of the user to do the operation on.'})
+	@ApiProperty({example: 1, description: 'The id of the user doing the operation.'})
 	@IsNumber({}, {message: '$property should be a number.'})
 	requester: number;
 	
