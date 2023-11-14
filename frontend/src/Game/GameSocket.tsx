@@ -466,7 +466,8 @@ useEffect(() => {
 		if (isVisible) {
 		  console.log('User came back to the page');
 		//   socket.emit('user-left', {way: 0,roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, time: Date.now()});
-		} else {
+		} else
+		{
 		  console.log('User left the page');
 		  socket.emit('user-left', {roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, gameID: data.current.gameID});
 		}
