@@ -49,7 +49,8 @@ const Stats: React.FunctionComponent = () => {
 			});
 		if (response.ok)
 		{
-			const data = await response.json();
+			let data = await response.json();
+			data.sort((a: gameData, b: gameData) => (a.id > b.id) ? 1 : -1);
 			setGameFetched(true);
 			setAllData(data.reverse());
 		}

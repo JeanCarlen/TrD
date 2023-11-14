@@ -40,7 +40,7 @@ const Profiles = (props: Props) => {
   const [dataMatches, setDataMatches] = useState<gameData[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [achievementName, setAchievementName] = useState<string>('');
-  const [friendid, setFriendID] = useState<number|undefined>();
+  const [friendid, setFriendID] = useState<number>();
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 	const GetUserinfo = async () => {
@@ -56,8 +56,8 @@ const Profiles = (props: Props) => {
       {
         setAvatarUrl(data[0].avatar);
         await setFriendID(data[0].id);
-		console.log ('friendid', data.id);
-		await fetchMatches(data[0].id);
+        console.log ('friendid', data.id);
+        await fetchMatches(data[0].id);
       }
       let content: {username: string, user: number};
       if (token != undefined)
@@ -106,7 +106,8 @@ const Profiles = (props: Props) => {
 		if (response.ok)
 		{
 			try {
-				const data = await response.json();
+				let data = await response.json();
+				data.sort((a: gameData, b: gameData) => (a.id > b.id) ? 1 : -1);
 				setGameFetched(true);
 				console.log("Data fetched", data);
 				setDataMatches(data.slice(-3).reverse());
