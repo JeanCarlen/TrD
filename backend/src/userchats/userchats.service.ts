@@ -278,6 +278,17 @@ export class UserchatsService {
 	await this.userchatsRepository.save(userChat);
   }
 
+  public async removeByNameAndUserID (chat_name: string, user_id: number) {
+	const chat = await this.chatsRepository.findOne({where: {name: chat_name}})
+	if (!chat)
+		throw new NotFoundException(['Unknown userchat.'], {
+		cause: new Error(),
+		description: `Userchat not found.`,
+	});
+	const userChat = await this.userchatsRepository.findOne({where: {chat_id: chat.id, user_id: user_id}})
+	return await this.userchatsRepository.remove(userChat);
+  }
+
   public async remove(id: number) {
 	const userChat = await this.userchatsRepository.findOne({where: {id: id}})
 	return await this.userchatsRepository.remove(userChat)

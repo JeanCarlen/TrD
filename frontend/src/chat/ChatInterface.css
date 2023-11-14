@@ -14,6 +14,18 @@ Chat bubble container
 	flex-grow: 1;
 }
 
+.banBox {
+	display: flex;
+	width: auto;
+	flex-direction: row;
+	height: auto;
+	margin-bottom: 10px;
+	align-items: center;
+	gap: 10px;
+	row-gap: 10px;
+	justify-content: left;
+}
+
 /* Sender's name (top right) */
 .message-sender {
 	font-size: 12px;

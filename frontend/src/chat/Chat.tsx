@@ -12,6 +12,8 @@ import Sidebar from '../Components/Sidebar';
 import { sentMessages } from './ChatInterface';
 import { ToastContainer, toast } from 'react-toastify';
 import { Socket } from "socket.io-client";
+import * as FaIcons from 'react-icons/fa'
+
 
 export type chatData = {
 	id: number;
@@ -135,30 +137,18 @@ const Chat: React.FC = () => {
 			console.log("error in the getMessages");
 	}
 
-	const joinChatRooms = async (client : Socket) => {
+	const joinChatRooms = async (client: Socket) => {
 		let joinData = await getChats();
+		let contentJoin: {username: string, user: number, avatar: string} = await decodeToken(Cookies.get("token"));
 		await joinData?.map((chat : chatData) => {
 			socket.emit('quick-join-room', {
 				roomName: chat.chat.name,
 				socketID: client.id,
-				client: content?.user,
+				client: contentJoin?.user,
 			});
 		});
 		setLoggedIn(true);
 	};
-
-	useEffect(() => {
-		socket.on("smb-movede", () => {
-		console.log("refreshing chats");
-		getChats();
-		setCurrentRoom('default');
-		setCurrentChat(undefined);
-		setMessages([]);
-		});
-		return () => {
-			socket.off("smb-movede");
-		};
-	}, [socket]);
 	
 	useEffect(() => {
 		socket.connect();
@@ -180,10 +170,40 @@ const Chat: React.FC = () => {
 		}
 		});
 
+		socket.on("smb-movede", () => {
+			console.log("refreshing chats");
+			getChats();
+			setCurrentRoom('default');
+			setCurrentChat(undefined);
+			setMessages([]);
+			});
+
+		socket.on('refresh-chat', () => {
+			console.log("refreshing chats");
+			getChats();
+		})
+
+		socket.on('kick', (dataBack:{roomToLeave:string, UserToKick: number}) => {
+			console.log("kicked: ", dataBack.UserToKick, "content: ", content?.user);
+			if (dataBack.UserToKick !== content?.user)
+				return ;
+			console.log("you have been kicked")
+			toast.error("You have been kicked", {
+				position: toast.POSITION.BOTTOM_LEFT,
+				className: 'toast-error'
+			});
+			setCurrentRoom('default');
+			setCurrentChat(undefined);
+			setMessages([]);
+			getChats();
+		})
+
 		return() => {
 			socket.off('room-join-error');
+			socket.off("smb-movede");
+			socket.off('kick');
 		}
-	}, [socket]);
+	}, [socket, content]);
 
 
 	const handleJoinRoomClick = async (dataPass: chatData[]) => {
@@ -285,7 +305,9 @@ const Chat: React.FC = () => {
 		{data.map((chat: chatData) => {
 			return (
 				<button onClick={() => handleJoinRoom(chat)} key={chat.id} className="game-stats" style={{flexDirection: "column"}}>
-					<div className="box">{chat.chat.name}</div>
+					<div className="box">{chat.chat.name}
+					{chat.chat.protected ? <FaIcons.FaLock/> : <></>}
+					</div>
 				</button>
 			);
 		})}

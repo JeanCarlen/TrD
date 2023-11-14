@@ -10,13 +10,11 @@ import {
 	MenuDivider,
 	Button,
   } from '@chakra-ui/react'
-  import { ChevronDownIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
 import { useNavigate } from 'react-router-dom';
 import '../pages/LetsPlay'
 import Cookies from 'js-cookie';
 import { chatData } from './Chat';
-import { ChatForm } from 'react-chat-engine-advanced';
-import { WebsocketContext } from '../context/websocket.context';
 import '../pages/Chat.css';
 import decodeToken from '../helpers/helpers';
 import { Socket } from 'socket.io-client';
@@ -24,17 +22,18 @@ import {toast, ToastContainer } from 'react-toastify';
 import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
 import {ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
 import './ChatInterface.css'
+import * as FaIcons from 'react-icons/fa'
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, useDisclosure } from "@chakra-ui/react";
 
 
-
-interface User{
+export interface User{
 	id:number,
 	login42: string,
 	username: string,
 	avatar: string,
-	isAdmin: boolean,
-	isMuted: boolean,
-	isOwner: boolean,
+	isAdmin?: boolean,
+	isMuted?: boolean,
+	isOwner?: boolean,
 }
 
 interface IdChatProps{
@@ -62,10 +61,25 @@ const handleAddUser = (user: User) => {
 	console.log(`Adding user: ${user.username}`);
   };
 
-  const handleBlockUser = (user: User) => {
-	// Implement logic to block the user or perform the desired action.
-	// This could involve making an API request to your server.
+export  const handleBlockUser = async (user: User, token: string|undefined) => {
 	console.log(`Blocking user: ${user.username}`);
+	let content: {username: string, user: number, avatar: string};
+	if (token != undefined)
+		content = decodeToken(token);
+	else
+		return;
+	const response = await fetch(`http://localhost:8080/api/users/block/${user.id}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token
+			},
+			body: JSON.stringify({user_id: user.id})
+		});
+		if (response.ok)
+			toast.info(user.username + ' was successfully blocked', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
+		else 
+			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
 };
 
 const invitePong = (user: User) => {
@@ -107,8 +121,6 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 			toast.info(user.username + ' was successfully ' + way, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
 		else 
 			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
-		const data = await response.json();
-		console.log('updated:', data);
 };
 
 	const deleteChannel = async (chat: chatData|undefined, socket: Socket) => {
@@ -123,8 +135,10 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	const [chatMembers, setchatMembers] = useState<User[]>()
 	const [fetched, setFetched] = useState<boolean>(false);
 	const [currentUser, setCurrentUser] = useState<User>();
+	const [bannedUsers, setBannedUsers] = useState<User[]>();
 	const ChatType: number = 0;
 	const navigate = useNavigate();
+	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	useEffect(() => {
 		socket.connect();
@@ -144,9 +158,15 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		socket.on("deleted", () =>{
 			socket.emit("leave-room", {id : chatData?.id, roomName : chatData?.chat.name});
 		})
+
+		socket.on('refresh-id', ()=>{
+			getData(chatData);
+		});
+
 		return() => {
 			socket.off("smb-moved");
 			socket.off("deleted");
+			socket.off("refresh-id");
 		}
 	}, [socket, chatMembers]);
 
@@ -161,8 +181,10 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	},[chatMembers]);
 
 	const setNewMode = async (user: User, mode: string) => {
+		if (mode === 'ban')
+		socket.emit('kick', {roomName: chatData?.chat.name, UserToKick: user.id});
 		await adminUser(chatData, user, token, mode);
-		getData(chatData);
+		socket.emit('refresh', {roomName: chatData?.chat.name, type: 'id'});
 	};
 
 	const goToProfile = (user: User) => {
@@ -171,9 +193,13 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 
 	const changePassword = async () => {
 		console.log('change password');
-		let newPassword = prompt('Enter new password');
-		if (newPassword && newPassword.trim() === '')
-			newPassword = null;
+		let newPassword: string | undefined | null;
+		newPassword = prompt('Enter new password, leave empty to remove password');
+		if (newPassword === null || newPassword === undefined)
+			return ;
+		if (newPassword.trim() === '')
+			newPassword = undefined;
+		console.log('new password:', newPassword);
 		if (chatData=== undefined)
 			return;
 		const response = await fetch(`http://localhost:8080/api/chats/${chatData.chat_id}`, {
@@ -189,14 +215,33 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		if(response.ok)
 		{
 			toast.info('Password changed', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
+			socket.emit('refresh', {roomName: chatData.chat.name, type: 'chat'});
 		}
 		else
 		{
+			const error_data = await response.json();
 			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
-			console.log('error in the change password', response);
+			console.log('error in the change password', error_data);
 		}
 
 	};
+
+	async function unbanUsers () {
+		const response = await fetch(`http://localhost:8080/api/chats/${chatData?.chat_id}/users/banned`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			},
+		});
+		if (response.ok)
+		{
+			let bannedList = await response.json();
+			console.log('banned list: ', bannedList);
+			await setBannedUsers(bannedList);
+			onOpen();
+		}
+	}
 
 	async function getData (chatData: chatData|undefined) {
 		setFetched(false);
@@ -232,14 +277,17 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	return (
 		<ChakraProvider>
 		<div>
-			{fetched ? <ol type='1'>
-			{chatMembers?.map((user: User) => (
-			<li key={user.id} className= "friendslist" >
+
+			{fetched ? <div syle={{overflowY: 'scroll'}}>
+			{chatMembers.map((user: User) => (
+			<li key={user.id} className="friendlist" >
 				<WrapItem>
 					<Avatar size='md' src={user.avatar} name={user.username}/>
 				</WrapItem>
-				<span className="messages" style={user.isAdmin == true ? {color: "green"} : {color: "red"}}>
+				<span className="messages">
 					{user.username}
+					{user.isAdmin === true ? <FaIcons.FaCrown style={{marginLeft: '5px'}}/> : <></>}
+					{user.isMuted === true ? <FaIcons.FaVolumeMute style={{marginLeft: '5px'}}/> : <></>}
 				</span>
 				<Menu>
 				<MenuButton className='sendButton' as={Button} rightIcon={<ChevronDownIcon />}>
@@ -247,7 +295,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 				</MenuButton>
 				<MenuList>
 					<MenuItem className='Addfriend' onClick={() => handleAddUser(user)}>Add as a friend</MenuItem>
-					<MenuItem className='Addfriend' onClick={() => handleBlockUser(user)}> Block User </MenuItem>
+					<MenuItem className='Addfriend' onClick={() => handleBlockUser(user, token)}> Block User </MenuItem>
 					<MenuItem className='Addfriend' onClick={() => invitePong(user)}> Invite for a pong </MenuItem>
 					{currentUser?.isAdmin === true ? 
 					<>
@@ -266,14 +314,37 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 			{currentUser?.isOwner === true ?
 			<>
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => changePassword()}>Change Password</button>
+			<br/>
+			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => unbanUsers()}>Unban users </button>
 			</> : <></>}
 			</>
 			<br/>
 		<button className="sendButton" onClick={() => deleteChannel(chatData, socket)}>leave channel</button>
+		<Modal isOpen={isOpen} onClose={onClose}>
+		<ModalOverlay />
+		<ModalContent>
+		<ModalHeader>Banned Users</ModalHeader>
+		<ModalCloseButton />
+		<ModalBody>
+			{bannedUsers?.map((user: User) => {
+				return (
+				<div className="banBox">
+					<Avatar size='md' src={user.avatar} name={user.username}/>
+					<div>{user.username}</div>
+					<Button style={{marginLeft: 'auto'}} onClick={() => {
+						setNewMode(user, 'unban');
+						onClose();
+					}}>Unban</Button>
+				</div>
+				)
+			})}
+		</ModalBody>
+		</ModalContent>
+		</Modal>
 		<ToastContainer/>
 		</div>
 		</ChakraProvider>
 	)
 }
 
-	export default IdChatUser;
+export default IdChatUser;

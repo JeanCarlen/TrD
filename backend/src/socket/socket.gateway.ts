@@ -234,7 +234,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@Inject('UserchatsService')
 	async onLeaveRoom(client: Socket, message:{ id : number, roomName : string}): Promise<void> {
 		console.log("into leave room", message);
-		console.log(message.id);
 		console.log ("logging the service " , await this.UserchatsService.remove(message.id));
         this.server.to(message.roomName).emit('smb-moved');
 		this.server.to(message.roomName).emit('smb-movede');
@@ -301,6 +300,24 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			}
         }
     }
+
+	@SubscribeMessage('refresh')
+	onRefresh(client: Socket, message:{ roomName: string, type: string}): void {
+		console.log("into refresh");
+		this.server.to(message.roomName).emit(`refresh-${message.type}`);
+	}
+
+	@SubscribeMessage('kick')
+	async onKick(client: Socket, message: {roomName: string, UserToKick: number})
+	{
+		try{
+			await this.UserchatsService.removeByNameAndUserID(message.roomName, message.UserToKick);
+			this.server.to(message.roomName).emit('kick', {roomToLeave: message.roomName, UserToKick: message.UserToKick});
+		}
+		catch (error) {
+			console.error('Error kicking user:', error.message);
+		}
+	}
 
 	@SubscribeMessage('user-left')
 	async onUserLeft(client: Socket, message:{roomName: string, playerNumber: number, gameID: number}): Promise<void> {
