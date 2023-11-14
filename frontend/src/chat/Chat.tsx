@@ -299,7 +299,6 @@ const Chat: React.FC = () => {
 		<div className="leftColumn">
 		<button onClick={handleCreateRoom}>Create New Room</button>
 		<button onClick={() => handleJoinRoomClick(data)}>Join Room</button>
-		<button onClick={() => handleLeaveRoom(currentRoom)}>Leave Room</button>
 		<div className="chatList">
 		<p>currentRoom: {currentRoom}</p>
 		{fetched ? <div className="history-1">

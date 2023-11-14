@@ -262,7 +262,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		if(response.ok)
 		{
 			const data = await response.json()
-			setchatMembers(data)
+			setchatMembers(data.sort((a: User, b: User) => a.username.localeCompare(b.username)));
 			setFetched(true);
 			console.log('members: ', data);
 		}
@@ -277,6 +277,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	return (
 		<ChakraProvider>
 		<div>
+
 			{fetched ? <div syle={{overflowY: 'scroll'}}>
 			{chatMembers.map((user: User) => (
 			<li key={user.id} className="friendlist" >
@@ -308,7 +309,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 				</MenuList>
 				</Menu>
 			</li>
-			))} </div> : <div className="history_1">Loading...</div>}
+			))} </ol> : <div className="history_1">Loading...</div>}
 			<>
 			{currentUser?.isOwner === true ?
 			<>

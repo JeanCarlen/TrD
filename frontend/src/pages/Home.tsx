@@ -52,7 +52,8 @@ const Home = (props: Props) => {
 		if (response.ok)
 		{
 			try {
-				const data = await response.json();
+				let data = await response.json();
+        data.sort((a: gameData, b: gameData) => (a.id > b.id) ? 1 : -1);
 				setGameFetched(true);
 				console.log("Data fetched", data);
 				setDataLast(data.slice(-3).reverse());

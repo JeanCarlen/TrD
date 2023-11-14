@@ -15,6 +15,7 @@
   
   .score {
 	display: flex;
+	flex-direction: column;
 	justify-content: space-between;
 	font-size: 18px;
 	color: white;
