@@ -44,7 +44,8 @@ const FriendList: React.FC<{}> = () => {
 			{
 				console.log("friendlist", data);
 				setFriends(data);
-				setIsSender(content.username === data[0].requester_user.username);
+				if (data[0] != undefined)
+					setIsSender(content.username === data[0].requester_user.username);
 			}
 	}
 
