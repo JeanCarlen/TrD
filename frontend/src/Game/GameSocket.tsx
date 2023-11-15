@@ -339,9 +339,14 @@ useEffect(() => {
 				data.current.score2 = dataBack.max;
 
 			data.current.paused = 5;
+			data.current.started = false;
+			data.current.converted = false;
+			data.current.bonusActive = false;
+			setCanvas(false);
 			await postScore(data.current.score1, data.current.score2, 1, data.current.gameID);
 			await delay(6000);
 			try{
+				clearInterval(intervalId)
 				bodyNavigate('/Home');
 			}
 			catch (e) {
@@ -350,7 +355,12 @@ useEffect(() => {
 		}
 		else
 		{
+			data.current.started = false;
+			data.current.converted = false;
+			data.current.bonusActive = false;
+			setCanvas(false);
 			try{
+				clearInterval(intervalId)
 				bodyNavigate('/Home');
 			}
 			catch (e) {
