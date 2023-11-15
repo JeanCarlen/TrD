@@ -4,7 +4,7 @@ import { UpdateChatDto } from './dto/update-chat.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chats } from './entities/chat.entity';
-import { In, Repository } from 'typeorm';
+import { In, Repository, Not } from 'typeorm';
 import { CreateUserchatDto } from 'src/userchats/dto/create-userchat.dto';
 import { UserChats } from 'src/userchats/entities/userchat.entity';
 import { ChatAdmins } from 'src/chatadmins/entities/chatadmin.entity';
@@ -232,6 +232,7 @@ export class ChatsService {
   //       if one other admin, transfer ownership to that user
   //       if no admin, transfer ownership to first user in chat and make him admin
   public async leaveChat(id: number, body) {
+	console.log('leaving chat: ', id, body);
 	const userChat = await this.userchatsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
 	if (!userChat) {
 		throw new BadRequestException(['You\'re not in this chat.'], {
@@ -239,38 +240,46 @@ export class ChatsService {
 			description: `You're not in this chat.`,
 		});
 	}
-
-	await this.userchatsRepository.remove(userChat);
+	const chatAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
+	if (chatAdmin)
+		await this.chatadminsRepository.remove(chatAdmin);
 
 	const chat = await this.chatsRepository.findOne({where: {id: id}})
 	if (chat.owner == body.user_id) {
 		// check for other admins in this chat
-		const otherAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id}})
+		const otherAdmin = await this.chatadminsRepository.findOne({where: {chat_id: id, user_id: Not(body.user_id)}})
 		if (otherAdmin) {
 			// transfer ownership to this admin
 			chat.owner = otherAdmin.user_id;
+			console.log('new owner as admin: ', chat.owner);
 			await this.chatsRepository.save(chat);
+			await this.userchatsRepository.remove(userChat);
 			return ;
 		} else {
 			// transfer ownership to first user in chat
-			const otherUser = await this.userchatsRepository.findOne({where: {chat_id: id}});
+			const otherUser = await this.userchatsRepository.findOne({where: {chat_id: id, user_id: Not(body.user_id)}});
 			if (otherUser) {
 				// transfer ownership to this user
 				chat.owner = otherUser.user_id;
+				console.log('new owner: ', chat.owner);
 				await this.chatsRepository.save(chat);
 				// add this user to chatadmins
 				const new_admin: ChatAdmins = new ChatAdmins();
 				new_admin.chat_id = id;
 				new_admin.user_id = otherUser.user_id;
 				await this.chatadminsRepository.save(new_admin);
+				await this.userchatsRepository.remove(userChat);
 				return ;
 			} else {
 				// delete chat and all related messages
+				console.log('deleting messages: ', chat.name);
 				const messages: Messages[] = await this.messagesService.findChatMessages(id, body.user_id);
 				await Promise.all(messages.map(async (message: Messages) => {
 					await this.messagesService.remove(message.id);
 				}))
+				console.log('deleting chat: ', chat.name);
 				await this.chatsRepository.remove(chat);
+				await this.userchatsRepository.remove(userChat);
 				return ;
 			}
 		}
