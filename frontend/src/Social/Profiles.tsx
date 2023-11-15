@@ -87,7 +87,7 @@ const Profiles = (props: Props) => {
 
       GetUserinfo();
       fetchMatches(content.user);
-  }, []);
+  }}, []);
 
     //   let content: {username: string, user: number};
     //   if (token != undefined)
