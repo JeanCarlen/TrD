@@ -230,15 +230,18 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         }
     }
 
-	@SubscribeMessage('leave-room')
+	@SubscribeMessage('leave-chat')
 	@Inject('UserchatsService')
-	async onLeaveRoom(client: Socket, message:{ id : number, roomName : string}): Promise<void> {
+	async onLeaveRoom(client: Socket, message:{ chat_id : number, roomName : string, user_id: number}): Promise<void> {
 		console.log("into leave room", message);
-		console.log ("logging the service " , await this.UserchatsService.remove(message.id));
-        this.server.to(message.roomName).emit('smb-moved');
-		this.server.to(message.roomName).emit('smb-movede');
-        client.leave(message.roomName);
-		console.log( message.id , ` left room ${message.roomName}`);
+		//change it to leave-room
+		//console.log ("logging the service " , await this.UserchatsService.remove(message.id));
+		await this.ChatsService.leaveChat(message.chat_id, {user_id: message.user_id})
+		this.server.to(message.roomName).emit('smb-moved');
+		this.server.to(message.roomName).emit('refresh-chat');
+		client.leave(message.roomName);
+		this.server.to(client.id).emit('smb-movede');
+		console.log( message.user_id , ` left room ${message.roomName}`);
 	}
 
     // Define the onJoinRoom method to handle joining a chat room

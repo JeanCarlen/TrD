@@ -16,19 +16,19 @@ interface NotificationIconProps {
   message: string;
   senderName: string;
   senderID: Array<number>;
+  pendingfriends: Array<number>;
 }
 
-const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, senderName, senderID}) => {
+const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, senderName, senderID, pendingfriends}) => {
 	const [showFriendRequests, setShowFriendRequests] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	// const [counter, setCount] = useState<number>(0);
+	const [counter, setCounter] = useState(0);
 	const token: string|undefined = Cookies.get("token");
 	let content: {username: string, user: number};
 		if (token != undefined)
 			content = decodeToken(token);
 		else
 			content = { username: 'default', user: 0};
-	let counter: number;
 	const handleFriendRequest = () => {
 		setShowFriendRequests(!showFriendRequests);
 		setIsModalOpen(true);
@@ -37,7 +37,7 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 	  const closeModal = () => {
 		setIsModalOpen(false);
 	  };
-
+console.log("senderID length", pendingfriends.length);
 	  const updateFriends = async() => {
 		const response = await fetch(`http://localhost:8080/api/friends/pending/list/${content.user}`, {
 			method: 'GET',
@@ -47,11 +47,12 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 			}
 		});
 		const data = await response.json()
-		counter = data.length;
+		setCounter(data.length);
 		console.log("data", data)
 		console.log("count", counter)
 		console.log("ID",senderID);
 		console.log("name", senderName);
+		console.log("requestID", pendingfriends);
 		if (data.length <= 0)
 		{
 			setShowFriendRequests(false);
@@ -61,7 +62,8 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 
 	const handleAcceptRequest = async(senderName:string, senderID: number) => {
 		console.log(`Accepted friend request from ${senderName}`);
-		const response = await fetch(`http://localhost:8080/api/friends/4`, {
+		console.log("request", pendingfriends);
+		const response = await fetch(`http://localhost:8080/api/friends/${pendingfriends}`, {
 			method: 'PATCH',
 			headers: {
 				'Content-Type': 'application/json',
@@ -83,7 +85,8 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 		}
 		setShowFriendRequests(false);
 		setIsModalOpen(false);
-		counter = counter - 1;
+		setCounter(counter - 1);
+		pendingfriends = pendingfriends - 1;
 		updateFriends();
 	};
 
@@ -107,7 +110,7 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 		// Implement logic to deny the friend request
 		console.log(`Denied friend request from ${senderName}`);
 		setShowFriendRequests(false);
-		const resp = await fetch(`http://localhost:8080/api/friends/reject/${senderID}`, {
+		const resp = await fetch(`http://localhost:8080/api/friends/reject/${pendingfriends}`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',
@@ -118,16 +121,16 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 		console.log("reject", data2);
 		if (resp.ok )
 			{
-				counter = data2.length;
+				setCounter(data2.length);			
 				console.log(data2);
 	  		}
-
+			updateFriends();
 	  };
 
 	return (
 		<div className="notification-icon">
 		<BellIcon onClick={handleFriendRequest}/>
-		{counter >= 0 && <span className="badge">{counter} </span>}
+		{ <span className="badge">{counter} </span>}
 		<div>
 		{showFriendRequests && (
 			<ShowMessage
@@ -138,6 +141,7 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 			senderName={senderName}
 			isOpen={isModalOpen}
 			onClose={closeModal}
+			pendingfriends={pendingfriends}
 			/>
 		)}
 		</div>
