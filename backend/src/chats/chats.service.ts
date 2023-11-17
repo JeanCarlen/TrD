@@ -265,16 +265,54 @@ export class ChatsService {
 				await this.chatadminsRepository.save(new_admin);
 				return ;
 			} else {
-				// delete chat and all related messages
-				const messages: Messages[] = await this.messagesService.findChatMessages(id, body.user_id);
-				await Promise.all(messages.map(async (message: Messages) => {
-					await this.messagesService.remove(message.id);
-				}))
-				await this.chatsRepository.remove(chat);
-				return ;
+				this.deleteChat(id);
 			}
 		}
 	}
+  }
+
+  private async deleteChat(id: number): Promise<{ success: boolean, message: string}>{
+	// Remove every USERCHATS corresponding to this chat from the database
+	// Remove every MUTEDUSERS corresponding to this chat from the database
+	// Remove every BANNEDUSERS corresponding to this chat from the database
+	// Remove every CHATADMINS corresponding to this chat from the database
+	// Remove every MESSAGE corresponding to this chat from the database
+	// Remove the CHAT from the database
+	const chat = await this.chatsRepository.findOne({where: {id: id}});
+	if (!chat) {
+		throw new NotFoundException(['Chat not found.'], {
+			cause: new Error(),
+			description: `Chat not found.`,
+		});
+	}
+	// Deleting all userchats
+	const userchats: UserChats[] = await this.userchatsRepository.find({where: {chat_id: id}});
+	await Promise.all(userchats.map(async (userchat: UserChats) => {
+		await this.userchatsRepository.remove(userchat);
+	}))
+	// Deleting all mutedusers
+	const mutedusers: MutedUsers[] = await this.mutedusersRepository.find({where: {chat_id: id}});
+	await Promise.all(mutedusers.map(async (muteduser: MutedUsers) => {
+		await this.mutedusersRepository.remove(muteduser);
+	}))
+	// Deleting all bannedusers
+	const bannedusers: BannedUsers[] = await this.bannedusersRepository.find({where: {chat_id: id}});
+	await Promise.all(bannedusers.map(async (banneduser: BannedUsers) => {
+		await this.bannedusersRepository.remove(banneduser);
+	}))
+	// Deleting all chatadmins
+	const chatadmins: ChatAdmins[] = await this.chatadminsRepository.find({where: {chat_id: id}});
+	await Promise.all(chatadmins.map(async (chatadmin: ChatAdmins) => {
+		await this.chatadminsRepository.remove(chatadmin);
+	}))
+	// Deleting all messages
+	const messages: Messages[] = await this.messagesService.findChatMessagesByChatId(id);
+	await Promise.all(messages.map(async (message: Messages) => {
+		await this.messagesService.remove(message.id);
+	}))
+	// Deleting the chat
+	await this.chatsRepository.remove(chat);
+	return { success: true, message: 'Chat deleted.'};
   }
 
   public async muteUserInChat(id: number, body) {
@@ -373,7 +411,13 @@ export class ChatsService {
 	await this.chatsRepository.save(chat);
   }
 
-  public async remove(id: number) {
+  public async remove(id: number, user_id: number) {
+	if (!this.isUserOwner(id, user_id)) {
+		throw new UnauthorizedException(['You\'re not the owner of this chat.'], {
+			cause: new Error(),
+			description: `You're not the owner of this chat.`,
+		});
+	}
 	const chat: Chats = await this.chatsRepository.findOne({ where: { id: id } })
 	if (!chat) {
 		throw new NotFoundException(['Chat not found.'], {
@@ -381,6 +425,6 @@ export class ChatsService {
 			description: `Chat not found.`,
 		});
 	}
-	return await this.chatsRepository.remove(chat)
+	return await this.deleteChat(id);
   }
 }

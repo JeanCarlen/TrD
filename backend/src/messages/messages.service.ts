@@ -77,6 +77,10 @@ export class MessagesService {
 	return this.messagesRepository.find({ where: { chat_id: id } });
   }
 
+  public async findChatMessagesByChatId(id: number) {
+	return await this.messagesRepository.find({ where: { chat_id: id } });
+  }
+
   public async findAll() {
     return await this.messagesRepository.find();
   }

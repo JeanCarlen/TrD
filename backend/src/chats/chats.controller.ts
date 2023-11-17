@@ -193,7 +193,7 @@ export class ChatsController {
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
   @ApiResponse({status: 200, description: 'Chat deleted..'})
   @ApiBearerAuth()
-  remove(@Param('id') id: string) {
-    return this.chatsService.remove(+id);
+  remove(@Param('id') id: string, @Req() req: any) {
+    return this.chatsService.remove(+id, req.user.user);
   }
 }
