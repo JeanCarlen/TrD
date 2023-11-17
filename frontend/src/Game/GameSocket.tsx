@@ -666,12 +666,12 @@ const postScore = async(score1: number, score2: number, over: number, gameID: nu
 };
 
 const WaitingRoom = () => {
-	socket.emit('waitList', {bonus : 0});
+	socket.emit('waitList', {user_id: content.user ,bonus : 0});
 	data.current.gameType = 0;
 };
 
 const WaitingRoom_bonus = () => {
-	socket.emit('waitList', {bonus : 1});
+	socket.emit('waitList', {user_id: content.user, bonus : 1});
 	data.current.gameType = 1;
 };
 

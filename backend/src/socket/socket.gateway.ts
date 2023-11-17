@@ -30,6 +30,8 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     private server: Server;
     private WaitList: Socket[] = [];
 	private Waitlist_bonus: Socket[] = [];
+	private IdWaitlist: {user_id:number, socket: Socket}[] = [];
+	private IdWaitlist_bonus: {user_id:number, socket: Socket}[] = [];
 	private stock: {roomName: string, player1: Socket, player2: Socket}[] = [];
     // Define the onModuleInit method to handle connections and list rooms
     onModuleInit() {
@@ -54,12 +56,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define the handleDisconnect method to log when a client disconnects
     handleDisconnect(client: Socket) {
         this.logger.log(`Client disconnected: ${client.id}`);
-		let leaver = this.WaitList.find((one) => (one.id === client.id));
+		let leaver = this.IdWaitlist.find((one) => (one.socket.id === client.id));
 		if (leaver !== undefined)
-			this.WaitList.splice(this.WaitList.indexOf(leaver), 1);
-		leaver = this.Waitlist_bonus.find((one) => (one.id === client.id));
+			this.IdWaitlist.splice(this.IdWaitlist.indexOf(leaver), 1);
+		leaver = this.IdWaitlist_bonus.find((one) => (one.socket.id === client.id));
 		if (leaver !== undefined)
-			this.Waitlist_bonus.splice(this.Waitlist_bonus.indexOf(leaver), 1);
+			this.IdWaitlist_bonus.splice(this.IdWaitlist_bonus.indexOf(leaver), 1);
     }
     
     // Define the onPongInitSetup method to handle joining a game
@@ -86,52 +88,71 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     }
 
     @SubscribeMessage('waitList')
-    async onWaitList(client: Socket, message: { bonus: number }) {
+    async onWaitList(client: Socket, message: {user_id:number, bonus: number }) {
         console.log("into wait list");
 		try {
 			if(message.bonus == 0)
 			{
-				const userInWaitList = this.WaitList.find((one) => (one.id === client.id));
+				const userInWaitList = this.IdWaitlist.find((one) => (one.user_id === message.user_id));
+				const userOtherList = this.IdWaitlist_bonus.find((one) => (one.user_id === message.user_id));
+				if (userOtherList !== undefined)
+				{
+					this.IdWaitlist_bonus.splice(this.IdWaitlist_bonus.indexOf(userOtherList), 1);
+					console.log('Removed from bonus_list:', userOtherList.user_id);
+				}
 				if (userInWaitList === undefined)
 				{
-					this.WaitList.push(client);
+					this.IdWaitlist.push({user_id: message.user_id, socket:client});
 				}
 				else
 				{
-					console.log('Found:', userInWaitList.id)
-					throw new Error(`User already in wait list`);
+					console.log('Found:', userInWaitList.user_id)
+					if (userInWaitList.socket.id !== client.id)
+						userInWaitList.socket = client;
+					else
+						throw new Error(`User already in wait list`);
 				}
-				if(this.WaitList !== undefined && this.WaitList.length >= 2)
+				if(this.IdWaitlist !== undefined && this.IdWaitlist.length >= 2)
 				{
-					const roomName = this.WaitList[0].id + this.WaitList[1].id;
-					await this.onPongInitSetup(this.WaitList[0], {roomName: roomName});
-					await this.onPongInitSetup(this.WaitList[1], {roomName: roomName});
-					this.WaitList.splice(0, 2);
+					const roomName = this.IdWaitlist[0].socket.id + this.IdWaitlist[1].socket.id;
+					await this.onPongInitSetup(this.IdWaitlist[0].socket, {roomName: roomName});
+					await this.onPongInitSetup(this.IdWaitlist[1].socket, {roomName: roomName});
+					this.IdWaitlist.splice(0, 2);
 				}
 			}
 			if(message.bonus == 1)
 			{
-				const userInWaitList = this.Waitlist_bonus.find((one) => (one.id === client.id));
+				const userInWaitList = this.IdWaitlist_bonus.find((one) => (one.user_id === message.user_id));
+				const userOtherList = this.IdWaitlist.find((one) => (one.user_id === message.user_id));
+				if (userOtherList !== undefined)
+				{
+					this.IdWaitlist.splice(this.IdWaitlist.indexOf(userOtherList), 1);
+					console.log('Removed from normal_list:', userOtherList.user_id);
+				}
 				if (userInWaitList === undefined)
 				{
-					this.Waitlist_bonus.push(client);
+					this.IdWaitlist_bonus.push({user_id: message.user_id, socket:client});
 				}
 				else
 				{
-					console.log('Found:', userInWaitList.id)
-					throw new Error(`User already in wait list`);
+					console.log('Found:', userInWaitList.user_id)
+					console.log('Found:', userInWaitList.user_id)
+					if (userInWaitList.socket.id !== client.id)
+						userInWaitList.socket = client;
+					else
+						throw new Error(`User already in wait list`);
 				}
-				if(this.Waitlist_bonus !== undefined && this.Waitlist_bonus.length >= 2)
+				if(this.IdWaitlist_bonus !== undefined && this.IdWaitlist_bonus.length >= 2)
 				{
-					const roomName = this.Waitlist_bonus[0].id + this.Waitlist_bonus[1].id;
-					await this.onPongInitSetup(this.Waitlist_bonus[0], {roomName: roomName});
-					await this.onPongInitSetup(this.Waitlist_bonus[1], {roomName: roomName});
-					this.Waitlist_bonus.splice(0, 2);
+					const roomName = this.IdWaitlist_bonus[0].socket.id + this.IdWaitlist_bonus[1].socket.id;
+					await this.onPongInitSetup(this.IdWaitlist_bonus[0].socket, {roomName: roomName});
+					await this.onPongInitSetup(this.IdWaitlist_bonus[1].socket, {roomName: roomName});
+					this.IdWaitlist_bonus.splice(0, 2);
 				}
 			}
 		} catch (error) {
 			console.log('Error joining wait list:', error.message);
-			this.WaitList.map((client) => {console.log(client.id)});
+			this.IdWaitlist.map((client) => {console.log(client)});
 			this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
 		}
     }
