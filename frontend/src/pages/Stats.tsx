@@ -5,6 +5,7 @@ import LayoutGamestats from "./Layout-gamestats";
 import LayoutPlayerstats from "./Layout-playerstats"
 import Cookies from 'js-cookie'
 import decodeToken from '../helpers/helpers'
+import LayoutRanking from "./Layout-ranking";
 
 export type User = {
 	username: string,
@@ -88,12 +89,10 @@ const Stats: React.FunctionComponent = () => {
 		}
         
         <div className='hf'>
-          <h2>Achievements</h2>
-          <div className='box'>
-            here is bobby, bobby is a nice dude
+          <h2>Ranks</h2>
+          <LayoutRanking token={token}/>
         </div>
         </div>
-      </div>
       </div>
   )
 }

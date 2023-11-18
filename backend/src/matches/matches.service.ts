@@ -53,14 +53,15 @@ export class MatchesService {
   }
 
   public async findAll(current_id: number): Promise<MatchesResponse[]> {
-	const matches: Matches[] = await this.matchesRepository.find(
-		{
-			where: [
-				{ user_1: current_id },
-				{ user_2: current_id }
-			]
-		}
-	);
+	// const matches: Matches[] = await this.matchesRepository.find(
+	// 	{
+	// 		where: [
+	// 			{ user_1: current_id },
+	// 			{ user_2: current_id }
+	// 		]
+	// 	}
+	// );
+	const matches: Matches[] = await this.matchesRepository.find({where: {status: 1}})
 	if (matches.length == 0)
 		return [];
 	let user_ids: number[] = matches.map((match: Matches) => {
@@ -134,6 +135,11 @@ export class MatchesService {
 		status_text_fr: match.status == 0 ? 'En cours' : 'Terminé',
 	}
     return matchResponse;
+  }
+
+  public async findAllMatches() {
+	await console.log('we got here 2');
+	return await this.matchesRepository.find({ where: { status: 1 } });
   }
 
   public async findByUserId(id: number, current_id: number) {

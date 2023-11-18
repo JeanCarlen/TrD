@@ -52,6 +52,19 @@ export class MatchesController {
     return this.matchesService.findOne(id, req.user.user);
   }
 
+  @Get('all')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all matches', description: 'Get all matches that have been played.' })
+  @ApiResponse({ status: 200, description: 'Return the match.', type: MatchesResponse })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized.'})
+  @ApiNotFoundResponse({ description: 'Match not found.'})
+  findAllMatches(@Req() req: any) {
+	console.log('we got here');
+	return this.matchesService.findAllMatches();
+  }
+
+
   @Get('/users/:id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
