@@ -187,7 +187,7 @@ export class UsersService {
   public async findAll(current_id: number): Promise<UsersResponse[]> {
 	const blocked: number[] = await this.blockedusersService.getBlockedListByUser(current_id);
     return await this.usersRepository.find({
-      select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
+      select: ['id', 'status', 'username', 'login42', 'avatar', 'twofaenabled'],
 	  where: { id: Not(In(blocked)) }
     });
   }
@@ -202,7 +202,7 @@ export class UsersService {
 	}
 	const user: Users = await this.usersRepository.findOne({
 		where: { id: id },
-		select: ['id', 'username', 'login42', 'avatar', 'twofaenabled']
+		select: ['id', 'status', 'username', 'login42', 'avatar', 'twofaenabled']
 	})
 
 	const friends: FriendsResponse[] = await this.friendsService.findAllByUser(user.id);
