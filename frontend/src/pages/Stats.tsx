@@ -41,7 +41,7 @@ const Stats: React.FunctionComponent = () => {
 
 
 	const fetchMatches = async () => {
-		const response = await fetch('http://localhost:8080/api/matches', {
+		const response = await fetch(`http://localhost:8080/api/matches/users/${content.user}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -78,18 +78,17 @@ const Stats: React.FunctionComponent = () => {
 		</div>
 
 		{gameFetched ? 
-			<div className='history_1'>
+			<div className='history_1' style={{width: '50vw'}}>
 			{alldata.map((stat: gameData) => {
 					return (
 						<LayoutGamestats display={stat} userID={content.user}/>
 					);
 			})}
 			</div>
-			: <div className='history_1' style={{fontSize:"25px"}}>Loading...</div>
+			: <div className='history_1' style={{fontSize:"25px"}, {width: '50vw'}}>Loading...</div>
 		}
-        
-        <div className='hf'>
-          <h2>Ranks</h2>
+        <div className='history_1' style={{width: '25vw'}}>
+          <h2>Leaderboard</h2>
           <LayoutRanking token={token}/>
         </div>
         </div>

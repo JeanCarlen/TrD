@@ -15,10 +15,8 @@ type props = {
 }
 
 const LayoutRanking: React.FC<props> = ({token}: props) => {
-	const [fetched, setFetched] = useState(false);
 	const [ranked, setRanked] = useState(false);
 	const [rankList, setRankList] = useState<ranking[]>([]);
-	const [matches, setMatches] = useState<gameData[]>([]);
 
 	const fetchMatches = async () => {
 		const response = await fetch('http://localhost:8080/api/matches/', {
@@ -32,8 +30,6 @@ const LayoutRanking: React.FC<props> = ({token}: props) => {
 			if (response.ok)
 			{
 				console.log("Successfully fetched all matches", data);
-				setMatches(data);
-				setFetched(true);
 				return (data);
 			}
 			else
@@ -66,18 +62,22 @@ const LayoutRanking: React.FC<props> = ({token}: props) => {
 				tempList[match.user_1].ranking -= 1;
 			}
 		}));
-		tempList.sort((a: ranking, b: ranking) => (a.ranking > b.ranking) ? 1 : -1);
+		await tempList.sort((a: ranking, b: ranking) => (a.ranking > b.ranking) ? -1 : 1);
 		console.log('ranklist: ',tempList);
-		//templist is good. Just need to fix the display, and invert the order
 		setRankList(tempList);
 		setRanked(true);
 	}
 
 	return (
-		<div>HERE IS THE LEADERBOARD
+		<div>
 			{ranked ? <div style={{overflowY: 'scroll'}}>
-				{rankList.map((line: ranking) => {
-					<div>{line.username}</div>
+				{rankList.map((line: ranking, index: number) => {
+					return (
+						<div className="game-stats">
+							<div className="box" style={{width: '15vh'}}>{line.username}</div>
+							<div className="box">#{index + 1}</div>
+						</div>
+					)
 				})}
 				</div> : <button onClick={calculateRanking}>Fetch matches</button>}
 
