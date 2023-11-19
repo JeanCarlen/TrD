@@ -216,8 +216,8 @@ export class FriendsController {
   @ApiOperation({summary: 'Delete a friend.'})
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
   @ApiResponse({status: 200, description: 'Friend deleted.'})
-  removeFriendById(@Param('id') id: number, @Param('id2') id2: number) {
-	return this.friendsService.removeFriendById(id, id2);
+  removeFriendById(@Param('id') id: number, @Param('id2') id2: number, @Req() req: any) {
+	return this.friendsService.removeFriendById(id, id2, req.user.user);
   }
 
   @Delete(':id')
