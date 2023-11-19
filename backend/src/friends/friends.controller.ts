@@ -210,6 +210,16 @@ export class FriendsController {
 	return this.friendsService.reject(+id, req.user.user);
   }
 
+  @Delete('users/:id/:id2')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({summary: 'Delete a friend.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 200, description: 'Friend deleted.'})
+  removeFriendById(@Param('id') id: number, @Param('id2') id2: number) {
+	return this.friendsService.removeFriendById(id, id2);
+  }
+
   @Delete(':id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()

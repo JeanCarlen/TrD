@@ -364,6 +364,22 @@ public async findPendingFriendsByUsername(username: string) {
 	return await this.friendsRepository.remove(friend);
   }
 
+  public async removeFriendById(id: number, id2: number) {
+	const friend: Friends = await this.friendsRepository.findOne({
+	  where: [
+		  { requester: id, requested: id2, status: 1 },
+		  { requester: id2, requested: id, status: 1 },
+	  ],
+	});
+	if (friend == undefined) {
+		throw new NotFoundException(['Friend request not found.'], {
+			cause: new Error(),
+			description: `Friend request not found.`,
+		});
+	}
+	return await this.friendsRepository.remove(friend);
+  }
+
   public async remove(id: number, user_id: number) {
     const friend: Friends = await this.friendsRepository.findOne({
       where: { id: id },
