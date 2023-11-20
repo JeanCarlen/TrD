@@ -145,7 +145,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	useEffect(() => {
-		socket.connect();
+		// socket.connect();
 		if (chatData) {
 			getData(chatData);
 		}

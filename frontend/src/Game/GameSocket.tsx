@@ -10,6 +10,7 @@ import collectable from '../collectable.png';
 import supervan from '../supervan.png';
 import {useNavigate} from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
+import { globalSocket } from "../PrivateRoute";
 
 export interface GameData
 {
@@ -131,7 +132,8 @@ let data = useRef<GameData>({
 	legacy: 1,
 });
 
-const socket = useContext(WebsocketContext);
+// const socket = useContext(WebsocketContext);
+const socket = globalSocket;
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 useEffect(() => {
@@ -163,7 +165,7 @@ useEffect(() => {
 		data.current.player1.id = content?.user;
 		data.current.player1.name = content?.username;
 		data.current.player1.avatar = content?.avatar;
-		socket.connect();
+		// socket.connect();
 	}
 	else
 	{
@@ -666,12 +668,12 @@ const postScore = async(score1: number, score2: number, over: number, gameID: nu
 };
 
 const WaitingRoom = () => {
-	socket.emit('waitList', {bonus : 0});
+	socket.emit('waitList', {user_id: content.user ,bonus : 0});
 	data.current.gameType = 0;
 };
 
 const WaitingRoom_bonus = () => {
-	socket.emit('waitList', {bonus : 1});
+	socket.emit('waitList', {user_id: content.user, bonus : 1});
 	data.current.gameType = 1;
 };
 
