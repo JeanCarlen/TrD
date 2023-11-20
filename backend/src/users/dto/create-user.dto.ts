@@ -1,4 +1,4 @@
-import { ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, ApiTags } from '@nestjs/swagger';
 import { IsString, MinLength, MaxLength, ValidateIf } from 'class-validator';
 import { IsMatching } from 'src/validation/matches.decorator';
 import { IsValidPassword } from 'src/validation/validPassword.decorator';
