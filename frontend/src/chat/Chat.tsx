@@ -13,6 +13,8 @@ import { sentMessages } from './ChatInterface';
 import { ToastContainer, toast } from 'react-toastify';
 import { Socket } from "socket.io-client";
 import * as FaIcons from 'react-icons/fa'
+import { setUserStatus } from "../Redux-helpers/action";
+import { useSelector } from 'react-redux';
 
 
 export type chatData = {
@@ -44,6 +46,7 @@ const Chat: React.FC = () => {
 	const [messages, setMessages] = useState<sentMessages[]>([]);
 	const [currentChat, setCurrentChat] = useState<chatData>();
 	const [loggedIn, setLoggedIn] = useState<boolean>(false);
+	const userStatus = useSelector((state: any) => state.userStatus);
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -154,6 +157,7 @@ const Chat: React.FC = () => {
 		socket.connect();
 		console.log("socket: is ->", socket);
 		joinChatRooms(socket);
+		console.log("status", userStatus)
 	}, []);
 
 	useEffect(() => {
