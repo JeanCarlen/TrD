@@ -56,8 +56,15 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     handleDisconnect(client: Socket) {
         this.logger.log(`Client disconnected: ${client.id}`);
 		// get user id from UserList
-		// change the user status in database
-		// remove user from UserList
+		let List_leaver = this.UserList.find((one) => (one.socket.id === client.id));
+		if (List_leaver !== undefined)
+		{
+			// change the user status in database
+			// remove user from UserList
+			this.logger.log(`removed user from userList ${List_leaver.user_id}`);
+			this.UserList.splice(this.UserList.indexOf(List_leaver, 1));
+		}
+		
 
 		let leaver = this.IdWaitlist.find((one) => (one.socket.id === client.id));
 		if (leaver !== undefined)
@@ -70,10 +77,20 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     
 
 	@SubscribeMessage('connect_id')
-	onConnectId(client: Socket, user_id: number) {
-		console.log('user is ', user_id);
+	async onConnectId(client: Socket, user_id: number) {
 		// add user to User list if he doesn't exist
 		// replace the socket if the user exists
+		let joiner = await this.UserList.find((one) => (one.user_id === user_id));
+		if (joiner !== undefined)
+		{
+			joiner.socket = client;
+			this.logger.log(`changed socket in userList for ${user_id}`);
+		}
+		else
+		{
+			this.UserList.push({user_id: user_id, socket: client});
+			this.logger.log(`added user to userList ${user_id}`);
+		}
 		// set the user as online
 	};
     // Define the onPongInitSetup method to handle joining a game
