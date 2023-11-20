@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { ReactNode, useEffect, useRef } from 'react'
 import Cookies from 'js-cookie'
 import { useState } from 'react'
 import decodeToken from '../helpers/helpers'
@@ -30,15 +30,19 @@ import {
   } from '@chakra-ui/react'
   import MFASetup from '../pages/mfasetup'
   import {useNavigate} from 'react-router-dom'
-
+  import { useSelector } from 'react-redux';
+  import { setUserStatus } from '../Redux-helpers/action';
+  import { useDispatch } from 'react-redux';
 
 type CookieProps = {
 	username: string;
-  };
+};
+
 
 const UserInformation: React.FC<CookieProps> = ({username}) => {
 	const [userID, setUserID] = useState<number>();
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
 	const { isOpen, onOpen, onClose } = useDisclosure()
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -57,6 +61,7 @@ const UserInformation: React.FC<CookieProps> = ({username}) => {
 	const [fetched, setFetched] = useState<boolean>(false);
 	const [pendingfriends, setPendingFriends] = useState<([])>();
 	const [friendRequests, setFriendRequests] = useState<(number[])>();
+	const userStatus = useSelector((state: string) => state.userStatus);
 	const token: string|undefined = Cookies.get("token");
 	let content: {username: string, user: number};
 		if (token != undefined)
@@ -121,6 +126,7 @@ const UserInformation: React.FC<CookieProps> = ({username}) => {
 				else
 				content = { username: 'default', user: 0};
 			// setContent(content);
+			dispatch(setUserStatus('Online'));
 			updateUser();
 
 		}, []);
@@ -174,6 +180,9 @@ const UserInformation: React.FC<CookieProps> = ({username}) => {
 
 	return (
 		<>
+		<div>
+		<p>User Status in Friends Component: {userStatus}</p>
+		</div>
 		<Menu>
 		<MenuButton as={Button} className='settings' colorScheme='pink'>
 			Profile Settings

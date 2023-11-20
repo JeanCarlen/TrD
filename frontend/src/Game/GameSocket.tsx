@@ -10,6 +10,10 @@ import collectable from '../collectable.png';
 import supervan from '../supervan.png';
 import {useNavigate} from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { setUserStatus } from '../Redux-helpers/action';
+import { useSelector } from 'react-redux';
+import store from '../Redux-helpers/store';
 import { globalSocket } from "../PrivateRoute";
 
 export interface GameData
@@ -49,6 +53,11 @@ interface Ball{
 	speed_x: number
 }
 
+// export interface status{
+// 	setUserStatus: React.Dispatch<React.SetStateAction<string>>;
+
+// }
+
 function usePageVisibility() {
 	const [isVisible, setIsVisible] = useState(!document.hidden);
 
@@ -68,6 +77,7 @@ function usePageVisibility() {
 
 
 const GameSocket: React.FC = () => {
+const dispatch = useDispatch();
 const [canvas, setCanvas] = useState(true);
 const [shouldRun, setShouldRun] = useState(true);
 let content: {username: string, user: number, avatar: string};
@@ -132,10 +142,11 @@ let data = useRef<GameData>({
 	legacy: 1,
 });
 
+<!-- const socket = useContext(WebsocketContext); -->
+const userStatus = useSelector((state: any) => state.userStatus);
 // const socket = useContext(WebsocketContext);
 const socket = globalSocket;
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
 useEffect(() => {
 	const canvas = canvasRef.current!;
     if (!canvas) {
@@ -202,12 +213,15 @@ useEffect(() => {
 	socket.on('connect', () => {
 		console.log(socket.id);
 		console.log('Connected');
+		dispatch(setUserStatus('online'));
+		console.log("status", userStatus)
 	});
 
-	socket.on('game-start', (dataBack: string) => {
+	socket.on('game-start', (dataBack: string ) => {
 		console.log('sending info', dataBack);
 		data.current.NameOfRoom = dataBack;
 		SendInfo(dataBack);
+		dispatch(setUserStatus('in-game'));
 	});
 
 	socket.on('pong-init-setup', (playerNumber: number) => {
@@ -251,6 +265,7 @@ useEffect(() => {
 
 	socket.on('leave-game', (roomName: string) => {
 		console.log(socket.id , ' left : ', roomName);
+		dispatch(setUserStatus('online'));
 	});
 
 	socket.on('paddle-send', (dataBack: any) => {
@@ -397,6 +412,7 @@ useEffect(() => {
 		data.current.converted = false;
 		data.current.bonusActive = false;
 		setCanvas(false);
+		dispatch(setUserStatus('offline'));
 	});
 
 	return () => {
@@ -701,7 +717,9 @@ const WaitingRoom_bonus = () => {
 		<img src="../cow.png" alt="Ball" style={{ display: 'none' }} />
 		<span>{player1}: {score1disp}</span>
 		<br/>
+		<p>{player1} Status in Friends Component: {userStatus}</p>
 		<span>{player2}: {score2disp}</span>
+		<p>{player2} Status in Friends Component: {userStatus}</p>
 		</div>
 	</div>
 	<button onClick={WaitingRoom}>Waiting Room</button>
