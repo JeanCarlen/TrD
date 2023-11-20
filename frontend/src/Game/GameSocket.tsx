@@ -10,6 +10,7 @@ import collectable from '../collectable.png';
 import supervan from '../supervan.png';
 import {useNavigate} from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
+import { globalSocket } from "../PrivateRoute";
 
 export interface GameData
 {
@@ -131,7 +132,8 @@ let data = useRef<GameData>({
 	legacy: 1,
 });
 
-const socket = useContext(WebsocketContext);
+// const socket = useContext(WebsocketContext);
+const socket = globalSocket;
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 useEffect(() => {
@@ -163,7 +165,7 @@ useEffect(() => {
 		data.current.player1.id = content?.user;
 		data.current.player1.name = content?.username;
 		data.current.player1.avatar = content?.avatar;
-		socket.connect();
+		// socket.connect();
 	}
 	else
 	{

@@ -28,15 +28,13 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define the WebSocketServer and an array of clients
     @WebSocketServer()
     private server: Server;
-    private WaitList: Socket[] = [];
-	private Waitlist_bonus: Socket[] = [];
+	private UserList: {user_id: number, socket: Socket}[] = [];
 	private IdWaitlist: {user_id:number, socket: Socket}[] = [];
 	private IdWaitlist_bonus: {user_id:number, socket: Socket}[] = [];
 	private stock: {roomName: string, player1: Socket, player2: Socket}[] = [];
     // Define the onModuleInit method to handle connections and list rooms
     onModuleInit() {
         this.server.on('connection', async (socket: Socket) => {
-            console.log(`${socket.id} connected`);
             this.handleConnection(socket);
         });
     }
@@ -51,19 +49,33 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define the handleConnection method to log when a client connects
     handleConnection(client: Socket, ...args: any[]) {
         this.logger.log(`Client connected: ${client.id}`);
+		//set user status as connected
     }
 
     // Define the handleDisconnect method to log when a client disconnects
     handleDisconnect(client: Socket) {
         this.logger.log(`Client disconnected: ${client.id}`);
+		// get user id from UserList
+		// change the user status in database
+		// remove user from UserList
+
 		let leaver = this.IdWaitlist.find((one) => (one.socket.id === client.id));
 		if (leaver !== undefined)
 			this.IdWaitlist.splice(this.IdWaitlist.indexOf(leaver), 1);
 		leaver = this.IdWaitlist_bonus.find((one) => (one.socket.id === client.id));
 		if (leaver !== undefined)
 			this.IdWaitlist_bonus.splice(this.IdWaitlist_bonus.indexOf(leaver), 1);
+		//set user status as disconnected
     }
     
+
+	@SubscribeMessage('connect_id')
+	onConnectId(client: Socket, user_id: number) {
+		console.log('user is ', user_id);
+		// add user to User list if he doesn't exist
+		// replace the socket if the user exists
+		// set the user as online
+	};
     // Define the onPongInitSetup method to handle joining a game
     @SubscribeMessage('join-game')
     async onPongInitSetup(client: Socket, message: { roomName: string }) {
