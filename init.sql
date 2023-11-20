@@ -13,6 +13,7 @@ CREATE TABLE users (
 	"avatar" varchar(256) NOT NULL DEFAULT '/path/to/default.png',
 	"is42" boolean DEFAULT false,
 	"password" varchar(72) NULL,
+	"status" integer NOT NULL DEFAULT 0,
 	CONSTRAINT "users_pk" PRIMARY KEY ("id")
 );
 

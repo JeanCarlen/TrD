@@ -7,6 +7,10 @@ export class Users extends BaseEntity {
   @ApiProperty({example: 1, description: 'The ID of the User.'})
   id: number;
 
+  @Column({ type: 'integer', nullable: false })
+  @ApiProperty({example: 1, description: 'The status of the User. (0=> off, 1=> on, 2=> ingame)'})
+  status: number;
+
   @Column({ type: 'varchar', length: 100, nullable: true })
   @ApiPropertyOptional({example: 'saeby', description: 'The 42 Login of the User.'})
   login42: string;

@@ -150,6 +150,7 @@ export class UsersService {
     user.username = createUserDto.username;
     user.avatar = process.env.HOST + 'images/default.png';
     user.twofaenabled = false;
+	user.status = 0;
 
     // check if username is already taken
     const found = await this.findByUsername(user.username);
@@ -179,6 +180,7 @@ export class UsersService {
     user.twofaenabled = false;
     user.login42 = create42User.login42;
     user.is42 = true;
+	user.status = 0;
 
     const token = this.getJWT(await this.usersRepository.save(user), false);
     return { message: ['Successfully registered.'], token: token };
@@ -187,7 +189,7 @@ export class UsersService {
   public async findAll(current_id: number): Promise<UsersResponse[]> {
 	const blocked: number[] = await this.blockedusersService.getBlockedListByUser(current_id);
     return await this.usersRepository.find({
-      select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
+      select: ['id', 'status', 'username', 'login42', 'avatar', 'twofaenabled'],
 	  where: { id: Not(In(blocked)) }
     });
   }
@@ -202,7 +204,7 @@ export class UsersService {
 	}
 	const user: Users = await this.usersRepository.findOne({
 		where: { id: id },
-		select: ['id', 'username', 'login42', 'avatar', 'twofaenabled']
+		select: ['id', 'status', 'username', 'login42', 'avatar', 'twofaenabled']
 	})
 
 	const friends: FriendsResponse[] = await this.friendsService.findAllByUser(user.id);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import logo from './cow.svg';
 import './App.css';
 import './index.css';
@@ -9,9 +9,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Routes from "./PrivateRoute"
 import './Game/PongGame.css'
-import { WebsocketContextProvider, socket } from './context/websocket.context';
 import { Provider } from 'react-redux';
 import store from './Redux-helpers/store';
+import { WebsocketContextProvider, socket, WebsocketContext } from './context/websocket.context';
 
 function App() {
   return (

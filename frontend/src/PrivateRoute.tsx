@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import Logout from './pages/LogOut';
 import Profiles from './Social/Profiles';
 import { useNavigate } from 'react-router-dom';
+import { Socket } from 'socket.io-client';
 import {Routes as Router, Route, Navigate, Outlet} from 'react-router-dom';
 import RegisterButton from './LoginForm/RegisterButton';
 import Cookies from 'js-cookie';
@@ -19,13 +20,16 @@ import { useParams } from 'react-router-dom';
 import MFASetup from './pages/mfasetup';
 import Enter2Fa from './Components/Enter2Fa';
 import AchTest from './pages/AchievementTest';
+import { WebsocketContext } from './context/websocket.context';
 
+
+export let globalSocket: Socket;
 
 type Props = {}
 
 const PrivateRoutes = () => {
 	const isRegistered = Cookies.get('registered');
-
+	globalSocket = null;
 	const token = Cookies.get('token');
 	const { authenticated } = useContext(AuthContext)
 
@@ -44,7 +48,14 @@ const PrivateRoutes = () => {
 	else if (token && tokenContent && tokenContent.twofacodereq)
 		return <Navigate to='/authenticate' replace />
 	else
+	{
+		globalSocket = useContext(WebsocketContext);
+		globalSocket.connect();
+		globalSocket.emit('connect_id', tokenContent.user);
+		console.log('WebSocket initialised: ', globalSocket, 'token content', tokenContent.user);
+		// globalSocket.emit('userSend', tokenContent.user);
 		return <Outlet />
+	}
 }
 const Routes = (props: Props) => {
 	const navigate = useNavigate();

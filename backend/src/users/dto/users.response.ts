@@ -13,6 +13,9 @@ export class UsersResponse {
 	@ApiProperty({example: 'http://localhost:8080/images/default.png', description: 'The avatar of the user.'})
 	avatar: string;
 
+	@ApiProperty({example: 1, description: 'The status of the user. (0=> off, 1=> on, 2=> ingame)'})
+	status: number;
+
 	@ApiProperty({example: true, description: 'The twofaenabled of the user.'})
 	twofaenabled: boolean;
 

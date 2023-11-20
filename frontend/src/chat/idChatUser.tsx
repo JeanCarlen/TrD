@@ -123,6 +123,10 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
 };
 
+	const leaveRoom = (chat: chatData|undefined, socket: Socket) => {
+		socket.emit('leave-chat', {chat_id: chat?.chat_id, roomName: chat?.chat.name, user_id: chat?.user_id});
+	}
+
 	const deleteChannel = async (chat: chatData|undefined, socket: Socket) => {
 		if (chat == undefined)
 			return;
@@ -141,7 +145,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	useEffect(() => {
-		socket.connect();
+		// socket.connect();
 		if (chatData) {
 			getData(chatData);
 		}
@@ -155,9 +159,9 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		}
 		});
 
-		socket.on("deleted", () =>{
-			socket.emit("leave-room", {id : chatData?.id, roomName : chatData?.chat.name});
-		})
+		// socket.on("deleted", () =>{
+		// 	socket.emit("leave-room", {id : chatData?.id, roomName : chatData?.chat.name});
+		// })
 
 		socket.on('refresh-id', ()=>{
 			getData(chatData);
@@ -319,7 +323,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 			</> : <></>}
 			</>
 			<br/>
-		<button className="sendButton" onClick={() => deleteChannel(chatData, socket)}>leave channel</button>
+		<button className="sendButton" onClick={() => leaveRoom(chatData, socket)}>leave channel</button>
 		<Modal isOpen={isOpen} onClose={onClose}>
 		<ModalOverlay />
 		<ModalContent>

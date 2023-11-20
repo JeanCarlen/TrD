@@ -14,7 +14,7 @@ import { useDispatch } from 'react-redux';
 import { setUserStatus } from '../Redux-helpers/action';
 import { useSelector } from 'react-redux';
 import store from '../Redux-helpers/store';
-
+import { globalSocket } from "../PrivateRoute";
 
 export interface GameData
 {
@@ -142,8 +142,10 @@ let data = useRef<GameData>({
 	legacy: 1,
 });
 
-const socket = useContext(WebsocketContext);
+<!-- const socket = useContext(WebsocketContext); -->
 const userStatus = useSelector((state: any) => state.userStatus);
+// const socket = useContext(WebsocketContext);
+const socket = globalSocket;
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 useEffect(() => {
 	const canvas = canvasRef.current!;
@@ -174,7 +176,7 @@ useEffect(() => {
 		data.current.player1.id = content?.user;
 		data.current.player1.name = content?.username;
 		data.current.player1.avatar = content?.avatar;
-		socket.connect();
+		// socket.connect();
 	}
 	else
 	{
@@ -354,9 +356,14 @@ useEffect(() => {
 				data.current.score2 = dataBack.max;
 
 			data.current.paused = 5;
+			data.current.started = false;
+			data.current.converted = false;
+			data.current.bonusActive = false;
+			setCanvas(false);
 			await postScore(data.current.score1, data.current.score2, 1, data.current.gameID);
 			await delay(6000);
 			try{
+				clearInterval(intervalId)
 				bodyNavigate('/Home');
 			}
 			catch (e) {
@@ -365,7 +372,12 @@ useEffect(() => {
 		}
 		else
 		{
+			data.current.started = false;
+			data.current.converted = false;
+			data.current.bonusActive = false;
+			setCanvas(false);
 			try{
+				clearInterval(intervalId)
 				bodyNavigate('/Home');
 			}
 			catch (e) {
@@ -672,12 +684,12 @@ const postScore = async(score1: number, score2: number, over: number, gameID: nu
 };
 
 const WaitingRoom = () => {
-	socket.emit('waitList', {bonus : 0});
+	socket.emit('waitList', {user_id: content.user ,bonus : 0});
 	data.current.gameType = 0;
 };
 
 const WaitingRoom_bonus = () => {
-	socket.emit('waitList', {bonus : 1});
+	socket.emit('waitList', {user_id: content.user, bonus : 1});
 	data.current.gameType = 1;
 };
 

@@ -15,6 +15,7 @@ import { Socket } from "socket.io-client";
 import * as FaIcons from 'react-icons/fa'
 import { setUserStatus } from "../Redux-helpers/action";
 import { useSelector } from 'react-redux';
+import { globalSocket } from "../PrivateRoute";
 
 
 export type chatData = {
@@ -36,7 +37,8 @@ export type chatData = {
 }
 
 const Chat: React.FC = () => {
-	const socket = useContext(WebsocketContext);
+	// const socket = useContext(WebsocketContext);
+	const socket = globalSocket;
 	const token: string | undefined = Cookies.get("token");
 	const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
 	const [data, setData] = useState<chatData[]>([]);
@@ -154,7 +156,7 @@ const Chat: React.FC = () => {
 	};
 	
 	useEffect(() => {
-		socket.connect();
+		// socket.connect();
 		console.log("socket: is ->", socket);
 		joinChatRooms(socket);
 		console.log("status", userStatus)

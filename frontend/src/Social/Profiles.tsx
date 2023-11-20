@@ -91,6 +91,8 @@ const Profiles = (props: Props) => {
           console.log("avatar", avatarUrl);
         }
       }
+//   }}, []);
+
     //   let content: {username: string, user: number};
     //   if (token != undefined)
     //   {
