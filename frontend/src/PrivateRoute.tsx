@@ -20,16 +20,12 @@ import { useParams } from 'react-router-dom';
 import MFASetup from './pages/mfasetup';
 import Enter2Fa from './Components/Enter2Fa';
 import AchTest from './pages/AchievementTest';
-import { WebsocketContext } from './context/websocket.context';
-
-
-export let globalSocket: Socket;
+import {gsocket, WebsocketContext } from './context/websocket.context';
 
 type Props = {}
 
 const PrivateRoutes = () => {
 	const isRegistered = Cookies.get('registered');
-	globalSocket = null;
 	const token = Cookies.get('token');
 	const { authenticated } = useContext(AuthContext)
 
@@ -49,10 +45,9 @@ const PrivateRoutes = () => {
 		return <Navigate to='/authenticate' replace />
 	else
 	{
-		globalSocket = useContext(WebsocketContext);
-		globalSocket.connect();
-		globalSocket.emit('connect_id', tokenContent.user);
-		console.log('WebSocket initialised: ', globalSocket, 'token content', tokenContent.user);
+		gsocket.connect();
+		gsocket.emit('connect_id', tokenContent.user);
+		console.log('WebSocket initialised: ', gsocket.id, 'token content', tokenContent.user);
 		// globalSocket.emit('userSend', tokenContent.user);
 		return <Outlet />
 	}

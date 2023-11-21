@@ -247,6 +247,22 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		}
 	}
 
+	async function doDeleteChannel () {
+		const response = await fetch(`http://localhost:8080/api/chats/${chatData?.chat_id}`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			},
+		});
+		let data = await response.json();
+		if (response.ok)
+		{
+			console.log('deleted channel')
+			socket.emit('delete-channel', {roomName: chatData?.chat.name});
+		}
+	}
+
 	async function getData (chatData: chatData|undefined) {
 		setFetched(false);
 		console.log('user_id', user_id);
@@ -320,6 +336,8 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => changePassword()}>Change Password</button>
 			<br/>
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => unbanUsers()}>Unban users </button>
+			<br/>
+			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => doDeleteChannel()}>Delete channel</button>
 			</> : <></>}
 			</>
 			<br/>

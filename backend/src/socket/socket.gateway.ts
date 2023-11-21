@@ -187,9 +187,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     }
 
     @SubscribeMessage('delete-channel')
-    onDeleteChannel(client: Socket, data: { chat_id: number, roomName: string }) {
-        console.log("into delete channel ->", data.chat_id, data.roomName);
-        this.server.to(data.roomName).emit('deleted', data);
+    async onDeleteChannel(client: Socket, data: { chat_id: number, roomName: string }) {
+        console.log("into delete channel ->", data.roomName);
+		await this.server.to(data.roomName).emit('smb-movede', data);
+		this.server.to(data.roomName).emit('refresh-id');
+
+        // this.server.to(data.roomName).emit('deleted', data);
     }
 
 	@SubscribeMessage('ready')
@@ -313,7 +316,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		}
 		catch (error) {
 			console.error('Error joining room:', error.message);
-			if (error.message !== 'Already in room' || 'protected') {
+			if (error.message !== 'Already in room' && error.message !== 'protected') {
 				this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
 			}
 		}
