@@ -59,35 +59,39 @@ const Profiles = (props: Props) => {
 
   useEffect(() =>{
     const token: string|undefined = Cookies.get("token");
-    let content: {username: string, user: number};
+    let content: {username: string, user: number, avatar: string};
       if (token != undefined)
       {
         content = decodeToken(token);
       }
       else
-        content = { username: 'default', user: 0};
+        content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'};
     
-	const GetUserinfo = async () => {
-      const response = await fetch(`http://localhost:8080/api/users/username/${users}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-				  'Authorization': 'Bearer ' + token,
-        }
-      });
-      const data = await response.json()
-      if (response.ok)
-      {
-        setAvatarUrl(data[0].avatar);
-        await setFriendID(data[0].id);
-        console.log ('friendid', data.id);
-        setFriend(data[0]);
-        await fetchMatches(data[0].id);
-      }
-
+      
       GetUserinfo();
       fetchMatches(content.user);
-  }}, []);
+    }, []);
+    
+    const GetUserinfo = async () => {
+        const response = await fetch(`http://localhost:8080/api/users/username/${users}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token,
+          }
+        });
+        const data = await response.json()
+        if (response.ok)
+        {
+          setAvatarUrl(data[0].avatar);
+          await setFriendID(data[0].id);
+          console.log ('friendid', data.id);
+          setFriend(data[0]);
+          await fetchMatches(data[0].id);
+          console.log("avatar", avatarUrl);
+        }
+      }
+//   }}, []);
 
     //   let content: {username: string, user: number};
     //   if (token != undefined)

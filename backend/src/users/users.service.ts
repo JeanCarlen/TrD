@@ -150,6 +150,7 @@ export class UsersService {
     user.username = createUserDto.username;
     user.avatar = process.env.HOST + 'images/default.png';
     user.twofaenabled = false;
+	user.status = 0;
 
     // check if username is already taken
     const found = await this.findByUsername(user.username);
@@ -179,6 +180,7 @@ export class UsersService {
     user.twofaenabled = false;
     user.login42 = create42User.login42;
     user.is42 = true;
+	user.status = 0;
 
     const token = this.getJWT(await this.usersRepository.save(user), false);
     return { message: ['Successfully registered.'], token: token };

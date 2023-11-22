@@ -130,6 +130,10 @@ const Home = (props: Props) => {
             size="2xl"
             src={content.avatar}
             />
+              <div className='icon-container'>
+              <div className='status-circle'>
+            </div>
+          </div>
             </VStack>
               <h1 className="welcome">Hello {content.username}! </h1>
              </WrapItem>
@@ -156,13 +160,13 @@ const Home = (props: Props) => {
                 achievements
             </div>
             <div className='friends'>
-                <div className='matchBox'>
+                {/* <div className='matchBox'> */}
                 <FriendList/>
                 </div>
               </div>
             </div>
         </div>
-        </div>
+        {/* </div> */}
         </ChakraProvider>
 		<ToastContainer/>
 		</div>

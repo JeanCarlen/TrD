@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import { WebsocketContext } from "../context/websocket.context";
+import {gsocket, WebsocketContext } from "../context/websocket.context";
 import { io, Socket } from 'socket.io-client';
 import Cookies from 'js-cookie';
 import decodeToken from '../helpers/helpers';
@@ -10,6 +10,11 @@ import collectable from '../collectable.png';
 import supervan from '../supervan.png';
 import {useNavigate} from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { setUserStatus } from '../Redux-helpers/action';
+import { useSelector } from 'react-redux';
+import store from '../Redux-helpers/store';
+import { globalSocket } from "../PrivateRoute";
 
 export interface GameData
 {
@@ -48,6 +53,11 @@ interface Ball{
 	speed_x: number
 }
 
+// export interface status{
+// 	setUserStatus: React.Dispatch<React.SetStateAction<string>>;
+
+// }
+
 function usePageVisibility() {
 	const [isVisible, setIsVisible] = useState(!document.hidden);
 
@@ -67,6 +77,7 @@ function usePageVisibility() {
 
 
 const GameSocket: React.FC = () => {
+const dispatch = useDispatch();
 const [canvas, setCanvas] = useState(true);
 const [shouldRun, setShouldRun] = useState(true);
 let content: {username: string, user: number, avatar: string};
@@ -131,9 +142,10 @@ let data = useRef<GameData>({
 	legacy: 1,
 });
 
-const socket = useContext(WebsocketContext);
+const userStatus = useSelector((state: any) => state.userStatus);
+// const socket = useContext(WebsocketContext);
+//const gsocket = globalSocket;
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
 useEffect(() => {
 	const canvas = canvasRef.current!;
     if (!canvas) {
@@ -163,7 +175,7 @@ useEffect(() => {
 		data.current.player1.id = content?.user;
 		data.current.player1.name = content?.username;
 		data.current.player1.avatar = content?.avatar;
-		socket.connect();
+		// gsocket.connect();
 	}
 	else
 	{
@@ -176,7 +188,7 @@ useEffect(() => {
 			if(rand >= 50)
 			{
 				console.log('bonus appear');
-				socket.emit('bonus-pos', {	roomName: data.current.NameOfRoom,
+				gsocket.emit('bonus-pos', {	roomName: data.current.NameOfRoom,
 											pos_x: randomNumberInRange(100,500),
 											pos_y: randomNumberInRange(150,650),
 											playerNumber: data.current.player1.pNumber,
@@ -197,23 +209,26 @@ useEffect(() => {
 
 useEffect(() => {
 
-	socket.on('connect', () => {
-		console.log(socket.id);
+	gsocket.on('connect', () => {
+		console.log(gsocket.id);
 		console.log('Connected');
+		dispatch(setUserStatus('online'));
+		console.log("status", userStatus)
 	});
 
-	socket.on('game-start', (dataBack: string) => {
+	gsocket.on('game-start', (dataBack: string ) => {
 		console.log('sending info', dataBack);
 		data.current.NameOfRoom = dataBack;
 		SendInfo(dataBack);
+		dispatch(setUserStatus('in-game'));
 	});
 
-	socket.on('pong-init-setup', (playerNumber: number) => {
+	gsocket.on('pong-init-setup', (playerNumber: number) => {
 		console.log('recieved player number: ' + playerNumber);
 		data.current.player1.pNumber= playerNumber;
 		});
 
-	socket.on('goal', async (dataBack: {score1: number, score2: number}) => {
+	gsocket.on('goal', async (dataBack: {score1: number, score2: number}) => {
 			console.log(`goal --> new score ${dataBack.score1} - ${dataBack.score2}` )
 			data.current.score1 = dataBack.score1;
 			data.current.score2 = dataBack.score2;
@@ -224,12 +239,12 @@ useEffect(() => {
 			if (data.current.player1.pNumber === 1)
 			{
 				await postScore(dataBack.score1, dataBack.score2, 0, data.current.gameID);
-				socket.emit('ready', {roomName: data.current.NameOfRoom});
+				gsocket.emit('ready', {roomName: data.current.NameOfRoom});
 			}
 
 	});
 
-	socket.on('ready', (dataBack: {sbx: number, sby: number})=>{
+	gsocket.on('ready', (dataBack: {sbx: number, sby: number})=>{
 		data.current.paused=5;
 		data.current.ball.pos_x = 600 / 2;
 		data.current.ball.pos_y = 800 / 2;
@@ -247,18 +262,20 @@ useEffect(() => {
 
 	});
 
-	socket.on('leave-game', (roomName: string) => {
-		console.log(socket.id , ' left : ', roomName);
+	gsocket.on('leave-game', (roomName: string) => {
+		console.log(gsocket.id , ' left : ', roomName);
+		dispatch(setUserStatus('online'));
 	});
 
-	socket.on('paddle-send', (playerNumber : number, pos_x: number) => {
-		if (playerNumber === data.current.player1.pNumber)
-			data.current.player1.pos_x = pos_x;
-		else if (playerNumber === data.current.player2.pNumber)
-			data.current.player2.pos_x = 600 - pos_x - paddleSize;
+	gsocket.on('paddle-send', (playerNumber : number, pos_x: number) => {
+		if (dataBack.playerNumber === data.current.player1.pNumber)
+			data.current.player1.pos_x = dataBack.pos_x;
+		else if (dataBack.playerNumber === data.current.player2.pNumber)
+			data.current.player2.pos_x = 600 - dataBack.pos_x - paddleSize;
+
 	});
 
-	socket.on('bonus-send', (dataBack: {roomName:string, pos_x: number, pos_y: number, playerNumber: number, speed_y: number, speed_x: number}) => {
+	gsocket.on('bonus-send', (dataBack: {roomName:string, pos_x: number, pos_y: number, playerNumber: number, speed_y: number, speed_x: number}) => {
 		console.log('bonus recieved');
 		data.current.bonusActive = true;
 		if(dataBack.playerNumber === data.current.player1.pNumber)
@@ -278,7 +295,7 @@ useEffect(() => {
 		}
 	});
 
-	socket.on('bonus-player', (dataBack: {playerNumber: number}) => {
+	gsocket.on('bonus-player', (dataBack: {playerNumber: number}) => {
 		console.log('bonus player = ', dataBack.playerNumber);
 		if (dataBack.playerNumber === data.current.player1.pNumber)
 		{
@@ -292,6 +309,7 @@ useEffect(() => {
 		}
 	});
 
+//new spectate emit
 	socket.on('spectate', (dataBack: {roomName: string, unsername: string}) => {
 		if(dataBack.roomName === data.current.NameOfRoom && data.current.player1.pNumber === 1)
 		{
@@ -310,7 +328,8 @@ useEffect(() => {
 	}
 	);
 
-	socket.on('exchange-info', async (dataBack: { myId : number, myName : string, myAvatar : string, roomName: string, playerNumber: number}) => {
+
+	gsocket.on('exchange-info', async (dataBack: { myId : number, myName : string, myAvatar : string, roomName: string, playerNumber: number}) => {
 		console.log("EXCHANGE: ",dataBack.myName);
 		if (data.current.player2.id === 0 && data.current.player1.id !== dataBack.myId)
 		{
@@ -334,7 +353,7 @@ useEffect(() => {
 			{
 				let fetchback = await createMatch(data.current.player1.id, data.current.player2.id);
 				data.current.gameID = fetchback.id;
-				socket.emit('ready', {roomName: data.current.NameOfRoom});
+				gsocket.emit('ready', {roomName: data.current.NameOfRoom});
 			}
 		}
 		else if (data.current.player1.pNumber === 2)
@@ -345,7 +364,7 @@ useEffect(() => {
 		data.current.started = true;
 	});
 
-	socket.on('forfeit', async (dataBack: {player: number, max: number, gameID: number}) => {
+	gsocket.on('forfeit', async (dataBack: {player: number, max: number, gameID: number}) => {
 		console.log('user ', dataBack.player, 'forfeited');
 		if (dataBack.player !== data.current.player1.pNumber)
 		{
@@ -387,7 +406,7 @@ useEffect(() => {
 		}
 	});
 
-	socket.on('game-over', async (dataBack: {score1: number, score2: number}) => {
+	gsocket.on('game-over', async (dataBack: {score1: number, score2: number}) => {
 		data.current.paused = 5;
 		console.log('game over');
 		let Fball: Ball = {
@@ -413,26 +432,27 @@ useEffect(() => {
 		data.current.converted = false;
 		data.current.bonusActive = false;
 		setCanvas(false);
+		dispatch(setUserStatus('offline'));
 	});
 
 	return () => {
-		socket.off('connect');
-		socket.off('game-start');
-		socket.off('pong-init-setup');
-		socket.off('paddle-send');
-		socket.off('exchange-info');
-		socket.off('goal');
-		socket.off('forfeit');
-		socket.off('game-over');
-		socket.off('bonus-send');
-		socket.off('bonus-player');
-		socket.off('ready');
-		socket.off('leave-game');
+		gsocket.off('connect');
+		gsocket.off('game-start');
+		gsocket.off('pong-init-setup');
+		gsocket.off('paddle-send');
+		gsocket.off('exchange-info');
+		gsocket.off('goal');
+		gsocket.off('forfeit');
+		gsocket.off('game-over');
+		gsocket.off('bonus-send');
+		gsocket.off('bonus-player');
+		gsocket.off('ready');
+		gsocket.off('leave-game');
 	};
-	}, [socket]);
+	}, [gsocket]);
 
 	useEffect(() => {
-		socket.on('room-join-error', (back:{error: string}) => {
+		gsocket.on('room-join-error', (back:{error: string}) => {
 			console.log("error in joining room: ", back.error);
 			toast.error(back.error, {
 				position: toast.POSITION.BOTTOM_LEFT,
@@ -440,9 +460,9 @@ useEffect(() => {
 		});
 
 		return() => {
-			socket.off('room-join-error');
+			gsocket.off('room-join-error');
 		}
-	}, [socket]);
+	}, [gsocket]);
 
 	function randomNumberInRange(min: number, max: number){
 	let randRet = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -474,11 +494,11 @@ useEffect(() => {
 	useEffect(() => {
 		if (isVisible) {
 		  console.log('User came back to the page');
-		//   socket.emit('user-left', {way: 0,roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, time: Date.now()});
+		//   gsocket.emit('user-left', {way: 0,roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, time: Date.now()});
 		} else
 		{
 		  console.log('User left the page');
-		  socket.emit('user-left', {roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, gameID: data.current.gameID});
+		  gsocket.emit('user-left', {roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, gameID: data.current.gameID});
 		}
 	  }, [isVisible]);
 	  
@@ -545,7 +565,7 @@ const updateGame = async() => {
 			data.current.bonusActive = false;
 			data.current.bonus.pos_x = 100;
 			data.current.bonus.pos_y = 100;
-			// socket.emit('bonus', {roomName: data.current.NameOfRoom, playerNumber: data.current.player2.pNumber});
+			// gsocket.emit('bonus', {roomName: data.current.NameOfRoom, playerNumber: data.current.player2.pNumber});
 		}
 	}
 	if(newBonusY > canvas.height - 20 && (newBonusX >= data.current.player1.pos_x && newBonusX <= data.current.player1.pos_x + paddleSize)) {
@@ -556,18 +576,18 @@ const updateGame = async() => {
 			data.current.bonusActive = false;
 			data.current.bonus.pos_x = 100;
 			data.current.bonus.pos_y = 100;
-			socket.emit('bonus', {roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber});
+			gsocket.emit('bonus', {roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber});
 		}
 	}
 		
-	// check for goal on player 1 side - change into socket goal
+	// check for goal on player 1 side - change into gsocket goal
 	// add a paused effect
 	if(newBallY > canvas.height && data.current.paused === 0) {
 		console.log('goal scored');
 		if (data.current.player1.pNumber === 1)
-			socket.emit('goal', {score1: data.current.score1 , score2: data.current.score2 + 1, roomName: data.current.NameOfRoom});
+			gsocket.emit('goal', {score1: data.current.score1 , score2: data.current.score2 + 1, roomName: data.current.NameOfRoom});
 		else if (data.current.player1.pNumber === 2)
-			socket.emit('goal', {score1: data.current.score1 + 1, score2: data.current.score2, roomName: data.current.NameOfRoom});
+			gsocket.emit('goal', {score1: data.current.score1 + 1, score2: data.current.score2, roomName: data.current.NameOfRoom});
 
 
 	}
@@ -613,21 +633,21 @@ const updateGame = async() => {
 		data.current.player1.id = content?.user;
 		data.current.player1.name = content?.username;
 		data.current.player1.avatar = content?.avatar;
-		socket.emit('exchange-info', {roomName: roomToSend, myId: content?.user, myName: content?.username, myAvatar: content?.avatar, playerNumber: data.current.player1.pNumber});
+		gsocket.emit('exchange-info', {roomName: roomToSend, myId: content?.user, myName: content?.username, myAvatar: content?.avatar, playerNumber: data.current.player1.pNumber});
 	};
 
 const Paddles = (roomName: string, newDir: number) => {
-	socket.emit('paddle-movement', {roomName:roomName, playerNumber: data.current.player1.pNumber, pos_x: data.current.player1.pos_x, newDir: newDir, speed: data.current.player1.speed});}
+	gsocket.emit('paddle-movement', {roomName:roomName, playerNumber: data.current.player1.pNumber, pos_x: data.current.player1.pos_x, newDir: newDir, speed: data.current.player1.speed});}
 
 const Bounce = (newBallx: number, newBally: number, newSpeedx: number, newSpeedy: number) => {
-	socket.emit('bounce', {ballSpeedX: newSpeedx, ballSpeedY: newSpeedy, roomName: data.current.NameOfRoom});
+	gsocket.emit('bounce', {ballSpeedX: newSpeedx, ballSpeedY: newSpeedy, roomName: data.current.NameOfRoom});
 };
 
 const CreatePongRoom = () => {
 	const roomNamePrompt = prompt("Enter a name for the new Game:");
 	console.log("creating room:", roomNamePrompt, content?.user);
 
-	socket.emit('create-room', {
+	gsocket.emit('create-room', {
 		roomName: roomNamePrompt,
 		client: content?.user
 	});
@@ -689,12 +709,12 @@ const spectate = () => {
 }
 
 const WaitingRoom = () => {
-	socket.emit('waitList', {bonus : 0});
+	gsocket.emit('waitList', {user_id: content.user ,bonus : 0});
 	data.current.gameType = 0;
 };
 
 const WaitingRoom_bonus = () => {
-	socket.emit('waitList', {bonus : 1});
+	gsocket.emit('waitList', {user_id: content.user, bonus : 1});
 	data.current.gameType = 1;
 };
 
@@ -722,7 +742,9 @@ const WaitingRoom_bonus = () => {
 		<img src="../cow.png" alt="Ball" style={{ display: 'none' }} />
 		<span>{player1}: {score1disp}</span>
 		<br/>
+		<p>{player1} Status in Friends Component: {userStatus}</p>
 		<span>{player2}: {score2disp}</span>
+		<p>{player2} Status in Friends Component: {userStatus}</p>
 		</div>
 	</div>
 	<button onClick={WaitingRoom}>Waiting Room</button>

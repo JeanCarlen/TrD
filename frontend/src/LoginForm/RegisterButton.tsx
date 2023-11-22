@@ -33,7 +33,9 @@ const RegisterButton: React.FC = () => {
 			setTokenContent(content)
 		}
 		if (tokenContent && !tokenContent?.twofaenabled)
+		{
 			navigate('/Home');
+		}
 		else if (tokenContent && tokenContent?.twofaenabled)
 			navigate('/authenticate');
 	}, []);

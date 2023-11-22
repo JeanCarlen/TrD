@@ -13,6 +13,9 @@ import { sentMessages } from './ChatInterface';
 import { ToastContainer, toast } from 'react-toastify';
 import { Socket } from "socket.io-client";
 import * as FaIcons from 'react-icons/fa'
+import { setUserStatus } from "../Redux-helpers/action";
+import { useSelector } from 'react-redux';
+import { gsocket } from "../context/websocket.context";
 
 
 export type chatData = {
@@ -34,7 +37,8 @@ export type chatData = {
 }
 
 const Chat: React.FC = () => {
-	const socket = useContext(WebsocketContext);
+	// const socket = useContext(WebsocketContext);
+	// socket = gsocket;
 	const token: string | undefined = Cookies.get("token");
 	const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
 	const [data, setData] = useState<chatData[]>([]);
@@ -44,6 +48,7 @@ const Chat: React.FC = () => {
 	const [messages, setMessages] = useState<sentMessages[]>([]);
 	const [currentChat, setCurrentChat] = useState<chatData>();
 	const [loggedIn, setLoggedIn] = useState<boolean>(false);
+	const userStatus = useSelector((state: any) => state.userStatus);
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -84,7 +89,7 @@ const Chat: React.FC = () => {
 	}
 
 	const handleRoomChange = (room: string, password: string | null) => {
-		socket.emit('join-room', { roomName: room, socketID: socket.id, client: content?.user, password: password });
+		gsocket.emit('join-room', { roomName: room, socketID: gsocket.id, client: content?.user, password: password });
 		//check if the password was right -- otherwise set room to default
 		setCurrentRoom(room);
 		console.log("Joined room: ", room);
@@ -141,7 +146,7 @@ const Chat: React.FC = () => {
 		let joinData = await getChats();
 		let contentJoin: {username: string, user: number, avatar: string} = await decodeToken(Cookies.get("token"));
 		await joinData?.map((chat : chatData) => {
-			socket.emit('quick-join-room', {
+			gsocket.emit('quick-join-room', {
 				roomName: chat.chat.name,
 				socketID: client.id,
 				client: contentJoin?.user,
@@ -151,13 +156,14 @@ const Chat: React.FC = () => {
 	};
 	
 	useEffect(() => {
-		socket.connect();
-		console.log("socket: is ->", socket);
-		joinChatRooms(socket);
+		// gsocket.connect();
+		console.log("socket: is ->", gsocket);
+		joinChatRooms(gsocket);
+		console.log("status", userStatus)
 	}, []);
 
 	useEffect(() => {
-		socket.on('room-join-error', (message:{error: string, reset: boolean}) => {
+		gsocket.on('room-join-error', (message:{error: string, reset: boolean}) => {
 			console.log("error in joining room: ", message.error);
 			toast.error(message.error, {
 				position: toast.POSITION.BOTTOM_LEFT,
@@ -170,7 +176,7 @@ const Chat: React.FC = () => {
 		}
 		});
 
-		socket.on("smb-movede", () => {
+		gsocket.on("smb-movede", () => {
 			console.log("refreshing chats");
 			getChats();
 			setCurrentRoom('default');
@@ -178,12 +184,12 @@ const Chat: React.FC = () => {
 			setMessages([]);
 			});
 
-		socket.on('refresh-chat', () => {
+		gsocket.on('refresh-chat', () => {
 			console.log("refreshing chats");
 			getChats();
 		})
 
-		socket.on('kick', (dataBack:{roomToLeave:string, UserToKick: number}) => {
+		gsocket.on('kick', (dataBack:{roomToLeave:string, UserToKick: number}) => {
 			console.log("kicked: ", dataBack.UserToKick, "content: ", content?.user);
 			if (dataBack.UserToKick !== content?.user)
 				return ;
@@ -199,11 +205,11 @@ const Chat: React.FC = () => {
 		})
 
 		return() => {
-			socket.off('room-join-error');
-			socket.off("smb-movede");
-			socket.off('kick');
+			gsocket.off('room-join-error');
+			gsocket.off("smb-movede");
+			gsocket.off('kick');
 		}
-	}, [socket, content]);
+	}, [gsocket, content]);
 
 
 	const handleJoinRoomClick = async (dataPass: chatData[]) => {
@@ -259,7 +265,7 @@ const Chat: React.FC = () => {
 		if( passWordPrompt?.trim() === '')
 			passWordPrompt = null;
 		if (roomNamePrompt) {
-		socket.emit('create-room', {
+		gsocket.emit('create-room', {
 			roomName: roomNamePrompt,
 			client: content?.user,
 			Password: passWordPrompt,
@@ -281,7 +287,7 @@ const Chat: React.FC = () => {
 			});
 			return;
 		}
-		socket.emit('leave-room', { id : idremove.id, roomName : currentRoom });
+		gsocket.emit('leave-room', { id : idremove.id, roomName : currentRoom });
 		setCurrentRoom('default');
 		setCurrentChat(undefined);
 		setMessages([]);
@@ -315,10 +321,10 @@ const Chat: React.FC = () => {
 	</div>
 		</div>
 		<div className="middleColumn">
-			<ChatInterface messagesData={messages} currentRoomProps={currentRoom} chatSocket={socket}/>
+			<ChatInterface messagesData={messages} currentRoomProps={currentRoom} chatSocket={gsocket}/>
 		</div>
 		<div className="rightColumn">
-			<IdChatUser chatData={currentChat} user_id={content?.user} socket={socket}/>
+			<IdChatUser chatData={currentChat} user_id={content?.user} socket={gsocket}/>
 		</div>
 	</div>
 	<ToastContainer />
