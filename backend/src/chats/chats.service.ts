@@ -130,7 +130,7 @@ export class ChatsService {
   public async findChatUsers(id: number, current_id: number): Promise<UsersResponse[]> {
 	let userRet: UsersResponse[] = [];
 	const chats = await this.userchatsService.getChatIdListByUser(current_id);
-	if (!chats.includes(id)) {
+	if (!chats.includes(id) && current_id !== -1) {
 		throw new UnauthorizedException(['You\'re not in this chat.'], {
 			cause: new Error(),
 			description: `You're not in this chat.`,
@@ -275,6 +275,8 @@ export class ChatsService {
 			}
 		}
 	}
+	else
+		await this.userchatsRepository.remove(userChat);
   }
 
   private async deleteChat(id: number): Promise<{ success: boolean, message: string}>{

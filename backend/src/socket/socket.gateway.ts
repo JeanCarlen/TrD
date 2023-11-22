@@ -9,6 +9,7 @@ import { RouterModule } from "@nestjs/core";
 import { UserchatsService } from "src/userchats/userchats.service";
 import { MessagesService } from "src/messages/messages.service";
 import { ChatadminsService } from "src/chatadmins/chatadmins.service";
+import { UsersService } from "src/users/users.service";
 import { error } from "console";
 import { subscribe } from "diagnostics_channel";
 
@@ -22,6 +23,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     
     // Inject the ChatsService into the constructor
     constructor(private readonly ChatsService: ChatsService,
+				private readonly UsersService: UsersService,
                 private readonly UserchatsService: UserchatsService,
                 private readonly MessageService: MessagesService,
                 private readonly ChatadminsService: ChatadminsService) {}
@@ -342,11 +344,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @SubscribeMessage('join-room')
 	@Inject('ChatsService')
 	@Inject('UserchatsService')
+	@Inject('UsersService')
     async onJoinRoom(client: Socket, message:{ roomName: string, socketID: string, client: number, password: string | null }): Promise<void> {
 	try {
             const chats = await this.ChatsService.findName(message.roomName);
             if (!chats) {
-                throw new Error(`Room ${message.roomName} not found.`);
+				throw new Error(`Room ${message.roomName} not found.`);
             }
 			if (await this.ChatsService.isUserBanned(chats.id, message.client) === true)
 			{
@@ -355,6 +358,11 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             if (chats.password != message.password) {
                 throw new Error(`Wrong password.`);
             }
+			const users = await this.ChatsService.findChatUsers(chats.id, -1);
+			const blocked = await this.UsersService.blockedUsersList(message.client)
+			console.log('users: ', users, 'blocked: ', blocked);
+			const intersection = users.filter(element => blocked.includes(element));
+			console.log('BLOCKED: ', intersection);
             client.join(message.roomName);
 			const list = await this.UserchatsService.findByChatId(chats.id);
 			list.map((userchat) => {

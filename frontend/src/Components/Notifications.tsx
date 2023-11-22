@@ -10,6 +10,22 @@ import 'react-toastify/dist/ReactToastify.css'
 import { gsocket } from '../context/websocket.context';
 // import { MessageProps } from './ShowMessages';
 
+interface User {
+	avatar: string,
+	username: string,
+	login42: string, // maybe number
+}
+
+interface RequestData {
+	id: number,
+	requested: number,
+	requested_user: User,
+	requester: number,
+	requester_user: User,
+	status: number;
+	total_count: number;
+}
+
 interface NotificationIconProps {
   count: number;
   onAccept: (senderID:number|undefined) => void;
@@ -20,8 +36,9 @@ interface NotificationIconProps {
   pendingfriends: Array<number>;
 }
 
-const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, senderName, senderID, pendingfriends}) => {
+const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, senderName, senderID, pendingfriends}: NotificationIconProps) => {
 	const [showFriendRequests, setShowFriendRequests] = useState(false);
+	const [friendRequests, setFriendRequests] = useState<RequestData[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [counter, setCounter] = useState(0);
 	const token: string|undefined = Cookies.get("token");
@@ -30,16 +47,19 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 			content = decodeToken(token);
 		else
 			content = { username: 'default', user: 0};
+
 	const handleFriendRequest = () => {
 		setShowFriendRequests(!showFriendRequests);
 		setIsModalOpen(true);
 	}
 
-	  const closeModal = () => {
+	const closeModal = () => {
 		setIsModalOpen(false);
-	  };
-console.log("senderID length", pendingfriends.length);
-	  const updateFriends = async() => {
+	};
+
+		console.log("senderID length", pendingfriends.length);
+
+	const updateFriends = async() => {
 		const response = await fetch(`http://localhost:8080/api/friends/pending/list/${content.user}`, {
 			method: 'GET',
 			headers: {
@@ -50,10 +70,11 @@ console.log("senderID length", pendingfriends.length);
 		const data = await response.json()
 		setCounter(data.length);
 		console.log("data", data)
-		console.log("count", counter)
-		console.log("ID",senderID);
-		console.log("name", senderName);
-		console.log("requestID", pendingfriends);
+		setFriendRequests(data);
+		// console.log("count", counter)
+		// console.log("ID",senderID);
+		// console.log("name", senderName);
+		// console.log("requestID", pendingfriends);
 		if (data.length <= 0)
 		{
 			setShowFriendRequests(false);
@@ -108,7 +129,7 @@ console.log("senderID length", pendingfriends.length);
 				else
 				content = { username: 'default', user: 0};
 			// setContent(content);
-			updateFriends();
+				updateFriends();
 
 		}, []);
 
@@ -127,7 +148,7 @@ console.log("senderID length", pendingfriends.length);
 		console.log("reject", data2);
 		if (resp.ok )
 			{
-				setCounter(data2.length);			
+				setCounter(data2.length);
 				console.log(data2);
 	  		}
 			updateFriends();
