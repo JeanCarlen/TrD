@@ -751,8 +751,8 @@ const WaitingRoom_bonus = () => {
 	<button onClick={WaitingRoom_bonus}>Waiting Room bonus</button>
 	<button onClick={()=>{data.current.color = 'pink'}}>PINK</button>
 	<button onClick={()=>{data.current.color = 'blue'}}>BLUE</button>
-	<button onClick={()=>{data.current.legacy = 1}}>COW</button>
-	<button onClick={()=>{data.current.legacy = 2}}>SUPERVAN</button>
+	<button onClick={()=>{data.current.legacy = 1}}>COWMOOO</button>
+	<button onClick={()=>{data.current.legacy = 2}}>SUPERVAN!</button>
 	<button onClick={spectate}>spectate</button>
 	<ToastContainer/>
 	</div>
