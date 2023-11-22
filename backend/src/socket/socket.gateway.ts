@@ -10,6 +10,7 @@ import { UserchatsService } from "src/userchats/userchats.service";
 import { MessagesService } from "src/messages/messages.service";
 import { ChatadminsService } from "src/chatadmins/chatadmins.service";
 import { error } from "console";
+import { subscribe } from "diagnostics_channel";
 
 // Define the WebSocketGateway and its path and CORS settings
 @WebSocketGateway({ path: '/api', cors: true })
@@ -115,6 +116,21 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         }
 		return Promise.resolve();
     }
+
+	@SubscribeMessage('spectate')
+	async onSpectate(client: Socket, message: { roomName: string, username: string})
+	{
+		console.log("into spectate");
+		client.join(message.roomName);
+		this.server.to(message.roomName).emit('spectate', message);
+	}
+
+	@SubscribeMessage('gameState')
+	async onGamestate(client: Socket, message: { data : any, roomName: string})
+	{
+		console.log("into gamestate");
+		this.server.to(message.roomName).emit('gameState', message);
+	}
 
     @SubscribeMessage('waitList')
     async onWaitList(client: Socket, message: {user_id:number, bonus: number }) {

@@ -267,11 +267,12 @@ useEffect(() => {
 		dispatch(setUserStatus('online'));
 	});
 
-	gsocket.on('paddle-send', (dataBack: any) => {
+	gsocket.on('paddle-send', (playerNumber : number, pos_x: number) => {
 		if (dataBack.playerNumber === data.current.player1.pNumber)
 			data.current.player1.pos_x = dataBack.pos_x;
 		else if (dataBack.playerNumber === data.current.player2.pNumber)
 			data.current.player2.pos_x = 600 - dataBack.pos_x - paddleSize;
+
 	});
 
 	gsocket.on('bonus-send', (dataBack: {roomName:string, pos_x: number, pos_y: number, playerNumber: number, speed_y: number, speed_x: number}) => {
@@ -307,6 +308,26 @@ useEffect(() => {
 			data.current.bonusActive = false;
 		}
 	});
+
+//new spectate emit
+	socket.on('spectate', (dataBack: {roomName: string, unsername: string}) => {
+		if(dataBack.roomName === data.current.NameOfRoom && data.current.player1.pNumber === 1)
+		{
+			console.log('spectator joined', dataBack.unsername);
+			socket.emit('gameState', {data, roomName: data.current.NameOfRoom});
+		}
+	}
+	);
+
+	socket.on('gameState', (dataBack: {data: GameData, roomName: string}) => {
+		if (dataBack.roomName === data.current.NameOfRoom && data.current.player1.pNumber !== 1)
+		{
+			data.current = dataBack.data;
+			console.log('gameState recieved');
+		}
+	}
+	);
+
 
 	gsocket.on('exchange-info', async (dataBack: { myId : number, myName : string, myAvatar : string, roomName: string, playerNumber: number}) => {
 		console.log("EXCHANGE: ",dataBack.myName);
@@ -682,6 +703,11 @@ const postScore = async(score1: number, score2: number, over: number, gameID: nu
 	}
 };
 
+const spectate = () => {
+	const roomNamePrompt = prompt("Enter the name of the room you want to spectate:");
+	socket.emit('spectate', {roomName: roomNamePrompt, client: content?.username});
+}
+
 const WaitingRoom = () => {
 	gsocket.emit('waitList', {user_id: content.user ,bonus : 0});
 	data.current.gameType = 0;
@@ -727,6 +753,7 @@ const WaitingRoom_bonus = () => {
 	<button onClick={()=>{data.current.color = 'blue'}}>BLUE</button>
 	<button onClick={()=>{data.current.legacy = 1}}>COW</button>
 	<button onClick={()=>{data.current.legacy = 2}}>SUPERVAN</button>
+	<button onClick={spectate}>spectate</button>
 	<ToastContainer/>
 	</div>
 	);
