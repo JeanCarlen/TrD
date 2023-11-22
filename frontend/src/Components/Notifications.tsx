@@ -7,6 +7,7 @@ import decodeToken from '../helpers/helpers';
 import Cookies from 'js-cookie';
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { gsocket } from '../context/websocket.context';
 // import { MessageProps } from './ShowMessages';
 
 interface NotificationIconProps {
@@ -81,6 +82,11 @@ console.log("senderID length", pendingfriends.length);
 		else {
 			toast.success('You are now friends', {
 				position: toast.POSITION.TOP_CENTER
+			});
+			gsocket.emit('create-room', {
+				roomName: `1on1-${senderID}${content.user}`,
+				client: content?.user,
+				Password: null,
 			});
 		}
 		setShowFriendRequests(false);
