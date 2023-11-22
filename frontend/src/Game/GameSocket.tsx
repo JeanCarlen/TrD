@@ -267,7 +267,7 @@ useEffect(() => {
 		dispatch(setUserStatus('online'));
 	});
 
-	gsocket.on('paddle-send', (playerNumber : number, pos_x: number) => {
+	gsocket.on('paddle-send', (dataBack: {playerNumber : number, pos_x: number}) => {
 		if (dataBack.playerNumber === data.current.player1.pNumber)
 			data.current.player1.pos_x = dataBack.pos_x;
 		else if (dataBack.playerNumber === data.current.player2.pNumber)
@@ -310,16 +310,16 @@ useEffect(() => {
 	});
 
 //new spectate emit
-	socket.on('spectate', (dataBack: {roomName: string, unsername: string}) => {
+	gsocket.on('spectate', (dataBack: {roomName: string, unsername: string}) => {
 		if(dataBack.roomName === data.current.NameOfRoom && data.current.player1.pNumber === 1)
 		{
 			console.log('spectator joined', dataBack.unsername);
-			socket.emit('gameState', {data, roomName: data.current.NameOfRoom});
+			gsocket.emit('gameState', {data, roomName: data.current.NameOfRoom});
 		}
 	}
 	);
 
-	socket.on('gameState', (dataBack: {data: GameData, roomName: string}) => {
+	gsocket.on('gameState', (dataBack: {data: GameData, roomName: string}) => {
 		if (dataBack.roomName === data.current.NameOfRoom && data.current.player1.pNumber !== 1)
 		{
 			data.current = dataBack.data;
