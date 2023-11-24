@@ -15,7 +15,7 @@ type MessageProps = {
 	senderName: string;
   };
 
-const ShowMessage: React.FC<MessageProps> = ({ message, onAccept, onDecline, senderID, isOpen, onClose, senderName}) => {
+const ShowMessage: React.FC<MessageProps> = ({ message, onAccept, onDecline, senderID, isOpen, onClose, senderName}: MessageProps) => {
 	const token: string|undefined = Cookies.get("token");
 	let content: {username: string, user: number};
 		if (token != undefined)

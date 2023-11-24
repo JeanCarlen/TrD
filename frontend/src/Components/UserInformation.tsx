@@ -39,7 +39,7 @@ type CookieProps = {
 };
 
 
-const UserInformation: React.FC<CookieProps> = ({username}) => {
+const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 	const [userID, setUserID] = useState<number>();
 	const dispatch = useDispatch();
 	const navigate = useNavigate();

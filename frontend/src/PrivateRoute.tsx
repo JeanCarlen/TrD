@@ -24,15 +24,14 @@ import { WebsocketContext } from './context/websocket.context';
 import { useSelector } from 'react-redux';
 import { setUserStatus } from './Redux-helpers/action';
 import { useDispatch } from 'react-redux';
-
 export let globalSocket: Socket;
+import {gsocket, WebsocketContext } from './context/websocket.context';
 
 type Props = {}
 
 const PrivateRoutes = () => {
 	const dispatch = useDispatch();
 	const isRegistered = Cookies.get('registered');
-	globalSocket = null;
 	const token = Cookies.get('token');
 	const { authenticated } = useContext(AuthContext)
 
@@ -52,12 +51,10 @@ const PrivateRoutes = () => {
 		return <Navigate to='/authenticate' replace />
 	else
 	{
-		globalSocket = useContext(WebsocketContext);
-		globalSocket.connect();
-		globalSocket.emit('connect_id', tokenContent.user);
-		console.log('WebSocket initialised: ', globalSocket, 'token content', tokenContent.user);
 		dispatch(setUserStatus('Online'));
-		dispatch
+		gsocket.connect();
+		gsocket.emit('connect_id', tokenContent.user);
+		console.log('WebSocket initialised: ', gsocket.id, 'token content', tokenContent.user);
 		// globalSocket.emit('userSend', tokenContent.user);
 		return <Outlet />
 	}

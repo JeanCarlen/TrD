@@ -10,6 +10,7 @@ import { globalSocket } from "../PrivateRoute";
 import { useSelector } from 'react-redux';
 import { setUserStatus } from '../Redux-helpers/action';
 import { useDispatch } from 'react-redux';
+import { gsocket } from "../context/websocket.context";
 // import {isRegistered} from '../PrivateRoute'
 
 
@@ -19,14 +20,14 @@ const Logout = (props: Props) => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	// const socket = useContext(WebsocketContext);
-	const socket = globalSocket;
+	// const socket = globalSocket;
 	// Cookies.set('registered', 'false', {expires: 7});
 	let tokenVal = Cookies.get('token');
 	if (!tokenVal)
 		tokenVal = '';
 	Cookies.set('token', tokenVal, { expires: -7})
-	socket.disconnect();
 	dispatch(setUserStatus('Offline'));
+	gsocket.disconnect();
 	return <Navigate to='/login' replace />
 }
 

@@ -31,7 +31,6 @@ interface Props {
 }
 
 const ChatInterface: React.FC<Props> = ({messagesData, currentRoomProps, chatSocket}: Props) => {
-const [value, setValue] = useState('');
 const [currentRoom, setCurrentRoom] = useState<string>(currentRoomProps);
 const [isLoading, setIsLoading] = useState(false);
 const [messages, setMessages] = useState<Message[]>([]);
@@ -39,14 +38,6 @@ const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender:
 const socket = chatSocket;
 const token: string | undefined = Cookies.get("token");
 const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
-const [roomName, setRoomName] = useState<string>('');
-const socketRef = useRef(null);
-// let messagesEnd;
-
-// const scrollToBottom = () => {
-// 	messagesEnd.scrollIntoView({ behavior: "smooth" });
-//   };
-  
 
 	useEffect(() => {
 		window.addEventListener('keydown', handleKeyPress);
