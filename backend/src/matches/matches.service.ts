@@ -53,30 +53,29 @@ export class MatchesService {
   }
 
   public async findAll(current_id: number): Promise<MatchesResponse[]> {
-	// const matches: Matches[] = await this.matchesRepository.find(
-	// 	{
-	// 		where: [
-	// 			{ user_1: current_id },
-	// 			{ user_2: current_id }
-	// 		]
-	// 	}
-	// );
 	const matches: Matches[] = await this.matchesRepository.find({where: {status: 1}})
 	if (matches.length == 0)
 		return [];
-	let user_ids: number[] = matches.map((match: Matches) => {
+	let user_ids: number[] = [];
+	matches.map((match: Matches) => {
 		if (match.user_1 == current_id)
-			return match.user_2;
-		return match.user_1;
+			user_ids.push(match.user_2);
+		else if (match.user_2 == current_id)
+			user_ids.push(match.user_1);
+		else{
+			user_ids.push(match.user_1);
+			user_ids.push(match.user_2);
+		}
 	});
 	user_ids = [current_id, ...user_ids];
 	const users: Users[] = await this.usersRepository.find({
 		where: { id: In(user_ids) }
 	})
 	let matchesResponse: MatchesResponse[] = [];
-	matches.forEach((match: Matches) => {
-		const user_1: Users = users.find((user: Users) => user.id == match.user_1);
-		const user_2: Users = users.find((user: Users) => user.id == match.user_2);
+	await matches.forEach(async (match: Matches) => {
+		const user_1: Users = await users.find((user: Users) => user.id == match.user_1);
+		const user_2: Users = await users.find((user: Users) => user.id == match.user_2);
+		console.log('match for', user_1?.id, user_2?.id);
 		const matchResponse: MatchesResponse = {
 			id: match.id,
 			user_1: match.user_1,
@@ -145,7 +144,16 @@ export class MatchesService {
   public async findByUserId(id: number, current_id: number) {
 	// if (id != current_id)
 	// 	throw new NotFoundException('Match not found.');
-	return await this.findAll(id);
+	let matches = await this.findAll(id);
+	let retArray: MatchesResponse[] = [];
+	await Promise.all (matches.map((match) => {
+		if (match.user_1 == id || match.user_2 == id)
+		{
+			console.log('adding match:', match.user_1, ' - ', match.user_2, 'with id', id);
+			retArray.push(match);
+		}
+	}))
+	return retArray;
   }
 
   public async update(id: number, updateMatchDto: UpdateMatchDto, current_id: number) {

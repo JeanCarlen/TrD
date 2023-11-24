@@ -9,6 +9,7 @@ import { RouterModule } from "@nestjs/core";
 import { UserchatsService } from "src/userchats/userchats.service";
 import { MessagesService } from "src/messages/messages.service";
 import { ChatadminsService } from "src/chatadmins/chatadmins.service";
+import { UsersService } from "src/users/users.service";
 import { error } from "console";
 import { subscribe } from "diagnostics_channel";
 
@@ -22,6 +23,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     
     // Inject the ChatsService into the constructor
     constructor(private readonly ChatsService: ChatsService,
+				private readonly UsersService: UsersService,
                 private readonly UserchatsService: UserchatsService,
                 private readonly MessageService: MessagesService,
                 private readonly ChatadminsService: ChatadminsService) {}
@@ -342,17 +344,18 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @SubscribeMessage('join-room')
 	@Inject('ChatsService')
 	@Inject('UserchatsService')
+	@Inject('UsersService')
     async onJoinRoom(client: Socket, message:{ roomName: string, socketID: string, client: number, password: string | null }): Promise<void> {
 	try {
             const chats = await this.ChatsService.findName(message.roomName);
             if (!chats) {
-                throw new Error(`Room ${message.roomName} not found.`);
+				throw new Error(`Room ${message.roomName} not found.`);
             }
 			if (await this.ChatsService.isUserBanned(chats.id, message.client) === true)
 			{
 				throw new Error(`You are banned from ${message.roomName}.`);
 			}
-            if (chats.password != message.password) {
+            if (await this.ChatsService.isPasswordValid(chats.id, message.password) == false) { // check if password matches
                 throw new Error(`Wrong password.`);
             }
             client.join(message.roomName);
@@ -369,6 +372,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             console.error('Error joining room:', error.message);
             if (error.message !== 'Already in room') {
 				this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
+				this.server.to(client.id).emit('refresh-id');
 			}
         }
     }
@@ -400,6 +404,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 
     // Define the onCreateSomething method to handle creating something
     @SubscribeMessage('create-something')
+	@Inject('UsersService')
     async onCreateSomething(client: Socket, data: {room: string, user_id: number, text: string, sender_Name: string}) {
         // console.log('Create something:', data);
         const chats = await this.ChatsService.findName(data.room);
@@ -407,9 +412,22 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		{
 			if (await this.ChatsService.isUserMuted(chats.id, data.user_id) === false)
 			{
+				const users = await this.ChatsService.findChatUsers(chats.id, -1);
+				const blocked = await this.UsersService.blockAnyWayList(data.user_id);
+				users.forEach((user)=>{
+					blocked.forEach((blocked_user)=>{
+						if (user.id == blocked_user.id){
+							console.log('found: ', blocked_user);
+							(this.UserList.find((one)=>one.user_id == user.id))?.socket.join(`banRoom-${data.user_id}`);
+						}
+				});
+			})
 				this.MessageService.create({chat_id: chats.id, user_id: data.user_id, text: data.text, user_name: data.sender_Name});
-				this.server.to(data.room).emit('srv-message', data);
-				console.log('sent this: ', data);
+				this.server.to(data.room).except(`banRoom-${data.user_id}`).emit('srv-message', data);
+				const sockets = await this.server.in(`banRoom-${data.user_id}`).fetchSockets();
+				sockets.forEach(s => {
+					s.leave(`banRoom-${data.user_id}`);
+				});
 			}
 			else
 			{
