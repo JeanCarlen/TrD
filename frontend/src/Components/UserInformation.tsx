@@ -31,7 +31,7 @@ import {
   import MFASetup from '../pages/mfasetup'
   import {useNavigate} from 'react-router-dom'
   import { useSelector } from 'react-redux';
-  import { setUserStatus } from '../Redux-helpers/action';
+  import { setUserName, setUserStatus } from '../Redux-helpers/action';
   import { useDispatch } from 'react-redux';
 
 type CookieProps = {
@@ -41,8 +41,8 @@ type CookieProps = {
 
 const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 	const [userID, setUserID] = useState<number>();
-	const navigate = useNavigate();
 	const dispatch = useDispatch();
+	const navigate = useNavigate();
 	const { isOpen, onOpen, onClose } = useDisclosure()
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -74,7 +74,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 	let count = 0;
 	let sender;
 	const updateUser = async () => {
-		const response = await fetch(`http://localhost:8080/api/users/username/${username}`, {
+		const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -82,8 +82,10 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			}
 		});
 		const data = await response.json()
-		setUserID(data[0].id);
-		const resp = await fetch(`http://localhost:8080/api/friends/pending/list/${data[0].id}`, {
+		console.log("data should have status", data);
+		setUserID(data.id);
+		console.log("status", data.status);
+		const resp = await fetch(`http://localhost:8080/api/friends/pending/list/${data.id}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -110,9 +112,19 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 					console.log("id", data2[i].id);
 				}
 			}
-		}
-		console.log("pending", friendRequests);
-		console.log("pending2", pendingfriends);
+			// const response2 = await fetch(`http://localhost:8080/api/users/${content.user}`, {
+			// 	method: 'PATCH',
+			// 	headers: {
+			// 		'Content-Type': 'application/json',
+			// 		'Authorization': 'Bearer ' + token,
+			// 	},
+			// 	// body: JSON.stringify({status: 1}),
+			// });
+			// const dat = await response2.json()
+			// console.log("dat", dat);
+			console.log("pending", friendRequests);
+			console.log("pending2", pendingfriends);
+	}
 
 			useEffect(() =>{
 				const token: string|undefined = Cookies.get("token");
@@ -126,7 +138,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 				else
 				content = { username: 'default', user: 0};
 			// setContent(content);
-			dispatch(setUserStatus('Online'));
+			// dispatch(setUserStatus('Online'));
 			updateUser();
 
 		}, []);
@@ -147,13 +159,19 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 				  body: reader,
 				})
 				const data = await response.json()
-				Cookies.set('token', data.token);
+				// Cookies.set('token', data.token);
+				console.log("data", data);
+				if (response.ok)
+				{
+					toast.success('Avatar changed successfully!', {
+						position: toast.POSITION.TOP_CENTER
+					  })
+				}
+
 				//add a toast
 			  }
 			  updateUser();
 			};
-
-
 
 		const updateUsername = async (newName:string) => {
 			const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
@@ -165,9 +183,16 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			body: JSON.stringify({username: newName}),
 		});
 		const data = await response.json()
-		console.log(data);
-		// Cookies.set('token', data.token);
-		updateUser();
+		if (response.ok)
+		{
+			toast.success('Username changed successfully!', {
+				position: toast.POSITION.TOP_CENTER
+			  })
+			  updateUser();
+			  dispatch(setUserName(newName));
+		}
+		console.log(username);
+		Cookies.set('token', data.token);
 		// setusername
 		//setcookies to change the decode token
 	}
@@ -206,7 +231,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			<NotificationIcon
 				count={count}
 				message={"Friend Requests"}
-				senderName={senderName[request]}
+				senderName={senderName}
 				senderID={senderID[request]}
 				pendingfriends={pendingfriends}
 			/>
@@ -232,9 +257,9 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 
           <ModalFooter>
             <Button onClick={() => updateUsername(newName)} colorScheme='blue' mr={3}>
-              Save
+              Modify
             </Button>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose}>Save & Close</Button>
           </ModalFooter>
 		</ModalContent>
 		</Modal>
@@ -259,10 +284,9 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 
 
 		  <ModalFooter>
-            <Button onClick={handleAvatarChange} colorScheme='blue' mr={3}>
-              Save
+            <Button /*onClick={handleAvatarChange} */ onClick={onClose1} colorScheme='blue' mr={3}>
+			  Save & Close
             </Button>
-            <Button onClick={onClose1}>Cancel</Button>
           </ModalFooter>
 		</ModalContent>
       </Modal>
@@ -292,7 +316,6 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
     </>
 )
 }
-
 
 
 export default UserInformation

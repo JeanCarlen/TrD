@@ -24,6 +24,7 @@ import {
     IconButton,
 } from '@chakra-ui/react';
 import '../pages/Home.css';
+import ShowStatus from './Status';
 
 export interface FriendData{
 	requester: string;
@@ -34,6 +35,7 @@ export interface FriendData{
 const FriendList: React.FC<{}> = () => {
 	const token = Cookies.get('token');
 	const [isSender, setIsSender] = useState<boolean | null>(null);
+	const [status, setStatus] = useState<string>('');
 	let content: {username: string, user: number, avatar: string};
     if (token != undefined)
       content = decodeToken(token);
@@ -54,6 +56,7 @@ const FriendList: React.FC<{}> = () => {
 			{
 				console.log("friendlist", data);
 				setFriends(data);
+				setStatus('online');
 				if (data[0] != undefined)
 					setIsSender(content.username === data[0].requester_user.username);
 			}
@@ -85,12 +88,14 @@ const FriendList: React.FC<{}> = () => {
               {friend.status === 'online' ? (
 				<div className='icon-container'>
 				<div className='status-circle-online'>
+					<ShowStatus/>
 				</div>
 				</div>
                 // <CheckCircleIcon boxSize={6} color="green.500" />
               ) : (
 				<div className='icon-container'>
 					<div className='status-circle-offline'>
+					<ShowStatus/>
 					</div>
 					</div>
                 // <Icon boxSize={6} color='red.500'/>
