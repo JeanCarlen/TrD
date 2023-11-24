@@ -358,11 +358,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             if (chats.password != message.password) {
                 throw new Error(`Wrong password.`);
             }
-			const users = await this.ChatsService.findChatUsers(chats.id, -1);
-			const blocked = await this.UsersService.blockedUsersList(message.client)
-			console.log('users: ', users, 'blocked: ', blocked);
-			const intersection = users.filter(element => blocked.includes(element));
-			console.log('BLOCKED: ', intersection);
+			
             client.join(message.roomName);
 			const list = await this.UserchatsService.findByChatId(chats.id);
 			list.map((userchat) => {
@@ -377,6 +373,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
             console.error('Error joining room:', error.message);
             if (error.message !== 'Already in room') {
 				this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
+				this.server.to(client.id).emit('refresh-id');
 			}
         }
     }
@@ -408,6 +405,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 
     // Define the onCreateSomething method to handle creating something
     @SubscribeMessage('create-something')
+	@Inject('UsersService')
     async onCreateSomething(client: Socket, data: {room: string, user_id: number, text: string, sender_Name: string}) {
         // console.log('Create something:', data);
         const chats = await this.ChatsService.findName(data.room);
@@ -415,9 +413,22 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		{
 			if (await this.ChatsService.isUserMuted(chats.id, data.user_id) === false)
 			{
+				const users = await this.ChatsService.findChatUsers(chats.id, -1);
+				const blocked = await this.UsersService.blockAnyWayList(data.user_id);
+				users.forEach((user)=>{
+					blocked.forEach((blocked_user)=>{
+						if (user.id == blocked_user.id){
+							console.log('found: ', blocked_user);
+							(this.UserList.find((one)=>one.user_id == user.id))?.socket.join(`banRoom-${data.user_id}`);
+						}
+				});
+			})
 				this.MessageService.create({chat_id: chats.id, user_id: data.user_id, text: data.text, user_name: data.sender_Name});
-				this.server.to(data.room).emit('srv-message', data);
-				console.log('sent this: ', data);
+				this.server.to(data.room).except(`banRoom-${data.user_id}`).emit('srv-message', data);
+				const sockets = await this.server.in(`banRoom-${data.user_id}`).fetchSockets();
+				sockets.forEach(s => {
+					s.leave(`banRoom-${data.user_id}`);
+				});
 			}
 			else
 			{

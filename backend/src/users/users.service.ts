@@ -389,6 +389,24 @@ export class UsersService {
 	return ret;
   }
 
+  public async blockAnyWayList(user_id: number) {
+	const blocked: BlockedUsers[] = await this.blockedusersService.findAllWhereBlock(user_id);
+	const ret: UsersResponse[] = [];
+	for (const block of blocked) {
+		if (block.blockinguser_id == user_id) {
+			const user: UsersResponse = await this.findOne(block.blockeduser_id);
+			ret.push(user);
+		}
+		if (block.blockeduser_id == user_id){
+			const user: UsersResponse = await this.findOne(block.blockinguser_id);
+			ret.push(user);
+		}
+	}
+	return ret;
+  }
+
+
+
   public async updateUserAchievment(user_id: number, achievment_id: number, value: number) {
 	const userachievment: UserAchievments = await this.userachievmentsService.findOneByUserAndAchievment(user_id, achievment_id);
 	if (!userachievment) {
