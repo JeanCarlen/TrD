@@ -111,7 +111,21 @@ export class ChatsService {
 			description: `Unknown chat.`,
 		});
 	}
-	return await bcrypt.compare(password, chat.password);
+	if (chat.password !== null && password !== null)
+	{
+		console.log('returned here');
+		return await bcrypt.compare(password, chat.password);
+	}
+	else if (chat.password === null)
+	{
+		console.log('returned here 2');
+		return (true);
+	}
+	else
+	{
+		console.log('returned here 3');
+		return (false);
+	}
   }
 
   public async isUserOwner(chat_id: number, user_id: number): Promise<boolean> {

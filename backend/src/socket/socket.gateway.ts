@@ -355,10 +355,9 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			{
 				throw new Error(`You are banned from ${message.roomName}.`);
 			}
-            if (chats.password != message.password) {
+            if (await this.ChatsService.isPasswordValid(chats.id, message.password) == false) { // check if password matches
                 throw new Error(`Wrong password.`);
             }
-			
             client.join(message.roomName);
 			const list = await this.UserchatsService.findByChatId(chats.id);
 			list.map((userchat) => {
