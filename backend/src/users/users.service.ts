@@ -150,7 +150,7 @@ export class UsersService {
     user.username = createUserDto.username;
     user.avatar = process.env.HOST + 'images/default.png';
     user.twofaenabled = false;
-	user.status = 0;
+	  user.status = 0;
 
     // check if username is already taken
     const found = await this.findByUsername(user.username);

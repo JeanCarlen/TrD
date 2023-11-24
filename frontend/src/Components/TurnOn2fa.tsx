@@ -3,6 +3,7 @@ import Cookies from 'js-cookie'
 import decodeToken from '../helpers/helpers';
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
+import { Button, ButtonGroup } from '@chakra-ui/react'
 
 const TurnOn2fa: React.FC<{}> = () => {
 	const [active, setActive] = useState(false)
@@ -77,13 +78,13 @@ const TurnOn2fa: React.FC<{}> = () => {
 				<img src={qrCode} alt="MFA Google Authenticator Configuration QR CODE" />
 				<div>
 					<input onChange={updateCode} type="text" value={code}></input>
-					<button onClick={turnOn}>Activer</button>
+					<Button colorScheme='pink' onClick={turnOn}>Activer</Button>
 				</div>
-					<button onClick={cancel}>Annuler</button>
+					<Button colorScheme='pink' onClick={cancel}>Annuler</Button>
 			</div>
 		:
 			<div>
-				<button onClick={activate}>Turn On 2FA</button>
+				<Button colorScheme="pink" onClick={activate}>Turn On 2FA</Button>
 			</div>
 		}
 		<ToastContainer />

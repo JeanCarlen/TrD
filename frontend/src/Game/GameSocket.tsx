@@ -142,7 +142,6 @@ let data = useRef<GameData>({
 	legacy: 1,
 });
 
-<!-- const socket = useContext(WebsocketContext); -->
 const userStatus = useSelector((state: any) => state.userStatus);
 // const socket = useContext(WebsocketContext);
 const socket = globalSocket;

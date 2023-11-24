@@ -21,13 +21,16 @@ import MFASetup from './pages/mfasetup';
 import Enter2Fa from './Components/Enter2Fa';
 import AchTest from './pages/AchievementTest';
 import { WebsocketContext } from './context/websocket.context';
-
+import { useSelector } from 'react-redux';
+import { setUserStatus } from './Redux-helpers/action';
+import { useDispatch } from 'react-redux';
 
 export let globalSocket: Socket;
 
 type Props = {}
 
 const PrivateRoutes = () => {
+	const dispatch = useDispatch();
 	const isRegistered = Cookies.get('registered');
 	globalSocket = null;
 	const token = Cookies.get('token');
@@ -53,6 +56,8 @@ const PrivateRoutes = () => {
 		globalSocket.connect();
 		globalSocket.emit('connect_id', tokenContent.user);
 		console.log('WebSocket initialised: ', globalSocket, 'token content', tokenContent.user);
+		dispatch(setUserStatus('Online'));
+		dispatch
 		// globalSocket.emit('userSend', tokenContent.user);
 		return <Outlet />
 	}

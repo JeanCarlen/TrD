@@ -6,4 +6,11 @@ export const setUserStatus = (status: string) => {
       payload: status,
     };
   };
+
+export const setUserName = (username: string) => {
+  return {
+    type: 'SET_USER_NAME',
+    payload: username,
+  };
+};
   
