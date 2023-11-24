@@ -34,6 +34,7 @@ export interface GameData
 	bonusActive: boolean,
 	gameType: number,
 	legacy: number,
+	spectator: number,
 }
 
 interface Players{
@@ -131,6 +132,7 @@ let data = useRef<GameData>({
 		speed_y: 1,
 		speed_x: 2,
 	},
+	spectator: 0,
 	started: false,
 	converted: false,
 	bonusconverted: false,
@@ -146,6 +148,7 @@ const userStatus = useSelector((state: any) => state.userStatus);
 // const socket = useContext(WebsocketContext);
 //const gsocket = globalSocket;
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
 useEffect(() => {
 	const canvas = canvasRef.current!;
     if (!canvas) {
@@ -240,6 +243,7 @@ useEffect(() => {
 			{
 				await postScore(dataBack.score1, dataBack.score2, 0, data.current.gameID);
 				gsocket.emit('ready', {roomName: data.current.NameOfRoom});
+				gsocket.emit('gameState', {data: data.current, roomName: data.current.NameOfRoom});
 			}
 
 	});
@@ -310,20 +314,23 @@ useEffect(() => {
 	});
 
 //new spectate emit
-	gsocket.on('spectate', (dataBack: {roomName: string, unsername: string}) => {
+	gsocket.on('spectate', (dataBack: {roomName: string}) => {
 		if(dataBack.roomName === data.current.NameOfRoom && data.current.player1.pNumber === 1)
 		{
-			console.log('spectator joined', dataBack.unsername);
-			gsocket.emit('gameState', {data, roomName: data.current.NameOfRoom});
+			console.log('spectator joined');
+			gsocket.emit('gameState', {data: data.current, roomName: data.current.NameOfRoom});
 		}
 	}
 	);
 
 	gsocket.on('gameState', (dataBack: {data: GameData, roomName: string}) => {
-		if (dataBack.roomName === data.current.NameOfRoom && data.current.player1.pNumber !== 1)
+		console.log('gameState recieved');
+		if (data.current.spectator === 1)
 		{
 			data.current = dataBack.data;
-			console.log('gameState recieved');
+			data.current.started = true;
+			data.current.spectator = 1;
+			console.log('gameState updated ', data.current);
 		}
 	}
 	);
@@ -366,42 +373,45 @@ useEffect(() => {
 
 	gsocket.on('forfeit', async (dataBack: {player: number, max: number, gameID: number}) => {
 		console.log('user ', dataBack.player, 'forfeited');
-		if (dataBack.player !== data.current.player1.pNumber)
+		if(data.current.spectator === 0)
 		{
-			if (dataBack.gameID != 0)
-				data.current.gameID = dataBack.gameID;
-			if (data.current.player1.pNumber === 1)
-				data.current.score1 = dataBack.max;
-			else if (data.current.player1.pNumber === 2)
-				data.current.score2 = dataBack.max;
+			if (dataBack.player !== data.current.player1.pNumber)
+			{
+				if (dataBack.gameID != 0)
+					data.current.gameID = dataBack.gameID;
+				if (data.current.player1.pNumber === 1)
+					data.current.score1 = dataBack.max;
+				else if (data.current.player1.pNumber === 2)
+					data.current.score2 = dataBack.max;
 
-			data.current.paused = 5;
-			data.current.started = false;
-			data.current.converted = false;
-			data.current.bonusActive = false;
-			setCanvas(false);
-			await postScore(data.current.score1, data.current.score2, 1, data.current.gameID);
-			await delay(6000);
-			try{
-				clearInterval(intervalId)
-				bodyNavigate('/Home');
+				data.current.paused = 5;
+				data.current.started = false;
+				data.current.converted = false;
+				data.current.bonusActive = false;
+				setCanvas(false);
+				await postScore(data.current.score1, data.current.score2, 1, data.current.gameID);
+				await delay(6000);
+				try{
+					clearInterval(intervalId)
+					bodyNavigate('/Home');
+				}
+				catch (e) {
+					console.log('error sending home', e);
+				}
 			}
-			catch (e) {
-				console.log('error sending home', e);
-			}
-		}
-		else
-		{
-			data.current.started = false;
-			data.current.converted = false;
-			data.current.bonusActive = false;
-			setCanvas(false);
-			try{
-				clearInterval(intervalId)
-				bodyNavigate('/Home');
-			}
-			catch (e) {
-				console.log('error sending home', e);
+			else
+			{
+				data.current.started = false;
+				data.current.converted = false;
+				data.current.bonusActive = false;
+				setCanvas(false);
+				try{
+					clearInterval(intervalId)
+					bodyNavigate('/Home');
+				}
+				catch (e) {
+					console.log('error sending home', e);
+				}
 			}
 		}
 	});
@@ -448,6 +458,8 @@ useEffect(() => {
 		gsocket.off('bonus-player');
 		gsocket.off('ready');
 		gsocket.off('leave-game');
+		gsocket.off('spectate');
+		gsocket.off('gameState');
 	};
 	}, [gsocket]);
 
@@ -503,6 +515,8 @@ useEffect(() => {
 	  }, [isVisible]);
 	  
 const updateGame = async() => {
+	try
+	{
 	if (!data.current.started)
 	{
 		console.log('game not started');
@@ -512,6 +526,7 @@ const updateGame = async() => {
 	if (!canvas)
 	{
 		console.log("canvas is null");
+		return;
 	}
 	let ctx = null;
 	if(canvas)
@@ -623,10 +638,12 @@ const updateGame = async() => {
 	ctx.roundRect(data.current.player2.pos_x, data.current.player2.pos_y, paddleSize, 10, 5);
 	ctx.roundRect(data.current.player1.pos_x, canvas.height - 10, paddleSize, 10, 5);
 	ctx.fill();
-};
+		};
 	}
-
-
+	catch (error) {
+		console.log('error in updateGame: ', error);
+		}
+	};
 	const SendInfo = (roomToSend: string) => 
 	{
 		console.log('game-start-> message: ', {roomName: roomToSend, myId: content?.user, myName: content?.username, myAvatar: content?.avatar, playerNumber: data.current.player1.pNumber});
@@ -637,7 +654,8 @@ const updateGame = async() => {
 	};
 
 const Paddles = (roomName: string, newDir: number) => {
-	gsocket.emit('paddle-movement', {roomName:roomName, playerNumber: data.current.player1.pNumber, pos_x: data.current.player1.pos_x, newDir: newDir, speed: data.current.player1.speed});}
+	gsocket.emit('paddle-movement', {roomName:roomName, playerNumber: data.current.player1.pNumber, pos_x: data.current.player1.pos_x, newDir: newDir, speed: data.current.player1.speed});
+}
 
 const Bounce = (newBallx: number, newBally: number, newSpeedx: number, newSpeedy: number) => {
 	gsocket.emit('bounce', {ballSpeedX: newSpeedx, ballSpeedY: newSpeedy, roomName: data.current.NameOfRoom});
@@ -705,7 +723,12 @@ const postScore = async(score1: number, score2: number, over: number, gameID: nu
 
 const spectate = () => {
 	const roomNamePrompt = prompt("Enter the name of the room you want to spectate:");
-	socket.emit('spectate', {roomName: roomNamePrompt, client: content?.username});
+	gsocket.emit('spectate', {roomName: roomNamePrompt}); //add spectator name
+	data.current.spectator = 1;
+}
+
+const giveRoom = () => {
+	gsocket.emit('give-roomName', {/*socket of the friend*/});
 }
 
 const WaitingRoom = () => {
@@ -722,11 +745,11 @@ const WaitingRoom_bonus = () => {
 	const handleKeyPress = (e: React.KeyboardEvent<Element>) => {
 	switch (e.key) {
 		case 'ArrowLeft':
-		if(data.current.player1.pos_x >= 25)
+		if(data.current.player1.pos_x >= 25 && data.current.spectator === 0)
 			Paddles(data.current.NameOfRoom, -1);
 		break;
 		case 'ArrowRight':
-		if(data.current.player1.pos_x <= 425)
+		if(data.current.player1.pos_x <= 425 && data.current.spectator === 0)
 			Paddles(data.current.NameOfRoom, 1);
 		break;
 		default:

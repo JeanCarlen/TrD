@@ -19,7 +19,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     // Define a logger and a map of rooms
     private readonly logger = new Logger(SocketGateway.name);
     // private readonly rooms = new Map<string, Set<string>>();
-	private readonly maxScore: number = 3;
+	private readonly maxScore: number = 5;
     
     // Inject the ChatsService into the constructor
     constructor(private readonly ChatsService: ChatsService,
@@ -119,8 +119,16 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		return Promise.resolve();
     }
 
+	@SubscribeMessage('give-roomName')
+	async onGiveRoomName(client: Socket, data: {friend : Socket})
+	{
+		console.log("into give room name");
+		let curr = await this.stock.find((one) => (one?.player1.id === data.friend.id));
+		this.server.to(client.id).emit('roomName', curr?.roomName);
+	}
+
 	@SubscribeMessage('spectate')
-	async onSpectate(client: Socket, message: { roomName: string, username: string})
+	async onSpectate(client: Socket, message: { roomName: string})
 	{
 		console.log("into spectate");
 		client.join(message.roomName);
@@ -199,7 +207,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			}
 		} catch (error) {
 			console.log('Error joining wait list:', error.message);
-			this.IdWaitlist.map((client) => {console.log(client)});
+			this.IdWaitlist.map((client) => {console.log(client.user_id)});
 			this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
 		}
     }
