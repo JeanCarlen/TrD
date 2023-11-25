@@ -50,12 +50,16 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	}
 
     // Define the handleConnection method to log when a client connects
-    handleConnection(client: Socket, ...args: any[]) {
+	@Inject('UsersService')
+    async handleConnection(client: Socket, ...args: any[]) {
         this.logger.log(`Client connected: ${client.id}`);
 		//set user status as connected
+		let user_info = await this.UserList.find((one)=>{client.id == one.socket.id});
+		this.UsersService.updateStatus(user_info.user_id , 1);
     }
 
     // Define the handleDisconnect method to log when a client disconnects
+	@Inject('UsersService')
     handleDisconnect(client: Socket) {
         this.logger.log(`Client disconnected: ${client.id}`);
 		// get user id from UserList
@@ -75,6 +79,8 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		leaver = this.IdWaitlist_bonus.find((one) => (one.socket.id === client.id));
 		if (leaver !== undefined)
 			this.IdWaitlist_bonus.splice(this.IdWaitlist_bonus.indexOf(leaver), 1);
+		let toDelete = this.stock.find((one) => (one?.player1.id === client.id));
+		this.UsersService.updateStatus(List_leaver.user_id , 0);
 		//set user status as disconnected
     }
     
@@ -97,6 +103,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		// set the user as online
 	};
     // Define the onPongInitSetup method to handle joining a game
+	@Inject('UsersService')
     @SubscribeMessage('join-game')
     async onPongInitSetup(client: Socket, message: { roomName: string }) {
         console.log("into pong init setup, message is ", message);
@@ -113,8 +120,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         console.log("size is balec", room?.size);
         if (room != undefined && curr != undefined && curr.player1 != undefined && curr.player2 != undefined) {
             console.log("into if, roomName is ", message.roomName);
+
 			await this.server.to(curr.player2.id).emit('pong-init-setup', 2);
             this.server.to(message.roomName).emit('game-start', message.roomName);
+
         }
 		return Promise.resolve();
     }
