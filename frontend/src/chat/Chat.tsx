@@ -301,7 +301,7 @@ const Chat: React.FC = () => {
 	<div className='HomeText'>
 		Chat
 	</div>
-	<div className='grid'>
+	<div className='grid_chat'>
 		<div className="leftColumn">
 		<button className="sendButton" onClick={handleCreateRoom}>Create New Room</button>
 		<button className="sendButton" onClick={() => handleJoinRoomClick(data)}>Join Room</button>

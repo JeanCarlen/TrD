@@ -296,19 +296,19 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 
 	return (
 		<ChakraProvider>
-		<div>
-
-			{fetched ? <div syle={{overflowY: 'scroll'}}>
+		<div className="idUser">
+			{fetched ? <div>
 			{chatMembers.map((user: User) => (
 			<li key={user.id} className="friendlist" >
 				<WrapItem>
 					<Avatar size='md' src={user.avatar} name={user.username}/>
 				</WrapItem>
-				<span className="messages">
+				<div className="messages">
 					{user.username}
 					{user.isAdmin === true ? <FaIcons.FaCrown style={{marginLeft: '5px'}}/> : <></>}
 					{user.isMuted === true ? <FaIcons.FaVolumeMute style={{marginLeft: '5px'}}/> : <></>}
-				</span>
+				</div>
+				<br/>
 				<Menu>
 				<MenuButton className='sendButton' as={Button} rightIcon={<ChevronDownIcon />}>
 					Actions
@@ -329,18 +329,19 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 				</MenuList>
 				</Menu>
 			</li>
-			))} </div> : <div className="history_1">Loading...</div>}
+			))}
+			
 			<>
 			{currentUser?.isOwner === true ?
 			<>
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => changePassword()}>Change Password</button>
-			<br/>
+			{/* <br/> */}
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => unbanUsers()}>Unban users </button>
-			<br/>
+			{/* <br/> */}
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => doDeleteChannel()}>Delete channel</button>
 			</> : <></>}
 			</>
-			<br/>
+			{/* <br/> */}
 		<button className="sendButton" onClick={() => leaveRoom(chatData, socket)}>leave channel</button>
 		<Modal isOpen={isOpen} onClose={onClose}>
 		<ModalOverlay />
@@ -364,6 +365,9 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		</ModalContent>
 		</Modal>
 		<ToastContainer/>
+			
+			
+			</div> : <div className="history_1">Loading...</div>}
 		</div>
 		</ChakraProvider>
 	)
