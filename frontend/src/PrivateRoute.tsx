@@ -20,7 +20,6 @@ import { useParams } from 'react-router-dom';
 import MFASetup from './pages/mfasetup';
 import Enter2Fa from './Components/Enter2Fa';
 import AchTest from './pages/AchievementTest';
-import { WebsocketContext } from './context/websocket.context';
 import { useSelector } from 'react-redux';
 import { setUserStatus } from './Redux-helpers/action';
 import { useDispatch } from 'react-redux';
@@ -51,10 +50,10 @@ const PrivateRoutes = () => {
 		return <Navigate to='/authenticate' replace />
 	else
 	{
-		dispatch(setUserStatus('Online'));
 		gsocket.connect();
 		gsocket.emit('connect_id', tokenContent.user);
 		console.log('WebSocket initialised: ', gsocket.id, 'token content', tokenContent.user);
+		dispatch(setUserStatus(1));
 		// globalSocket.emit('userSend', tokenContent.user);
 		return <Outlet />
 	}

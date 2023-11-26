@@ -21,8 +21,8 @@ const fs = require('fs');
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(Users)
-    private readonly usersRepository: Repository<Users>,
+  @InjectRepository(Users)
+  private readonly usersRepository: Repository<Users>,
 	@Inject(UserchatsService)
 	private readonly userchatsService: UserchatsService,
 	@Inject(FriendsService)
@@ -303,6 +303,19 @@ export class UsersService {
       cause: new Error(),
       description: 'Unable to update user.',
     });
+  }
+
+  public async updateStatus(user_id: number, newStatus){
+    let user = await this.usersRepository.findOne({where: {id: user_id}});
+    if (!user) {
+      throw new NotFoundException(['User not found.'], {
+        cause: new Error(),
+        description: 'User not found.'
+      })
+    }
+    user.status = newStatus;
+    await this.usersRepository.save(user);
+    console.log("user status updated", user.status);
   }
 
   public find42User(username: string) {

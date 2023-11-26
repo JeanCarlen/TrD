@@ -50,12 +50,15 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	}
 
     // Define the handleConnection method to log when a client connects
-    handleConnection(client: Socket, ...args: any[]) {
+	@Inject('UsersService')
+    async handleConnection(client: Socket, ...args: any[]) {
         this.logger.log(`Client connected: ${client.id}`);
-		//set user status as connected
+
+		// this.logger.log(`Socket connected: ${Socket.id}`);
     }
 
     // Define the handleDisconnect method to log when a client disconnects
+	@Inject('UsersService')
     handleDisconnect(client: Socket) {
         this.logger.log(`Client disconnected: ${client.id}`);
 		// get user id from UserList
@@ -66,23 +69,24 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			// remove user from UserList
 			this.logger.log(`removed user from userList ${List_leaver.user_id}`);
 			this.UserList.splice(this.UserList.indexOf(List_leaver, 1));
+			this.UsersService.updateStatus(List_leaver.user_id , 0);
 		}
-		
-
 		let leaver = this.IdWaitlist.find((one) => (one.socket.id === client.id));
 		if (leaver !== undefined)
 			this.IdWaitlist.splice(this.IdWaitlist.indexOf(leaver), 1);
 		leaver = this.IdWaitlist_bonus.find((one) => (one.socket.id === client.id));
 		if (leaver !== undefined)
 			this.IdWaitlist_bonus.splice(this.IdWaitlist_bonus.indexOf(leaver), 1);
+		let toDelete = this.stock.find((one) => (one?.player1.id === client.id));			
 		//set user status as disconnected
     }
     
-
+	@Inject('UsersService')
 	@SubscribeMessage('connect_id')
 	async onConnectId(client: Socket, user_id: number) {
 		// add user to User list if he doesn't exist
 		// replace the socket if the user exists
+		
 		let joiner = await this.UserList.find((one) => (one.user_id === user_id));
 		if (joiner !== undefined)
 		{
@@ -93,10 +97,16 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		{
 			this.UserList.push({user_id: user_id, socket: client});
 			this.logger.log(`added user to userList ${user_id}`);
+			// this.UsersService.updateStatus(joiner.user_id , 1);
 		}
+		let user_info = this.UserList.find((one) => (one.socket.id === client.id));
+		if (user_info !== undefined)
+			this.UsersService.updateStatus(user_info.user_id , 1);
+
 		// set the user as online
 	};
     // Define the onPongInitSetup method to handle joining a game
+	@Inject('UsersService')
     @SubscribeMessage('join-game')
     async onPongInitSetup(client: Socket, message: { roomName: string }) {
         console.log("into pong init setup, message is ", message);
@@ -113,8 +123,13 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         console.log("size is balec", room?.size);
         if (room != undefined && curr != undefined && curr.player1 != undefined && curr.player2 != undefined) {
             console.log("into if, roomName is ", message.roomName);
+
 			await this.server.to(curr.player2.id).emit('pong-init-setup', 2);
             this.server.to(message.roomName).emit('game-start', message.roomName);
+			let player_1 = this.UserList.find((one) => (one.socket.id === client.id));
+			let player_2 = this.UserList.find((one) => (one.socket.id === client.id));
+			this.UsersService.updateStatus(player_1.user_id, 2);
+			this.UsersService.updateStatus(player_2.user_id, 2);
         }
 		return Promise.resolve();
     }
@@ -237,10 +252,13 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     }
 
     // Define the onGameOver method to handle when a game is over
+	@Inject('UsersService')
     @SubscribeMessage('game-over')
     onGameOver(client: Socket, message: { roomName: string }) {
         console.log("into game over");
         this.server.to(message.roomName).emit('leave-game', message);
+	let user_info = this.UserList.find((one) => (one.socket.id === client.id));
+	this.UsersService.updateStatus(user_info.user_id , 1);
 //        this.handleDisconnect(client);
     }
 
@@ -403,11 +421,15 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		}
 	}
 
+	@Inject('UsersService')
 	@SubscribeMessage('user-left')
 	async onUserLeft(client: Socket, message:{roomName: string, playerNumber: number, gameID: number}): Promise<void> {
 		console.log("into user left", message.playerNumber);
 		this.server.to(message.roomName).emit('forfeit', {player: message.playerNumber, max: this.maxScore, gameID: message.gameID});
 		this.server.to(message.roomName).emit('leave-room', {roomName: message.roomName, id: client.id});
+		let user_info = this.UserList.find((one) => (one.socket.id === client.id));
+		if (user_info !== undefined)
+			this.UsersService.updateStatus(user_info.user_id , 1);
 	}
 
     // Define the onCreateSomething method to handle creating something

@@ -24,11 +24,11 @@ import {
     IconButton,
 } from '@chakra-ui/react';
 import '../pages/Home.css';
-import ShowStatus from './Status';
+import ShowStatus from './FriendStatus';
 
 export interface FriendData{
 	requester: string;
-	status: string;
+	status: number; 
 	id: number;
 }
 
@@ -36,12 +36,12 @@ const FriendList: React.FC<{}> = () => {
 	const token = Cookies.get('token');
 	const [isSender, setIsSender] = useState<boolean | null>(null);
 	const [status, setStatus] = useState<string>('');
+	const [friends, setFriends] = useState<FriendData[]>([]);
 	let content: {username: string, user: number, avatar: string};
     if (token != undefined)
       content = decodeToken(token);
     else
       content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
-	const [friends, setFriends] = useState<FriendData[]>([]);
 
 	const getFriends = async() => {
 		const response = await fetch(`http://localhost:8080/api/friends/active/list/${content.user}`,
@@ -56,7 +56,6 @@ const FriendList: React.FC<{}> = () => {
 			{
 				console.log("friendlist", data);
 				setFriends(data);
-				setStatus('online');
 				if (data[0] != undefined)
 					setIsSender(content.username === data[0].requester_user.username);
 			}
@@ -84,37 +83,16 @@ const FriendList: React.FC<{}> = () => {
 		<List className='friends-list'>
         {friends.map((friend) => (
           <ListItem key={friend.requester}>
-            <Flex alignItems="center">
-              {friend.status === 'online' ? (
-				<div className='icon-container'>
-				<div className='status-circle-online'>
-					<ShowStatus/>
-				</div>
-				</div>
-                // <CheckCircleIcon boxSize={6} color="green.500" />
-              ) : (
-				<div className='icon-container'>
-					<div className='status-circle-offline'>
-					<ShowStatus/>
-					</div>
-					</div>
-                // <Icon boxSize={6} color='red.500'/>
-              )}
-              	{isSender ? (
-					  <Wrap>
+            <Flex display="flex" alignItems="center">
+              		{isSender ? (
+					<Wrap>
 					<WrapItem className='profile-border'>
 					<VStack spacing={4} alignItems="center">
-						 <Link to={`/profiles/${friend.requested_user.username}`}>
-					<Avatar
-					size="xs"
-					src={friend.requested_user.avatar}
-					/>
-					<div className='icon-container'>
-					<div className='status-circle'>
-					</div>
-					</div>
-					<Text marginLeft="2">{friend.requested_user.username}</Text>
-					</Link>
+						<Link to={`/profiles/${friend.requested_user.username}`}>
+						<Avatar size="xs" src={friend.requested_user.avatar}/>
+						<ShowStatus status={friend.requested_user.curr_status}/>
+						<Text display="flex">{friend.requested_user.username}</Text>
+						</Link>
 					</VStack>
 					</WrapItem>
 					</Wrap>
@@ -122,17 +100,11 @@ const FriendList: React.FC<{}> = () => {
 					<Wrap>
 					<WrapItem className='profile-border'>
 					<VStack spacing={4} alignItems="center">
-						 <Link to={`/profiles/${friend.requester_user.username}`}>
-					<Avatar
-					size="xs"
-					src={friend.requester_user.avatar}
-					/>
-					<div className='icon-container'>
-					<div className='status-circle'>
-					</div>
-					</div>
-					<Text marginLeft="2">{friend.requester_user.username}</Text>
-				</Link>
+						<Link to={`/profiles/${friend.requester_user.username}`}>
+						<Avatar size="xs" src={friend.requester_user.avatar}/>
+						<ShowStatus status={friend.requester_user.curr_status}/>
+						<Text display="flex">{friend.requester_user.username}</Text>
+						</Link>
 					</VStack>
 					</WrapItem>
 					</Wrap>

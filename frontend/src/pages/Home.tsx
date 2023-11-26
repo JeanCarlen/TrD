@@ -26,12 +26,13 @@ import UserInformation from '../Components/UserInformation'
 import LayoutGamestats from './Layout-gamestats'
 import {ToastContainer, toast} from 'react-toastify'
 import {gameData, User} from './Stats'
-import ShowStatus from '../Components/Status'
+import ShowStatus from '../Components/FriendStatus'
 import { useSelector } from 'react-redux';
 import { setUserName, setUserStatus } from '../Redux-helpers/action';
 import { useDispatch } from 'react-redux';
 import { connect } from 'react-redux';
 import GetUserName from '../Components/testusername'
+import MyStatus from '../Components/Status'
 
 type Props = {
     username: string;
@@ -95,7 +96,8 @@ const Home = (props: Props) => {
     if (response.ok)
     {
       console.log("does it fetch", data);
-      dispatch(setUserName(data.username));
+      console.log("current status", data.status);
+      // dispatch(setUserStatus(data.status));
       content.username = data.username;
       setUsername(data.username);
       console.log(content.username);
@@ -146,7 +148,7 @@ const Home = (props: Props) => {
             />
               <div className='icon-container'>
               <div className='status-circle'>
-                <ShowStatus />
+                <MyStatus />
             </div>
           </div>
             </VStack>

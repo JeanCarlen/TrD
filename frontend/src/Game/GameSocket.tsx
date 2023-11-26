@@ -178,11 +178,10 @@ useEffect(() => {
 		data.current.player1.id = content?.user;
 		data.current.player1.name = content?.username;
 		data.current.player1.avatar = content?.avatar;
-		// gsocket.connect();
 	}
 	else
 	{
-	content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
+		content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
 	}
 	intervalBonus = window.setInterval(() => {
 	let rand = randomNumberInRange(1, 100);
