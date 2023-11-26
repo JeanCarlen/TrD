@@ -157,7 +157,7 @@ export class ChatsService {
 
 	let users: UsersResponse[] =  await this.usersRepository.find({
 		where: { id: In(user_ids) },
-		select: ['id', 'username', 'login42', 'avatar']
+		select: ['id', 'username', 'login42', 'avatar', 'status']
 	});
 	await Promise.all(users.map(async (user: UsersResponse) => {
 		user.isAdmin = await this.isUserAdmin(id, user.id);

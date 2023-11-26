@@ -315,6 +315,7 @@ export class UsersService {
     }
     user.status = newStatus;
     await this.usersRepository.save(user);
+    console.log("user status updated", user.status);
   }
 
   public find42User(username: string) {

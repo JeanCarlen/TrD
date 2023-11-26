@@ -24,6 +24,7 @@ import {ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
 import './ChatInterface.css'
 import * as FaIcons from 'react-icons/fa'
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, useDisclosure } from "@chakra-ui/react";
+import ShowStatus from '../Components/FriendStatus';
 
 
 export interface User{
@@ -34,6 +35,7 @@ export interface User{
 	isAdmin?: boolean,
 	isMuted?: boolean,
 	isOwner?: boolean,
+	status: number
 }
 
 interface IdChatProps{
@@ -303,6 +305,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 			<li key={user.id} className="friendlist" >
 				<WrapItem>
 					<Avatar size='md' src={user.avatar} name={user.username}/>
+					<ShowStatus status={user.status}/>
 				</WrapItem>
 				<span className="messages">
 					{user.username}

@@ -50,10 +50,10 @@ const PrivateRoutes = () => {
 		return <Navigate to='/authenticate' replace />
 	else
 	{
-		dispatch(setUserStatus('Online'));
 		gsocket.connect();
 		gsocket.emit('connect_id', tokenContent.user);
 		console.log('WebSocket initialised: ', gsocket.id, 'token content', tokenContent.user);
+		dispatch(setUserStatus(1));
 		// globalSocket.emit('userSend', tokenContent.user);
 		return <Outlet />
 	}

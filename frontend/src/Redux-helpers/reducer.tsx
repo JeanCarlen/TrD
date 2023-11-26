@@ -14,7 +14,7 @@ else
 content = { username: 'default', user: 0};
 
 const initialState = {
-    userStatus: 'Offline',
+    userStatus: 0,
     username: content.username, 
   };
 

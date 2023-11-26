@@ -20,32 +20,20 @@
 
 .icon-container {
     width: 40px;
-    height: 40px;
+    /* height: 40px; */
     position: relative;
     bottom: 20px;
   }
   
-  .status-circle-online {
+  /* .status-circle {
     width: 15px;
     height: 15px;
     border-radius: 50%;
-    background-color: #228B22;
     border: 2px solid white;
     position: absolute;
     right: 0;
     bottom: 0;
-  }
-
-  .status-circle-offline {
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background-color: #8a0000;
-    border: 2px solid white;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-  }
+  } */
 
 
 .displayGrid{
@@ -176,6 +164,7 @@ a { color: rgb(23, 22, 22); }
     align-content: center;
     /* padding-top: 5px; */
     padding-top: 18px;
+    
     margin-right: 5px;
     margin-left: 50px;
 }

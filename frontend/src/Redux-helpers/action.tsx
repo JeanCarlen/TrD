@@ -1,6 +1,6 @@
 import React from "react";
 
-export const setUserStatus = (status: string) => {
+export const setUserStatus = (status: number) => {
     return {
       type: 'SET_USER_STATUS',
       payload: status,

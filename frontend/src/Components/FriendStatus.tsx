@@ -6,11 +6,10 @@ interface statusProps {
   status: number;
 }
 
-const MyStatus: React.FC<{}> = () => {
-  const userStatus = useSelector((state: string) => state.userStatus);
+const ShowStatus: React.FC<statusProps> = ({status}) => {
   let color;
 
-  switch (userStatus) {
+  switch (status) {
     case 2:
       color = 'orange';
       break;
@@ -22,13 +21,15 @@ const MyStatus: React.FC<{}> = () => {
       break;
     default:
       color = 'black';
+    console.log("friends' status", status);
   }
+
 
   return (
     <div
       style={{
-        width: '20px',
-        height: '20px',
+        width: '10px',
+        height: '10px',
         borderRadius: '50%',
         backgroundColor: color,
       }}
@@ -36,4 +37,4 @@ const MyStatus: React.FC<{}> = () => {
   );
 };
 
-export default MyStatus;
+export default ShowStatus;
