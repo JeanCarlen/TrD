@@ -120,10 +120,14 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@SubscribeMessage('give-roomName')
 	async onGiveRoomName(client: Socket, data: {user_id: number})
 	{
+		console.log('UserList:', this.UserList);
+		console.log('Stock:', this.stock);
 		try{
 			console.log("into give room name");
-			let friend = await this.UserList.find((one) => (one.user_id === data.user_id));
-			let curr = await this.stock.find((one) => (one?.player1.id === friend?.socket.id));
+			let friend = this.UserList.find((one) => (one.user_id === data.user_id));
+			console.log("friend is ", friend);
+			let curr = this.stock.find((one) => (one?.player1.id === friend?.socket.id));
+			console.log("player1 id is ", curr?.player1.id);
 			console.log("curr is ", curr);
 			this.server.to(client.id).emit('roomName', curr?.roomName);
 		}
