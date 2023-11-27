@@ -157,10 +157,6 @@ useEffect(() => {
     }
   }, [canvas]);
 
-  if (!shouldRun) {
-    return null;
-  }
-
 useEffect(() => {
 	// once at the start of the component
 	console.log('in the use effect');
@@ -723,40 +719,56 @@ const postScore = async(score1: number, score2: number, over: number, gameID: nu
 
 const spectate = () => {
 	const roomNamePrompt = prompt("Enter the name of the room you want to spectate:");
-	gsocket.emit('spectate', {roomName: roomNamePrompt}); //add spectator name
+	gsocket.emit('spectate', {roomName: roomNamePrompt}); //add spectator user_id
 	data.current.spectator = 1;
 }
 
 const giveRoom = () => {
-	gsocket.emit('give-roomName', {/*socket of the friend*/});
-}
+	if (token != undefined)
+	{
+		content = decodeToken(token);
+		console.log(content);
+		gsocket.emit('give-roomName', {user_id : content.user});
+		console.log(content.user);
+	}
+};
 
-const WaitingRoom = () => {
-	gsocket.emit('waitList', {user_id: content.user ,bonus : 0});
-	data.current.gameType = 0;
+const WaitingRoom = () => { 
+	if (token != undefined)
+	{
+		content = decodeToken(token);
+		console.log(content);
+		gsocket.emit('waitList', {user_id: content.user ,bonus : 0});
+		data.current.gameType = 0;
+	}
 };
 
 const WaitingRoom_bonus = () => {
-	gsocket.emit('waitList', {user_id: content.user, bonus : 1});
-	data.current.gameType = 1;
+	if (token != undefined)
+	{
+		content = decodeToken(token);
+		console.log(content);
+		gsocket.emit('waitList', {user_id: content.user, bonus : 1});
+		data.current.gameType = 1;
+	}
 };
 
 
 	const handleKeyPress = (e: React.KeyboardEvent<Element>) => {
-	switch (e.key) {
-		case 'ArrowLeft':
-		if(data.current.player1.pos_x >= 25 && data.current.spectator === 0)
-			Paddles(data.current.NameOfRoom, -1);
-		break;
-		case 'ArrowRight':
-		if(data.current.player1.pos_x <= 425 && data.current.spectator === 0)
-			Paddles(data.current.NameOfRoom, 1);
-		break;
-		default:
-		break;
-	}
+	switch (e.key)
+		{
+			case 'ArrowLeft':
+			if(data.current.player1.pos_x >= 25 && data.current.spectator === 0)
+				Paddles(data.current.NameOfRoom, -1);
+			break;
+			case 'ArrowRight':
+			if(data.current.player1.pos_x <= 425 && data.current.spectator === 0)
+				Paddles(data.current.NameOfRoom, 1);
+			break;
+			default:
+			break;
+		}
 	};
-
 	return (
 	<div>
 	<div className="game">
@@ -777,6 +789,7 @@ const WaitingRoom_bonus = () => {
 	<button onClick={()=>{data.current.legacy = 1}}>COWMOOO</button>
 	<button onClick={()=>{data.current.legacy = 2}}>SUPERVAN!</button>
 	<button onClick={spectate}>spectate</button>
+	<button onClick={giveRoom}>giveRoom</button>
 	<ToastContainer/>
 	</div>
 	);

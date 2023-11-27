@@ -118,11 +118,18 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     }
 
 	@SubscribeMessage('give-roomName')
-	async onGiveRoomName(client: Socket, data: {friend : Socket})
+	async onGiveRoomName(client: Socket, data: {user_id: number})
 	{
-		console.log("into give room name");
-		let curr = await this.stock.find((one) => (one?.player1.id === data.friend.id));
-		this.server.to(client.id).emit('roomName', curr?.roomName);
+		try{
+			console.log("into give room name");
+			let friend = await this.UserList.find((one) => (one.user_id === data.user_id));
+			let curr = await this.stock.find((one) => (one?.player1.id === friend?.socket.id));
+			console.log("curr is ", curr);
+			this.server.to(client.id).emit('roomName', curr?.roomName);
+		}
+		catch (error) {
+			console.error('Error giving room name:', error.message);
+		}
 	}
 
 	@SubscribeMessage('spectate')
