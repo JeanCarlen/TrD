@@ -294,6 +294,11 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		}
 	}
 
+	const inviteToPong = async (user: User) => {
+		let content = await decodeToken(token);
+		socket.emit('invite', {inviter: content, invited: user});
+	};
+
 	return (
 		<ChakraProvider>
 		<div className="idUser">
@@ -316,7 +321,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 				<MenuList>
 					<MenuItem className='Addfriend' onClick={() => handleAddUser(user)}>Add as a friend</MenuItem>
 					<MenuItem className='Addfriend' onClick={() => handleBlockUser(user, token)}> Block User </MenuItem>
-					<MenuItem className='Addfriend' onClick={() => invitePong(user)}> Invite for a pong </MenuItem>
+					<MenuItem className='Addfriend' onClick={() => inviteToPong(user)}> Invite for a pong </MenuItem>
 					{currentUser?.isAdmin === true ? 
 					<>
 					<MenuItem className='Addfriend' onClick={() => setNewMode(user, 'admin')}> {user.isAdmin === true ? 'Remove user as Admin' : 'Set user as Admin'} </MenuItem>

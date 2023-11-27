@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, {useEffect, useContext } from 'react';
 import { AuthContext } from './AuthContext';
 import Sidebar from './Components/Sidebar';
 import Users from './pages/Users';
@@ -58,8 +58,10 @@ const PrivateRoutes = () => {
 		return <Outlet />
 	}
 }
-const Routes = (props: Props) => {
+
+const Routes: React.FC = (props: Props) => {
 	const navigate = useNavigate();
+
 	return (
 		<div className="loginTest">
 			<Router>

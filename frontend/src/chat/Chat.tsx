@@ -16,6 +16,7 @@ import * as FaIcons from 'react-icons/fa'
 import { setUserStatus } from "../Redux-helpers/action";
 import { useSelector } from 'react-redux';
 import { gsocket } from "../context/websocket.context";
+import { User } from "../pages/Stats";
 
 
 export type chatData = {
@@ -51,6 +52,22 @@ const Chat: React.FC = () => {
 	const userStatus = useSelector((state: any) => state.userStatus);
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+	const ToastMessage = (data :{user: User}) => (
+		<div>
+			INVITED by {data.user?.username}
+			<button className="sendButton" onClick={acceptMatch}>OK</button>
+			<button className="sendButton" onClick={refuseMatch}>NO</button>
+		</div>
+	)
+
+	function acceptMatch() {
+		console.log('match accepted');
+	};
+
+	function refuseMatch() {
+		console.log('you said no');
+	}
 
 	const getChats = async() => {
 		setFetched(false);
@@ -163,6 +180,11 @@ const Chat: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
+		gsocket.on('invite', (dataBack:{user: User}) => {
+			console.log('INVITED');
+			toast.info(<ToastMessage user={dataBack.user}/>,  { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
+		})
+
 		gsocket.on('room-join-error', (message:{error: string, reset: boolean}) => {
 			console.log("error in joining room: ", message.error);
 			toast.error(message.error, {
@@ -208,6 +230,7 @@ const Chat: React.FC = () => {
 			gsocket.off('room-join-error');
 			gsocket.off("smb-movede");
 			gsocket.off('kick');
+			gsocket.off('invite');
 		}
 	}, [gsocket, content]);
 
