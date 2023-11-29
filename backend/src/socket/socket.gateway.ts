@@ -432,6 +432,20 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			this.UsersService.updateStatus(user_info.user_id , 1);
 	}
 
+	@SubscribeMessage('invite')
+	async onInvite(client: Socket, message: {inviter: {username: string, user: number, avatar: string}, invited:{username: string, id: number}})
+	{
+		
+		let target = await this.UserList.find((one)=> (one.user_id == message.invited.id));
+		if (target == undefined)
+		{
+			console.log('not found');
+			return ;
+		}
+		this.server.to(target.socket.id).emit('invite', {inviter: message.inviter});
+		this.logger.log('INVITED', message.invited.username);
+	}
+
     // Define the onCreateSomething method to handle creating something
     @SubscribeMessage('create-something')
 	@Inject('UsersService')
