@@ -294,6 +294,12 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		}
 	}
 
+	async function SpectateGame (user: User) {
+		socket.emit("give-roomName", {user_id: user.id});
+		console.log('spectate game :', user.id);
+		navigate('/game');
+	}
+
 	return (
 		<ChakraProvider>
 		<div>
@@ -317,6 +323,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 					<MenuItem className='Addfriend' onClick={() => handleAddUser(user)}>Add as a friend</MenuItem>
 					<MenuItem className='Addfriend' onClick={() => handleBlockUser(user, token)}> Block User </MenuItem>
 					<MenuItem className='Addfriend' onClick={() => invitePong(user)}> Invite for a pong </MenuItem>
+					<MenuItem className='Addfriend' onClick={() => SpectateGame(user)}> Spectate Game </MenuItem>
 					{currentUser?.isAdmin === true ? 
 					<>
 					<MenuItem className='Addfriend' onClick={() => setNewMode(user, 'admin')}> {user.isAdmin === true ? 'Remove user as Admin' : 'Set user as Admin'} </MenuItem>

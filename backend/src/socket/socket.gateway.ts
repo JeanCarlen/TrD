@@ -120,16 +120,17 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@SubscribeMessage('give-roomName')
 	async onGiveRoomName(client: Socket, data: {user_id: number})
 	{
-		console.log('UserList:', this.UserList);
-		console.log('Stock:', this.stock);
-		try{
-			console.log("into give room name");
-			let friend = this.UserList.find((one) => (one.user_id === data.user_id));
-			console.log("friend is ", friend);
+		console.log("into give room name");
+		try
+		{
+			let friend = await this.UserList.find((one) => (one.user_id === data.user_id));
 			let curr = this.stock.find((one) => (one?.player1.id === friend?.socket.id));
-			console.log("player1 id is ", curr?.player1.id);
-			console.log("curr is ", curr);
-			this.server.to(client.id).emit('roomName', curr?.roomName);
+			if (curr == undefined)
+				curr =  await this.stock.find((one) => (one?.player2.id === friend?.socket.id));
+			if (curr == undefined)
+				throw new Error(`User not in game`);
+			else
+				this.server.to(client.id).emit('give-roomName', {roomName: curr?.roomName});
 		}
 		catch (error) {
 			console.error('Error giving room name:', error.message);
@@ -139,7 +140,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@SubscribeMessage('spectate')
 	async onSpectate(client: Socket, message: { roomName: string})
 	{
-		console.log("into spectate");
+		console.log("into spectate", message);
 		client.join(message.roomName);
 		this.server.to(message.roomName).emit('spectate', message);
 	}
