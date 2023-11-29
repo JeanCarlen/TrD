@@ -330,7 +330,7 @@ const Chat: React.FC = () => {
 		<button className="sendButton" onClick={() => handleJoinRoomClick(data)}>Join Room</button>
 		<div className="chatList">
 		<p>currentRoom: {currentRoom}</p>
-		{fetched ? <div className="history-1">
+		{fetched ? <div className="history-1" style={{display: "flex", flexDirection: "column", rowGap: "1vh"}}>
 		{data.map((chat: chatData) => {
 			return (
 				<button onClick={() => handleJoinRoom(chat)} key={chat.id} className="game-stats" style={{flexDirection: "column"}}>
