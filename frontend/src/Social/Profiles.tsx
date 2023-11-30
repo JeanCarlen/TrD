@@ -32,6 +32,8 @@ import { handleBlockUser } from '../chat/idChatUser'
 import * as FaIcons from 'react-icons/fa'
 import { ToastContainer } from 'react-toastify';
 import {User} from '../chat/idChatUser'
+import { useNavigate } from 'react-router-dom';
+import {gsocket, WebsocketContext } from "../context/websocket.context";
 
 export interface profiles {
 username: string | undefined;
@@ -55,6 +57,7 @@ const [friends, setFriends] = useState<FriendData[]>([]);
 const fileInputRef = useRef<HTMLInputElement | null>(null);
 const [friendid, setFriendID] = useState<number|undefined>();
 const [friend, setFriend] = useState<User>();
+const navigate = useNavigate();
 // 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 useEffect(() =>{
