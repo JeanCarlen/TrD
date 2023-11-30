@@ -472,7 +472,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			await this.onPongInitSetup(client, {roomName: message.roomName});
 		else
 		{
-			this.server.to(target.player1.id).emit('inviteRefused');
+			this.server.to(target.player1.id).emit('back_to_home', {error: 'The user refused your challenge', reset: true});
 			this.stock.splice(this.stock.indexOf(target), 1);
 		}
 	}
