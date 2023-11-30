@@ -14,7 +14,6 @@ import { useDispatch } from 'react-redux';
 import { setUserStatus } from '../Redux-helpers/action';
 import { useSelector } from 'react-redux';
 import store from '../Redux-helpers/store';
-import { globalSocket } from "../PrivateRoute";
 
 export interface GameData
 {
@@ -157,10 +156,6 @@ useEffect(() => {
     }
   }, [canvas]);
 
-  if (!shouldRun) {
-    return null;
-  }
-
 useEffect(() => {
 	// once at the start of the component
 	console.log('in the use effect');
@@ -242,7 +237,7 @@ useEffect(() => {
 			{
 				await postScore(dataBack.score1, dataBack.score2, 0, data.current.gameID);
 				gsocket.emit('ready', {roomName: data.current.NameOfRoom});
-				gsocket.emit('gameState', {data: data.current, roomName: data.current.NameOfRoom});
+				//gsocket.emit('gameState', {data: data.current, roomName: data.current.NameOfRoom});
 			}
 
 	});
@@ -254,15 +249,24 @@ useEffect(() => {
 		data.current.ball.speed_x = dataBack.sbx;
 		data.current.ball.speed_y = dataBack.sby;
 		data.current.converted = false;
-		let intervalPause = setInterval(()=>{
+		if(data.current.spectator === 0)
+		{
+			let intervalPause = setInterval(()=>{
 			if (data.current.paused > 0){
 				data.current.paused -= 1;
 				console.log('paused: ', data.current.paused);
 			}
+			if(data.current.player1.pNumber === 1 && data.current.paused === 0)
+			{
+				console.log('gameState sent');
+				gsocket.emit('gameState', {data: data.current, roomName: data.current.NameOfRoom});
+			}
 		}, 1000);
 		if (data.current.paused == 0)
+		{
 			clearInterval(intervalPause);
-
+		}
+		}
 	});
 
 	gsocket.on('leave-game', (roomName: string) => {
@@ -314,7 +318,7 @@ useEffect(() => {
 
 //new spectate emit
 	gsocket.on('spectate', (dataBack: {roomName: string}) => {
-		if(dataBack.roomName === data.current.NameOfRoom && data.current.player1.pNumber === 1)
+		if(dataBack.roomName === data.current.NameOfRoom && data.current.player1.pNumber === 1 && data.current.spectator === 0)
 		{
 			console.log('spectator joined');
 			gsocket.emit('gameState', {data: data.current, roomName: data.current.NameOfRoom});
@@ -324,6 +328,7 @@ useEffect(() => {
 
 	gsocket.on('gameState', (dataBack: {data: GameData, roomName: string}) => {
 		console.log('gameState recieved');
+		let temp = data.current.paused;
 		if (data.current.spectator === 1)
 		{
 			data.current = dataBack.data;
@@ -415,6 +420,13 @@ useEffect(() => {
 		}
 	});
 
+	gsocket.on('back_to_home', (message:{error: string, reset: boolean})=>{
+		console.log('back-to-home: ', message.error);
+		toast.error(message.error, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
+		bodyNavigate('/Home');
+	}
+	);
+
 	gsocket.on('game-over', async (dataBack: {score1: number, score2: number}) => {
 		data.current.paused = 5;
 		console.log('game over');
@@ -444,6 +456,13 @@ useEffect(() => {
 		dispatch(setUserStatus('offline'));
 	});
 
+	gsocket.on('give-roomName', (dataBack: {roomName: string}) => {
+		console.log('give-roomName: ', dataBack.roomName);
+		data.current.spectator = 1;
+		gsocket.emit('spectate', {roomName: dataBack.roomName});
+	}
+	);
+
 	return () => {
 		gsocket.off('connect');
 		gsocket.off('game-start');
@@ -459,6 +478,8 @@ useEffect(() => {
 		gsocket.off('leave-game');
 		gsocket.off('spectate');
 		gsocket.off('gameState');
+		gsocket.off('give-roomName');
+		gsocket.off('back-to-home');
 	};
 	}, [gsocket]);
 
@@ -702,7 +723,9 @@ const createMatch = async(user1ID: number, user2ID: number) => {
 };
 
 const postScore = async(score1: number, score2: number, over: number, gameID: number) => {
-	const response = await fetch(`http://localhost:8080/api/matches/${gameID}`, {
+	if(data.current.spectator === 0)
+	{
+		const response = await fetch(`http://localhost:8080/api/matches/${gameID}`, {
 		method: 'PATCH',
 		headers: {
 			'Content-Type': 'application/json',
@@ -718,44 +741,61 @@ const postScore = async(score1: number, score2: number, over: number, gameID: nu
 	{
 		console.log('error posting score');
 	}
+	}
 };
 
 const spectate = () => {
 	const roomNamePrompt = prompt("Enter the name of the room you want to spectate:");
-	gsocket.emit('spectate', {roomName: roomNamePrompt}); //add spectator name
+	gsocket.emit('spectate', {roomName: roomNamePrompt}); //add spectator user_id
 	data.current.spectator = 1;
 }
 
 const giveRoom = () => {
-	gsocket.emit('give-roomName', {/*socket of the friend*/});
-}
+	if (token != undefined)
+	{
+		content = decodeToken(token);
+		console.log(content);
+		gsocket.emit('give-roomName', {user_id : content.user});
+		console.log(content.user);
+	}
+};
 
-const WaitingRoom = () => {
-	gsocket.emit('waitList', {user_id: content.user ,bonus : 0});
-	data.current.gameType = 0;
+const WaitingRoom = () => { 
+	if (token != undefined)
+	{
+		content = decodeToken(token);
+		console.log(content);
+		gsocket.emit('waitList', {user_id: content.user ,bonus : 0});
+		data.current.gameType = 0;
+	}
 };
 
 const WaitingRoom_bonus = () => {
-	gsocket.emit('waitList', {user_id: content.user, bonus : 1});
-	data.current.gameType = 1;
+	if (token != undefined)
+	{
+		content = decodeToken(token);
+		console.log(content);
+		gsocket.emit('waitList', {user_id: content.user, bonus : 1});
+		data.current.gameType = 1;
+	}
 };
 
 
 	const handleKeyPress = (e: React.KeyboardEvent<Element>) => {
-	switch (e.key) {
-		case 'ArrowLeft':
-		if(data.current.player1.pos_x >= 25 && data.current.spectator === 0)
-			Paddles(data.current.NameOfRoom, -1);
-		break;
-		case 'ArrowRight':
-		if(data.current.player1.pos_x <= 425 && data.current.spectator === 0)
-			Paddles(data.current.NameOfRoom, 1);
-		break;
-		default:
-		break;
-	}
+	switch (e.key)
+		{
+			case 'ArrowLeft':
+			if(data.current.player1.pos_x >= 25 && data.current.spectator === 0)
+				Paddles(data.current.NameOfRoom, -1);
+			break;
+			case 'ArrowRight':
+			if(data.current.player1.pos_x <= 425 && data.current.spectator === 0)
+				Paddles(data.current.NameOfRoom, 1);
+			break;
+			default:
+			break;
+		}
 	};
-
 	return (
 	<div>
 	<div className="game">
@@ -776,6 +816,7 @@ const WaitingRoom_bonus = () => {
 	<button onClick={()=>{data.current.legacy = 1}}>COWMOOO</button>
 	<button onClick={()=>{data.current.legacy = 2}}>SUPERVAN!</button>
 	<button onClick={spectate}>spectate</button>
+	<button onClick={giveRoom}>giveRoom</button>
 	<ToastContainer/>
 	</div>
 	);
