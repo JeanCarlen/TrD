@@ -26,8 +26,20 @@ import UserInformation from '../Components/UserInformation'
 import LayoutGamestats from './Layout-gamestats'
 import {ToastContainer, toast} from 'react-toastify'
 import {gameData, User} from './Stats'
+import ShowStatus from '../Components/FriendStatus'
+import { useSelector } from 'react-redux';
+import { setUserName, setUserStatus } from '../Redux-helpers/action';
+import { useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
+import GetUserName from '../Components/testusername'
+import MyStatus from '../Components/Status'
 
-type Props = {}
+type Props = {
+    username: string;
+    user: number;
+    avatar: string;
+    status: string;
+}
 
 
 
@@ -36,9 +48,13 @@ const Home = (props: Props) => {
   const [gameFetched, setGameFetched] = useState<boolean>(false);
   const [dataLast, setDataLast] = useState<gameData[]>([]);
   const [friendsFetched, setFriendsFetched] = useState<boolean>(false);
+  const [username, setUsername] = useState<string>('');
+  const dispatch = useDispatch();
+  const mainUsername = useSelector((state: string) => state.username);
+  const userStatus = useSelector((state: string) => state.userStatus);
   const token: string|undefined = Cookies.get("token");
   let content: {username: string, user: number, avatar: string};
-
+  
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 	const fetchMatches = async () => {
@@ -68,6 +84,26 @@ const Home = (props: Props) => {
 		}
 	}
 
+  const updateUser = async () => {
+		const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			}
+		});
+		const data = await response.json()
+    if (response.ok)
+    {
+      console.log("does it fetch", data);
+      console.log("current status", data.status);
+      // dispatch(setUserStatus(data.status));
+      content.username = data.username;
+      setUsername(data.username);
+      console.log(content.username);
+    }
+  }
+
 	const yourFunction = async () => {
 		await delay(5000);
 		setGameFetched(true);
@@ -80,37 +116,17 @@ const Home = (props: Props) => {
 
     const avatarUrl = content.avatar
 
-  const handleAvatarChange =  async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-      event.preventDefault();
-
-      if (file) {
-        const reader = new FormData();
-        reader.append('file', file);
-      console.log("FILE BEFORE FETCH ", reader.get('file'));
-      const response = await fetch('http://localhost:8080/api/file', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + token,
-          },
-          body: reader,
-        })
-        const data = await response.json()
-        Cookies.set('token', data.token);
-		toast.success('Avatar changed successfully', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-success' });
-        //add a toast
-      }
-    };
 
 	useEffect (() => {
 		fetchMatches();
+    updateUser();
 	}, []);
 
     return (
 		<div>
         <ChakraProvider resetCSS={false}>
         <Searchbar/>
-        <UserInformation username={content.username}/>
+        <UserInformation username={mainUsername}/>
         <div>
         <Sidebar/>
         <div>
@@ -132,10 +148,12 @@ const Home = (props: Props) => {
             />
               <div className='icon-container'>
               <div className='status-circle'>
+                <MyStatus />
             </div>
           </div>
             </VStack>
-              <h1 className="welcome">Hello {content.username}! </h1>
+              {/* <h1 className="welcome">Hello {content.username}! </h1> */}
+              <GetUserName username={content.username}/>
              </WrapItem>
             </Wrap>
             <button className='quickGame'>

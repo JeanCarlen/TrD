@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { useState } from "react";
 import './Stats.css';
 import { gameData, User } from "./Stats";
@@ -68,6 +68,10 @@ const LayoutRanking: React.FC<props> = ({token}: props) => {
 		setRanked(true);
 	}
 
+	useEffect(()=>{
+		calculateRanking();
+	},[])
+
 	return (
 		<div>
 			{ranked ? <div style={{overflowY: 'scroll'}}>
@@ -79,7 +83,7 @@ const LayoutRanking: React.FC<props> = ({token}: props) => {
 						</div>
 					)
 				})}
-				</div> : <button onClick={calculateRanking}>Fetch matches</button>}
+				</div> : <>Loading...</>}
 
 
 		</div>

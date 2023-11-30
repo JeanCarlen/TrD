@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, {useEffect, useContext } from 'react';
 import { AuthContext } from './AuthContext';
 import Sidebar from './Components/Sidebar';
 import Users from './pages/Users';
@@ -20,11 +20,16 @@ import { useParams } from 'react-router-dom';
 import MFASetup from './pages/mfasetup';
 import Enter2Fa from './Components/Enter2Fa';
 import AchTest from './pages/AchievementTest';
+import { useSelector } from 'react-redux';
+import { setUserStatus } from './Redux-helpers/action';
+import { useDispatch } from 'react-redux';
+export let globalSocket: Socket;
 import {gsocket, WebsocketContext } from './context/websocket.context';
 
 type Props = {}
 
 const PrivateRoutes = () => {
+	const dispatch = useDispatch();
 	const isRegistered = Cookies.get('registered');
 	const token = Cookies.get('token');
 	const { authenticated } = useContext(AuthContext)
@@ -48,12 +53,15 @@ const PrivateRoutes = () => {
 		gsocket.connect();
 		gsocket.emit('connect_id', tokenContent.user);
 		console.log('WebSocket initialised: ', gsocket.id, 'token content', tokenContent.user);
+		dispatch(setUserStatus(1));
 		// globalSocket.emit('userSend', tokenContent.user);
 		return <Outlet />
 	}
 }
-const Routes = (props: Props) => {
+
+const Routes: React.FC = (props: Props) => {
 	const navigate = useNavigate();
+
 	return (
 		<div className="loginTest">
 			<Router>

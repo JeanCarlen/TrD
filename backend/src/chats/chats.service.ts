@@ -111,7 +111,21 @@ export class ChatsService {
 			description: `Unknown chat.`,
 		});
 	}
-	return await bcrypt.compare(password, chat.password);
+	if (chat.password !== null && password !== null)
+	{
+		console.log('returned here');
+		return await bcrypt.compare(password, chat.password);
+	}
+	else if (chat.password === null)
+	{
+		console.log('returned here 2');
+		return (true);
+	}
+	else
+	{
+		console.log('returned here 3');
+		return (false);
+	}
   }
 
   public async isUserOwner(chat_id: number, user_id: number): Promise<boolean> {
@@ -130,7 +144,7 @@ export class ChatsService {
   public async findChatUsers(id: number, current_id: number): Promise<UsersResponse[]> {
 	let userRet: UsersResponse[] = [];
 	const chats = await this.userchatsService.getChatIdListByUser(current_id);
-	if (!chats.includes(id)) {
+	if (!chats.includes(id) && current_id !== -1) {
 		throw new UnauthorizedException(['You\'re not in this chat.'], {
 			cause: new Error(),
 			description: `You're not in this chat.`,
@@ -143,7 +157,7 @@ export class ChatsService {
 
 	let users: UsersResponse[] =  await this.usersRepository.find({
 		where: { id: In(user_ids) },
-		select: ['id', 'username', 'login42', 'avatar']
+		select: ['id', 'username', 'login42', 'avatar', 'status']
 	});
 	await Promise.all(users.map(async (user: UsersResponse) => {
 		user.isAdmin = await this.isUserAdmin(id, user.id);
@@ -275,6 +289,8 @@ export class ChatsService {
 			}
 		}
 	}
+	else
+		await this.userchatsRepository.remove(userChat);
   }
 
   private async deleteChat(id: number): Promise<{ success: boolean, message: string}>{

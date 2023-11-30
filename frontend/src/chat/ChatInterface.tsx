@@ -57,6 +57,7 @@ const [content, setContent] = useState<{username: string, user: number, avatar: 
 		}
 		)));
 		setCurrentRoom(currentRoomProps);
+		scrollToBottom();
 	},[messagesData, currentRoomProps]);
 
 useEffect(() => {
@@ -75,12 +76,12 @@ useEffect(() => {
 	// socket.emit('join-room', {roomName:'default', client: socket});
 	// });
 
-	socket.on('srv-message', (data) => {
+	socket.on('srv-message', (data: {text: string, sender: string, sender_Name:string, date: string, room: string}) => {
 	console.log(`srv-message ${data}`);
 	const latest: Message = { id: messages.length + 3, text: data.text, sender: data.sender, sender_Name: data.sender_Name, date: data.date };
 	if (data.room == currentRoom)
 	{
-		setMessages([...messages, latest]);
+		setAndScroll(latest)
 	}
 	else 
 	{
@@ -112,6 +113,13 @@ function handleSendMessage(sender: string = content?.username || 'user') {
 	setNewMessage({ id: 0, text: '', sender: '', sender_Name: '', date: '' });
 }
 
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+async function setAndScroll(latest: Message){
+	await setMessages([...messages, latest]);
+	scrollToBottom();
+}
+
 const handleKeyPress = (e: React.KeyboardEvent) => {
 	switch (e.key) {
 		case 'Enter':
@@ -122,12 +130,20 @@ const handleKeyPress = (e: React.KeyboardEvent) => {
 		default:
 		break;
 	}
-	};
+};
+
+async function scrollToBottom() {
+	await delay(75);
+	let element = document.getElementById("display");
+	if (element == null)
+		return;
+	element.scrollTop = element.scrollHeight
+}
 
 return (
 	<div>
 	<div className="message-display">
-		<div className="message-box">
+		<div id="display" className="message-box">
 		{messages.map((message) => (
 			<div key={message.id} className={`message-bubble ${message.sender_Name === content?.username ? 'user-message' : 'other-message'}`}>
 			<span className="message-sender">{message.sender_Name}</span> <br/>

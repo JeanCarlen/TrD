@@ -25,6 +25,7 @@ import './ChatInterface.css'
 import * as FaIcons from 'react-icons/fa'
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, useDisclosure } from "@chakra-ui/react";
 import {gsocket, WebsocketContext } from "../context/websocket.context";
+import ShowStatus from '../Components/FriendStatus';
 
 
 export interface User{
@@ -35,6 +36,7 @@ export interface User{
 	isAdmin?: boolean,
 	isMuted?: boolean,
 	isOwner?: boolean,
+	status: number
 }
 
 interface IdChatProps{
@@ -42,19 +44,6 @@ interface IdChatProps{
 	user_id: number | undefined;
 	socket: Socket;
 }
-
-interface MultipleUsersInter{
-	members: User[];
-	token: string | undefined,
-	chat: chatData | undefined,
-	socket: Socket,
-}
-
-interface OneUserInter{
-	user: User;
-}
-
-//const [selectedUser, setSelectedUser] = useState('');
 
 const handleAddUser = (user: User) => {
 	// Implement logic to add the user to your contact list or perform the desired action.
@@ -81,15 +70,6 @@ export  const handleBlockUser = async (user: User, token: string|undefined) => {
 			toast.info(user.username + ' was successfully blocked', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
 		else 
 			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
-};
-
-const invitePong = (user: User) => {
-	//const navigate = useNavigate();
-	// Implement logic to block the user or perform the desired action.
-	// This could involve making an API request to your server.
-	//setSelectedUser(username);
-	console.log(`Inviting ${user.username} for a game`);
-	//navigate('/Game');
 };
 
 const adminUser = async (chat: chatData|undefined, user: User, token: string|undefined, mode: string) => {
@@ -315,21 +295,28 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		}
 	}
 
+	const inviteToPong = async (user: User) => {
+		let content = await decodeToken(token);
+		socket.emit('invite', {inviter: content, invited: user});
+		navigate('/game');
+	};
+
 	return (
 		<ChakraProvider>
-		<div>
-
-			{fetched ? <div syle={{overflowY: 'scroll'}}>
+		<div className="idUser">
+			{fetched ? <div>
 			{chatMembers.map((user: User) => (
 			<li key={user.id} className="friendlist" >
 				<WrapItem>
 					<Avatar size='md' src={user.avatar} name={user.username}/>
+					<ShowStatus status={user.status}/>
 				</WrapItem>
-				<span className="messages">
+				<div className="messages">
 					{user.username}
 					{user.isAdmin === true ? <FaIcons.FaCrown style={{marginLeft: '5px'}}/> : <></>}
 					{user.isMuted === true ? <FaIcons.FaVolumeMute style={{marginLeft: '5px'}}/> : <></>}
-				</span>
+				</div>
+				<br/>
 				<Menu>
 				<MenuButton className='sendButton' as={Button} rightIcon={<ChevronDownIcon />}>
 					Actions
@@ -337,8 +324,8 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 				<MenuList>
 					<MenuItem className='Addfriend' onClick={() => handleAddUser(user)}>Add as a friend</MenuItem>
 					<MenuItem className='Addfriend' onClick={() => handleBlockUser(user, token)}> Block User </MenuItem>
-					<MenuItem className='Addfriend' onClick={() => invitePong(user)}> Invite for a pong </MenuItem>
 					<MenuItem className='Addfriend' onClick={() => SpectateGame(user)}> Spectate Game </MenuItem>
+					<MenuItem className='Addfriend' onClick={() => inviteToPong(user)}> Invite for a pong </MenuItem>
 					{currentUser?.isAdmin === true ? 
 					<>
 					<MenuItem className='Addfriend' onClick={() => setNewMode(user, 'admin')}> {user.isAdmin === true ? 'Remove user as Admin' : 'Set user as Admin'} </MenuItem>
@@ -351,18 +338,19 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 				</MenuList>
 				</Menu>
 			</li>
-			))} </div> : <div className="history_1">Loading...</div>}
+			))}
+			
 			<>
 			{currentUser?.isOwner === true ?
 			<>
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => changePassword()}>Change Password</button>
-			<br/>
+			{/* <br/> */}
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => unbanUsers()}>Unban users </button>
-			<br/>
+			{/* <br/> */}
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => doDeleteChannel()}>Delete channel</button>
 			</> : <></>}
 			</>
-			<br/>
+			{/* <br/> */}
 		<button className="sendButton" onClick={() => leaveRoom(chatData, socket)}>leave channel</button>
 		<Modal isOpen={isOpen} onClose={onClose}>
 		<ModalOverlay />
@@ -386,6 +374,9 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		</ModalContent>
 		</Modal>
 		<ToastContainer/>
+			
+			
+			</div> : <div className="history_1">Loading...</div>}
 		</div>
 		</ChakraProvider>
 	)

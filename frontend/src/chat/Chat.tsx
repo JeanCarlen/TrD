@@ -16,6 +16,9 @@ import * as FaIcons from 'react-icons/fa'
 import { setUserStatus } from "../Redux-helpers/action";
 import { useSelector } from 'react-redux';
 import { gsocket } from "../context/websocket.context";
+import { User } from "../pages/Stats";
+import { useNavigate } from 'react-router-dom';
+
 
 
 export type chatData = {
@@ -49,8 +52,25 @@ const Chat: React.FC = () => {
 	const [currentChat, setCurrentChat] = useState<chatData>();
 	const [loggedIn, setLoggedIn] = useState<boolean>(false);
 	const userStatus = useSelector((state: any) => state.userStatus);
+	let navigate = useNavigate();
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+	const ToastMessage = (data :{inviter: User, roomName: string}) => (
+		<div>
+			INVITED by {data.inviter?.username}
+			<button className="sendButton" onClick={() => replyMatch(data.roomName, 'accept')}>OK</button>
+			<button className="sendButton" onClick={() => replyMatch(data.roomName, 'refuse')}>NO</button>
+		</div>
+	)
+
+	function replyMatch(roomName: string, status: string) {
+		gsocket.emit('replyInvite', {roomName: roomName, status: status});
+		if (status == 'accept')
+		{
+			navigate('/game');
+		}
+	};
 
 	const getChats = async() => {
 		setFetched(false);
@@ -163,6 +183,11 @@ const Chat: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
+		gsocket.on('invite', (dataBack:{inviter: User, roomName: string}) => {
+			console.log('INVITED');
+			toast.info(<ToastMessage inviter={dataBack.inviter} roomName={dataBack.roomName}/>,  { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
+		})
+
 		gsocket.on('room-join-error', (message:{error: string, reset: boolean}) => {
 			console.log("error in joining room: ", message.error);
 			toast.error(message.error, {
@@ -208,6 +233,7 @@ const Chat: React.FC = () => {
 			gsocket.off('room-join-error');
 			gsocket.off("smb-movede");
 			gsocket.off('kick');
+			gsocket.off('invite');
 		}
 	}, [gsocket, content]);
 
@@ -301,13 +327,13 @@ const Chat: React.FC = () => {
 	<div className='HomeText'>
 		Chat
 	</div>
-	<div className='grid'>
+	<div className='grid_chat'>
 		<div className="leftColumn">
-		<button onClick={handleCreateRoom}>Create New Room</button>
-		<button onClick={() => handleJoinRoomClick(data)}>Join Room</button>
+		<button className="sendButton" onClick={handleCreateRoom}>Create New Room</button>
+		<button className="sendButton" onClick={() => handleJoinRoomClick(data)}>Join Room</button>
 		<div className="chatList">
 		<p>currentRoom: {currentRoom}</p>
-		{fetched ? <div className="history-1">
+		{fetched ? <div className="history-1" style={{display: "flex", flexDirection: "column", rowGap: "1vh"}}>
 		{data.map((chat: chatData) => {
 			return (
 				<button onClick={() => handleJoinRoom(chat)} key={chat.id} className="game-stats" style={{flexDirection: "column"}}>

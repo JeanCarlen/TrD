@@ -149,11 +149,13 @@ export class FriendsService {
 			username: requester.username,
 			avatar: requester.avatar,
 			login42: requester.login42,
+			curr_status: requester.status,
 		},
 		requested_user: {
 			username: requested.username,
 			avatar: requested.avatar,
 			login42: requested.login42,
+			curr_status: requested.status,
 		},
 		total_count: count
 	}

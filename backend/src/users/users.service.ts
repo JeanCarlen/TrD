@@ -21,8 +21,8 @@ const fs = require('fs');
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(Users)
-    private readonly usersRepository: Repository<Users>,
+  @InjectRepository(Users)
+  private readonly usersRepository: Repository<Users>,
 	@Inject(UserchatsService)
 	private readonly userchatsService: UserchatsService,
 	@Inject(FriendsService)
@@ -150,7 +150,7 @@ export class UsersService {
     user.username = createUserDto.username;
     user.avatar = process.env.HOST + 'images/default.png';
     user.twofaenabled = false;
-	user.status = 0;
+	  user.status = 0;
 
     // check if username is already taken
     const found = await this.findByUsername(user.username);
@@ -305,6 +305,19 @@ export class UsersService {
     });
   }
 
+  public async updateStatus(user_id: number, newStatus){
+    let user = await this.usersRepository.findOne({where: {id: user_id}});
+    if (!user) {
+      throw new NotFoundException(['User not found.'], {
+        cause: new Error(),
+        description: 'User not found.'
+      })
+    }
+    user.status = newStatus;
+    await this.usersRepository.save(user);
+    console.log("user status updated", user.status);
+  }
+
   public find42User(username: string) {
     return this.usersRepository.find({
       where: { login42: username },
@@ -388,6 +401,24 @@ export class UsersService {
 	}
 	return ret;
   }
+
+  public async blockAnyWayList(user_id: number) {
+	const blocked: BlockedUsers[] = await this.blockedusersService.findAllWhereBlock(user_id);
+	const ret: UsersResponse[] = [];
+	for (const block of blocked) {
+		if (block.blockinguser_id == user_id) {
+			const user: UsersResponse = await this.findOne(block.blockeduser_id);
+			ret.push(user);
+		}
+		if (block.blockeduser_id == user_id){
+			const user: UsersResponse = await this.findOne(block.blockinguser_id);
+			ret.push(user);
+		}
+	}
+	return ret;
+  }
+
+
 
   public async updateUserAchievment(user_id: number, achievment_id: number, value: number) {
 	const userachievment: UserAchievments = await this.userachievmentsService.findOneByUserAndAchievment(user_id, achievment_id);

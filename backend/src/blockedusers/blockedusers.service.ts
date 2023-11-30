@@ -53,6 +53,10 @@ export class BlockedusersService {
 	});
   }
 
+  public async findAllWhereBlock(id:number): Promise<BlockedUsers[]> {
+	return await this.blockedUsersRepository.find({where: [{blockeduser_id: id}, {blockinguser_id: id}]})
+  }
+
   public async remove(id: number) {
     const blockedUser = await this.blockedUsersRepository.findOne({
       where: { id: id },
