@@ -132,7 +132,9 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			else
 				this.server.to(client.id).emit('give-roomName', {roomName: curr?.roomName});
 		}
-		catch (error) {
+		catch (error) 
+		{
+			this.server.to(client.id).emit('back_to_home', {error: error.message, reset: true});
 			console.error('Error giving room name:', error.message);
 		}
 	}

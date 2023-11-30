@@ -14,7 +14,6 @@ import { useDispatch } from 'react-redux';
 import { setUserStatus } from '../Redux-helpers/action';
 import { useSelector } from 'react-redux';
 import store from '../Redux-helpers/store';
-import { globalSocket } from "../PrivateRoute";
 
 export interface GameData
 {
@@ -422,6 +421,13 @@ useEffect(() => {
 		}
 	});
 
+	gsocket.on('back_to_home', (message:{error: string, reset: boolean})=>{
+		console.log('back-to-home: ', message.error);
+		toast.error(message.error, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
+		bodyNavigate('/Home');
+	}
+	);
+
 	gsocket.on('game-over', async (dataBack: {score1: number, score2: number}) => {
 		data.current.paused = 5;
 		console.log('game over');
@@ -474,6 +480,7 @@ useEffect(() => {
 		gsocket.off('spectate');
 		gsocket.off('gameState');
 		gsocket.off('give-roomName');
+		gsocket.off('back-to-home');
 	};
 	}, [gsocket]);
 

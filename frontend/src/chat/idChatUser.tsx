@@ -24,6 +24,7 @@ import {ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
 import './ChatInterface.css'
 import * as FaIcons from 'react-icons/fa'
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, useDisclosure } from "@chakra-ui/react";
+import {gsocket, WebsocketContext } from "../context/websocket.context";
 
 
 export interface User{
@@ -134,6 +135,7 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 		socket.emit("delete-channel", {chat_id: chat.chat_id, roomName: chat.chat.name});
 	};
 
+
 const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChatProps) => {
 	const token = Cookies.get('token');
 	const [chatMembers, setchatMembers] = useState<User[]>()
@@ -171,6 +173,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 			socket.off("smb-moved");
 			socket.off("deleted");
 			socket.off("refresh-id");
+			socket.off("back-to-home");
 		}
 	}, [socket, chatMembers]);
 
@@ -294,10 +297,22 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 		}
 	}
 
-	async function SpectateGame (user: User) {
-		socket.emit("give-roomName", {user_id: user.id});
-		console.log('spectate game :', user.id);
-		navigate('/game');
+	function SpectateGame (user: User)
+	{
+		let content = decodeToken(token);
+		try
+		{
+			if(content.user !== user.id)
+			{
+			gsocket.emit('give-roomName', {user_id: user.id});
+			console.log('spectate game :', user.id);
+			navigate('/game');
+			}
+		}
+		catch (error)
+		{
+			console.log(error);
+		}
 	}
 
 	return (
