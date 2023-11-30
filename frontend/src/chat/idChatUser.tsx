@@ -44,19 +44,6 @@ interface IdChatProps{
 	socket: Socket;
 }
 
-interface MultipleUsersInter{
-	members: User[];
-	token: string | undefined,
-	chat: chatData | undefined,
-	socket: Socket,
-}
-
-interface OneUserInter{
-	user: User;
-}
-
-//const [selectedUser, setSelectedUser] = useState('');
-
 const handleAddUser = (user: User) => {
 	// Implement logic to add the user to your contact list or perform the desired action.
 	// This could involve making an API request to your server.
@@ -82,15 +69,6 @@ export  const handleBlockUser = async (user: User, token: string|undefined) => {
 			toast.info(user.username + ' was successfully blocked', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
 		else 
 			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
-};
-
-const invitePong = (user: User) => {
-	//const navigate = useNavigate();
-	// Implement logic to block the user or perform the desired action.
-	// This could involve making an API request to your server.
-	//setSelectedUser(username);
-	console.log(`Inviting ${user.username} for a game`);
-	//navigate('/Game');
 };
 
 const adminUser = async (chat: chatData|undefined, user: User, token: string|undefined, mode: string) => {
@@ -299,6 +277,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	const inviteToPong = async (user: User) => {
 		let content = await decodeToken(token);
 		socket.emit('invite', {inviter: content, invited: user});
+		navigate('/game');
 	};
 
 	return (

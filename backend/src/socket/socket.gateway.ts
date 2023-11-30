@@ -435,15 +435,32 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@SubscribeMessage('invite')
 	async onInvite(client: Socket, message: {inviter: {username: string, user: number, avatar: string}, invited:{username: string, id: number}})
 	{
-		
 		let target = await this.UserList.find((one)=> (one.user_id == message.invited.id));
 		if (target == undefined)
 		{
+			console.log('list: ', this.UserList, 'looking for', message.invited.id);
 			console.log('not found');
 			return ;
 		}
-		this.server.to(target.socket.id).emit('invite', {inviter: message.inviter});
+		const roomName = client.id + target.socket.id;
+		this.server.to(target.socket.id).emit('invite', {inviter: message.inviter, roomName: roomName});
+		await this.onPongInitSetup(client, {roomName: roomName});
 		this.logger.log('INVITED', message.invited.username);
+	}
+
+	@SubscribeMessage('replyInvite')
+	async replyInvite(client: Socket, message: {roomName: string, status: string})
+	{
+		let target = await this.stock.find((one)=> (one.roomName == message.roomName));
+		if (target == undefined)
+			return;
+		if (message.status == 'accept')
+			await this.onPongInitSetup(client, {roomName: message.roomName});
+		else
+		{
+			this.server.to(target.player1.id).emit('inviteRefused');
+			this.stock.splice(this.stock.indexOf(target), 1);
+		}
 	}
 
     // Define the onCreateSomething method to handle creating something
