@@ -136,7 +136,8 @@ const fetchMatches = async (theID:number) => {
 
 function SpectateGame (user: User)
 {
-	let content = decodeToken(token);
+	if(token !== undefined)
+		let content = decodeToken(token);
 	try
 	{
 		if(content.user !== user.id)
