@@ -14,6 +14,7 @@ import { useDispatch } from 'react-redux';
 import { setUserStatus } from '../Redux-helpers/action';
 import { useSelector } from 'react-redux';
 import store from '../Redux-helpers/store';
+import './PongGame.css';
 
 export interface GameData
 {
@@ -52,11 +53,6 @@ interface Ball{
 	speed_y: number,
 	speed_x: number
 }
-
-// export interface status{
-// 	setUserStatus: React.Dispatch<React.SetStateAction<string>>;
-
-// }
 
 function usePageVisibility() {
 	const [isVisible, setIsVisible] = useState(!document.hidden);
@@ -327,17 +323,18 @@ useEffect(() => {
 	);
 
 	gsocket.on('gameState', (dataBack: {data: GameData, roomName: string}) => {
-		console.log('gameState recieved');
+		console.log('gameState received');
 		let temp = data.current.paused;
-		if (data.current.spectator === 1)
-		{
+		if (data.current.spectator === 1) {
 			data.current = dataBack.data;
 			data.current.started = true;
 			data.current.spectator = 1;
+			setPlayer1(data.current.player1.name);
+			setPlayer2(data.current.player2.name);
 			console.log('gameState updated ', data.current);
 		}
-	}
-	);
+	});
+
 
 
 	gsocket.on('exchange-info', async (dataBack: { myId : number, myName : string, myAvatar : string, roomName: string, playerNumber: number}) => {
@@ -799,9 +796,18 @@ const WaitingRoom_bonus = () => {
 	return (
 	<div>
 	<div className="game">
+	<ToastContainer/>
 	<canvas ref={canvasRef} width={600} height={800}></canvas>
 	<div className="score">
 		<img src="../cow.png" alt="Ball" style={{ display: 'none' }} />
+		<button className="CustomButton" onClick={WaitingRoom}>Waiting Room</button>
+		<button className="CustomButton" onClick={WaitingRoom_bonus}>Waiting Room bonus</button>
+		<br/>
+		<button className="CustomButton" onClick={()=>{data.current.color = 'pink'}}>PINK</button>
+		<button className="CustomButton" onClick={()=>{data.current.color = 'blue'}}>BLUE</button>
+		<br/>
+		<button className="CustomButton" onClick={()=>{data.current.legacy = 1}}>COWMOOO</button>
+		<button className="CustomButton" onClick={()=>{data.current.legacy = 2}}>SUPERVAN!</button>
 		<span>{player1}: {score1disp}</span>
 		<br/>
 		<p>{player1} Status in Friends Component: {userStatus}</p>
@@ -809,15 +815,6 @@ const WaitingRoom_bonus = () => {
 		<p>{player2} Status in Friends Component: {userStatus}</p>
 		</div>
 	</div>
-	<button onClick={WaitingRoom}>Waiting Room</button>
-	<button onClick={WaitingRoom_bonus}>Waiting Room bonus</button>
-	<button onClick={()=>{data.current.color = 'pink'}}>PINK</button>
-	<button onClick={()=>{data.current.color = 'blue'}}>BLUE</button>
-	<button onClick={()=>{data.current.legacy = 1}}>COWMOOO</button>
-	<button onClick={()=>{data.current.legacy = 2}}>SUPERVAN!</button>
-	<button onClick={spectate}>spectate</button>
-	<button onClick={giveRoom}>giveRoom</button>
-	<ToastContainer/>
 	</div>
 	);
 };
