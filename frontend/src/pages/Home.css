@@ -157,7 +157,7 @@ a { color: rgb(23, 22, 22); }
 
     box-sizing:content-box;
     box-shadow: rgba(145, 138, 138, 0.1) 0 0 10px;
-    width: 90vh;
+    width: 65vw;
     background-color:rgba(49, 11, 34, 0.3);
     overflow: hidden;
     border-radius: 15px;

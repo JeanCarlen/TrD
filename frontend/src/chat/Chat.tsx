@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 import { gsocket } from "../context/websocket.context";
 import { User } from "../pages/Stats";
 import { useNavigate } from 'react-router-dom';
+import GameInvite from "../Game/Game-Invite";
 
 
 
@@ -56,21 +57,21 @@ const Chat: React.FC = () => {
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-	const ToastMessage = (data :{inviter: User, roomName: string}) => (
-		<div>
-			INVITED by {data.inviter?.username}
-			<button className="sendButton" onClick={() => replyMatch(data.roomName, 'accept')}>OK</button>
-			<button className="sendButton" onClick={() => replyMatch(data.roomName, 'refuse')}>NO</button>
-		</div>
-	)
+	// const ToastMessage = (data :{inviter: User, roomName: string}) => (
+	// 	<div>
+	// 		INVITED by {data.inviter?.username}
+	// 		<button className="sendButton" onClick={() => replyMatch(data.roomName, 'accept')}>OK</button>
+	// 		<button className="sendButton" onClick={() => replyMatch(data.roomName, 'refuse')}>NO</button>
+	// 	</div>
+	// )
 
-	function replyMatch(roomName: string, status: string) {
-		gsocket.emit('replyInvite', {roomName: roomName, status: status});
-		if (status == 'accept')
-		{
-			navigate('/game');
-		}
-	};
+	// function replyMatch(roomName: string, status: string) {
+	// 	gsocket.emit('replyInvite', {roomName: roomName, status: status});
+	// 	if (status == 'accept')
+	// 	{
+	// 		navigate('/game');
+	// 	}
+	// };
 
 	const getChats = async() => {
 		setFetched(false);
@@ -183,10 +184,10 @@ const Chat: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
-		gsocket.on('invite', (dataBack:{inviter: User, roomName: string}) => {
-			console.log('INVITED');
-			toast.info(<ToastMessage inviter={dataBack.inviter} roomName={dataBack.roomName}/>,  { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
-		})
+		// gsocket.on('invite', (dataBack:{inviter: User, roomName: string}) => {
+		// 	console.log('INVITED');
+		// 	toast.info(<ToastMessage inviter={dataBack.inviter} roomName={dataBack.roomName}/>,  { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
+		// })
 
 		gsocket.on('room-join-error', (message:{error: string, reset: boolean}) => {
 			console.log("error in joining room: ", message.error);
@@ -233,7 +234,7 @@ const Chat: React.FC = () => {
 			gsocket.off('room-join-error');
 			gsocket.off("smb-movede");
 			gsocket.off('kick');
-			gsocket.off('invite');
+			// gsocket.off('invite');
 		}
 	}, [gsocket, content]);
 
@@ -353,6 +354,7 @@ const Chat: React.FC = () => {
 			<IdChatUser chatData={currentChat} user_id={content?.user} socket={gsocket}/>
 		</div>
 	</div>
+	<GameInvite/>
 	<ToastContainer />
 	</div>
 	);

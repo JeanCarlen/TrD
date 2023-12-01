@@ -33,6 +33,9 @@ import {
   import { useSelector } from 'react-redux';
   import { setUserName, setUserStatus } from '../Redux-helpers/action';
   import { useDispatch } from 'react-redux';
+  import { User } from '../chat/idChatUser';
+  import '../pages/Chat.css'
+  import {Avatar} from '@chakra-ui/react'
 
 type CookieProps = {
 	username: string;
@@ -48,6 +51,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const { isOpen: isOpen1 , onOpen: onOpen1, onClose: onClose1 } = useDisclosure()
 	const { isOpen: isOpen2 , onOpen: onOpen2, onClose: onClose2 } = useDisclosure()
+	const { isOpen: isOpen3 , onOpen: onOpen3, onClose: onClose3 } = useDisclosure()
 	// const [count, setCount] = useState<number>();
   	const initialRef = React.useRef(null)
   	const finalRef = React.useRef(null)
@@ -55,12 +59,15 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
   	const finalRef1 = React.useRef(null)
 	const initialRef2 = React.useRef(null)
   	const finalRef2 = React.useRef(null)
+	const initialRef3 = React.useRef(null)
+  	const finalRef3 = React.useRef(null)
 	const [newName, setNewName] = useState<string>('');
 	const [senderID, setSenderID] = useState([]);
 	const [senderName, setSenderName] = useState<string>('');
 	const [fetched, setFetched] = useState<boolean>(false);
 	const [pendingfriends, setPendingFriends] = useState<([])>();
 	const [friendRequests, setFriendRequests] = useState<(number[])>();
+	const [blockedUsers, setBlockedUsers] = useState<User[]>([]);
 	const userStatus = useSelector((state: string) => state.userStatus);
 	const token: string|undefined = Cookies.get("token");
 	let content: {username: string, user: number};
@@ -197,6 +204,41 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 		//setcookies to change the decode token
 	}
 
+	async function getBlockList()
+	{
+		const response = await fetch(`http://localhost:8080/api/users/${content?.user}/blocked`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			},
+		});
+		if (response.ok)
+		{
+			let bList = await response.json();
+			console.log('banned list: ', bList);
+			await setBlockedUsers(bList);
+			onOpen3();
+		}
+	}
+
+	async function unBlockUser(user: User){
+		const response = await fetch(`http://localhost:8080/api/users/unblock/${user.id}`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			},
+		});
+		const data = await response.json()
+		if (response.ok)
+		{
+			toast.success(`${user.username} was successfully unblocked`, {
+				position: toast.POSITION.TOP_CENTER
+			  })
+		}
+	}
+
 	const twofa = () => {
 		navigate('/mfasetup');
 	}
@@ -217,6 +259,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			<MenuItem onClick={onOpen}>Change Username</MenuItem>
 			<MenuItem onClick={onOpen1}>Change my Avatar</MenuItem>
 			<MenuItem onClick={onOpen2}>Setup my 2FA </MenuItem>
+			<MenuItem onClick={getBlockList}>Unblock Users </MenuItem>
 			</MenuGroup>
 			<MenuDivider />
 		</MenuList>
@@ -312,6 +355,35 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
           </ModalFooter>
 		</ModalContent>
       </Modal>
+
+	  <Modal
+		initialFocusRef={initialRef3}
+        finalFocusRef={finalRef3}
+        isOpen={isOpen3}
+        onClose={onClose3}
+		>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Blocked Users</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={7}>
+		  <FormLabel>Unblock Users</FormLabel>
+		  {blockedUsers?.map((user: User) => {
+				return (
+				<div className="banBox">
+					<Avatar size='md' src={user.avatar} name={user.username}/>
+					<div>{user.username}</div>
+					<Button style={{marginLeft: 'auto'}} onClick={() => {
+						unBlockUser(user);
+						onClose3();
+					}}>Unblock</Button>
+				</div>
+				)
+			})}
+          </ModalBody>
+		</ModalContent>
+      </Modal>
+
 	  <ToastContainer/>
     </>
 )

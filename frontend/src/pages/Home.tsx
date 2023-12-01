@@ -33,6 +33,7 @@ import { useDispatch } from 'react-redux';
 import { connect } from 'react-redux';
 import GetUserName from '../Components/testusername'
 import MyStatus from '../Components/Status'
+import GameInvite from '../Game/Game-Invite'
 
 type Props = {
     username: string;
@@ -131,14 +132,6 @@ const Home = (props: Props) => {
         <Sidebar/>
         <div>
           <div className='topBox'>
-            {/* <form action=''>
-              <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              onChange={handleAvatarChange}
-              />
-            </form> */}
             <Wrap>
             <WrapItem className='profile-border'>
             <VStack spacing={4} alignItems="center">
@@ -152,7 +145,6 @@ const Home = (props: Props) => {
             </div>
           </div>
             </VStack>
-              {/* <h1 className="welcome">Hello {content.username}! </h1> */}
               <GetUserName username={content.username}/>
              </WrapItem>
             </Wrap>
@@ -186,6 +178,7 @@ const Home = (props: Props) => {
         </div>
         {/* </div> */}
         </ChakraProvider>
+		<GameInvite/>
 		<ToastContainer/>
 		</div>
 )

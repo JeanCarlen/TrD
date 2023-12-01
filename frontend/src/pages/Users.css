@@ -9,7 +9,7 @@
     border: 1px solid #5f6368;
     box-shadow: none;
     border-radius: 24px;
-    margin: 0 auto;
+    margin: 10px;
     max-width: 584px;
 
     &:hover{

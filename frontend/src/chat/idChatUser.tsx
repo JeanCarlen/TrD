@@ -127,7 +127,6 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	useEffect(() => {
-		// socket.connect();
 		if (chatData) {
 			getData(chatData);
 		}
@@ -247,7 +246,7 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 	}
 
 	async function getData (chatData: chatData|undefined) {
-		setFetched(false);
+		// setFetched(false);
 		console.log('user_id', user_id);
 		console.log('chatData: ',chatData);
 		if (chatData === undefined)
@@ -344,13 +343,10 @@ const IdChatUser: React.FC<IdChatProps> = ({ chatData, user_id, socket }: IdChat
 			{currentUser?.isOwner === true ?
 			<>
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => changePassword()}>Change Password</button>
-			{/* <br/> */}
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => unbanUsers()}>Unban users </button>
-			{/* <br/> */}
 			<button className="sendButton" style={{marginBottom: '10px', marginTop: '10px'}} onClick={() => doDeleteChannel()}>Delete channel</button>
 			</> : <></>}
 			</>
-			{/* <br/> */}
 		<button className="sendButton" onClick={() => leaveRoom(chatData, socket)}>leave channel</button>
 		<Modal isOpen={isOpen} onClose={onClose}>
 		<ModalOverlay />
