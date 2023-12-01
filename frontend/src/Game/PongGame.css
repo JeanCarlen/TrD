@@ -7,12 +7,13 @@
 	overflow: hidden;
   }
   
-  canvas {
+  /* canvas {
 	border: 1px solid white;
 	max-width: 90%;
 	max-height: 90%; 
   }
-  
+   */
+   
   .score {
 
 	border: 1px solid white;
@@ -25,13 +26,13 @@
 	padding: 0 20px;
   }
   
-  .canvas-container {
+  /* .canvas-container {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	width: 90%;
 	height: 90%;
-  }
+  } */
   
   .CustomButton {
 	background-color: grey;
@@ -39,7 +40,6 @@
 	border-radius: 10px;
 	padding: 10px 20px;
 	text-align: center;
-	text-decoration: none;
 	display: inline-block;
 	font-size: 10px;
 	margin: 4px 2px;

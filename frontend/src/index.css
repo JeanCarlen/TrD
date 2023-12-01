@@ -89,3 +89,7 @@ code {
 .login-button2:hover {
   background-color: #1b0512;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

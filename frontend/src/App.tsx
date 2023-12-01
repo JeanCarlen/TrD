@@ -11,14 +11,14 @@ import Routes from "./PrivateRoute"
 import './Game/PongGame.css'
 import { Provider } from 'react-redux';
 import store from './Redux-helpers/store';
-import { WebsocketContextProvider, socket, WebsocketContext } from './context/websocket.context';
+import { WebsocketContextProvider, gsocket, WebsocketContext } from './context/websocket.context';
 import { ToastContainer, toast } from 'react-toastify';
 import { gsocket } from './context/websocket.context';
 
 function App() {
 
   return (
-		<div className='App'>
+		<div className='text-center w-full h-full overflow-auto pt-24 px-2.5 min-h-screen bg-center bg-cover box-border relative h-14 bg-gradient-to-r from-violet-500 to-fuchsia-500'>
 			<Provider store={store}>
 			<WebsocketContextProvider value={socket}>
 				<BrowserRouter>
