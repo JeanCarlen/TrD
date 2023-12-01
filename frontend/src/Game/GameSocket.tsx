@@ -82,7 +82,7 @@ const GameSocket: React.FC = () => {
   const [score2disp, setScore2] = useState<number>(0);
   let intervalId: number = 0;
   let intervalBonus: number = 0;
-  let paddleSize: number = 150;
+  let paddleSize: number = 100;
   let cowLogoImage: HTMLImageElement = new Image();
   let collectableImage: HTMLImageElement = new Image();
   let supervanImage: HTMLImageElement = new Image();
@@ -152,9 +152,7 @@ const GameSocket: React.FC = () => {
     // once at the start of the component
     console.log("in the use effect");
     if (shouldRun) intervalId = window.setInterval(updateGame, 1000 / 30, data);
-    window.addEventListener("keydown", (e: KeyboardEvent<Element>) =>
-      handleKeyPress(e)
-    );
+    window.addEventListener("keydown", (e: KeyboardEvent) => handleKeyPress(e));
 
     cowLogoImage.src = cowLogo;
     supervanImage.src = supervan;
@@ -194,7 +192,7 @@ const GameSocket: React.FC = () => {
     }, 5000);
     return () => {
       if (!data.current.started) {
-        window.removeEventListener("keydown", (e: KeyboardEvent<Element>) =>
+        window.removeEventListener("keydown", (e: KeyboardEvent) =>
           handleKeyPress(e)
         );
         window.clearInterval(intervalId);
@@ -245,8 +243,8 @@ const GameSocket: React.FC = () => {
 
     gsocket.on("ready", (dataBack: { sbx: number; sby: number }) => {
       data.current.paused = 5;
-      data.current.ball.pos_x = 600 / 2;
-      data.current.ball.pos_y = 800 / 2;
+      data.current.ball.pos_x = 450 / 2;
+      data.current.ball.pos_y = 600 / 2;
       data.current.ball.speed_x = dataBack.sbx;
       data.current.ball.speed_y = dataBack.sby;
       data.current.converted = false;
@@ -281,7 +279,7 @@ const GameSocket: React.FC = () => {
         if (dataBack.playerNumber === data.current.player1.pNumber)
           data.current.player1.pos_x = dataBack.pos_x;
         else if (dataBack.playerNumber === data.current.player2.pNumber)
-          data.current.player2.pos_x = 600 - dataBack.pos_x - paddleSize;
+          data.current.player2.pos_x = 450 - dataBack.pos_x - paddleSize;
       }
     );
 
@@ -304,11 +302,11 @@ const GameSocket: React.FC = () => {
           data.current.bonus.speed_y = dataBack.speed_y;
         }
         if (dataBack.playerNumber === data.current.player2.pNumber) {
-          data.current.bonus.pos_x = 600 - dataBack.pos_x;
-          data.current.bonus.pos_y = 800 - dataBack.pos_y;
+          data.current.bonus.pos_x = 450 - dataBack.pos_x;
+          data.current.bonus.pos_y = 600 - dataBack.pos_y;
           data.current.bonus.speed_x = -dataBack.speed_x;
           data.current.bonus.speed_y = -dataBack.speed_y;
-          // data.current = convertBonus(data.current, 800, 600);
+          // data.current = convertBonus(data.current, 600, 450);
         }
       }
     );
@@ -373,11 +371,11 @@ const GameSocket: React.FC = () => {
           data.current.player2.name = dataBack.myName;
           data.current.player2.avatar = dataBack.myAvatar;
           data.current.player2.pNumber = dataBack.playerNumber;
-          data.current.player2.pos_x = 600 - 10 - paddleSize;
+          data.current.player2.pos_x = 450 - 10 - paddleSize;
         }
         data.current.ball = {
-          pos_y: 800 / 2,
-          pos_x: 600 / 2,
+          pos_y: 600 / 2,
+          pos_x: 450 / 2,
           speed_y: 1,
           speed_x: 2,
         };
@@ -423,7 +421,7 @@ const GameSocket: React.FC = () => {
               1,
               data.current.gameID
             );
-            await delay(6000);
+            await delay(4500);
             try {
               clearInterval(intervalId);
               bodyNavigate("/Home");
@@ -476,7 +474,7 @@ const GameSocket: React.FC = () => {
             1,
             data.current.gameID
           );
-        await delay(6000);
+        await delay(4500);
         try {
           bodyNavigate("/Home");
           console.log("cleared: ", clearInterval(intervalId));
@@ -798,7 +796,7 @@ const GameSocket: React.FC = () => {
     });
   };
 
-  const sendhome = () => {
+  const Sendhome = () => {
     try {
       const navigate = useNavigate();
       navigate("/home");
@@ -887,7 +885,7 @@ const GameSocket: React.FC = () => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<Element>) => {
+  const handleKeyPress = (e: KeyboardEvent) => {
     switch (e.key) {
       case "ArrowLeft":
         if (data.current.player1.pos_x >= 25 && data.current.spectator === 0)
@@ -902,65 +900,18 @@ const GameSocket: React.FC = () => {
     }
   };
   return (
-    <div>
-      <div className="flex justify-center items-center h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 overflow hidden">
-        <ToastContainer />
+    <div className="flex flex-col lg:flex-row justify-center h-full items-center w-full overflow-hidden">
+      <div>
         <canvas
-          className="border-solid border-2 border-white"
+          className="border-solid border-2 border-white h-max-full w-max-full object-contain"
           ref={canvasRef}
-          width={600}
-          height={800}
+          width={450}
+          height={600}
         ></canvas>
-        cont
-        <div className="ring ring-white-500 ring-offset-1 flex flex-col justify-between text-lg text-white mt-6 p-5">
-          <img src="../cow.png" alt="Ball" style={{ display: "none" }} />
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={WaitingRoom}
-          >
-            Waiting Room
-          </button>
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={WaitingRoom_bonus}>
-            Waiting Room bonus
-          </button>
-          <br />
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {
-              data.current.color = "pink";
-            }}
-          >
-            PINK
-          </button>
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {
-              data.current.color = "blue";
-            }}
-          >
-            BLUE
-          </button>
-          <br />
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {
-              data.current.legacy = 1;
-            }}
-          >
-            COWMOOO
-          </button>
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {
-              data.current.legacy = 2;
-            }}
-          >
-            SUPERVAN!
-          </button>
+        <div className="border-solid border-2 border-white max-w-[454px] text-lg">
           <span>
             {player1}: {score1disp}
           </span>
-          <br />
           <p>
             {player1} Status in Friends Component: {userStatus}
           </p>
@@ -971,6 +922,55 @@ const GameSocket: React.FC = () => {
             {player2} Status in Friends Component: {userStatus}
           </p>
         </div>
+      </div>
+      <div className="border-solid border-2 border-white h-[604px] w-[454px] lg:w-auto ring-offset-1 flex flex-col lg:self-start justify-between text-lg p-5">
+        <img src="../cow.png" alt="Ball" style={{ display: "none" }} />
+        <button
+          className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
+          onClick={WaitingRoom}
+        >
+          Waiting Room
+        </button>
+        <button
+          className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
+          onClick={WaitingRoom_bonus}
+        >
+          Waiting Room bonus
+        </button>
+        <br />
+        <button
+          className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
+          onClick={() => {
+            data.current.color = "pink";
+          }}
+        >
+          PINK
+        </button>
+        <button
+          className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
+          onClick={() => {
+            data.current.color = "blue";
+          }}
+        >
+          BLUE
+        </button>
+        <br />
+        <button
+          className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
+          onClick={() => {
+            data.current.legacy = 1;
+          }}
+        >
+          COWMOOO
+        </button>
+        <button
+          className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
+          onClick={() => {
+            data.current.legacy = 2;
+          }}
+        >
+          SUPERVAN!
+        </button>
       </div>
     </div>
   );
