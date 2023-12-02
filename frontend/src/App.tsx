@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useEffect, useContext} from 'react';
 import logo from './cow.svg';
 import './App.css';
 import './index.css';
@@ -12,8 +12,11 @@ import './Game/PongGame.css'
 import { Provider } from 'react-redux';
 import store from './Redux-helpers/store';
 import { WebsocketContextProvider, socket, WebsocketContext } from './context/websocket.context';
+import { ToastContainer, toast } from 'react-toastify';
+import { gsocket } from './context/websocket.context';
 
 function App() {
+
   return (
 		<div className='App'>
 			<Provider store={store}>
@@ -22,6 +25,7 @@ function App() {
 					<Routes />
 				</BrowserRouter>
 			</WebsocketContextProvider>
+			<ToastContainer/>
 			</Provider>
 		</div>
   );

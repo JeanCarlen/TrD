@@ -77,8 +77,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		leaver = this.IdWaitlist_bonus.find((one) => (one.socket.id === client.id));
 		if (leaver !== undefined)
 			this.IdWaitlist_bonus.splice(this.IdWaitlist_bonus.indexOf(leaver), 1);
-		let toDelete = this.stock.find((one) => (one?.player1.id === client.id));			
-		//set user status as disconnected
+		let toDelete = this.stock.find((one) => (one?.player1.id === client.id));
+		if (toDelete !== undefined)
+		{
+
+		}
+
     }
     
 	@Inject('UsersService')
@@ -135,17 +139,31 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     }
 
 	@SubscribeMessage('give-roomName')
-	async onGiveRoomName(client: Socket, data: {friend : Socket})
+	async onGiveRoomName(client: Socket, data: {user_id: number})
 	{
 		console.log("into give room name");
-		let curr = await this.stock.find((one) => (one?.player1.id === data.friend.id));
-		this.server.to(client.id).emit('roomName', curr?.roomName);
+		try
+		{
+			let friend = await this.UserList.find((one) => (one.user_id === data.user_id));
+			let curr = this.stock.find((one) => (one?.player1.id === friend?.socket.id));
+			if (curr == undefined)
+				curr =  await this.stock.find((one) => (one?.player2.id === friend?.socket.id));
+			if (curr == undefined)
+				throw new Error(`User not in game`);
+			else
+				this.server.to(client.id).emit('give-roomName', {roomName: curr?.roomName});
+		}
+		catch (error) 
+		{
+			this.server.to(client.id).emit('back_to_home', {error: error.message, reset: true});
+			console.error('Error giving room name:', error.message);
+		}
 	}
 
 	@SubscribeMessage('spectate')
 	async onSpectate(client: Socket, message: { roomName: string})
 	{
-		console.log("into spectate");
+		console.log("into spectate", message);
 		client.join(message.roomName);
 		this.server.to(message.roomName).emit('spectate', message);
 	}
@@ -206,7 +224,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				else
 				{
 					console.log('Found:', userInWaitList.user_id)
-					console.log('Found:', userInWaitList.user_id)
 					if (userInWaitList.socket.id !== client.id)
 						userInWaitList.socket = client;
 					else
@@ -232,8 +249,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         console.log("into delete channel ->", data.roomName);
 		await this.server.to(data.roomName).emit('smb-movede', data);
 		this.server.to(data.roomName).emit('refresh-id');
-
-        // this.server.to(data.roomName).emit('deleted', data);
     }
 
 	@SubscribeMessage('ready')
@@ -257,8 +272,8 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     onGameOver(client: Socket, message: { roomName: string }) {
         console.log("into game over");
         this.server.to(message.roomName).emit('leave-game', message);
-	let user_info = this.UserList.find((one) => (one.socket.id === client.id));
-	this.UsersService.updateStatus(user_info.user_id , 1);
+		let user_info = this.UserList.find((one) => (one.socket.id === client.id));
+		this.UsersService.updateStatus(user_info.user_id , 1);
 //        this.handleDisconnect(client);
     }
 
@@ -430,6 +445,50 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		let user_info = this.UserList.find((one) => (one.socket.id === client.id));
 		if (user_info !== undefined)
 			this.UsersService.updateStatus(user_info.user_id , 1);
+	}
+
+	@SubscribeMessage('invite')
+	async onInvite(client: Socket, message: {inviter: {username: string, user: number, avatar: string}, invited:{username: string, id: number}})
+	{
+		try {
+			let target = await this.UserList.find((one)=> (one.user_id == message.invited.id));
+			if (target == undefined)
+			{
+				console.log('list: ', this.UserList, 'looking for', message.invited.id);
+				console.log('not found');
+				return ;
+			}
+			const blocked = await this.UsersService.blockAnyWayList(message.inviter.user);
+			await blocked.forEach((user)=>{
+				if (user.id == message.invited.id){
+					console.log('found: ', user);
+					throw new Error('User is blocked or blocked you');
+				}
+			});
+			const roomName = client.id + target.socket.id;
+			this.server.to(target.socket.id).emit('invite', {inviter: message.inviter, roomName: roomName});
+			await this.onPongInitSetup(client, {roomName: roomName});
+			this.logger.log('INVITED', message.invited.username);
+		} catch (error){
+			this.logger.log(`Error challenging user: ${error.message}`);
+			this.server.to(client.id).emit('back_to_home', {error: error.message, reset: true});
+
+		}
+	}
+
+	@SubscribeMessage('replyInvite')
+	async replyInvite(client: Socket, message: {roomName: string, status: string})
+	{
+		let target = await this.stock.find((one)=> (one.roomName == message.roomName));
+		if (target == undefined)
+			return;
+		if (message.status == 'accept')
+			await this.onPongInitSetup(client, {roomName: message.roomName});
+		else
+		{
+			this.server.to(target.player1.id).emit('back_to_home', {error: 'The user refused your challenge', reset: true});
+			this.stock.splice(this.stock.indexOf(target), 1);
+		}
 	}
 
     // Define the onCreateSomething method to handle creating something

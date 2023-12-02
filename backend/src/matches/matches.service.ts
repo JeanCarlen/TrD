@@ -58,16 +58,11 @@ export class MatchesService {
 		return [];
 	let user_ids: number[] = [];
 	matches.map((match: Matches) => {
-		if (match.user_1 == current_id)
-			user_ids.push(match.user_2);
-		else if (match.user_2 == current_id)
+		if (!user_ids.includes(match.user_1))
 			user_ids.push(match.user_1);
-		else{
-			user_ids.push(match.user_1);
+		if (!user_ids.includes(match.user_2))
 			user_ids.push(match.user_2);
-		}
 	});
-	user_ids = [current_id, ...user_ids];
 	const users: Users[] = await this.usersRepository.find({
 		where: { id: In(user_ids) }
 	})
@@ -75,7 +70,6 @@ export class MatchesService {
 	await matches.forEach(async (match: Matches) => {
 		const user_1: Users = await users.find((user: Users) => user.id == match.user_1);
 		const user_2: Users = await users.find((user: Users) => user.id == match.user_2);
-		console.log('match for', user_1?.id, user_2?.id);
 		const matchResponse: MatchesResponse = {
 			id: match.id,
 			user_1: match.user_1,
@@ -142,14 +136,11 @@ export class MatchesService {
   }
 
   public async findByUserId(id: number, current_id: number) {
-	// if (id != current_id)
-	// 	throw new NotFoundException('Match not found.');
 	let matches = await this.findAll(id);
 	let retArray: MatchesResponse[] = [];
 	await Promise.all (matches.map((match) => {
 		if (match.user_1 == id || match.user_2 == id)
 		{
-			console.log('adding match:', match.user_1, ' - ', match.user_2, 'with id', id);
 			retArray.push(match);
 		}
 	}))

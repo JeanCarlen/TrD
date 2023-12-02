@@ -6,6 +6,8 @@ import LayoutPlayerstats from "./Layout-playerstats"
 import Cookies from 'js-cookie'
 import decodeToken from '../helpers/helpers'
 import LayoutRanking from "./Layout-ranking";
+import GameInvite from "../Game/Game-Invite";
+import { ToastContainer } from 'react-toastify';
 
 export type User = {
 	username: string,
@@ -67,13 +69,13 @@ const Stats: React.FunctionComponent = () => {
       content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
 
 	return (
-    <div className='stats-container'>
-      <Sidebar />
-      <div className='text'>
-      </div>
-      <div className='grid' style={{paddingBottom:"10vh"}}>
-          {/* <h2>Match History</h2> */}
-        <div className='history_1' style={{overflowY:"auto"}}>
+	<div className='stats-container'>
+	<Sidebar />
+	<div className='text'>
+	</div>
+	<div className='grid' style={{paddingBottom:"10vh"}}>
+		{/* <h2>Match History</h2> */}
+		<div className='history_1' style={{overflowY:"auto"}}>
 			<LayoutPlayerstats data={alldata} User={content}/>
 		</div>
 
@@ -87,12 +89,14 @@ const Stats: React.FunctionComponent = () => {
 			</div>
 			: <div className='history_1' style={{fontSize:"25px"}, {width: '50vw'}}>Loading...</div>
 		}
-        <div className='history_1' style={{width: '25vw'}}>
-          <h2>Leaderboard</h2>
-          <LayoutRanking token={token}/>
-        </div>
-        </div>
-      </div>
+		<div className='history_1' style={{width: '25vw'}}>
+		<h2>Leaderboard</h2>
+		<LayoutRanking token={token}/>
+		</div>
+		</div>
+		<ToastContainer/>
+		<GameInvite/>
+	</div>
   )
 }
 
