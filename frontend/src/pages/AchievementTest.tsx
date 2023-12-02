@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import Sidebar from '../Components/Sidebar';
 import Cookies from 'js-cookie';
 import './Stats.css';
-import { autoGetFetch } from '../helpers/helpers';
 import decodeToken from '../helpers/helpers';
 
 type achievementData={
@@ -26,7 +25,7 @@ const AchTest: React.FC = () => {
 		setPosted(false);
 		const token: string|undefined = Cookies.get("token");
 		let content: {username: string, user: number};
-		if (token != undefined)
+		if (token !== undefined)
 		{
 			content = decodeToken(token);
 		}
@@ -48,7 +47,7 @@ const AchTest: React.FC = () => {
 		setUserFetched(false);
 		const token: string|undefined = Cookies.get("token");
 		let content: {username: string, user: number};
-		if (token != undefined)
+		if (token !== undefined)
 		{
 			content = decodeToken(token);
 		}

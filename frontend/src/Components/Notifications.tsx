@@ -1,14 +1,13 @@
 import React from 'react';
-import { BellIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
+import { BellIcon} from '@chakra-ui/icons'
 import './Notifications.css';
 import ShowMessage from './ShowMessages';
 import { useState, useEffect } from 'react';
 import decodeToken from '../helpers/helpers';
 import Cookies from 'js-cookie';
-import { toast, ToastContainer } from 'react-toastify'
+import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { gsocket } from '../context/websocket.context';
-// import { MessageProps } from './ShowMessages';
 
 interface User {
 	avatar: string,
@@ -38,12 +37,12 @@ interface NotificationIconProps {
 
 const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, senderName, senderID, pendingfriends}: NotificationIconProps) => {
 	const [showFriendRequests, setShowFriendRequests] = useState(false);
-	const [friendRequests, setFriendRequests] = useState<RequestData[]>([]);
+	// const [friendRequests, setFriendRequests] = useState<RequestData[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [counter, setCounter] = useState(0);
 	const token: string|undefined = Cookies.get("token");
 	let content: {username: string, user: number};
-		if (token != undefined)
+		if (token !== undefined)
 			content = decodeToken(token);
 		else
 			content = { username: 'default', user: 0};
@@ -70,7 +69,7 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 		const data = await response.json()
 		setCounter(data.length);
 		console.log("data", data)
-		setFriendRequests(data);
+		// setFriendRequests(data);
 		// console.log("count", counter)
 		// console.log("ID",senderID);
 		// console.log("name", senderName);
@@ -119,15 +118,15 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 
 		useEffect(() =>{
 				const token: string|undefined = Cookies.get("token");
-				const delay = 2000;
+				// const delay = 2000;
 
 				let content: {username: string, user: number};
-				if (token != undefined)
+				if (token !== undefined)
 				{
 					content = decodeToken(token);
 				}
 				else
-				content = { username: 'default', user: 0};
+					content = { username: 'default', user: 0};
 			// setContent(content);
 				updateFriends();
 

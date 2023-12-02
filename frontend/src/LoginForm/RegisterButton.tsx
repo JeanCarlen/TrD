@@ -9,7 +9,6 @@ import '../pages/Home.css'
 import './RegisterButton.css'
 import decodeToken from '../helpers/helpers'
 import { ToastContainer, toast } from 'react-toastify';
-import Notification from '../Components/Notification';
 
 
 const RegisterButton: React.FC = () => {
@@ -25,7 +24,6 @@ const RegisterButton: React.FC = () => {
 	const [tokenContent, setTokenContent] = useState<JWTPayload>();
 
 	useEffect(() => {
-		// handleWelcome();
 		const token: string|undefined = Cookies.get('token')
 		if (token) {
 			let content: JWTPayload = decodeToken(token)

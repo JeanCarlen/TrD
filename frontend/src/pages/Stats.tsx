@@ -35,7 +35,7 @@ const Stats: React.FunctionComponent = () => {
 	const token: string|undefined = Cookies.get("token");
 	let content: {username: string, user: number, avatar: string};
 
-	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+	// const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 	useEffect (() => {
 		fetchMatches();
@@ -63,7 +63,7 @@ const Stats: React.FunctionComponent = () => {
 		}
 	}
 
-	if (token != undefined)
+	if (token !== undefined)
       content = decodeToken(token);
     else
       content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
@@ -87,7 +87,7 @@ const Stats: React.FunctionComponent = () => {
 					);
 			})}
 			</div>
-			: <div className='history_1' style={{fontSize:"25px"}, {width: '50vw'}}>Loading...</div>
+			: <div className='history_1' style={{fontSize:"25px", width: '50vw'}}>Loading...</div>
 		}
 		<div className='history_1' style={{width: '25vw'}}>
 		<h2>Leaderboard</h2>

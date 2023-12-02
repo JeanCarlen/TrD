@@ -11,7 +11,7 @@ type ranking = {
 }
 
 type props = {
-	token: string,
+	token: string|undefined,
 }
 
 const LayoutRanking: React.FC<props> = ({token}: props) => {

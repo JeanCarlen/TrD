@@ -1,12 +1,10 @@
-import React from "react";
-import { combineReducers } from '@reduxjs/toolkit';
 import decodeToken from '../helpers/helpers'
 import Cookies from 'js-cookie'
 
 
 const token: string|undefined = Cookies.get("token");
 let content: {username: string, user: number};
-if (token != undefined)
+if (token !== undefined)
 {
   content = decodeToken(token);
 }

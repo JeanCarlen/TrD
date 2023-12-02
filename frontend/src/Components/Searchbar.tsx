@@ -1,18 +1,16 @@
-import { Input, Stack, Button, InputGroup, InputRightElement } from '@chakra-ui/react'
-import ReactDOM from 'react-dom/client';
+import { Input, InputGroup, InputRightElement } from '@chakra-ui/react'
 import { useState } from 'react';
 import Cookies from 'js-cookie';
 import '../pages/Users.css'
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { Tooltip } from '@chakra-ui/react'
 
 
 function Searchbar() {
 	const navigate = useNavigate();
 	const [searchTerm, setSearchTerm] = useState('');
-	const [searchHistory, setSearchHistory] = useState<string[]>([]);
-	const [suggestions, setSuggestions] = useState<string[]>([]);
+	// const [searchHistory, setSearchHistory] = useState<string[]>([]);
+	// const [suggestions, setSuggestions] = useState<string[]>([]);
 
 	const token = Cookies.get('token');
 	const handleSearch = async () => {
@@ -38,7 +36,7 @@ function Searchbar() {
 			else if (searchTerm === data[0].username)
 			{
 				console.log(data);
-				const userID = data[0].id;
+				// const userID = data[0].id;
 				navigate(`/profiles/${searchTerm}`); //add the right url with the username of the person found
 			}
 			else

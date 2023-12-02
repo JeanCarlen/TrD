@@ -1,18 +1,11 @@
-import React, {useContext} from "react";
-// import styled from 'styled-components'
+import React from "react";
 import './Home.css'
-import Sidebar from '../Components/Sidebar'
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import { WebsocketContext } from "../context/websocket.context";
-import {Routes as Router, Route, Navigate, Outlet} from 'react-router-dom';
-import { globalSocket } from "../PrivateRoute";
-import { useSelector } from 'react-redux';
+import {Routes as Navigate} from 'react-router-dom';
 import { setUserStatus } from '../Redux-helpers/action';
 import { useDispatch } from 'react-redux';
 import { gsocket } from "../context/websocket.context";
-// import {isRegistered} from '../PrivateRoute'
-
 
 type Props = {}
 
@@ -23,13 +16,13 @@ const Logout = (props: Props) => {
 	// const socket = globalSocket;
 	// Cookies.set('registered', 'false', {expires: 7});
 	let tokenVal = Cookies.get('token');
-	if (!tokenVal)
-		tokenVal = '';
-	Cookies.set('token', tokenVal, { expires: -7})
-	dispatch(setUserStatus('Offline'));
+	if (!tokenVal) tokenVal = '';
+	Cookies.set('token', tokenVal, { expires: -7 });
+	dispatch(setUserStatus(0));
 	gsocket.disconnect();
-	return <Navigate to='/login' replace />
-}
+
+	return <Navigate to ='/login' replace={true} />;
+};
 
 export default Logout;
 

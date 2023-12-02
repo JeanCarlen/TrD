@@ -1,6 +1,4 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { setUserStatus } from '../Redux-helpers/action';
 
 interface statusProps {
   status: number | undefined;

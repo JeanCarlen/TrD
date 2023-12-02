@@ -1,30 +1,28 @@
 import { Link } from 'react-router-dom'
 import React from 'react'
-import * as FaIcons from 'react-icons/fa'
 import { SidebarData } from './SidebarData'
 import styled from 'styled-components'
 import '../App.css';
 import { useState } from 'react'
-import Logout from '../pages/LogOut'
 import './Sidebar.css'
 
-const MenuIconClose = styled(Link)`
-    display: flex;
-    justify-content: start;
-    font-size: 1.5rem;
-    margin-top: 2rem;
-    padding-left: 20px;
-    color: #ffffff;
-`
+// const MenuIconClose = styled(Link)`
+//     display: flex;
+//     justify-content: start;
+//     font-size: 1.5rem;
+//     margin-top: 2rem;
+//     padding-left: 20px;
+//     color: #ffffff;
+// `
 
-const MenuIconOpen = styled(Link)`
-    display: flex;
-    justify-content: start;
-    font-size: 1.5rem;
-    margin-top: -2rem;
-    margin-left: 15rem;
-    color: #ffffff;
-`
+// const MenuIconOpen = styled(Link)`
+//     display: flex;
+//     justify-content: start;
+//     font-size: 1.5rem;
+//     margin-top: -2rem;
+//     margin-left: 15rem;
+//     color: #ffffff;
+// `
 const SidebarMenu = styled.div`
     width: 100px;
     height: 100%;
@@ -40,7 +38,6 @@ const SidebarMenu = styled.div`
 
     }
     `
-    // left: ${({ close}) => close ? '0' : '-100%'};
 const MenuItems = styled.li`
     list-style: none;
     display: flex;
@@ -54,8 +51,8 @@ const MenuItems = styled.li`
     const MenuItemLinks = styled(Link)`
 `
 const Sidebar: React.FunctionComponent = () => {
-    const [close, setClose] = useState(false)
-    const showSidebar = () => setClose(!close)
+    // const [close, setClose] = useState(false)
+    // const showSidebar = () => setClose(!close)
     const [hoveredLogo, setHoveredLogo] = useState<string | null>(null);
 
     const handleMouseEnter = (pageName: string) => {

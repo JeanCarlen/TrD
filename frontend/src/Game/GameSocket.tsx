@@ -166,7 +166,7 @@ useEffect(() => {
 	cowLogoImage.src = cowLogo;
 	supervanImage.src = supervan;
 	collectableImage.src = collectable;
-	if (token != undefined)
+	if (token !== undefined)
 	{
 		content = decodeToken(token);
 		console.log('registering token' , content);
@@ -209,7 +209,7 @@ useEffect(() => {
 	gsocket.on('connect', () => {
 		console.log(gsocket.id);
 		console.log('Connected');
-		dispatch(setUserStatus('online'));
+		dispatch(setUserStatus(1));
 		console.log("status", userStatus)
 	});
 
@@ -217,7 +217,7 @@ useEffect(() => {
 		console.log('sending info', dataBack);
 		data.current.NameOfRoom = dataBack;
 		SendInfo(dataBack);
-		dispatch(setUserStatus('in-game'));
+		dispatch(setUserStatus(2));
 	});
 
 	gsocket.on('pong-init-setup', (playerNumber: number) => {
@@ -262,7 +262,7 @@ useEffect(() => {
 				gsocket.emit('gameState', {data: data.current, roomName: data.current.NameOfRoom});
 			}
 		}, 1000);
-		if (data.current.paused == 0)
+		if (data.current.paused === 0)
 		{
 			clearInterval(intervalPause);
 		}
@@ -271,7 +271,7 @@ useEffect(() => {
 
 	gsocket.on('leave-game', (roomName: string) => {
 		console.log(gsocket.id , ' left : ', roomName);
-		dispatch(setUserStatus('online'));
+		dispatch(setUserStatus(1));
 	});
 
 	gsocket.on('paddle-send', (dataBack: {playerNumber : number, pos_x: number}) => {
@@ -381,7 +381,7 @@ useEffect(() => {
 		{
 			if (dataBack.player !== data.current.player1.pNumber)
 			{
-				if (dataBack.gameID != 0)
+				if (dataBack.gameID !== 0)
 					data.current.gameID = dataBack.gameID;
 				if (data.current.player1.pNumber === 1)
 					data.current.score1 = dataBack.max;
@@ -453,7 +453,7 @@ useEffect(() => {
 		data.current.converted = false;
 		data.current.bonusActive = false;
 		setCanvas(false);
-		dispatch(setUserStatus('offline'));
+		dispatch(setUserStatus(0));
 	});
 
 	gsocket.on('give-roomName', (dataBack: {roomName: string}) => {
@@ -751,7 +751,7 @@ const spectate = () => {
 }
 
 const giveRoom = () => {
-	if (token != undefined)
+	if (token !== undefined)
 	{
 		content = decodeToken(token);
 		console.log(content);
@@ -761,7 +761,7 @@ const giveRoom = () => {
 };
 
 const WaitingRoom = () => { 
-	if (token != undefined)
+	if (token !== undefined)
 	{
 		content = decodeToken(token);
 		console.log(content);
@@ -771,7 +771,7 @@ const WaitingRoom = () => {
 };
 
 const WaitingRoom_bonus = () => {
-	if (token != undefined)
+	if (token !== undefined)
 	{
 		content = decodeToken(token);
 		console.log(content);
