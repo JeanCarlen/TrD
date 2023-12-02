@@ -84,8 +84,8 @@ const FriendListProfile: React.FC<FriendData> = ({friend}) => {
 		  {
 			  console.log("friendlist", data1);
 			  setFriends(data1);
-			  if (data[0] != undefined)
-			 	 setIsSender(content.username === data1[0].requested_user.username);		  }
+			  if (data1[0] != undefined)
+			 	 setIsSender(content.username === data1[0].requested_user.username);}
 	  }
 	  
 	  useEffect(() =>{

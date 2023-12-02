@@ -63,8 +63,6 @@ const navigate = useNavigate();
 
   useEffect(() =>{
     const token: string|undefined = Cookies.get("token");
-    const [curr_user, setCurrUser] = useState<string>('');
-    const [connected, setConnected] = useState<boolean>(false);
     let content: {username: string, user: number, avatar: string};
       if (token != undefined)
       {
@@ -74,8 +72,6 @@ const navigate = useNavigate();
         content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'};
     
       
-      setCurrUser(content.username);
-      console.log("curr user", curr_user);
       GetUserinfo();
       fetchMatches(content.user);
     }, []);
@@ -151,7 +147,7 @@ function SpectateGame (user: User)
     }
 }
 
-  return (
+return (
       <ChakraProvider resetCSS={false}>
           <Searchbar/>
         <div>
@@ -180,9 +176,6 @@ function SpectateGame (user: User)
             <div className='profile-border'>
             Invite {users} for a game
             </div>
-			<div className='profile-border'>
-			Invite {users} for a game
-			</div>
 	<div className='profile-border'>
 		<FaIcons.FaHandPaper cursor='pointer' style={{marginLeft: '5px', fontSize: '30pt'}} onClick={() => handleBlockUser(friend, token)}/><br/>
 		Block {users}
