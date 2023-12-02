@@ -1,16 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {useEffect, useState } from 'react';
 import {
 	Menu,
 	MenuButton,
 	MenuList,
 	MenuItem,
-	MenuItemOption,
-	MenuGroup,
-	MenuOptionGroup,
-	MenuDivider,
 	Button,
   } from '@chakra-ui/react'
-import { ChevronDownIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon} from '@chakra-ui/icons'
 import { useNavigate } from 'react-router-dom';
 import '../pages/LetsPlay'
 import Cookies from 'js-cookie';
@@ -19,12 +15,12 @@ import '../pages/Chat.css';
 import decodeToken from '../helpers/helpers';
 import { Socket } from 'socket.io-client';
 import {toast, ToastContainer } from 'react-toastify';
-import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
-import {ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
+import { Avatar} from '@chakra-ui/react'
+import {ChakraProvider, WrapItem} from '@chakra-ui/react'
 import './ChatInterface.css'
 import * as FaIcons from 'react-icons/fa'
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, useDisclosure } from "@chakra-ui/react";
-import {gsocket, WebsocketContext } from "../context/websocket.context";
+import {gsocket } from "../context/websocket.context";
 import ShowStatus from '../Components/FriendStatus';
 
 
@@ -54,7 +50,7 @@ const handleAddUser = (user: User) => {
 export  const handleBlockUser = async (user: User, token: string|undefined) => {
 	console.log(`Blocking user: ${user.username}`);
 	let content: {username: string, user: number, avatar: string};
-	if (token != undefined)
+	if (token !== undefined)
 		content = decodeToken(token);
 	else
 		return;
@@ -81,10 +77,10 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 	else
 		way = mode;
 	console.log(`setting user ${user.username} as ${way} `);
-	if (chat == undefined)
+	if (chat === undefined)
 		return;
 	let content: {username: string, user: number, avatar: string};
-	if (token != undefined)
+	if (token !== undefined)
 	{
 		content = decodeToken(token);
 	}
@@ -109,7 +105,7 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 	}
 
 	const deleteChannel = async (chat: chatData|undefined, socket: Socket) => {
-		if (chat == undefined)
+		if (chat === undefined)
 			return;
 		console.log('message: ', {chat_id: chat.chat_id, roomName: chat.chat.name});
 		socket.emit("delete-channel", {chat_id: chat.chat_id, roomName: chat.chat.name});

@@ -112,39 +112,44 @@ const fetchMatches = async (theID:number) => {
 	});
 	if (response.ok)
 	{
-	try {
-		let data = await response.json();
-		data.sort((a: gameData, b: gameData) => (a.id > b.id) ? 1 : -1);
-		setGameFetched(true);
-		console.log("Data fetched", data);
-		setDataMatches(data.slice(-3).reverse());
-	}
-	catch (e) {
-		console.log("Error in response", e);
-	}
-	}
-	else
-	{
-	console.log("Error fetching matches");
-	}
+    try {
+      let data = await response.json();
+      data.sort((a: gameData, b: gameData) => (a.id > b.id) ? 1 : -1);
+      setGameFetched(true);
+      console.log("Data fetched", data);
+      setDataMatches(data.slice(-3).reverse());
+    }
+    catch (e) {
+      console.log("Error in response", e);
+      }
+  }
+  else
+  {
+    console.log("Error fetching matches");
+  }
 }
 
-function Game (user: User)
+function SpectateGame (user: User)
 {
-	let content;
-	if(token !== undefined)
-		content = decodeToken(token);
-	else
-		return ;
-	try
-	{
-		if(content.user !== user.id)
-		{
-		gsocket.emit('give-roomName', {user_id: user.id});
-		console.log('spectate game :', user.id);
-		navigate('/game');
-		}
-	}
+    let content;
+    if(token !== undefined)
+      content = decodeToken(token);
+    else
+      return ;
+    try
+    {
+      if(content.user !== user.id)
+      {
+      gsocket.emit('give-roomName', {user_id: user.id});
+      console.log('spectate game :', user.id);
+      navigate('/game');
+      }
+    }
+    catch (error)
+    {
+      console.log(error);
+    }
+}
 
   return (
       <ChakraProvider resetCSS={false}>

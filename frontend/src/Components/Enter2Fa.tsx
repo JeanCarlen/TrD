@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import Sidebar from '../Components/Sidebar'
 import Cookies from 'js-cookie'
 import decodeToken from '../helpers/helpers';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../pages/Chat.css'
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +9,7 @@ import * as FaIcons from 'react-icons/fa'
 
 const Enter2Fa: React.FC<{}> = () => {
 	const [token, setToken] = useState('')
-	const [tokenContent, setTokenContent] = useState<JWTPayload>()
+	// const [tokenContent, setTokenContent] = useState<JWTPayload>()
 	const [code, setCode] = useState('');
 	const [loading, setLoading] = useState(false);
 
@@ -21,7 +20,7 @@ const Enter2Fa: React.FC<{}> = () => {
 		if (token !== undefined) {
 			let content: JWTPayload = decodeToken(token)
 			setToken(token)
-			setTokenContent(content)
+			// setTokenContent(content)
 		}
 		if (!token)
 			navigate('/Login');

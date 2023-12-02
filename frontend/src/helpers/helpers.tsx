@@ -8,7 +8,7 @@ export default function decodeToken(token: string): JWTPayload {
 	return (payload);
 }
 
-export function  autoGetFetch(path: string): any
+export function  AutoGetFetch(path: string): any
 {
 	const [achieve, setAchieve] = useState([]);
 	const [fetched, setFetched] = useState<boolean>(false);

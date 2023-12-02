@@ -1,11 +1,9 @@
-import React, {useEffect, useContext } from 'react';
+import React, {useContext } from 'react';
+import {gsocket } from './context/websocket.context';
 import { AuthContext } from './AuthContext';
-import Sidebar from './Components/Sidebar';
-import Users from './pages/Users';
 import Game from './pages/LetsPlay';
 import Chat from './chat/Chat';
 import Stats from './pages/Stats';
-import SignIn from './pages/SingIn';
 import Home from './pages/Home';
 import Logout from './pages/LogOut';
 import Profiles from './Social/Profiles';
@@ -14,23 +12,19 @@ import { Socket } from 'socket.io-client';
 import {Routes as Router, Route, Navigate, Outlet} from 'react-router-dom';
 import RegisterButton from './LoginForm/RegisterButton';
 import Cookies from 'js-cookie';
-import { isToken } from 'typescript';
 import decodeToken from './helpers/helpers';
-import { useParams } from 'react-router-dom';
 import MFASetup from './pages/mfasetup';
 import Enter2Fa from './Components/Enter2Fa';
 import AchTest from './pages/AchievementTest';
-import { useSelector } from 'react-redux';
 import { setUserStatus } from './Redux-helpers/action';
 import { useDispatch } from 'react-redux';
 export let globalSocket: Socket;
-import {gsocket, WebsocketContext } from './context/websocket.context';
 
 type Props = {}
 
 const PrivateRoutes = () => {
 	const dispatch = useDispatch();
-	const isRegistered = Cookies.get('registered');
+	// const isRegistered = Cookies.get('registered');
 	const token = Cookies.get('token');
 	const { authenticated } = useContext(AuthContext)
 
@@ -60,7 +54,7 @@ const PrivateRoutes = () => {
 }
 
 const Routes: React.FC = (props: Props) => {
-	const navigate = useNavigate();
+	// const navigate = useNavigate();
 
 	return (
 		<div className="loginTest">
@@ -68,7 +62,7 @@ const Routes: React.FC = (props: Props) => {
 					<Route path="/login" element={<RegisterButton />} />
 					<Route path="/authenticate" element={<Enter2Fa />} />
 				<Route element={<PrivateRoutes />}>
-					<Route path="/Home" element={<Home />} />
+					<Route path="/Home" element={<Home username={''} user={0} avatar={''} status={''} userStatus={0} />} />
 					{/* <Route path="/users" element={<Users />} /> */}
 					<Route path="/game" element={<Game />} />
 					<Route path="/chats" Component={Chat} />

@@ -1,13 +1,13 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { setUserStatus } from '../Redux-helpers/action';
+// import { setUserStatus } from '../Redux-helpers/action';
 
-interface statusProps {
-  status: number;
+interface RootState {
+  userStatus: number;
 }
 
 const MyStatus: React.FC<{}> = () => {
-  const userStatus = useSelector((state: string) => state.userStatus);
+  const userStatus = useSelector((state: RootState) => state.userStatus);
   let color;
 
   switch (userStatus) {
@@ -37,3 +37,4 @@ const MyStatus: React.FC<{}> = () => {
 };
 
 export default MyStatus;
+

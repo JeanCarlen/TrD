@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, {useEffect } from "react";
 import { gsocket } from "../context/websocket.context";
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import {toast } from 'react-toastify';
 import { User } from "../pages/Stats";
 
 
-
-
-
-const GameInvite: React.FC =() => {
+const GameInvite: React.FC<{}> = () => {
 
 	const navigate = useNavigate();
 
@@ -38,6 +35,8 @@ const GameInvite: React.FC =() => {
 			gsocket.off('invite');
 		}
 	}, [gsocket])
+
+	return null;
 }
 
 export default GameInvite;

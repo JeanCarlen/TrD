@@ -1,44 +1,39 @@
-import { Text, List, ListItem, Flex, Input,
-Stack, Button, InputGroup, InputRightElement } from '@chakra-ui/react'
-import ReactDOM from 'react-dom/client';
+import { Text, List, ListItem, Flex} from '@chakra-ui/react'
+// import ReactDOM from 'react-dom/client';
 import { useState} from 'react';
 import Cookies from 'js-cookie';
-import '../pages/Users.css'
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { CheckCircleIcon, CloseIcon } from '@chakra-ui/icons';
+import '../pages/Users.css'
 import '../pages/Home.css'
-import { Icon, createIcon } from '@chakra-ui/react'
+import '../pages/Stats.css'
 import { useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import decodeToken from '../helpers/helpers';
-import '../pages/Stats.css'
-import { ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
-import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
-import {
-    extendTheme,
-    VStack,
-    HStack,
-    IconButton,
-} from '@chakra-ui/react';
-import '../pages/Home.css';
+import { WrapItem, Wrap} from '@chakra-ui/react'
+import { Avatar} from '@chakra-ui/react'
 import ShowStatus from './FriendStatus';
+import {
+    VStack
+} from '@chakra-ui/react';
 
 export interface FriendData{
 	requester: string;
 	status: number; 
 	id: number;
+	requester_user: string;
+	requested_user: string;
+	username: string;
+	curr_status: string;
+	avatar: string;
 }
 
 const FriendList: React.FC<{}> = () => {
 	const token = Cookies.get('token');
 	const [isSender, setIsSender] = useState<boolean | null>(null);
-	const [status, setStatus] = useState<string>('');
+	// const [status, setStatus] = useState<string>('');
 	const [friends, setFriends] = useState<FriendData[]>([]);
 	let content: {username: string, user: number, avatar: string};
-    if (token != undefined)
+    if (token !== undefined)
       content = decodeToken(token);
     else
       content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
@@ -56,17 +51,17 @@ const FriendList: React.FC<{}> = () => {
 			{
 				console.log("friendlist", data);
 				setFriends(data);
-				if (data[0] != undefined)
+				if (data[0] !== undefined)
 					setIsSender(content.username === data[0].requester_user.username);
 			}
 	}
 
 	useEffect(() =>{
 		const token: string|undefined = Cookies.get("token");
-		const delay = 2000;
+		// const delay = 2000;
 
 		let content: {username: string, user: number};
-		if (token != undefined)
+		if (token !== undefined)
 		{
 			content = decodeToken(token);
 		}
@@ -88,10 +83,10 @@ const FriendList: React.FC<{}> = () => {
 					<Wrap>
 					<WrapItem className='profile-border'>
 					<VStack spacing={4} alignItems="center">
-						<Link to={`/profiles/${friend.requested_user.username}`}>
-						<Avatar size="xs" src={friend.requested_user.avatar}/>
-						<ShowStatus status={friend.requested_user.curr_status}/>
-						<Text display="flex">{friend.requested_user.username}</Text>
+						<Link to={`/profiles/${friend.requested_user?.username}`}>
+						<Avatar size="xs" src={friend.requested_user?.avatar}/>
+						<ShowStatus status={friend.requested_user?.curr_status}/>
+						<Text display="flex">{friend.requested_user?.username}</Text>
 						</Link>
 					</VStack>
 					</WrapItem>
@@ -100,10 +95,10 @@ const FriendList: React.FC<{}> = () => {
 					<Wrap>
 					<WrapItem className='profile-border'>
 					<VStack spacing={4} alignItems="center">
-						<Link to={`/profiles/${friend.requester_user.username}`}>
-						<Avatar size="xs" src={friend.requester_user.avatar}/>
-						<ShowStatus status={friend.requester_user.curr_status}/>
-						<Text display="flex">{friend.requester_user.username}</Text>
+						<Link to={`/profiles/${friend.requester_user?.username}`}>
+						<Avatar size="xs" src={friend.requester_user?.avatar}/>
+						<ShowStatus status={friend.requester_user?.curr_status}/>
+						<Text display="flex">{friend.requester_user?.username}</Text>
 						</Link>
 					</VStack>
 					</WrapItem>
