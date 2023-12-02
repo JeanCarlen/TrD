@@ -5,7 +5,7 @@ import { toast, ToastContainer } from 'react-toastify'
 
 const TurnOff2fa: React.FC<{}> = () => {
 	const [token, setToken] = useState('');
-	const [tokenContent, setTokenContent] = useState<JWTPayload>();
+	// const [tokenContent, setTokenContent] = useState<JWTPayload>();
 	const [code, setCode] = useState('');
 
 	useEffect(() => {
@@ -13,7 +13,7 @@ const TurnOff2fa: React.FC<{}> = () => {
 		if (token) {
 			let content: JWTPayload = decodeToken(token)
 			setToken(token)
-			setTokenContent(content)
+			// setTokenContent(content)
 		}
 	}, [])
 

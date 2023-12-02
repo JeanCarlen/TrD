@@ -43,80 +43,74 @@ interface IdChatProps {
 }
 
 const handleAddUser = (user: User) => {
-  // Implement logic to add the user to your contact list or perform the desired action.
-  // This could involve making an API request to your server.
-  console.log(`Adding user: ${user.username}`);
+	// Implement logic to add the user to your contact list or perform the desired action.
+	// This could involve making an API request to your server.
+	console.log(`Adding user: ${user.username}`);
+  };
+
+export  const handleBlockUser = async (user: User, token: string|undefined) => {
+	console.log(`Blocking user: ${user.username}`);
+	let content: {username: string, user: number, avatar: string};
+	if (token !== undefined)
+		content = decodeToken(token);
+	else
+		return;
+	const response = await fetch(`http://localhost:8080/api/users/block/${user.id}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token
+			},
+			body: JSON.stringify({user_id: user.id})
+		});
+		if (response.ok)
+			toast.info(user.username + ' was successfully blocked', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
+		else 
+			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
 };
 
-export const handleBlockUser = async (
-  user: User,
-  token: string | undefined
-) => {
-  console.log(`Blocking user: ${user.username}`);
-  let content: { username: string; user: number; avatar: string };
-  if (token !== undefined) content = decodeToken(token);
-  else return;
-  const response = await fetch(
-    `http://localhost:8080/api/users/block/${user.id}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-      body: JSON.stringify({ user_id: user.id }),
-    }
-  );
-  if (response.ok)
-    toast.info(user.username + " was successfully blocked", {
-      position: toast.POSITION.BOTTOM_LEFT,
-      className: "toast-info",
-    });
-  else
-    toast.error("Error: " + response.status, {
-      position: toast.POSITION.BOTTOM_LEFT,
-      className: "toast-error",
-    });
+const adminUser = async (chat: chatData|undefined, user: User, token: string|undefined, mode: string) => {
+	let way: string = user.isAdmin == true ? 'unadmin' : 'admin';
+	if (mode == 'admin')
+		way = user.isAdmin == true ? 'unadmin' : 'admin';
+	else if (mode == 'mute')
+		way = user.isMuted == true ? 'unmute' : 'mute';
+	else
+		way = mode;
+	console.log(`setting user ${user.username} as ${way} `);
+	if (chat === undefined)
+		return;
+	let content: {username: string, user: number, avatar: string};
+	if (token !== undefined)
+	{
+		content = decodeToken(token);
+	}
+	else
+		return;
+	const response = await fetch(`http://localhost:8080/api/chats/${chat.chat_id}/users/${way}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token
+			},
+			body: JSON.stringify({user_id: user.id, requester: content?.user, })
+		});
+		if (response.ok)
+			toast.info(user.username + ' was successfully ' + way, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
+		else 
+			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
 };
 
-const adminUser = async (
-  chat: chatData | undefined,
-  user: User,
-  token: string | undefined,
-  mode: string
-) => {
-  let way: string = user.isAdmin === true ? "unadmin" : "admin";
-  if (mode === "admin") way = user.isAdmin === true ? "unadmin" : "admin";
-  else if (mode === "mute") way = user.isMuted === true ? "unmute" : "mute";
-  else way = mode;
-  console.log(`setting user ${user.username} as ${way} `);
-  if (chat === undefined) return;
-  let content: { username: string; user: number; avatar: string };
-  if (token !== undefined) {
-    content = decodeToken(token);
-  } else return;
-  const response = await fetch(
-    `http://localhost:8080/api/chats/${chat.chat_id}/users/${way}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-      body: JSON.stringify({ user_id: user.id, requester: content?.user }),
-    }
-  );
-  if (response.ok)
-    toast.info(user.username + " was successfully " + way, {
-      position: toast.POSITION.BOTTOM_LEFT,
-      className: "toast-info",
-    });
-  else
-    toast.error("Error: " + response.status, {
-      position: toast.POSITION.BOTTOM_LEFT,
-      className: "toast-error",
-    });
-};
+	const leaveRoom = (chat: chatData|undefined, socket: Socket) => {
+		socket.emit('leave-chat', {chat_id: chat?.chat_id, roomName: chat?.chat.name, user_id: chat?.user_id});
+	}
+
+	const deleteChannel = async (chat: chatData|undefined, socket: Socket) => {
+		if (chat === undefined)
+			return;
+		console.log('message: ', {chat_id: chat.chat_id, roomName: chat.chat.name});
+		socket.emit("delete-channel", {chat_id: chat.chat_id, roomName: chat.chat.name});
+	};
 
 const leaveRoom = (chat: chatData | undefined, socket: Socket) => {
   socket.emit("leave-chat", {
@@ -134,6 +128,7 @@ const deleteChannel = async (chat: chatData | undefined, socket: Socket) => {
     roomName: chat.chat.name,
   });
 };
+
 
 const IdChatUser: React.FC<IdChatProps> = ({
   chatData,
@@ -435,7 +430,6 @@ const IdChatUser: React.FC<IdChatProps> = ({
                   </Menu>
                 </li>
               ))}
-
             <>
               {currentUser?.isOwner === true ? (
                 <>

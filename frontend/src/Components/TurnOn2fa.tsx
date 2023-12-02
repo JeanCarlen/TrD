@@ -3,7 +3,7 @@ import Cookies from 'js-cookie'
 import decodeToken from '../helpers/helpers';
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
-import { Button, ButtonGroup } from '@chakra-ui/react'
+import { Button } from '@chakra-ui/react'
 
 const TurnOn2fa: React.FC<{}> = () => {
 	const [active, setActive] = useState(false)
@@ -39,7 +39,7 @@ const TurnOn2fa: React.FC<{}> = () => {
 	}
 
 	const turnOn = async (e: React.FormEvent) => {
-		if (code == '') {
+		if (code === '') {
 			toast.error('Code cannot be empty.', {
 				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-error'

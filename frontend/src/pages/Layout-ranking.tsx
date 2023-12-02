@@ -11,7 +11,7 @@ type ranking = {
 }
 
 type props = {
-	token: string,
+	token: string|undefined,
 }
 
 const LayoutRanking: React.FC<props> = ({token}: props) => {
@@ -37,17 +37,20 @@ const LayoutRanking: React.FC<props> = ({token}: props) => {
 	};
 
 	const createUser = async (user_id: number, user_data: User) => {
-		rankList[user_id] = {user_id: user_id, username: user_data.username, avatar: user_data.avatar, ranking: 0}
+		let newUser: ranking;
+		newUser = {user_id: user_id, username: user_data.username, avatar: user_data.avatar, ranking: 0};
+		return newUser;
+		// rankList[user_id] = {user_id: user_id, username: user_data.username, avatar: user_data.avatar, ranking: 0}
 	}
 
 	const calculateRanking = async () => {
 		let matchList: gameData[] = await fetchMatches();
-		let tempList: ranking[] = rankList;
+		let tempList: ranking[] = [];
 		await Promise.all(matchList.map(async (match) => {
 			if (tempList[match.user_1] === undefined)
-				await createUser(match.user_1, match.user_1_data);
+				tempList[match.user_1] = await createUser(match.user_1, match.user_1_data);
 			if (tempList[match.user_2] === undefined)
-				await createUser(match.user_2, match.user_2_data);
+				tempList[match.user_2] = await createUser(match.user_2, match.user_2_data);
 			if (match.score_1 > match.score_2)
 			{
 				console.log('ranklist: ',tempList);

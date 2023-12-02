@@ -1,9 +1,7 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { setUserStatus } from '../Redux-helpers/action';
 
 interface statusProps {
-  status: number;
+  status: number | undefined;
 }
 
 const ShowStatus: React.FC<statusProps> = ({status}) => {
@@ -28,8 +26,8 @@ const ShowStatus: React.FC<statusProps> = ({status}) => {
   return (
     <div
       style={{
-        width: '10px',
-        height: '10px',
+        width: '15px',
+        height: '15px',
         borderRadius: '50%',
         backgroundColor: color,
       }}

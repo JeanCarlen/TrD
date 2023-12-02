@@ -1,57 +1,46 @@
 import React, { useEffect } from 'react'
 // import styled from 'styled-components'
-import { ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
-import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
+import { ChakraProvider, WrapItem, Wrap} from '@chakra-ui/react'
+import { Avatar } from '@chakra-ui/react'
 import Sidebar from '../Components/Sidebar'
 import './Home.css'
 import {
-    extendTheme,
-    VStack,
-    HStack,
-    IconButton,
-    Input,
+    VStack
 } from '@chakra-ui/react';
-import AvatarUpload from '../Components/AvatarUpload'
 import { useState } from 'react'
-import { EditIcon } from '@chakra-ui/icons'
 import { useRef } from 'react'
-import RegisterButton from '../LoginForm/RegisterButton'
-import { useNavigate } from 'react-router-dom'
-import GoogleAuth from '../Components/2FA'
 import decodeToken from '../helpers/helpers'
 import Cookies from 'js-cookie'
 import Searchbar from '../Components/Searchbar'
 import FriendList from '../Components/Friends'
 import UserInformation from '../Components/UserInformation'
 import LayoutGamestats from './Layout-gamestats'
-import {ToastContainer, toast} from 'react-toastify'
-import {gameData, User} from './Stats'
-import ShowStatus from '../Components/FriendStatus'
+import {ToastContainer} from 'react-toastify'
+import {gameData} from './Stats'
 import { useSelector } from 'react-redux';
-import { setUserName, setUserStatus } from '../Redux-helpers/action';
 import { useDispatch } from 'react-redux';
-import { connect } from 'react-redux';
 import GetUserName from '../Components/testusername'
 import MyStatus from '../Components/Status'
+import GameInvite from '../Game/Game-Invite'
 
 type Props = {
     username: string;
     user: number;
     avatar: string;
     status: string;
+    userStatus: number;
 }
 
 
-
 const Home = (props: Props) => {
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [gameFetched, setGameFetched] = useState<boolean>(false);
   const [dataLast, setDataLast] = useState<gameData[]>([]);
-  const [friendsFetched, setFriendsFetched] = useState<boolean>(false);
+  // const [friendsFetched, setFriendsFetched] = useState<boolean>(false);
   const [username, setUsername] = useState<string>('');
-  const dispatch = useDispatch();
-  const mainUsername = useSelector((state: string) => state.username);
-  const userStatus = useSelector((state: string) => state.userStatus);
+  // const dispatch = useDispatch();
+  const mainUsername = useSelector((state: Props) => state.username);
+  const userStatus = useSelector((state: Props) => state.userStatus);
   const token: string|undefined = Cookies.get("token");
   let content: {username: string, user: number, avatar: string};
   
@@ -109,7 +98,7 @@ const Home = (props: Props) => {
 		setGameFetched(true);
 	};
 
-    if (token != undefined)
+    if (token !== undefined)
       content = decodeToken(token);
     else
       content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
@@ -126,19 +115,11 @@ const Home = (props: Props) => {
 		<div>
         <ChakraProvider resetCSS={false}>
         <Searchbar/>
-        <UserInformation username={mainUsername}/>
+        <UserInformation username={mainUsername} userStatus={userStatus}/>
         <div>
         <Sidebar/>
         <div>
           <div className='topBox'>
-            {/* <form action=''>
-              <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              onChange={handleAvatarChange}
-              />
-            </form> */}
             <Wrap>
             <WrapItem className='profile-border'>
             <VStack spacing={4} alignItems="center">
@@ -152,7 +133,6 @@ const Home = (props: Props) => {
             </div>
           </div>
             </VStack>
-              {/* <h1 className="welcome">Hello {content.username}! </h1> */}
               <GetUserName username={content.username}/>
              </WrapItem>
             </Wrap>
@@ -186,6 +166,7 @@ const Home = (props: Props) => {
         </div>
         {/* </div> */}
         </ChakraProvider>
+		<GameInvite/>
 		<ToastContainer/>
 		</div>
 )

@@ -143,12 +143,10 @@
 	border-radius: 4px;
 	padding: 8px 16px;
 	cursor: pointer;
-	position:relative;
 	right:100px;
-	z-index: 15;
 
 	&:hover {
-		background-color: #310c22;
+		background-color: #e690c3;
 	  }
 }
 

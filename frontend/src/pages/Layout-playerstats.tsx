@@ -1,9 +1,8 @@
 import React from "react";
 import './Stats.css';
-import AvatarUpload from "../Components/AvatarUpload";
 import { gameData } from "./Stats";
-import {ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
-import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
+import {ChakraProvider,} from '@chakra-ui/react'
+import { Avatar } from '@chakra-ui/react'
 
 
 type Props = {
@@ -19,16 +18,16 @@ const LayoutPLayerstats: React.FunctionComponent<Props> = ({data, User}: Props) 
 	let percentage: number = 0;
 
 	data.forEach((element)=> {
-		if (element.status == 0)
+		if (element.status === 0)
 			return;
-		if (element.user_1 == User?.user)
+		if (element.user_1 === User?.user)
 		{
 			if (element.score_1 > element.score_2)
 				wins++;
 			else
 				loss++;
 		}
-		else if (element.user_2 == User?.user)
+		else if (element.user_2 === User?.user)
 		{
 			if (element.score_2 > element.score_1)
 				wins++;
@@ -37,7 +36,10 @@ const LayoutPLayerstats: React.FunctionComponent<Props> = ({data, User}: Props) 
 		}
 	});
 
-	percentage = (wins / (wins + loss)) * 100;
+	if (wins + loss > 0)
+		percentage = Math.round((wins / (wins + loss)) * 100);
+	else
+		percentage = 0;
 
 	return (
 	<ChakraProvider>

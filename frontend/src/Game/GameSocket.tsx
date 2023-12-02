@@ -147,7 +147,7 @@ const GameSocket: React.FC = () => {
       setShouldRun(false);
     }
   }, [canvas]);
-
+  
   useEffect(() => {
     // once at the start of the component
     console.log("in the use effect");

@@ -15,6 +15,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import decodeToken from '../helpers/helpers';
 import { useParams } from 'react-router-dom';
+import '../pages/Stats.css'
+import { ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
+import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
+import {
+    extendTheme,
+    VStack,
+    HStack,
+    IconButton,
+} from '@chakra-ui/react';
+import '../pages/Home.css';
+import ShowStatus from './FriendStatus';
 
 export interface FriendData{
 	requester: string;
@@ -46,6 +57,7 @@ const FriendListProfile: React.FC<FriendData> = ({friend}) => {
 		const data = await response.json()
 		if (response.ok)
 		{
+			console.log("friend page", data);
 			//   setAvatarUrl(data[0].avatar);
 			//   setFriendID(data[0].id);
 			//   fetchMatches(data[0].id);
@@ -72,9 +84,8 @@ const FriendListProfile: React.FC<FriendData> = ({friend}) => {
 		  {
 			  console.log("friendlist", data1);
 			  setFriends(data1);
-			  setIsSender(users === data1[0].requester_user.username);
-		  }
-		  console.log("data1", data1);
+			  if (data[0] != undefined)
+			 	 setIsSender(content.username === data1[0].requested_user.username);		  }
 	  }
 	  
 	  useEffect(() =>{
@@ -102,19 +113,30 @@ const FriendListProfile: React.FC<FriendData> = ({friend}) => {
         {friends.map((friend) => (
           <ListItem key={friend.requester}>
             <Flex alignItems="center">
-              {friend.status === 'online' ? (
-                <CheckCircleIcon boxSize={6} color="green.500" />
-              ) : (
-                <Icon boxSize={6} color='red.500'/>
-              )}
 			{isSender ? (
-				<Link to={`/profiles/${friend.requested_user.username}`}>
-					<Text marginLeft="2">{friend.requested_user.username}</Text>
-				</Link>
+					<Wrap>
+					<WrapItem className='profile-border'>
+					<VStack spacing={4} alignItems="center">
+						<Link to={`/profiles/${friend.requested_user.username}`}>
+						<Avatar size="xs" src={friend.requested_user.avatar}/>
+						<ShowStatus status={friend.requested_user.curr_status}/>
+						<Text display="flex">{friend.requested_user.username}</Text>
+						</Link>
+					</VStack>
+					</WrapItem>
+					</Wrap>
 				) : (
-				<Link to={`/profiles/${friend.requester_user.username}`}>
-					<Text marginLeft="2">{friend.requester_user.username}</Text>
-				</Link>
+					<Wrap>
+					<WrapItem className='profile-border'>
+					<VStack spacing={4} alignItems="center">
+						<Link to={`/profiles/${friend.requester_user.username}`}>
+						<Avatar size="xs" src={friend.requester_user.avatar}/>
+						<ShowStatus status={friend.requester_user.curr_status}/>
+						<Text display="flex">{friend.requester_user.username}</Text>
+						</Link>
+					</VStack>
+					</WrapItem>
+					</Wrap>
 				)}
             </Flex>
           </ListItem>

@@ -23,6 +23,7 @@ const RegisterButton: React.FC = () => {
   const [token, setToken] = useState("");
   const [tokenContent, setTokenContent] = useState<JWTPayload>();
 
+
   useEffect(() => {
     // handleWelcome();
     const token: string | undefined = Cookies.get("token");

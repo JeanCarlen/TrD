@@ -8,6 +8,7 @@ import store from "./Redux-helpers/store";
 import { WebsocketContextProvider, gsocket } from "./context/websocket.context";
 import { ToastContainer } from "react-toastify";
 
+
 function App() {
   return (
     <div className="text-center w-full h-full p-4 overflow-auto min-h-screen bg-center bg-cover box-border relative h-14 bg-gradient-to-r from-violet-500 to-fuchsia-500">
