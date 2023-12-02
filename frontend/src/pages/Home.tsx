@@ -131,14 +131,6 @@ const Home = (props: Props) => {
         <Sidebar/>
         <div>
           <div className='topBox'>
-            {/* <form action=''>
-              <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              onChange={handleAvatarChange}
-              />
-            </form> */}
             <Wrap>
             <WrapItem className='profile-border'>
             <VStack spacing={4} alignItems="center">

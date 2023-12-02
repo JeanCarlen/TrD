@@ -32,6 +32,7 @@ import { handleBlockUser } from '../chat/idChatUser'
 import * as FaIcons from 'react-icons/fa'
 import { ToastContainer } from 'react-toastify';
 import {User} from '../chat/idChatUser'
+import ShowStatus from '../Components/FriendStatus'
 
 export interface profiles {
 	username: string | undefined;
@@ -59,6 +60,8 @@ const Profiles = (props: Props) => {
 
   useEffect(() =>{
     const token: string|undefined = Cookies.get("token");
+    const [curr_user, setCurrUser] = useState<string>('');
+    const [connected, setConnected] = useState<boolean>(false);
     let content: {username: string, user: number, avatar: string};
       if (token != undefined)
       {
@@ -68,6 +71,8 @@ const Profiles = (props: Props) => {
         content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'};
     
       
+      setCurrUser(content.username);
+      console.log("curr user", curr_user);
       GetUserinfo();
       fetchMatches(content.user);
     }, []);
@@ -89,6 +94,7 @@ const Profiles = (props: Props) => {
           setFriend(data[0]);
           await fetchMatches(data[0].id);
           console.log("avatar", avatarUrl);
+
         }
       }
 //   }}, []);
@@ -143,12 +149,17 @@ const Profiles = (props: Props) => {
             <Avatar
             size="2xl"
             src={avatarUrl}/>
+             <div className='icon-container'>
+              <div className='status-circle'>
+                <ShowStatus status={friend?.status} />
+            </div>
+          </div>
             </VStack>
               <h1 className="welcome"> {users} </h1>
              </WrapItem>
             </Wrap>
             <div className='profile-border'>
-				<AddFriend userID={friendid}/>
+            <AddFriend userID={friendid}/>
 				Add {users} as a friend
             </div>
             <div className='profile-border'>
