@@ -112,24 +112,6 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 		socket.emit("delete-channel", {chat_id: chat.chat_id, roomName: chat.chat.name});
 	};
 
-const leaveRoom = (chat: chatData | undefined, socket: Socket) => {
-  socket.emit("leave-chat", {
-    chat_id: chat?.chat_id,
-    roomName: chat?.chat.name,
-    user_id: chat?.user_id,
-  });
-};
-
-const deleteChannel = async (chat: chatData | undefined, socket: Socket) => {
-  if (chat === undefined) return;
-  console.log("message: ", { chat_id: chat.chat_id, roomName: chat.chat.name });
-  socket.emit("delete-channel", {
-    chat_id: chat.chat_id,
-    roomName: chat.chat.name,
-  });
-};
-
-
 const IdChatUser: React.FC<IdChatProps> = ({
   chatData,
   user_id,

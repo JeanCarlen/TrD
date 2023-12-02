@@ -13,7 +13,6 @@ import { toast, ToastContainer } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { setUserStatus } from "../Redux-helpers/action";
 import { useSelector } from "react-redux";
-import store from "../Redux-helpers/store";
 
 export interface GameData {
   NameOfRoom: string;
@@ -205,7 +204,7 @@ const GameSocket: React.FC = () => {
     gsocket.on("connect", () => {
       console.log(gsocket.id);
       console.log("Connected");
-      dispatch(setUserStatus("online"));
+      dispatch(setUserStatus(1));
       console.log("status", userStatus);
     });
 
@@ -213,7 +212,7 @@ const GameSocket: React.FC = () => {
       console.log("sending info", dataBack);
       data.current.NameOfRoom = dataBack;
       SendInfo(dataBack);
-      dispatch(setUserStatus("in-game"));
+      dispatch(setUserStatus(2));
     });
 
     gsocket.on("pong-init-setup", (playerNumber: number) => {
@@ -254,23 +253,23 @@ const GameSocket: React.FC = () => {
             data.current.paused -= 1;
             console.log("paused: ", data.current.paused);
           }
-          if (data.current.player1.pNumber === 1 && data.current.paused === 0) {
+        }, 1000);
+        if (data.current.paused == 0) {
+          clearInterval(intervalPause);
+        }
+        if (data.current.player1.pNumber === 1 && data.current.paused === 0) {
             console.log("gameState sent");
             gsocket.emit("gameState", {
               data: data.current,
               roomName: data.current.NameOfRoom,
             });
           }
-        }, 1000);
-        if (data.current.paused == 0) {
-          clearInterval(intervalPause);
-        }
       }
     });
 
     gsocket.on("leave-game", (roomName: string) => {
       console.log(gsocket.id, " left : ", roomName);
-      dispatch(setUserStatus("online"));
+      dispatch(setUserStatus(1));
     });
 
     gsocket.on(
@@ -485,7 +484,7 @@ const GameSocket: React.FC = () => {
         data.current.converted = false;
         data.current.bonusActive = false;
         setCanvas(false);
-        dispatch(setUserStatus("offline"));
+        dispatch(setUserStatus(0));
       }
     );
 
