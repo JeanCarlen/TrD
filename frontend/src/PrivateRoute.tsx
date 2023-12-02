@@ -1,60 +1,59 @@
-import React, {useContext } from 'react';
-import {gsocket } from './context/websocket.context';
-import { AuthContext } from './AuthContext';
-import Game from './pages/LetsPlay';
-import Chat from './chat/Chat';
-import Stats from './pages/Stats';
-import Home from './pages/Home';
-import Logout from './pages/LogOut';
-import Profiles from './Social/Profiles';
-import { useNavigate } from 'react-router-dom';
-import { Socket } from 'socket.io-client';
-import {Routes as Router, Route, Navigate, Outlet} from 'react-router-dom';
-import RegisterButton from './LoginForm/RegisterButton';
-import Cookies from 'js-cookie';
-import decodeToken from './helpers/helpers';
-import MFASetup from './pages/mfasetup';
-import Enter2Fa from './Components/Enter2Fa';
-import AchTest from './pages/AchievementTest';
-import { setUserStatus } from './Redux-helpers/action';
-import { useDispatch } from 'react-redux';
+
+import Game from "./pages/LetsPlay";
+import Chat from "./chat/Chat";
+import Stats from "./pages/Stats";
+import Home from "./pages/Home";
+import Logout from "./pages/LogOut";
+import Profiles from "./Social/Profiles";
+import { Socket } from "socket.io-client";
+import { Routes as Router, Route, Navigate, Outlet } from "react-router-dom";
+import RegisterButton from "./LoginForm/RegisterButton";
+import Cookies from "js-cookie";
+import decodeToken from "./helpers/helpers";
+import MFASetup from "./pages/mfasetup";
+import Enter2Fa from "./Components/Enter2Fa";
+import AchTest from "./pages/AchievementTest";
+import { setUserStatus } from "./Redux-helpers/action";
+import { useDispatch } from "react-redux";
+import { gsocket } from "./context/websocket.context";
+
 export let globalSocket: Socket;
 
-type Props = {}
+type Props = {};
 
 const PrivateRoutes = () => {
-	const dispatch = useDispatch();
-	// const isRegistered = Cookies.get('registered');
-	const token = Cookies.get('token');
-	const { authenticated } = useContext(AuthContext)
+  const dispatch = useDispatch();
+  const token = Cookies.get("token");
 
-	let tokenContent;
-	if (token) {
-		tokenContent = decodeToken(token);
-	}
-	else
-	{
-		// content = decodeToken(isToken);
-		return <Outlet />
-	}
+        
+  let tokenContent;
+  if (token) {
+    tokenContent = decodeToken(token);
+  } else {
+    // content = decodeToken(isToken);
+    return <Outlet />;
+  }
 
-	if (!token)
-		return <Navigate to='/login' replace />
-	else if (token && tokenContent && tokenContent.twofacodereq)
-		return <Navigate to='/authenticate' replace />
-	else
-	{
-		gsocket.connect();
-		gsocket.emit('connect_id', tokenContent.user);
-		console.log('WebSocket initialised: ', gsocket.id, 'token content', tokenContent.user);
-		dispatch(setUserStatus(1));
-		// globalSocket.emit('userSend', tokenContent.user);
-		return <Outlet />
-	}
-}
+  if (!token) return <Navigate to="/login" replace />;
+  else if (token && tokenContent && tokenContent.twofacodereq)
+    return <Navigate to="/authenticate" replace />;
+  else {
+    gsocket.connect();
+    gsocket.emit("connect_id", tokenContent.user);
+    console.log(
+      "WebSocket initialised: ",
+      gsocket.id,
+      "token content",
+      tokenContent.user
+    );
+    dispatch(setUserStatus(1));
+    // globalSocket.emit('userSend', tokenContent.user);
+    return <Outlet />;
+  }
+};
 
 const Routes: React.FC = (props: Props) => {
-	// const navigate = useNavigate();
+
 
 	return (
 		<div className="loginTest">

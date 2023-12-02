@@ -165,15 +165,18 @@ const Chat: React.FC = () => {
 
 	const joinChatRooms = async (client: Socket) => {
 		let joinData = await getChats();
-		let contentJoin: {username: string, user: number, avatar: string} = await decodeToken(Cookies.get("token"));
-		await joinData?.map((chat : chatData) => {
-			gsocket.emit('quick-join-room', {
-				roomName: chat.chat.name,
-				socketID: client.id,
-				client: contentJoin?.user,
+		const token: string|undefined = Cookies.get("token");
+		if (token) {
+			let contentJoin: { username: string, user: number, avatar: string } = await decodeToken(token);
+			await joinData?.map((chat: chatData) => {
+				gsocket.emit('quick-join-room', {
+					roomName: chat.chat.name,
+					socketID: client.id,
+					client: contentJoin?.user,
+				});
 			});
-		});
-		setLoggedIn(true);
+			setLoggedIn(true);
+		}
 	};
 	
 	useEffect(() => {

@@ -40,6 +40,9 @@ const token: string | undefined = Cookies.get("token");
 const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
 
 	useEffect(() => {
+		const handleKeyPress = (e: KeyboardEvent) => {
+		};
+
 		window.addEventListener('keydown', handleKeyPress);
 		// scrollToBottom();
 		return () => window.removeEventListener('keydown', handleKeyPress);

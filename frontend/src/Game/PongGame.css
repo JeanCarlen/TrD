@@ -4,16 +4,19 @@
 	align-items: center;
 	height: 90vh;
 	background-color: hsla(0, 21%, 16%, 0);
-	overflow: hidden; /* Prevent scrollbars */
+	overflow: hidden;
   }
   
-  canvas {
+  /* canvas {
 	border: 1px solid white;
-	max-width: 90%; /* Ensure the canvas doesn't exceed the viewport width */
-	max-height: 90%; /* Ensure the canvas doesn't exceed the viewport height */
+	max-width: 90%;
+	max-height: 90%; 
   }
-  
+   */
+   
   .score {
+
+	border: 1px solid white;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -23,11 +26,28 @@
 	padding: 0 20px;
   }
   
-  .canvas-container {
+  /* .canvas-container {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	width: 90%;
 	height: 90%;
-  }
+  } */
   
+  .CustomButton {
+	background-color: grey;
+	color: white;
+	border-radius: 10px;
+	padding: 10px 20px;
+	text-align: center;
+	display: inline-block;
+	font-size: 10px;
+	margin: 4px 2px;
+	cursor: pointer;
+	transition-duration: 0.4s;
+
+	&:hover {
+		background-color: white;
+		color: black;
+		}
+  }

@@ -1,42 +1,45 @@
-import React, {useEffect, useRef } from 'react'
-import Cookies from 'js-cookie'
-import { useState } from 'react'
-import decodeToken from '../helpers/helpers'
-import { useDisclosure } from '@chakra-ui/react'
+
+import React, { ReactNode, useEffect, useRef } from "react";
+import Cookies from "js-cookie";
+import { useState } from "react";
+import decodeToken from "../helpers/helpers";
+import { useDisclosure } from "@chakra-ui/react";
 import {
-	Modal,
-	ModalOverlay,
-	ModalContent,
-	ModalHeader,
-	ModalFooter,
-	ModalBody,
-	ModalCloseButton,
-  } from '@chakra-ui/react'
-  import { Button, FormControl, FormLabel, Input} from '@chakra-ui/react'
-  import { toast, ToastContainer } from 'react-toastify'
-  import 'react-toastify/dist/ReactToastify.css'
-import NotificationIcon from './Notifications'
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+} from "@chakra-ui/react";
+import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ShowMessage from "../Components/ShowMessages";
+import NotificationIcon from "./Notifications";
+import { BellIcon, AddIcon, WarningIcon, SettingsIcon } from "@chakra-ui/icons";
 import {
-	Menu,
-	MenuButton,
-	MenuList,
-	MenuItem,
-	MenuGroup,
-	MenuDivider,
-  } from '@chakra-ui/react'
-  import {useNavigate} from 'react-router-dom'
-  import { useSelector } from 'react-redux';
-  import { setUserName } from '../Redux-helpers/action';
-  import { useDispatch } from 'react-redux';
-  import { User } from '../chat/idChatUser';
-  import '../pages/Chat.css'
-  import {Avatar} from '@chakra-ui/react'
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuItemOption,
+  MenuGroup,
+  MenuOptionGroup,
+  MenuDivider,
+} from "@chakra-ui/react";
+import MFASetup from "../pages/mfasetup";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { setUserName, setUserStatus } from "../Redux-helpers/action";
+import { useDispatch } from "react-redux";
 
 type CookieProps = {
 	username: string;
 	userStatus: number;
-};
 
+};
 
 const UserInformation: React.FC<CookieProps> = ({username, userStatus}: CookieProps) => {
 	// const [userID, setUserID] = useState<number>();
@@ -144,37 +147,31 @@ const UserInformation: React.FC<CookieProps> = ({username, userStatus}: CookiePr
 			// dispatch(setUserStatus('Online'));
 			updateUser();
 
-		}, []);
 
-		const handleAvatarChange =  async (event: React.ChangeEvent<HTMLInputElement>) => {
-			const file = event.target.files?.[0];
-			  event.preventDefault();
+    if (file) {
+      const reader = new FormData();
+      reader.append("file", file);
+      console.log("FILE BEFORE FETCH ", reader.get("file"));
+      const response = await fetch("http://localhost:8080/api/file", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+        body: reader,
+      });
+      const data = await response.json();
+      // Cookies.set('token', data.token);
+      console.log("data", data);
+      if (response.ok) {
+        toast.success("Avatar changed successfully!", {
+          position: toast.POSITION.TOP_CENTER,
+        });
+      }
 
-			  if (file) {
-				const reader = new FormData();
-				reader.append('file', file);
-			  console.log("FILE BEFORE FETCH ", reader.get('file'));
-			  const response = await fetch('http://localhost:8080/api/file', {
-				  method: 'POST',
-				  headers: {
-					'Authorization': 'Bearer ' + token,
-				  },
-				  body: reader,
-				})
-				const data = await response.json()
-				// Cookies.set('token', data.token);
-				console.log("data", data);
-				if (response.ok)
-				{
-					toast.success('Avatar changed successfully!', {
-						position: toast.POSITION.TOP_CENTER
-					  })
-				}
-
-				//add a toast
-			  }
-			  updateUser();
-			};
+      //add a toast
+    }
+    updateUser();
+  };
 
 		const updateUsername = async (newName:string) => {
 			const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
@@ -264,19 +261,20 @@ const UserInformation: React.FC<CookieProps> = ({username, userStatus}: CookiePr
       {/* <Button ml={4} ref={finalRef}>
         I'll receive focus on close
 	</Button> */}
-		<div>
-		{fetched && friendRequests.map((request: number) => (
-			<div key={request}>
-			<NotificationIcon
-				count={count}
-				message={"Friend Requests"}
-				senderName={senderName}
-				senderID={senderID[request]}
-				pendingfriends={pendingfriends}
-			/>
-			</div>
-		))}
-		</div>
+      <div>
+        {fetched &&
+          friendRequests.map((request: number) => (
+            <div key={request}>
+              <NotificationIcon
+                count={count}
+                message={"Friend Requests"}
+                senderName={senderName}
+                senderID={senderID[request]}
+                pendingfriends={pendingfriends}
+              />
+            </div>
+          ))}
+      </div>
       <Modal
         initialFocusRef={initialRef}
         finalFocusRef={finalRef}
@@ -290,68 +288,83 @@ const UserInformation: React.FC<CookieProps> = ({username, userStatus}: CookiePr
           <ModalBody pb={7}>
             <FormControl>
               <FormLabel>New Username</FormLabel>
-              <Input value={newName} onChange={(e:any) => setNewName(e.target.value)}ref={initialRef} placeholder='New Username' />
+              <Input
+                value={newName}
+                onChange={(e: any) => setNewName(e.target.value)}
+                ref={initialRef}
+                placeholder="New Username"
+              />
             </FormControl>
           </ModalBody>
 
           <ModalFooter>
-            <Button onClick={() => updateUsername(newName)} colorScheme='blue' mr={3}>
+            <Button
+              onClick={() => updateUsername(newName)}
+              colorScheme="blue"
+              mr={3}
+            >
               Modify
             </Button>
             <Button onClick={onClose}>Save & Close</Button>
           </ModalFooter>
-		</ModalContent>
-		</Modal>
+        </ModalContent>
+      </Modal>
 
-
-		<Modal
-		initialFocusRef={initialRef1}
+      <Modal
+        initialFocusRef={initialRef1}
         finalFocusRef={finalRef1}
         isOpen={isOpen1}
         onClose={onClose1}
-		>
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Change avatar</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={7}>
-			<FormControl>
-			  <FormLabel>New Avatar</FormLabel>
-			  <Input type="file" accept="image/*" ref={fileInputRef} onChange={handleAvatarChange}/>
-			</FormControl>
+            <FormControl>
+              <FormLabel>New Avatar</FormLabel>
+              <Input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleAvatarChange}
+              />
+            </FormControl>
           </ModalBody>
 
-
-		  <ModalFooter>
-            <Button /*onClick={handleAvatarChange} */ onClick={onClose1} colorScheme='blue' mr={3}>
-			  Save & Close
+          <ModalFooter>
+            <Button
+              /*onClick={handleAvatarChange} */ onClick={onClose1}
+              colorScheme="blue"
+              mr={3}
+            >
+              Save & Close
             </Button>
           </ModalFooter>
-		</ModalContent>
+        </ModalContent>
       </Modal>
 
-	  <Modal
-		initialFocusRef={initialRef2}
+      <Modal
+        initialFocusRef={initialRef2}
         finalFocusRef={finalRef2}
         isOpen={isOpen2}
         onClose={onClose2}
-		>
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Setup 2FA</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={7}>
-		  <FormLabel>Setup 2FA</FormLabel>
+            <FormLabel>Setup 2FA</FormLabel>
           </ModalBody>
-		  <ModalFooter>
-            <Button onClick={twofa} colorScheme='blue' mr={3}>
+          <ModalFooter>
+            <Button onClick={twofa} colorScheme="blue" mr={3}>
               Go
             </Button>
             <Button onClick={onClose2}>Cancel</Button>
           </ModalFooter>
-		</ModalContent>
+        </ModalContent>
       </Modal>
-
 	  <Modal
 		initialFocusRef={initialRef3}
         finalFocusRef={finalRef3}
@@ -382,8 +395,7 @@ const UserInformation: React.FC<CookieProps> = ({username, userStatus}: CookiePr
 
 	  <ToastContainer/>
     </>
-)
-}
+  );
+};
 
-
-export default UserInformation
+export default UserInformation;
