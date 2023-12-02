@@ -251,12 +251,12 @@ export class UsersService {
 		blocked = await this.blockedusersService.getBlockedListByUser(current_id);
 		users = await this.usersRepository.find({
 			where: { username: ILike(`%${name}%`), id: Not(In(blocked)) },
-			select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
+			select: ['id', 'username', 'login42', 'avatar', 'twofaenabled', 'status'],
 		});
 	} else {
 		users = await this.usersRepository.find({
 		  where: { username: ILike(`%${name}%`) },
-		  select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
+		  select: ['id', 'username', 'login42', 'avatar', 'twofaenabled', 'status'],
 		});
 	}
 	if (users.length > 0) {

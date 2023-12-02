@@ -32,6 +32,7 @@ import { handleBlockUser } from '../chat/idChatUser'
 import * as FaIcons from 'react-icons/fa'
 import { ToastContainer } from 'react-toastify';
 import {User} from '../chat/idChatUser'
+import ShowStatus from '../Components/FriendStatus'
 import { useNavigate } from 'react-router-dom';
 import {gsocket, WebsocketContext } from "../context/websocket.context";
 
@@ -60,51 +61,45 @@ const [friend, setFriend] = useState<User>();
 const navigate = useNavigate();
 // 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-useEffect(() =>{
-	const token: string|undefined = Cookies.get("token");
-	let content: {username: string, user: number, avatar: string};
-	if (token != undefined)
-	{
-		content = decodeToken(token);
-	}
-	else
-		content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'};
-	
-	
-	GetUserinfo();
-	fetchMatches(content.user);
-	}, []);
-	
-	const GetUserinfo = async () => {
-		const response = await fetch(`http://localhost:8080/api/users/username/${users}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': 'Bearer ' + token,
-		}
-		});
-		const data = await response.json()
-		if (response.ok)
-		{
-		setAvatarUrl(data[0].avatar);
-		await setFriendID(data[0].id);
-		console.log ('friendid', data.id);
-		setFriend(data[0]);
-		await fetchMatches(data[0].id);
-		console.log("avatar", avatarUrl);
-		}
-	}
-//   }}, []);
+  useEffect(() =>{
+    const token: string|undefined = Cookies.get("token");
+    const [curr_user, setCurrUser] = useState<string>('');
+    const [connected, setConnected] = useState<boolean>(false);
+    let content: {username: string, user: number, avatar: string};
+      if (token != undefined)
+      {
+        content = decodeToken(token);
+      }
+      else
+        content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'};
+    
+      
+      setCurrUser(content.username);
+      console.log("curr user", curr_user);
+      GetUserinfo();
+      fetchMatches(content.user);
+    }, []);
+    
+    const GetUserinfo = async () => {
+        const response = await fetch(`http://localhost:8080/api/users/username/${users}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token,
+          }
+        });
+        const data = await response.json()
+        if (response.ok)
+        {
+          setAvatarUrl(data[0].avatar);
+          await setFriendID(data[0].id);
+          console.log ('friendid', data.id);
+          setFriend(data[0]);
+          await fetchMatches(data[0].id);
+          console.log("avatar", avatarUrl);
 
-	//   let content: {username: string, user: number};
-	//   if (token != undefined)
-	//   {
-	//     content = decodeToken(token);
-	//   }
-	//   else
-	//   {
-	//     content = { username: 'default', user: 0};
-	// }
+        }
+      }
 	
 const fetchMatches = async (theID:number) => {
 	console.log("Fetching matches for user", theID);
@@ -134,7 +129,7 @@ const fetchMatches = async (theID:number) => {
 	}
 }
 
-function SpectateGame (user: User)
+function Game (user: User)
 {
 	let content;
 	if(token !== undefined)
@@ -150,33 +145,36 @@ function SpectateGame (user: User)
 		navigate('/game');
 		}
 	}
-	catch (error)
-	{
-		console.log(error);
-	}
-}
 
-	return (
-	<ChakraProvider resetCSS={false}>
-		<Searchbar/>
-		<div>
-		<Sidebar/>
-		<div>
-		<div className='topBox'>
-		<Wrap>
-			<WrapItem className='profile-border'>
-			<VStack spacing={4} alignItems="center">
-			<Avatar
-			size="2xl"
-			src={avatarUrl}/>
-			</VStack>
-			<h1 className="welcome"> {users} </h1>
-			</WrapItem>
-			</Wrap>
-			<div className='profile-border'>
-		<AddFriend userID={friendid}/>
-		Add {users} as a friend
-			</div>
+  return (
+      <ChakraProvider resetCSS={false}>
+          <Searchbar/>
+        <div>
+        <Sidebar/>
+        <div>
+          <div className='topBox'>
+        <Wrap>
+            <WrapItem className='profile-border'>
+            <VStack spacing={4} alignItems="center">
+            <Avatar
+            size="2xl"
+            src={avatarUrl}/>
+             <div className='icon-container'>
+              <div className='status-circle'>
+                <ShowStatus status={friend?.status} />
+            </div>
+          </div>
+            </VStack>
+              <h1 className="welcome"> {users} </h1>
+             </WrapItem>
+            </Wrap>
+            <div className='profile-border'>
+            <AddFriend userID={friendid}/>
+				Add {users} as a friend
+            </div>
+            <div className='profile-border'>
+            Invite {users} for a game
+            </div>
 			<div className='profile-border'>
 			Invite {users} for a game
 			</div>
