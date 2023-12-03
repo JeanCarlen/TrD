@@ -3,12 +3,13 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Messages } from './entities/message.entity';
-import { In, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { UserchatsService } from 'src/userchats/userchats.service';
 import { MessagesResponse } from './dto/message.response';
 import { Users } from 'src/users/entities/users.entity';
 import { Chats } from 'src/chats/entities/chat.entity';
 import { UsersService } from 'src/users/users.service';
+import { BlockedusersService } from 'src/blockedusers/blockedusers.service';
 
 @Injectable()
 export class MessagesService {
@@ -23,6 +24,8 @@ export class MessagesService {
 	private readonly userchatsService: UserchatsService,
 	@Inject(UsersService)
 	private readonly usersService: UsersService,
+	@Inject(BlockedusersService)
+	private readonly blockedusersService: BlockedusersService,
   ) {}
 
   public async create(createMessageDto: CreateMessageDto): Promise<MessagesResponse> {
@@ -81,17 +84,21 @@ export class MessagesService {
 	return await this.messagesRepository.find({ where: { chat_id: id } });
   }
 
-  public async findAll() {
-    return await this.messagesRepository.find();
+  public async findAll(current_id: number) {
+	const blockedusers: number[] = await this.blockedusersService.getBlockedListByUser(current_id);
+    return await this.messagesRepository.find({
+		where: { user_id: Not(In(blockedusers))}
+	});
   }
 
-  public async findOne(id: number) {
-    return await this.messagesRepository.findOne({ where: { id: id } });
+  public async findOne(id: number, user_id: number) {
+	const blockedusers: number[] = await this.blockedusersService.getBlockedListByUser(user_id);
+    return await this.messagesRepository.findOne({ where: { id: id, user_id: Not(In(blockedusers)) } });
   }
 
-  public async update(id: number, updateMessageDto: UpdateMessageDto) {
+  public async update(id: number, updateMessageDto: UpdateMessageDto, user_id: number) {
 	const message = await this.messagesRepository.findOne({ where: { id: id } });
-	if (!message) {
+	if (!message || message.user_id != user_id) {
 		throw new NotFoundException(['Message not found.'], {
 			cause: new Error(),
 			description: `Message not found.`,
@@ -100,11 +107,11 @@ export class MessagesService {
     return this.messagesRepository.update({ id: id }, updateMessageDto);
   }
 
-  public async remove(id: number) {
+  public async remove(id: number, user_id: number) {
     const message = await this.messagesRepository.findOne({
       where: { id: id },
     });
-	if (!message) {
+	if (!message || message.user_id != user_id) {
 		throw new NotFoundException(['Message not found.'], {
 			cause: new Error(),
 			description: `Message not found.`,
@@ -112,4 +119,18 @@ export class MessagesService {
 	}
     return this.messagesRepository.remove(message);
   }
+
+  public async removeChannelMessage(message_id: number) {
+	const message = await this.messagesRepository.findOne({
+	  where: { id: message_id },
+	});
+	if (!message) {
+	  throw new NotFoundException(['Message not found.'], {
+		cause: new Error(),
+		description: `Message not found.`,
+	  });
+	}
+	return this.messagesRepository.remove(message);
+  }
+
 }
