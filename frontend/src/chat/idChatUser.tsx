@@ -48,7 +48,7 @@ const handleAddUser = (user: User) => {
 	console.log(`Adding user: ${user.username}`);
   };
 
-export  const handleBlockUser = async (user: User, token: string|undefined) => {
+export  const handleBlockUser = async (user: User|undefined, token: string|undefined) => {
 	console.log(`Blocking user: ${user.username}`);
 	let content: {username: string, user: number, avatar: string};
 	if (token !== undefined)
