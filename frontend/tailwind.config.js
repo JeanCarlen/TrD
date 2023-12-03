@@ -6,6 +6,10 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: {
+	'tailwindcss/nesting': {},
+    tailwindcss: {},
+    autoprefixer: {},
+  },
 }
 

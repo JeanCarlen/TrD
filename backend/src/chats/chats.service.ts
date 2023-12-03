@@ -330,7 +330,7 @@ export class ChatsService {
 	// Deleting all messages
 	const messages: Messages[] = await this.messagesService.findChatMessagesByChatId(id);
 	await Promise.all(messages.map(async (message: Messages) => {
-		await this.messagesService.remove(message.id);
+		await this.messagesService.removeChannelMessage(message.id);
 	}))
 	// Deleting the chat
 	await this.chatsRepository.remove(chat);
