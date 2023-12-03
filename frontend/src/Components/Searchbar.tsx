@@ -1,5 +1,5 @@
 import { Input, InputGroup, InputRightElement } from '@chakra-ui/react'
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Cookies from 'js-cookie';
 import '../pages/Users.css'
 import { toast } from 'react-toastify';
@@ -9,8 +9,6 @@ import { useNavigate } from 'react-router-dom';
 function Searchbar() {
 	const navigate = useNavigate();
 	const [searchTerm, setSearchTerm] = useState('');
-	// const [searchHistory, setSearchHistory] = useState<string[]>([]);
-	// const [suggestions, setSuggestions] = useState<string[]>([]);
 
 	const token = Cookies.get('token');
 	const handleSearch = async () => {
@@ -36,7 +34,6 @@ function Searchbar() {
 			else if (searchTerm === data[0].username)
 			{
 				console.log(data);
-				// const userID = data[0].id;
 				navigate(`/profiles/${searchTerm}`); //add the right url with the username of the person found
 			}
 			else
@@ -48,7 +45,6 @@ function Searchbar() {
 				})
 			}
 		}
-		// setSearchHistory((prevHistory) => [...prevHistory, searchTerm]);
 		else
 		{
 			console.log('error');
@@ -60,7 +56,6 @@ function Searchbar() {
 				})
 			}
 		}
-		//   Implement your search logic here using the `searchTerm`
 		console.log(`Searching for: ${searchTerm}`);
 
 	}
@@ -68,13 +63,14 @@ function Searchbar() {
 	const handleInputChange = (value: string) => {
 		setSearchTerm(value);
 		};
-	const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-		if (event.key === 'Enter') {
-		// When Enter key is pressed, trigger the search action
-		handleSearch();
-		setSearchTerm('');
-		}
-	}
+
+	// const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+	// 	if (event.key === 'Enter') {
+	// 	// When Enter key is pressed, trigger the search action
+	// 	handleSearch();
+	// 	setSearchTerm('');
+	// 	}
+	// }
 
 
 

@@ -8,7 +8,7 @@ import { chatData } from "./Chat";
 import "../pages/Chat.css";
 import decodeToken from "../helpers/helpers";
 import { Socket } from "socket.io-client";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { Avatar } from "@chakra-ui/react";
 import { ChakraProvider, WrapItem } from "@chakra-ui/react";
 import "./ChatInterface.css";
@@ -50,11 +50,6 @@ const handleAddUser = (user: User) => {
 
 export  const handleBlockUser = async (user: User, token: string|undefined) => {
 	console.log(`Blocking user: ${user.username}`);
-	let content: {username: string, user: number, avatar: string};
-	if (token !== undefined)
-		content = decodeToken(token);
-	else
-		return;
 	const response = await fetch(`http://localhost:8080/api/users/block/${user.id}`, {
 			method: 'POST',
 			headers: {
@@ -70,11 +65,11 @@ export  const handleBlockUser = async (user: User, token: string|undefined) => {
 };
 
 const adminUser = async (chat: chatData|undefined, user: User, token: string|undefined, mode: string) => {
-	let way: string = user.isAdmin == true ? 'unadmin' : 'admin';
-	if (mode == 'admin')
-		way = user.isAdmin == true ? 'unadmin' : 'admin';
-	else if (mode == 'mute')
-		way = user.isMuted == true ? 'unmute' : 'mute';
+	let way: string = user.isAdmin === true ? 'unadmin' : 'admin';
+	if (mode === 'admin')
+		way = user.isAdmin === true ? 'unadmin' : 'admin';
+	else if (mode === 'mute')
+		way = user.isMuted === true ? 'unmute' : 'mute';
 	else
 		way = mode;
 	console.log(`setting user ${user.username} as ${way} `);
@@ -105,13 +100,6 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 		socket.emit('leave-chat', {chat_id: chat?.chat_id, roomName: chat?.chat.name, user_id: chat?.user_id});
 	}
 
-	const deleteChannel = async (chat: chatData|undefined, socket: Socket) => {
-		if (chat === undefined)
-			return;
-		console.log('message: ', {chat_id: chat.chat_id, roomName: chat.chat.name});
-		socket.emit("delete-channel", {chat_id: chat.chat_id, roomName: chat.chat.name});
-	};
-
 const IdChatUser: React.FC<IdChatProps> = ({
   chatData,
   user_id,
@@ -122,12 +110,10 @@ const IdChatUser: React.FC<IdChatProps> = ({
   const [fetched, setFetched] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User>();
   const [bannedUsers, setBannedUsers] = useState<User[]>();
-  const ChatType: number = 0;
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    // socket.connect();
     if (chatData) {
       getData(chatData);
     }
@@ -140,10 +126,6 @@ const IdChatUser: React.FC<IdChatProps> = ({
         getData(chatData);
       }
     });
-
-    // socket.on("deleted", () =>{
-    // 	socket.emit("leave-room", {id : chatData?.id, roomName : chatData?.chat.name});
-    // })
 
     socket.on("refresh-id", () => {
       getData(chatData);
@@ -480,7 +462,6 @@ const IdChatUser: React.FC<IdChatProps> = ({
                 </ModalBody>
               </ModalContent>
             </Modal>
-            <ToastContainer />
           </div>
         ) : (
           <div className="history_1">Loading...</div>

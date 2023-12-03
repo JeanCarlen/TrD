@@ -6,7 +6,7 @@ type usernameProps = {
     username: string
 }
 
-const GetUserName: React.FunctionComponent<usernameProps> = ({ username }): React.ReactNode => {
+const GetUserName: React.FunctionComponent<usernameProps> = ({ username }: usernameProps) => {
     const token: string|undefined = Cookies.get("token");
     let content: {username: string, user: number, avatar: string};
     if (token !== undefined)

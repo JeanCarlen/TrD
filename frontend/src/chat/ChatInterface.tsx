@@ -1,18 +1,16 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
-import { WebsocketContext } from "../context/websocket.context";
+import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import decodeToken from '../helpers/helpers';
 import './ChatInterface.css'
-import { Context } from "react-responsive";
 import { Socket } from "socket.io-client";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 interface Message {
-id: number;
-text: string;
-sender: string;
-sender_Name: string;
-date: string;
+	id: number;
+	text: string;
+	sender: string;
+	sender_Name: string;
+	date: string;
 }
 
 export interface sentMessages {
@@ -32,7 +30,6 @@ interface Props {
 
 const ChatInterface: React.FC<Props> = ({messagesData, currentRoomProps, chatSocket}: Props) => {
 const [currentRoom, setCurrentRoom] = useState<string>(currentRoomProps);
-const [isLoading, setIsLoading] = useState(false);
 const [messages, setMessages] = useState<Message[]>([]);
 const [newMessage, setNewMessage] = useState<Message>({ id: 0, text: '', sender: '', sender_Name: '', date: '' ,});
 const socket = chatSocket;
@@ -40,11 +37,7 @@ const token: string | undefined = Cookies.get("token");
 const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
 
 	useEffect(() => {
-		const handleKeyPress = (e: KeyboardEvent) => {
-		};
-
 		window.addEventListener('keydown', handleKeyPress);
-		// scrollToBottom();
 		return () => window.removeEventListener('keydown', handleKeyPress);
 	}, []);
 
@@ -69,20 +62,11 @@ useEffect(() => {
 	return;
 	}
 	setContent(decodeToken(token));
-	socket.on('connect', () => {
-	console.log(socket.id);
-	setIsLoading(false);
-	console.log('Connected');
-	});
-
-	// socket.on('connect', () => {
-	// socket.emit('join-room', {roomName:'default', client: socket});
-	// });
 
 	socket.on('srv-message', (data: {text: string, sender: string, sender_Name:string, date: string, room: string}) => {
 	console.log(`srv-message ${data}`);
 	const latest: Message = { id: messages.length + 3, text: data.text, sender: data.sender, sender_Name: data.sender_Name, date: data.date };
-	if (data.room == currentRoom)
+	if (data.room === currentRoom)
 	{
 		setAndScroll(latest)
 	}
@@ -126,7 +110,6 @@ async function setAndScroll(latest: Message){
 const handleKeyPress = (e: React.KeyboardEvent) => {
 	switch (e.key) {
 		case 'Enter':
-		// handleSendMessage();
 		if (document !== null && document.getElementById("myButton") !== null)
 			document.getElementById("myButton")?.click()
 		break;
@@ -152,9 +135,6 @@ return (
 			<span className="message-sender">{message.sender_Name}</span> <br/>
 			<span className="message-text">{message.text}</span> <br/>
 			<span className="message-date">{message.date}</span>
-			{/* <div style={{ float:"left", clear: "both" }}
-			ref={(el) => { messagesEnd = el; }}>
-			</div> */}
 			</div>
 		))}
 		</div>

@@ -9,14 +9,8 @@ type UserProps = {
   userID: number | undefined;
 };
 
-const AddFriend: React.FC<UserProps> = ({ userID }) => {
-  // const [friends, setFriends] = useState<FriendData[]>([]);
+const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
   console.log(userID);
-
-  const token = Cookies.get("token");
-  let content: { username: string; user: number };
-  if (token !== undefined) content = decodeToken(token);
-  else content = { username: "default", user: 0 };
 
   const handleAddFriend = async (userID: number | undefined) => {
     const token = Cookies.get("token");
@@ -53,21 +47,21 @@ const AddFriend: React.FC<UserProps> = ({ userID }) => {
     }
   };
 
-  const handleRemoveFriend = async (userID: number | undefined) => {
-    const response = await fetch(
-      `http://localhost:8080/api/friends/active/list/${userID}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-      }
-    );
-    const data = await response.json();
-    if (response.ok) {
-      console.log("friendlist", data);
-    }
+//   const handleRemoveFriend = async (userID: number | undefined) => {
+//     const response = await fetch(
+//       `http://localhost:8080/api/friends/active/list/${userID}`,
+//       {
+//         method: "GET",
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: "Bearer " + token,
+//         },
+//       }
+//     );
+//     const data = await response.json();
+//     if (response.ok) {
+//       console.log("friendlist", data);
+//     }
 
     // const response1 = await fetch(`http://localhost:8080/api/friends/${}`, {
     // 	method: 'DELETE',
@@ -79,7 +73,7 @@ const AddFriend: React.FC<UserProps> = ({ userID }) => {
     // });
     // const data1 = await response1.json()
     // console.log("data1", data1);
-  };
+//   };
 
   return (
     <div>

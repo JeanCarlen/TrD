@@ -1,29 +1,17 @@
-import { Text, List, ListItem, Flex, Input,
-Stack, Button, InputGroup, InputRightElement } from '@chakra-ui/react'
-import ReactDOM from 'react-dom/client';
+import { Text, List, ListItem, Flex } from '@chakra-ui/react'
 import { useState} from 'react';
 import Cookies from 'js-cookie';
 import '../pages/Users.css'
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { CheckCircleIcon, CloseIcon } from '@chakra-ui/icons';
 import '../pages/Home.css'
-import { Icon, createIcon } from '@chakra-ui/react'
 import { useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import decodeToken from '../helpers/helpers';
 import { useParams } from 'react-router-dom';
 import '../pages/Stats.css'
-import { ChakraProvider, WrapItem, Wrap, CSSReset} from '@chakra-ui/react'
-import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
-import {
-    extendTheme,
-    VStack,
-    HStack,
-    IconButton,
-} from '@chakra-ui/react';
+import { WrapItem, Wrap } from '@chakra-ui/react'
+import { Avatar } from '@chakra-ui/react'
+import { VStack } from '@chakra-ui/react';
 import '../pages/Home.css';
 import ShowStatus from './FriendStatus';
 
@@ -34,17 +22,11 @@ export interface FriendData{
 	friendid: number;
 }
 
-const FriendListProfile: React.FC<FriendData> = ({friend}) => {
+const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
 	const {users} = useParams();
 	const [friends, setFriends] = useState<FriendData[]>([]);
 	const [isSender, setIsSender] = useState<boolean | null>(null);
 	const token = Cookies.get('token');
-	let content: {username: string, user: number, avatar: string};
-    if (token != undefined)
-	content = decodeToken(token);
-    else
-      content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
-	// const [friends, setFriends] = useState<FriendData[]>([]);
 	
 	const GetUserinfo = async () => {
 		const response = await fetch(`http://localhost:8080/api/users/username/${users}`, {
@@ -58,13 +40,10 @@ const FriendListProfile: React.FC<FriendData> = ({friend}) => {
 		if (response.ok)
 		{
 			console.log("friend page", data);
-			//   setAvatarUrl(data[0].avatar);
-			//   setFriendID(data[0].id);
-			//   fetchMatches(data[0].id);
 		}
 		console.log ('data', data);
 		let content: {username: string, user: number};
-		if (token != undefined)
+		if (token !== undefined)
 		{
 		  content = decodeToken(token);
 		}
@@ -84,22 +63,14 @@ const FriendListProfile: React.FC<FriendData> = ({friend}) => {
 		  {
 			  console.log("friendlist", data1);
 			  setFriends(data1);
-			  if (data1[0] != undefined)
+			  if (data1[0] !== undefined)
 			 	 setIsSender(content.username === data1[0].requested_user.username);}
 	  }
 	  
 	  useEffect(() =>{
 		console.log("friends in Profile", friends);
-		const token: string|undefined = Cookies.get("token");
-		let content: {username: string, user: number};
-		  if (token != undefined)
-		  {
-			content = decodeToken(token);
-		  }
-		  else
-			content = { username: 'default', user: 0};
-		  GetUserinfo();
-	  }, []);
+		GetUserinfo();
+	  });
 
 	  if (isSender === null) {
 		// Loading state, you might display a loading spinner or message

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie'
-import decodeToken from '../helpers/helpers';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../pages/Chat.css'
@@ -9,7 +8,6 @@ import * as FaIcons from 'react-icons/fa'
 
 const Enter2Fa: React.FC<{}> = () => {
 	const [token, setToken] = useState('')
-	// const [tokenContent, setTokenContent] = useState<JWTPayload>()
 	const [code, setCode] = useState('');
 	const [loading, setLoading] = useState(false);
 
@@ -18,13 +16,11 @@ const Enter2Fa: React.FC<{}> = () => {
 	useEffect(() => {
 		const token: string | undefined = Cookies.get("token");
 		if (token !== undefined) {
-			let content: JWTPayload = decodeToken(token)
-			setToken(token)
-			// setTokenContent(content)
+			setToken(token);
 		}
 		if (!token)
 			navigate('/Login');
-	}, [])
+	}, [navigate])
 
 	const updateCode = (e: React.ChangeEvent<HTMLInputElement>) =>{
 		setCode(e.target.value);

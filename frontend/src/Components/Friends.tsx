@@ -1,5 +1,4 @@
 import { Text, List, ListItem, Flex} from '@chakra-ui/react'
-// import ReactDOM from 'react-dom/client';
 import { useState} from 'react';
 import Cookies from 'js-cookie';
 import { Link } from 'react-router-dom';
@@ -12,9 +11,7 @@ import decodeToken from '../helpers/helpers';
 import { WrapItem, Wrap} from '@chakra-ui/react'
 import { Avatar} from '@chakra-ui/react'
 import ShowStatus from './FriendStatus';
-import {
-    VStack
-} from '@chakra-ui/react';
+import { VStack } from '@chakra-ui/react';
 
 export interface FriendData{
 	requester: string;
@@ -30,7 +27,6 @@ export interface FriendData{
 const FriendList: React.FC<{}> = () => {
 	const token = Cookies.get('token');
 	const [isSender, setIsSender] = useState<boolean | null>(null);
-	// const [status, setStatus] = useState<string>('');
 	const [friends, setFriends] = useState<FriendData[]>([]);
 	let content: {username: string, user: number, avatar: string};
     if (token !== undefined)
@@ -57,19 +53,7 @@ const FriendList: React.FC<{}> = () => {
 	}
 
 	useEffect(() =>{
-		const token: string|undefined = Cookies.get("token");
-		// const delay = 2000;
-
-		let content: {username: string, user: number};
-		if (token !== undefined)
-		{
-			content = decodeToken(token);
-		}
-		else
-		content = { username: 'default', user: 0};
-	// setContent(content);
 		getFriends();
-
 	}, []);
 	
 	return (
