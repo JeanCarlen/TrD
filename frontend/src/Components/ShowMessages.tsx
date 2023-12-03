@@ -1,7 +1,6 @@
 import React from "react";
 import 'react-toastify/dist/ReactToastify.css'
 import { FriendData } from "./Friends";
-import { request } from "http";
 // import decodeToken from "../helpers/helpers";
 
 type MessageProps = {
@@ -21,11 +20,13 @@ const ShowMessage: React.FC<MessageProps> = ({requestList, onAccept, onDecline, 
 		<div className="close" onClick={onClose}>
 		<h2>Friend Requests</h2>
 		{requestList.map((request: FriendData) => {
+			return (
 			<div>
 			<p>{request.requester_user.username} sent you a friend request.</p>
-			<button onClick={() => onAccept(request.requester_user.username, request.requester)}>Accept</button>
-			<button onClick={() => onDecline(request.requester)}>Deny</button>
+			<button onClick={() => onAccept(request)}>Accept</button>
+			<button onClick={() => onDecline(request)}>Deny</button>
 			</div>
+			)
 		})}
 		</div>
 	  </div>

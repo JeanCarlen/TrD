@@ -25,6 +25,7 @@ const NotificationIcon: React.FC = () => {
 	const handleFriendRequest = () => {
 		setShowFriendRequests(!showFriendRequests);
 		setIsModalOpen(true);
+		updateFriends();
 	}
 
 	const closeModal = () => {
@@ -50,9 +51,9 @@ const NotificationIcon: React.FC = () => {
 		}
 	};
 
-	const handleAcceptRequest = async(senderName:string, senderID: number, id:number) => {
-		console.log(`Accepted friend request from ${senderName}`);
-		const response = await fetch(`http://localhost:8080/api/friends/${id}`, {
+	const handleAcceptRequest = async(request: FriendData) => {
+		console.log(`Accepted friend request from ${request.requester_user.username}`);
+		const response = await fetch(`http://localhost:8080/api/friends/${request.requester}`, {
 			method: 'PATCH',
 			headers: {
 				'Content-Type': 'application/json',
@@ -72,7 +73,7 @@ const NotificationIcon: React.FC = () => {
 				position: toast.POSITION.TOP_CENTER
 			});
 			gsocket.emit('create-room', {
-				roomName: `1on1-${senderID}${content.user}`,
+				roomName: `1on1-${request.requester}-${request.requested}`,
 				client: content?.user,
 				Password: null,
 			});
@@ -86,11 +87,11 @@ const NotificationIcon: React.FC = () => {
 			updateFriends();
 	}, []);
 
-	  const handleDenyRequest = async(senderID:number, id: number) => {
+	  const handleDenyRequest = async(request: FriendData) => {
 		// Implement logic to deny the friend request
-		console.log(`Denied friend request ${id}`);
+		console.log(`Denied friend request ${request.requester_user.username}`);
 		setShowFriendRequests(false);
-		const resp = await fetch(`http://localhost:8080/api/friends/reject/${id}`, {
+		const resp = await fetch(`http://localhost:8080/api/friends/reject/${request.requester}`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',
@@ -119,7 +120,6 @@ const NotificationIcon: React.FC = () => {
 			onDecline={handleDenyRequest}
 			isOpen={isModalOpen}
 			onClose={closeModal}
-
 			/>
 		)}
 		</div>
