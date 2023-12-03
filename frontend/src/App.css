@@ -19,6 +19,7 @@
   height: auto;
   width:150px;
   pointer-events: none;
+  display: inline;
 }
 
 @media (prefers-reduced-motion: no-preference) {
