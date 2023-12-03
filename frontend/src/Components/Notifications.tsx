@@ -8,36 +8,12 @@ import Cookies from 'js-cookie';
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { gsocket } from '../context/websocket.context';
+import { FriendData } from './Friends';
 
-// interface User {
-// 	avatar: string,
-// 	username: string,
-// 	login42: string, // maybe number
-// }
-
-// interface RequestData {
-// 	id: number,
-// 	requested: number,
-// 	requested_user: User,
-// 	requester: number,
-// 	requester_user: User,
-// 	status: number;
-// 	total_count: number;
-// }
-
-interface NotificationIconProps {
-  count: number;
-  onAccept: (senderID:number|undefined) => void;
-//   onDecline: (senderID:number|undefined) => void;
-  message: string;
-  senderName: string;
-  senderID: Array<number>;
-  pendingfriends: Array<number>;
-}
-
-const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, senderName, senderID, pendingfriends}: NotificationIconProps) => {
+const NotificationIcon: React.FC = () => {
 	const [showFriendRequests, setShowFriendRequests] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [requestList, setRequestList] = useState<FriendData[]>([]);
 	const [counter, setCounter] = useState(0);
 	const token: string|undefined = Cookies.get("token");
 	let content: {username: string, user: number};
@@ -49,13 +25,12 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 	const handleFriendRequest = () => {
 		setShowFriendRequests(!showFriendRequests);
 		setIsModalOpen(true);
+		updateFriends();
 	}
 
 	const closeModal = () => {
 		setIsModalOpen(false);
 	};
-
-		console.log("senderID length", pendingfriends.length);
 
 	const updateFriends = async() => {
 		const response = await fetch(`http://localhost:8080/api/friends/pending/list/${content.user}`, {
@@ -65,8 +40,9 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 				'Authorization': 'Bearer ' + token,
 			}
 		});
-		const data = await response.json()
+		const data = await response.json();
 		setCounter(data.length);
+		setRequestList(data);
 		console.log("data", data)
 		if (data.length <= 0)
 		{
@@ -75,10 +51,9 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 		}
 	};
 
-	const handleAcceptRequest = async(senderName:string, senderID: number) => {
-		console.log(`Accepted friend request from ${senderName}`);
-		console.log("request", pendingfriends);
-		const response = await fetch(`http://localhost:8080/api/friends/${pendingfriends}`, {
+	const handleAcceptRequest = async(request: FriendData) => {
+		console.log(`Accepted friend request from ${request.requester_user.username}`);
+		const response = await fetch(`http://localhost:8080/api/friends/${request.requester}`, {
 			method: 'PATCH',
 			headers: {
 				'Content-Type': 'application/json',
@@ -98,27 +73,25 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 				position: toast.POSITION.TOP_CENTER
 			});
 			gsocket.emit('create-room', {
-				roomName: `1on1-${senderID}${content.user}`,
+				roomName: `1on1-${request.requester}-${request.requested}`,
 				client: content?.user,
 				Password: null,
 			});
 		}
 		setShowFriendRequests(false);
 		setIsModalOpen(false);
-		setCounter(counter - 1);
-		pendingfriends = pendingfriends - 1;
 		updateFriends();
 	};
 
-		useEffect(() =>{
-				updateFriends();
-		}, []);
+	useEffect(() =>{
+			updateFriends();
+	}, []);
 
-	  const handleDenyRequest = async(senderID:number) => {
+	  const handleDenyRequest = async(request: FriendData) => {
 		// Implement logic to deny the friend request
-		console.log(`Denied friend request from ${senderName}`);
+		console.log(`Denied friend request ${request.requester_user.username}`);
 		setShowFriendRequests(false);
-		const resp = await fetch(`http://localhost:8080/api/friends/reject/${pendingfriends}`, {
+		const resp = await fetch(`http://localhost:8080/api/friends/reject/${request.requester}`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',
@@ -142,14 +115,11 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 		<div>
 		{showFriendRequests && (
 			<ShowMessage
-			message={message}
+			requestList={requestList}
 			onAccept={handleAcceptRequest}
 			onDecline={handleDenyRequest}
-			senderID={senderID}
-			senderName={senderName}
 			isOpen={isModalOpen}
 			onClose={closeModal}
-			pendingfriends={pendingfriends}
 			/>
 		)}
 		</div>

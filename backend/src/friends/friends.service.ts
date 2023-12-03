@@ -260,7 +260,7 @@ export class FriendsService {
     });
 	const users: Users[] = await this.usersRepository.find();
 	let ret: FriendsResponse[] = [];
-	pendinglist.forEach(friend => {
+	await pendinglist.forEach(friend => {
 		let requested: Users = users.find(user => {
 			return user.id == friend.requested
 		})

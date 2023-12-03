@@ -1,7 +1,6 @@
 import "./App.css";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
-import { RouterProvider } from "react-router-dom";
 import Routes from "./PrivateRoute";
 import { Provider } from "react-redux";
 import store from "./Redux-helpers/store";
