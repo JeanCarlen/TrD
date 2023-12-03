@@ -5,15 +5,16 @@ import { FriendData } from "./Friends";
 
 type MessageProps = {
 	requestList: FriendData[];
-	onAccept: (senderName:string, senderID:number) => void;
-	onDecline: (senderID:number) => void;
+	onAccept: (request: FriendData) => void;
+	onDecline: (request: FriendData) => void;
 	onClose: () => void;
+	isOpen: boolean;
   };
 
-const ShowMessage: React.FC<MessageProps> = ({requestList, onAccept, onDecline, onClose}: MessageProps) => {
-	// if (!isOpen) {
-	// 	return null; // If modal is not open, do not render anything
-	// }
+const ShowMessage: React.FC<MessageProps> = ({requestList, onAccept, onDecline, onClose, isOpen}: MessageProps) => {
+	if (!isOpen) {
+		return null; // If modal is not open, do not render anything
+	}
 
 	return (
 		<div className="modal-content">

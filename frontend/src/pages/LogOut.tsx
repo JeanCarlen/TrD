@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import './Home.css'
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
@@ -12,16 +12,17 @@ type Props = {}
 const Logout = (props: Props) => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
-	// const socket = useContext(WebsocketContext);
-	// const socket = globalSocket;
-	// Cookies.set('registered', 'false', {expires: 7});
 	let tokenVal = Cookies.get('token');
 	if (!tokenVal) tokenVal = '';
 	Cookies.set('token', tokenVal, { expires: -7 });
 	dispatch(setUserStatus(0));
 	gsocket.disconnect();
 
-	return <Navigate to ='/login' replace={true} />;
+	useEffect(()=>{
+		navigate('/login');
+	})
+
+	return (<div>Goodbye</div>)
 };
 
 export default Logout;
