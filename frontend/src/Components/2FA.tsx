@@ -1,14 +1,11 @@
 import React from 'react';
 import { useState } from 'react';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import '../pages/Chat.css';
+// import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 interface User{
 	id: string;
 	name: string;
-	// email: string;
-	// avatar: string;
-	// otp_enabled: string;
 }
 
 interface Authresponse{

@@ -9,21 +9,21 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { gsocket } from '../context/websocket.context';
 
-interface User {
-	avatar: string,
-	username: string,
-	login42: string, // maybe number
-}
+// interface User {
+// 	avatar: string,
+// 	username: string,
+// 	login42: string, // maybe number
+// }
 
-interface RequestData {
-	id: number,
-	requested: number,
-	requested_user: User,
-	requester: number,
-	requester_user: User,
-	status: number;
-	total_count: number;
-}
+// interface RequestData {
+// 	id: number,
+// 	requested: number,
+// 	requested_user: User,
+// 	requester: number,
+// 	requester_user: User,
+// 	status: number;
+// 	total_count: number;
+// }
 
 interface NotificationIconProps {
   count: number;
@@ -37,7 +37,6 @@ interface NotificationIconProps {
 
 const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, senderName, senderID, pendingfriends}: NotificationIconProps) => {
 	const [showFriendRequests, setShowFriendRequests] = useState(false);
-	// const [friendRequests, setFriendRequests] = useState<RequestData[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [counter, setCounter] = useState(0);
 	const token: string|undefined = Cookies.get("token");
@@ -69,11 +68,6 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 		const data = await response.json()
 		setCounter(data.length);
 		console.log("data", data)
-		// setFriendRequests(data);
-		// console.log("count", counter)
-		// console.log("ID",senderID);
-		// console.log("name", senderName);
-		// console.log("requestID", pendingfriends);
 		if (data.length <= 0)
 		{
 			setShowFriendRequests(false);
@@ -117,19 +111,7 @@ const NotificationIcon: React.FC<NotificationIconProps> = ({ count, message, sen
 	};
 
 		useEffect(() =>{
-				const token: string|undefined = Cookies.get("token");
-				// const delay = 2000;
-
-				let content: {username: string, user: number};
-				if (token !== undefined)
-				{
-					content = decodeToken(token);
-				}
-				else
-					content = { username: 'default', user: 0};
-			// setContent(content);
 				updateFriends();
-
 		}, []);
 
 	  const handleDenyRequest = async(senderID:number) => {

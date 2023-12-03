@@ -1,19 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import decodeToken from '../helpers/helpers';
 import { toast, ToastContainer } from 'react-toastify'
 
 const TurnOff2fa: React.FC<{}> = () => {
 	const [token, setToken] = useState('');
-	// const [tokenContent, setTokenContent] = useState<JWTPayload>();
 	const [code, setCode] = useState('');
 
 	useEffect(() => {
 		const token: string|undefined = Cookies.get('token')
 		if (token) {
-			let content: JWTPayload = decodeToken(token)
 			setToken(token)
-			// setTokenContent(content)
 		}
 	}, [])
 

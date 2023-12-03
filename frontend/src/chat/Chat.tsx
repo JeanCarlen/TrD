@@ -1,10 +1,7 @@
-import React, { useState, useContext, useEffect } from "react";
-import { WebsocketContext } from "../context/websocket.context";
+import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import decodeToken from '../helpers/helpers';
 import './ChatInterface.css'
-import { list } from "@chakra-ui/react";
-import { get } from "http";
 import '../pages/Chat.css';
 import IdChatUser from '../chat/idChatUser';
 import ChatInterface from '../chat/ChatInterface';
@@ -13,10 +10,8 @@ import { sentMessages } from './ChatInterface';
 import { ToastContainer, toast } from 'react-toastify';
 import { Socket } from "socket.io-client";
 import * as FaIcons from 'react-icons/fa'
-import { setUserStatus } from "../Redux-helpers/action";
 import { useSelector } from 'react-redux';
 import { gsocket } from "../context/websocket.context";
-import { User } from "../pages/Stats";
 import { useNavigate } from 'react-router-dom';
 import GameInvite from "../Game/Game-Invite";
 
@@ -41,43 +36,24 @@ export type chatData = {
 }
 
 const Chat: React.FC = () => {
-	// const socket = useContext(WebsocketContext);
-	// socket = gsocket;
 	const token: string | undefined = Cookies.get("token");
 	const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
 	const [data, setData] = useState<chatData[]>([]);
 	const [fetched, setFetched] = useState<boolean>(false);
 	const [currentRoom, setCurrentRoom] = useState<string>('default');
-	const [roomName, setRoomName] = useState<string>('');
+	// const [roomName, setRoomName] = useState<string>('');
 	const [messages, setMessages] = useState<sentMessages[]>([]);
 	const [currentChat, setCurrentChat] = useState<chatData>();
-	const [loggedIn, setLoggedIn] = useState<boolean>(false);
+	// const [loggedIn, setLoggedIn] = useState<boolean>(false);
 	const userStatus = useSelector((state: any) => state.userStatus);
-	let navigate = useNavigate();
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
-	// const ToastMessage = (data :{inviter: User, roomName: string}) => (
-	// 	<div>
-	// 		INVITED by {data.inviter?.username}
-	// 		<button className="sendButton" onClick={() => replyMatch(data.roomName, 'accept')}>OK</button>
-	// 		<button className="sendButton" onClick={() => replyMatch(data.roomName, 'refuse')}>NO</button>
-	// 	</div>
-	// )
-
-	// function replyMatch(roomName: string, status: string) {
-	// 	gsocket.emit('replyInvite', {roomName: roomName, status: status});
-	// 	if (status == 'accept')
-	// 	{
-	// 		navigate('/game');
-	// 	}
-	// };
 
 	const getChats = async() => {
 		setFetched(false);
 		const token: string|undefined = Cookies.get("token");
 		let content: {username: string, user: number, avatar: string};
-		if (token != undefined)
+		if (token !== undefined)
 		{
 			content = decodeToken(token);
 			setContent(content);
@@ -132,14 +108,13 @@ const Chat: React.FC = () => {
 			passwordPrompt = prompt("Enter the password for the room:");
 			if (passwordPrompt != null)
 			{
-				if (passwordPrompt.trim() == '')
+				if (passwordPrompt.trim() === '')
 					passwordPrompt = null;
 			}
 			else
 				return;
 		}
 		handleRoomChange(chat.chat.name, passwordPrompt);
-		setRoomName(chat.chat.name);
 		setCurrentChat(chat);
 		getMessages(chat);
 	};
@@ -175,22 +150,15 @@ const Chat: React.FC = () => {
 					client: contentJoin?.user,
 				});
 			});
-			setLoggedIn(true);
 		}
 	};
 	
 	useEffect(() => {
-		// gsocket.connect();
-		console.log("socket: is ->", gsocket);
 		joinChatRooms(gsocket);
 		console.log("status", userStatus)
 	}, []);
 
 	useEffect(() => {
-		// gsocket.on('invite', (dataBack:{inviter: User, roomName: string}) => {
-		// 	console.log('INVITED');
-		// 	toast.info(<ToastMessage inviter={dataBack.inviter} roomName={dataBack.roomName}/>,  { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
-		// })
 
 		gsocket.on('room-join-error', (message:{error: string, reset: boolean}) => {
 			console.log("error in joining room: ", message.error);
@@ -237,9 +205,8 @@ const Chat: React.FC = () => {
 			gsocket.off('room-join-error');
 			gsocket.off("smb-movede");
 			gsocket.off('kick');
-			// gsocket.off('invite');
 		}
-	}, [gsocket, content]);
+	}, [content]);
 
 
 	const handleJoinRoomClick = async (dataPass: chatData[]) => {
@@ -306,24 +273,6 @@ const Chat: React.FC = () => {
 		await delay(1000);
 		await getChats();
 	};
-
-	const handleLeaveRoom = async (currentRoom: string) => {
-		let idremove: chatData | undefined = data.find((chat: chatData) => chat.chat.name === currentRoom);
-		if (idremove === undefined)
-		{
-			toast.error('Error with removing user from chat', {
-				position: toast.POSITION.BOTTOM_LEFT,
-				className: 'toast-error'
-			});
-			return;
-		}
-		gsocket.emit('leave-room', { id : idremove.id, roomName : currentRoom });
-		setCurrentRoom('default');
-		setCurrentChat(undefined);
-		setMessages([]);
-		await delay(1000);
-		await getChats();
-	}
 
 	return (
 		<div>

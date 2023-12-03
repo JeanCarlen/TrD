@@ -3,7 +3,6 @@ import React from 'react'
 import { SidebarData } from './SidebarData'
 import styled from 'styled-components'
 import '../App.css';
-import { useState } from 'react'
 import './Sidebar.css'
 
 // const MenuIconClose = styled(Link)`
@@ -53,15 +52,6 @@ const MenuItems = styled.li`
 const Sidebar: React.FunctionComponent = () => {
     // const [close, setClose] = useState(false)
     // const showSidebar = () => setClose(!close)
-    const [hoveredLogo, setHoveredLogo] = useState<string | null>(null);
-
-    const handleMouseEnter = (pageName: string) => {
-        setHoveredLogo(pageName);
-      };
-
-      const handleMouseLeave = () => {
-        setHoveredLogo(null);
-      };
 
     return (
          <>
@@ -70,8 +60,7 @@ const Sidebar: React.FunctionComponent = () => {
                     return (
                         <MenuItems key={index}>
                         <MenuItemLinks to={item.path} className='only-links'>
-                            <span  onMouseEnter={() => handleMouseEnter(item.title)}
-                            onMouseLeave={handleMouseLeave} style={{marginLeft: '0px'}}>{item.icon}
+                            <span style={{marginLeft: '0px'}}>{item.icon}
                             <div className="logo-name">{item.title}</div>
                             </span>
                         </MenuItemLinks>

@@ -1,6 +1,5 @@
 import React from "react";
 import 'react-toastify/dist/ReactToastify.css'
-import Cookies from "js-cookie";
 // import decodeToken from "../helpers/helpers";
 
 type MessageProps = {
@@ -14,15 +13,6 @@ type MessageProps = {
   };
 
 const ShowMessage: React.FC<MessageProps> = ({ message, onAccept, onDecline, senderID, isOpen, onClose, senderName}: MessageProps) => {
-	const token: string|undefined = Cookies.get("token");
-	// let content: {username: string, user: number};
-	// 	if (token !== undefined)
-
-	// 	{
-	// 		content = decodeToken(token);
-	// 	}
-	// 	else
-	// 		content = { username: 'default', user: 0};
 	if (!isOpen) {
 		return null; // If modal is not open, do not render anything
 		}

@@ -4,7 +4,7 @@ interface statusProps {
   status: number | undefined;
 }
 
-const ShowStatus: React.FC<statusProps> = ({status}) => {
+const ShowStatus: React.FC<statusProps> = ({status}: statusProps) => {
   let color;
 
   switch (status) {

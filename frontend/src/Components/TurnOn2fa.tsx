@@ -10,14 +10,10 @@ const TurnOn2fa: React.FC<{}> = () => {
 	const [qrCode, setQrCode] = useState('')
 	const [code, setCode] = useState('')
 	const [token, setToken] = useState('')
-	const [tokenContent, setTokenContent] = useState<JWTPayload>()
-
 	useEffect(() => {
 		const token: string|undefined = Cookies.get('token')
 		if (token) {
-			let content: JWTPayload = decodeToken(token)
 			setToken(token)
-			setTokenContent(content)
 		}
 	}, [])
 
@@ -63,7 +59,6 @@ const TurnOn2fa: React.FC<{}> = () => {
 				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-success'
 			})
-			setTokenContent(decodeToken(data.token))
 		}
 	}
 
