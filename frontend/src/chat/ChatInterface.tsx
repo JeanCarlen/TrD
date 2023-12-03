@@ -37,7 +37,7 @@ const token: string | undefined = Cookies.get("token");
 const [content, setContent] = useState<{username: string, user: number, avatar: string}>();
 
 	useEffect(() => {
-		window.addEventListener('keydown', handleKeyPress);
+		window.addEventListener('keydown',(e: React.KeyboardEvent)=>{ handleKeyPress(e) });
 		return () => window.removeEventListener('keydown', handleKeyPress);
 	}, []);
 

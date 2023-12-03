@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie'
-import decodeToken from '../helpers/helpers';
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import { Button } from '@chakra-ui/react'

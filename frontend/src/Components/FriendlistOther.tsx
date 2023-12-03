@@ -14,25 +14,7 @@ import { Avatar } from '@chakra-ui/react'
 import { VStack } from '@chakra-ui/react';
 import '../pages/Home.css';
 import ShowStatus from './FriendStatus';
-
-type UserInfo = 
-{
-	avatar: string;
-	curr_status: number;
-	login42: string;
-	username: string;
-}
-
-export interface FriendData{
-	id: number;
-	requester: number;
-	requester_user: string;
-	requested: number;
-	requested_user: string;
-	status: string;
-	total_count: number;
-
-}
+import { FriendData } from './Friends';
 
 const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
 	const {users} = useParams();
@@ -93,7 +75,7 @@ const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
 		<div>
 		<h2>Friends</h2>
 		<List className='friends'>
-        {friends.map((friend) => (
+        {friends.map((friend: FriendData) => (
           <ListItem key={friend.requester}>
             <Flex alignItems="center">
 			{isSender ? (

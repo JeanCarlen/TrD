@@ -31,7 +31,6 @@ import {
   import { User } from '../chat/idChatUser';
   import '../pages/Chat.css'
   import {Avatar} from '@chakra-ui/react'
-  import { FriendData } from './Friends'
 
 type CookieProps = {
 	username: string;
@@ -67,8 +66,6 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 		}
 		else
 			content = { username: 'default', user: 0};
-	let count = 0;
-	let sender;
 
 	const updateUser = async () => {
 		const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
