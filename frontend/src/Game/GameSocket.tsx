@@ -1,15 +1,12 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
-import { gsocket, WebsocketContext } from "../context/websocket.context";
-import { io, Socket } from "socket.io-client";
+import React, { useState, useEffect, useRef } from "react";
+import { gsocket } from "../context/websocket.context";
 import Cookies from "js-cookie";
 import decodeToken from "../helpers/helpers";
-import PongGame from "./PongGame";
-import { ThemeConsumer } from "styled-components";
 import cowLogo from "../cow.png";
 import collectable from "../collectable.png";
 import supervan from "../supervan.png";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { setUserStatus } from "../Redux-helpers/action";
 import { useSelector } from "react-redux";
@@ -79,14 +76,13 @@ const GameSocket: React.FC = () => {
   const [player2, setPlayer2] = useState<string>("player2");
   const [score1disp, setScore1] = useState<number>(0);
   const [score2disp, setScore2] = useState<number>(0);
-  let intervalId: number = 0;
-  let intervalBonus: number = 0;
   let paddleSize: number = 100;
   let cowLogoImage: HTMLImageElement = new Image();
   let collectableImage: HTMLImageElement = new Image();
   let supervanImage: HTMLImageElement = new Image();
   const canvasRef = useRef<HTMLCanvasElement>();
   const isVisible = usePageVisibility();
+  const intervalId = useRef<number | undefined>();
 
   let data = useRef<GameData>({
     NameOfRoom: "",
@@ -146,18 +142,18 @@ const GameSocket: React.FC = () => {
       setShouldRun(false);
     }
   }, [canvas]);
-  
+
   useEffect(() => {
     // once at the start of the component
     console.log("in the use effect");
-    if (shouldRun) intervalId = window.setInterval(updateGame, 1000 / 30, data);
+    if (shouldRun)
+      intervalId.current = window.setInterval(updateGame, 1000 / 30, data);
     window.addEventListener("keydown", (e: KeyboardEvent) => handleKeyPress(e));
-
     cowLogoImage.src = cowLogo;
     supervanImage.src = supervan;
     collectableImage.src = collectable;
-    if (token != undefined) {
-      content = decodeToken(token);
+    if (token !== undefined) {
+      let content = decodeToken(token);
       console.log("registering token", content);
       data.current.player1.id = content?.user;
       data.current.player1.name = content?.username;
@@ -169,7 +165,7 @@ const GameSocket: React.FC = () => {
         avatar: "http://localhost:8080/images/default.png",
       };
     }
-    intervalBonus = window.setInterval(() => {
+    let intervalBonus = window.setInterval(() => {
       let rand = randomNumberInRange(1, 100);
       if (
         data.current.gameType === 1 &&
@@ -194,7 +190,9 @@ const GameSocket: React.FC = () => {
         window.removeEventListener("keydown", (e: KeyboardEvent) =>
           handleKeyPress(e)
         );
-        window.clearInterval(intervalId);
+        if (intervalId.current) {
+          window.clearInterval(intervalId.current);
+        }
         window.clearInterval(intervalBonus);
       }
     };
@@ -254,16 +252,16 @@ const GameSocket: React.FC = () => {
             console.log("paused: ", data.current.paused);
           }
         }, 1000);
-        if (data.current.paused == 0) {
+        if (data.current.paused === 0) {
           clearInterval(intervalPause);
         }
         if (data.current.player1.pNumber === 1 && data.current.paused === 0) {
-            console.log("gameState sent");
-            gsocket.emit("gameState", {
-              data: data.current,
-              roomName: data.current.NameOfRoom,
-            });
-          }
+          console.log("gameState sent");
+          gsocket.emit("gameState", {
+            data: data.current,
+            roomName: data.current.NameOfRoom,
+          });
+        }
       }
     });
 
@@ -305,7 +303,6 @@ const GameSocket: React.FC = () => {
           data.current.bonus.pos_y = 600 - dataBack.pos_y;
           data.current.bonus.speed_x = -dataBack.speed_x;
           data.current.bonus.speed_y = -dataBack.speed_y;
-          // data.current = convertBonus(data.current, 600, 450);
         }
       }
     );
@@ -340,7 +337,6 @@ const GameSocket: React.FC = () => {
       "gameState",
       (dataBack: { data: GameData; roomName: string }) => {
         console.log("gameState received");
-        let temp = data.current.paused;
         if (data.current.spectator === 1) {
           data.current = dataBack.data;
           data.current.started = true;
@@ -403,7 +399,7 @@ const GameSocket: React.FC = () => {
         console.log("user ", dataBack.player, "forfeited");
         if (data.current.spectator === 0) {
           if (dataBack.player !== data.current.player1.pNumber) {
-            if (dataBack.gameID != 0) data.current.gameID = dataBack.gameID;
+            if (dataBack.gameID !== 0) data.current.gameID = dataBack.gameID;
             if (data.current.player1.pNumber === 1)
               data.current.score1 = dataBack.max;
             else if (data.current.player1.pNumber === 2)
@@ -422,8 +418,8 @@ const GameSocket: React.FC = () => {
             );
             await delay(4500);
             try {
-              clearInterval(intervalId);
-              bodyNavigate("/Home");
+              clearInterval(intervalId.current);
+              Sendhome();
             } catch (e) {
               console.log("error sending home", e);
             }
@@ -433,7 +429,7 @@ const GameSocket: React.FC = () => {
             data.current.bonusActive = false;
             setCanvas(false);
             try {
-              clearInterval(intervalId);
+              clearInterval(intervalId.current);
               bodyNavigate("/Home");
             } catch (e) {
               console.log("error sending home", e);
@@ -476,7 +472,7 @@ const GameSocket: React.FC = () => {
         await delay(4500);
         try {
           bodyNavigate("/Home");
-          console.log("cleared: ", clearInterval(intervalId));
+          console.log("cleared: ", clearInterval(intervalId.current));
         } catch (e) {
           console.log("error sending home", e);
         }
@@ -539,17 +535,7 @@ const GameSocket: React.FC = () => {
     data.ball.speed_x *= -1;
     data.ball.pos_y = height - data.ball.pos_y;
     data.ball.pos_x = width - data.ball.pos_x;
-    // convertBonus(data, height, width);
     data.converted = true;
-    return data;
-  }
-
-  function convertBonus(data: GameData, height: number, width: number) {
-    data.bonus.speed_y *= -1;
-    data.bonus.speed_x *= -1;
-    data.bonus.pos_y = height - data.bonus.pos_y;
-    data.bonus.pos_x = width - data.bonus.pos_x;
-    data.bonusconverted = true;
     return data;
   }
 
@@ -583,7 +569,6 @@ const GameSocket: React.FC = () => {
         ctx = canvas.getContext("2d")!;
         if (data.current.player1.pNumber === 2 && !data.current.converted) {
           data.current = convert(data.current, canvas.height, canvas.width);
-          //data.current = convertBonus(data.current, canvas.height, canvas.width);
         }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -620,10 +605,6 @@ const GameSocket: React.FC = () => {
           data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
           data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
           console.log("collision with paddle");
-          // if (data.current.player1.pNumber === 1)
-          // 	Bounce(newBallX, newBallY, data.current.ball.speed_x, data.current.ball.speed_y);
-          // else if (data.current.player1.pNumber === 2)
-          // 	Bounce(newBallX, newBallY, -data.current.ball.speed_x, -data.current.ball.speed_y);
         }
         if (
           newBonusY < 20 &&
@@ -771,7 +752,7 @@ const GameSocket: React.FC = () => {
       speed: data.current.player1.speed,
     });
   };
-
+  /*
   const Bounce = (
     newBallx: number,
     newBally: number,
@@ -794,7 +775,7 @@ const GameSocket: React.FC = () => {
       client: content?.user,
     });
   };
-
+*/
   const Sendhome = () => {
     try {
       const navigate = useNavigate();
@@ -848,7 +829,7 @@ const GameSocket: React.FC = () => {
       }
     }
   };
-
+  /*
   const spectate = () => {
     const roomNamePrompt = prompt(
       "Enter the name of the room you want to spectate:"
@@ -858,16 +839,16 @@ const GameSocket: React.FC = () => {
   };
 
   const giveRoom = () => {
-    if (token != undefined) {
+    if (token !== undefined) {
       content = decodeToken(token);
       console.log(content);
       gsocket.emit("give-roomName", { user_id: content.user });
       console.log(content.user);
     }
   };
-
+*/
   const WaitingRoom = () => {
-    if (token != undefined) {
+    if (token !== undefined) {
       content = decodeToken(token);
       console.log(content);
       gsocket.emit("waitList", { user_id: content.user, bonus: 0 });
@@ -876,7 +857,7 @@ const GameSocket: React.FC = () => {
   };
 
   const WaitingRoom_bonus = () => {
-    if (token != undefined) {
+    if (token !== undefined) {
       content = decodeToken(token);
       console.log(content);
       gsocket.emit("waitList", { user_id: content.user, bonus: 1 });
@@ -903,7 +884,7 @@ const GameSocket: React.FC = () => {
       <div>
         <canvas
           className="border-solid border-2 border-white h-max-full w-max-full object-contain"
-          ref={canvasRef}
+          ref={canvasRef as React.RefObject<HTMLCanvasElement> | null}
           width={450}
           height={600}
         ></canvas>

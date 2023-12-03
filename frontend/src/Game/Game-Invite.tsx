@@ -19,7 +19,7 @@ const GameInvite: React.FC<{}> = () => {
 
 	function replyMatch(roomName: string, status: string) {
 		gsocket.emit('replyInvite', {roomName: roomName, status: status});
-		if (status == 'accept')
+		if (status === 'accept')
 		{
 			navigate('/game');
 		}

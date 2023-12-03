@@ -7,7 +7,7 @@ SPINNER = ⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏
 
 run:
 	@echo "Starting the Docker containers..."
-	@docker-compose -f $(COMPOSE_FILE) up -d --build
+	@docker-compose up -d
 	@echo "\nDocker containers are now running in the background."
 
 down:
