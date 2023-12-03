@@ -13,15 +13,21 @@ import { Avatar} from '@chakra-ui/react'
 import ShowStatus from './FriendStatus';
 import { VStack } from '@chakra-ui/react';
 
-export interface FriendData{
-	requester: string;
-	status: number; 
-	id: number;
-	requester_user: string;
-	requested_user: string;
-	username: string;
-	curr_status: string;
+type UserInfo = {
 	avatar: string;
+	curr_status: number;
+	login42: string;
+	username: string;
+}
+
+export interface FriendData{
+	id: number;
+	requested: number;
+	requested_user: UserInfo;
+	requester: number;
+	requester_user: UserInfo;
+	status: number;
+	total_count: number;
 }
 
 const FriendList: React.FC<{}> = () => {

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../Components/Sidebar";
 import Cookies from "js-cookie";
 import "./Stats.css";
-import { AutoGetFetch } from "../helpers/helpers";
 import decodeToken from "../helpers/helpers";
 
 type achievementData = {
@@ -17,14 +16,14 @@ const AchTest: React.FC = () => {
   const [userAchieve, setUserAchieve] = useState([]);
   // const [userId, setUserId] = useState<number>(0);
   const [fetched, setFetched] = useState<boolean>(false);
-  const [userFetched, setUserFetched] = useState<boolean>(false);
-  const [posted, setPosted] = useState<boolean>(false);
+  // const [userFetched, setUserFetched] = useState<boolean>(false);
+  // const [posted, setPosted] = useState<boolean>(false);
 
   const CreateAchieve = async () => {
-    setPosted(false);
+    // setPosted(false);
     const token: string | undefined = Cookies.get("token");
     let content: { username: string; user: number };
-    if (token != undefined) {
+    if (token !== undefined) {
       content = decodeToken(token);
     } else content = { username: "default", user: 0 };
     const response = await fetch("http://localhost:8080/api/userachievments", {
@@ -39,15 +38,15 @@ const AchTest: React.FC = () => {
         achievment_id: 1,
       }),
     });
-    setPosted(true);
+    // setPosted(true);
     GetUserAchieve();
   };
 
   const GetUserAchieve = async () => {
-    setUserFetched(false);
+    // setUserFetched(false);
     const token: string | undefined = Cookies.get("token");
     let content: { username: string; user: number };
-    if (token != undefined) {
+    if (token !== undefined) {
       content = decodeToken(token);
     } else content = { username: "default", user: 0 };
 
@@ -64,8 +63,9 @@ const AchTest: React.FC = () => {
     const data = await response.json();
     //const print = JSON.stringify(data);
     if (response.ok) {
-      setUserAchieve(data);
-      setUserFetched(true);
+      console.log(data);
+      // setUserAchieve(data);
+      // setUserFetched(true);
       console.log("user: ", content.user);
     }
   };
@@ -84,14 +84,14 @@ const AchTest: React.FC = () => {
     const data = await response.json();
     //const print = JSON.stringify(data);
     if (response.ok) {
-      setAchieve(data);
+      // setAchieve(data);
       setFetched(true);
     }
   };
 
   useEffect(() => {
-    GetAchieve();
-    GetUserAchieve();
+    // GetAchieve();
+    // GetUserAchieve();
   }, []);
 
   // setAchieve(AutoGetFetch("achievments"));

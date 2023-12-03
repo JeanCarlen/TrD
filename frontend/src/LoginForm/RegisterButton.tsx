@@ -9,7 +9,6 @@ import "../pages/Home.css";
 import "./RegisterButton.css";
 import decodeToken from "../helpers/helpers";
 import { ToastContainer, toast } from "react-toastify";
-import Notification from "../Components/Notification";
 
 const RegisterButton: React.FC = () => {
   const navigate = useNavigate();
@@ -39,21 +38,21 @@ const RegisterButton: React.FC = () => {
   }, []);
 
   // Create a first achievment
-  const FirstAchievement = async () => {
-    const isRegisteredCheck = Cookies.get("token");
-    const response = await fetch("http://localhost:8080/api/auth/achievement", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + isRegisteredCheck,
-      },
-      body: JSON.stringify({
-        title: "You Logged IN!",
-        description: "You get this for logginng in for the first time!",
-        objective: 1,
-      }),
-    });
-  };
+  // const FirstAchievement = async () => {
+  //   const isRegisteredCheck = Cookies.get("token");
+  //   const response = await fetch("http://localhost:8080/api/auth/achievement", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: "Bearer " + isRegisteredCheck,
+  //     },
+  //     body: JSON.stringify({
+  //       title: "You Logged IN!",
+  //       description: "You get this for logginng in for the first time!",
+  //       objective: 1,
+  //     }),
+  //   });
+  // };
 
   const handleLogin = async () => {
     if (username.trim() === "" || password.trim() === "") {

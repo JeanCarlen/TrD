@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-// import styled from 'styled-components'
 import { ChakraProvider, WrapItem, Wrap} from '@chakra-ui/react'
 import { Avatar } from '@chakra-ui/react'
 import Sidebar from '../Components/Sidebar'
@@ -8,7 +7,6 @@ import {
     VStack
 } from '@chakra-ui/react';
 import { useState } from 'react'
-import { useRef } from 'react'
 import decodeToken from '../helpers/helpers'
 import Cookies from 'js-cookie'
 import Searchbar from '../Components/Searchbar'
@@ -18,7 +16,6 @@ import LayoutGamestats from './Layout-gamestats'
 import {ToastContainer} from 'react-toastify'
 import {gameData} from './Stats'
 import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
 import GetUserName from '../Components/testusername'
 import MyStatus from '../Components/Status'
 import GameInvite from '../Game/Game-Invite'
@@ -37,7 +34,7 @@ const Home = (props: Props) => {
   const [gameFetched, setGameFetched] = useState<boolean>(false);
   const [dataLast, setDataLast] = useState<gameData[]>([]);
   // const [friendsFetched, setFriendsFetched] = useState<boolean>(false);
-  const [username, setUsername] = useState<string>('');
+  // const [username, setUsername] = useState<string>('');
   // const dispatch = useDispatch();
   const mainUsername = useSelector((state: Props) => state.username);
   const userStatus = useSelector((state: Props) => state.userStatus);
@@ -88,7 +85,7 @@ const Home = (props: Props) => {
       console.log("current status", data.status);
       // dispatch(setUserStatus(data.status));
       content.username = data.username;
-      setUsername(data.username);
+      // setUsername(data.username);
       console.log(content.username);
     }
   }

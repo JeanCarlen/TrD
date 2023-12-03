@@ -15,11 +15,23 @@ import { VStack } from '@chakra-ui/react';
 import '../pages/Home.css';
 import ShowStatus from './FriendStatus';
 
+type UserInfo = 
+{
+	avatar: string;
+	curr_status: number;
+	login42: string;
+	username: string;
+}
+
 export interface FriendData{
-	requester: string;
-	status: string;
 	id: number;
-	friendid: number;
+	requester: number;
+	requester_user: string;
+	requested: number;
+	requested_user: string;
+	status: string;
+	total_count: number;
+
 }
 
 const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
@@ -88,10 +100,10 @@ const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
 					<Wrap>
 					<WrapItem className='profile-border'>
 					<VStack spacing={4} alignItems="center">
-						<Link to={`/profiles/${friend.requested_user.username}`}>
-						<Avatar size="xs" src={friend.requested_user.avatar}/>
-						<ShowStatus status={friend.requested_user.curr_status}/>
-						<Text display="flex">{friend.requested_user.username}</Text>
+						<Link to={`/profiles/${friend.requested_user?.username}`}>
+						<Avatar size="xs" src={friend.requested_user?.avatar}/>
+						<ShowStatus status={friend.requested_user?.curr_status}/>
+						<Text display="flex">{friend.requested_user?.username}</Text>
 						</Link>
 					</VStack>
 					</WrapItem>
@@ -100,10 +112,10 @@ const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
 					<Wrap>
 					<WrapItem className='profile-border'>
 					<VStack spacing={4} alignItems="center">
-						<Link to={`/profiles/${friend.requester_user.username}`}>
-						<Avatar size="xs" src={friend.requester_user.avatar}/>
-						<ShowStatus status={friend.requester_user.curr_status}/>
-						<Text display="flex">{friend.requester_user.username}</Text>
+						<Link to={`/profiles/${friend.requester_user?.username}`}>
+						<Avatar size="xs" src={friend.requester_user?.avatar}/>
+						<ShowStatus status={friend.requester_user?.curr_status}/>
+						<Text display="flex">{friend.requester_user?.username}</Text>
 						</Link>
 					</VStack>
 					</WrapItem>

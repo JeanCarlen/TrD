@@ -31,9 +31,11 @@ import {
   import { User } from '../chat/idChatUser';
   import '../pages/Chat.css'
   import {Avatar} from '@chakra-ui/react'
+  import { FriendData } from './Friends'
 
 type CookieProps = {
 	username: string;
+	userStatus: number;
 };
 
 
@@ -55,13 +57,8 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 	const initialRef3 = React.useRef(null)
   	const finalRef3 = React.useRef(null)
 	const [newName, setNewName] = useState<string>('');
-	const [senderID, setSenderID] = useState([]);
-	const [senderName, setSenderName] = useState<string>('');
-	const [fetched, setFetched] = useState<boolean>(false);
-	const [pendingfriends, setPendingFriends] = useState<(number[])>();
-	const [friendRequests, setFriendRequests] = useState<(number[])>();
 	const [blockedUsers, setBlockedUsers] = useState<User[]>([]);
-	const userStatus = useSelector((state: string) => state.userStatus);
+	const userStatus = useSelector((state: CookieProps) => state.userStatus);
 	const token: string|undefined = Cookies.get("token");
 	let content: {username: string, user: number};
 		if (token !== undefined)
@@ -72,6 +69,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			content = { username: 'default', user: 0};
 	let count = 0;
 	let sender;
+
 	const updateUser = async () => {
 		const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
 			method: 'GET',
@@ -83,45 +81,6 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 		const data = await response.json()
 		console.log("data should have status", data);
 		console.log("status", data.status);
-		const resp = await fetch(`http://localhost:8080/api/friends/pending/list/${data.id}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': 'Bearer ' + token,
-		}
-		});
-		const data2 = await resp.json()
-		if (data2.length > 0)
-			{
-				count = data2.length;
-				console.log("length", count)
-				setSenderID(data2[0].requester);
-				console.log("data2", data2);
-				sender = data2[0].requester_user.username;
-				console.log("this is the sender", sender);
-				setFetched(true);
-				// console.log("this is the sendername", data2[0].requester_user.username);
-				for (let i = 0; i < data2.length; i++)
-				{
-					setSenderName(data2[i].requester_user.username);
-					setPendingFriends(data2[i].id);
-					setFriendRequests((prevNumbers: number[]) => [...prevNumbers || [], data2[i].id]);
-					// ID[i].id = data2[i].id;
-					console.log("id", data2[i].id);
-				}
-			}
-			// const response2 = await fetch(`http://localhost:8080/api/users/${content.user}`, {
-			// 	method: 'PATCH',
-			// 	headers: {
-			// 		'Content-Type': 'application/json',
-			// 		'Authorization': 'Bearer ' + token,
-			// 	},
-			// 	// body: JSON.stringify({status: 1}),
-			// });
-			// const dat = await response2.json()
-			// console.log("dat", dat);
-			console.log("pending", friendRequests);
-			console.log("pending2", pendingfriends);
 	}
 
 			useEffect(() =>{
@@ -241,22 +200,8 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			<MenuDivider />
 		</MenuList>
 		</Menu>
-      {/* <SettingsIcon onClick={onOpen} Change Username/> */}
-      {/* <Button ml={4} ref={finalRef}>
-        I'll receive focus on close
-	</Button> */}
 		<div>
-		{fetched && friendRequests?.map((request: number) => (
-			<div key={request}>
-			<NotificationIcon
-				count={count}
-				message={"Friend Requests"}
-				senderName={senderName}
-				senderID={senderID[request]}
-				pendingfriends={pendingfriends}
-			/>
-			</div>
-		))}
+		<NotificationIcon/>
 		</div>
       <Modal
         initialFocusRef={initialRef}
@@ -304,7 +249,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 
 
 		  <ModalFooter>
-            <Button /*onClick={handleAvatarChange} */ onClick={onClose1} colorScheme='blue' mr={3}>
+            <Button onClick={onClose1} colorScheme='blue' mr={3}>
 			  Save & Close
             </Button>
           </ModalFooter>
