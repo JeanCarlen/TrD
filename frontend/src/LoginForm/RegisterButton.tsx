@@ -8,7 +8,7 @@ import schoollogo from "../42_Logo.svg";
 import "../pages/Home.css";
 import "./RegisterButton.css";
 import decodeToken from "../helpers/helpers";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import Notification from "../Components/Notification";
 
 const RegisterButton: React.FC = () => {
@@ -285,7 +285,6 @@ const RegisterButton: React.FC = () => {
         )}
         {/* <Notification error={error} success={success} info={info} /> */}
       </div>
-      <ToastContainer />
     </div>
   );
 };
