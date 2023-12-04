@@ -64,13 +64,13 @@ function Searchbar() {
 		setSearchTerm(value);
 		};
 
-	// const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-	// 	if (event.key === 'Enter') {
-	// 	// When Enter key is pressed, trigger the search action
-	// 	handleSearch();
-	// 	setSearchTerm('');
-	// 	}
-	// }
+	const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === 'Enter') {
+		// When Enter key is pressed, trigger the search action
+		handleSearch();
+		setSearchTerm('');
+		}
+	}
 
 
 

@@ -14,7 +14,25 @@ import { Avatar } from '@chakra-ui/react'
 import { VStack } from '@chakra-ui/react';
 import '../pages/Home.css';
 import ShowStatus from './FriendStatus';
-import { FriendData } from './Friends';
+
+type UserInfo = 
+{
+	avatar: string;
+	curr_status: number;
+	login42: string;
+	username: string;
+}
+
+export interface FriendData{
+	id: number;
+	requester: number;
+	requester_user: UserInfo;
+	requested: number;
+	requested_user: UserInfo;
+	status: string;
+	total_count: number;
+
+}
 
 const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
 	const {users} = useParams();
@@ -34,6 +52,7 @@ const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
 		if (response.ok)
 		{
 			console.log("friend page", data);
+			setFriends(data);
 		}
 		console.log ('data', data);
 		let content: {username: string, user: number};

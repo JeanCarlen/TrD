@@ -106,6 +106,7 @@ const NotificationIcon: React.FC = () => {
 				console.log(data2);
 	  		}
 			updateFriends();
+		return (request);
 	  };
 
 	return (
