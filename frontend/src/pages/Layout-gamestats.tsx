@@ -4,7 +4,7 @@ import { gameData, User } from "./Stats";
 
 export type statsProps = {
 	display: gameData,
-	userID: number|undefined,
+	userID: number,
 }
 
 const LayoutGamestats: React.FunctionComponent<statsProps> = ({display, userID}: statsProps) => {

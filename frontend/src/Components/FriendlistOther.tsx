@@ -26,9 +26,9 @@ type UserInfo =
 export interface FriendData{
 	id: number;
 	requester: number;
-	requester_user: string;
+	requester_user: UserInfo;
 	requested: number;
-	requested_user: string;
+	requested_user: UserInfo;
 	status: string;
 	total_count: number;
 
@@ -52,6 +52,7 @@ const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
 		if (response.ok)
 		{
 			console.log("friend page", data);
+			setFriends(data);
 		}
 		console.log ('data', data);
 		let content: {username: string, user: number};

@@ -86,7 +86,7 @@ const Stats: React.FunctionComponent = () => {
         ) : (
           <div
             className="history_1"
-            style={({ fontSize: "25px" }, { width: "50vw" })}
+            style={({ fontSize: "25px", width: "50vw" })}
           >
             Loading...
           </div>

@@ -5,8 +5,8 @@ import { FriendData } from "./Friends";
 
 type MessageProps = {
 	requestList: FriendData[];
-	onAccept: (senderName:string, senderID:number) => void;
-	onDecline: (senderID:number) => void;
+	onAccept: (request: FriendData) => Promise<FriendData[]>;
+	onDecline: (request: FriendData) => Promise<FriendData[]>;
 	onClose: () => void;
   };
 

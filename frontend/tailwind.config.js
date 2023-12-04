@@ -6,10 +6,23 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: {
+  plugins: [
+    [{
 	'tailwindcss/nesting': {},
     tailwindcss: {},
     autoprefixer: {},
   },
-}
+],
+  ],
+};
 
+// module.exports = {
+//   plugins: [
+//     [
+//       "postcss-preset-env",
+//       {
+//         // Options
+//       },
+//     ],
+//   ],
+// };

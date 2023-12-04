@@ -27,11 +27,17 @@ export interface profiles {
 }
 type Props = {};
 
-export interface FriendData {
-  requester: string;
-  status: string;
-  id: number;
+export interface FriendData{
+	id: number;
+	requester: number;
+	requester_user: string;
+	requested: number;
+	requested_user: string;
+	status: string;
+	total_count: number;
+
 }
+
 const Profiles = (props: Props) => {
   const { users } = useParams();
   const token: string | undefined = Cookies.get("token");
@@ -182,7 +188,7 @@ const Profiles = (props: Props) => {
                 {friends.map((friend) => (
                   <FriendListProfile
                     key={friend.id}
-                    friendid={friend.id}
+                    friendid={friend.requested}
                     id={friend.id}
                     requester={friend.requester}
                     status={friend.status}
