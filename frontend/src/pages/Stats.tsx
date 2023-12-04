@@ -7,7 +7,6 @@ import Cookies from "js-cookie";
 import decodeToken from "../helpers/helpers";
 import LayoutRanking from "./Layout-ranking";
 import GameInvite from "../Game/Game-Invite";
-import { ToastContainer } from 'react-toastify';
 
 export type User = {
   username: string;
@@ -80,13 +79,13 @@ const Stats: React.FunctionComponent = () => {
         {gameFetched ? (
           <div className="history_1" style={{ width: "50vw" }}>
             {alldata.map((stat: gameData) => {
-              return <LayoutGamestats display={stat} userID={content.user} />;
+              return <LayoutGamestats display={stat} userID={content?.user} />;
             })}
           </div>
         ) : (
           <div
             className="history_1"
-            style={({ fontSize: "25px" }, { width: "50vw" })}
+            style={{ fontSize: "25px", width: "50vw" }}
           >
             Loading...
           </div>

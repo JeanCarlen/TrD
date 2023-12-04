@@ -6,10 +6,14 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: {
-	'tailwindcss/nesting': {},
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
-
+  plugins: [
+    [
+      {
+        'postcss-import': {},
+        'tailwindcss/nesting': {},
+          tailwindcss: {},
+          autoprefixer: {},
+        },
+    ],
+  ],
+};

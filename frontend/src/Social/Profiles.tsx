@@ -21,17 +21,13 @@ import { User } from "../chat/idChatUser";
 import ShowStatus from "../Components/FriendStatus";
 import { useNavigate } from "react-router-dom";
 import { gsocket } from "../context/websocket.context";
+import { FriendData } from "../Components/Friends";
 
 export interface profiles {
   username: string | undefined;
 }
 type Props = {};
 
-export interface FriendData {
-  requester: string;
-  status: string;
-  id: number;
-}
 const Profiles = (props: Props) => {
   const { users } = useParams();
   const token: string | undefined = Cookies.get("token");
@@ -182,10 +178,13 @@ const Profiles = (props: Props) => {
                 {friends.map((friend) => (
                   <FriendListProfile
                     key={friend.id}
-                    friendid={friend.id}
                     id={friend.id}
                     requester={friend.requester}
                     status={friend.status}
+                    requested={friend.requested}
+                    requested_user={friend.requested_user}
+                    requester_user={friend.requester_user}
+                    total_count={friend.total_count}
                   />
                 ))}
               </div>
