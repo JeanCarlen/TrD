@@ -8,8 +8,8 @@ import { setUserStatus } from '../Redux-helpers/action';
 import { useDispatch } from 'react-redux';
 import { gsocket } from "../context/websocket.context";
 
-type Props = {}
-
+type Props = {};
+  
 const Logout: React.FC<Props> = (props: Props) => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -27,3 +27,4 @@ const Logout: React.FC<Props> = (props: Props) => {
 };
 
 export default Logout;
+

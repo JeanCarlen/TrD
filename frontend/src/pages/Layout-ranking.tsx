@@ -77,7 +77,7 @@ const LayoutRanking: React.FC<props> = ({token}: props) => {
 
 	return (
 		<div>
-			{ranked ? <div style={{overflowY: 'scroll'}}>
+			{ranked ? <div>
 				{rankList.map((line: ranking, index: number) => {
 					return (
 						<div className="game-stats">

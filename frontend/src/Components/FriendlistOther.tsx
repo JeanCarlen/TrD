@@ -94,7 +94,7 @@ const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
 		<div>
 		<h2>Friends</h2>
 		<List className='friends'>
-        {friends.map((friend) => (
+        {friends.map((friend: FriendData) => (
           <ListItem key={friend.requester}>
             <Flex alignItems="center">
 			{isSender ? (

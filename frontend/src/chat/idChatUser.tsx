@@ -49,6 +49,8 @@ const handleAddUser = (user: User) => {
   };
 
 export  const handleBlockUser = async (user: User|undefined, token: string|undefined) => {
+	if (user === undefined)
+		return ;
 	console.log(`Blocking user: ${user.username}`);
 	const response = await fetch(`http://localhost:8080/api/users/block/${user.id}`, {
 			method: 'POST',

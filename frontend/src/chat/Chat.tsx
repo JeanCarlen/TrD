@@ -12,7 +12,6 @@ import { Socket } from "socket.io-client";
 import * as FaIcons from 'react-icons/fa'
 import { useSelector } from 'react-redux';
 import { gsocket } from "../context/websocket.context";
-import { useNavigate } from 'react-router-dom';
 import GameInvite from "../Game/Game-Invite";
 
 
@@ -149,6 +148,7 @@ const Chat: React.FC = () => {
 					socketID: client.id,
 					client: contentJoin?.user,
 				});
+				return (chat.chat_id);
 			});
 		}
 	};
