@@ -9,7 +9,6 @@ import "../pages/Home.css";
 import "./RegisterButton.css";
 import decodeToken from "../helpers/helpers";
 import { toast } from "react-toastify";
-import Notification from "../Components/Notification";
 
 const RegisterButton: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +21,6 @@ const RegisterButton: React.FC = () => {
   const [valid, setValid] = useState<boolean>(false);
   const [token, setToken] = useState("");
   const [tokenContent, setTokenContent] = useState<JWTPayload>();
-
 
   useEffect(() => {
     // handleWelcome();
@@ -72,9 +70,6 @@ const RegisterButton: React.FC = () => {
     });
     const data = await response.json();
     if (response.ok) {
-      const content: { username: string; user: number } = decodeToken(
-        data.token
-      );
       Cookies.set("token", data.token);
       navigate("/Home");
     } else {
@@ -120,9 +115,6 @@ const RegisterButton: React.FC = () => {
     });
     const data = await response.json();
     if (response.ok) {
-      const content: { username: string; user: number } = decodeToken(
-        data.token
-      );
       Cookies.set("token", data.token);
       navigate("/Home");
     } else {
