@@ -3,9 +3,9 @@ import "./Stats.css";
 import { gameData } from "./Stats";
 
 export type statsProps = {
-	display: gameData,
-	userID: number,
-}
+  display: gameData;
+  userID: number | undefined;
+};
 
 const LayoutGamestats: React.FunctionComponent<statsProps> = ({
   display,
