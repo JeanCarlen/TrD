@@ -12,7 +12,7 @@
 	text-transform: uppercase;
   }
   
-  .grid {
+  .grid-stats {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-around;

@@ -16,7 +16,6 @@ import LayoutGamestats from "../pages/Layout-gamestats";
 import FriendListProfile from "../Components/FriendlistOther";
 import { handleBlockUser } from "../chat/idChatUser";
 import * as FaIcons from "react-icons/fa";
-import { ToastContainer } from "react-toastify";
 import { User } from "../chat/idChatUser";
 import ShowStatus from "../Components/FriendStatus";
 import { useNavigate } from "react-router-dom";
@@ -127,7 +126,7 @@ const Profiles = (props: Props) => {
       <div>
         <Sidebar />
         <div>
-          <div className="topBox">
+          <div className="flex flex-row gap-6 justify-start items-end ml-24">
             <Wrap>
               <WrapItem className="profile-border">
                 <VStack spacing={4} alignItems="center">
@@ -141,19 +140,31 @@ const Profiles = (props: Props) => {
                 <h1 className="welcome"> {users} </h1>
               </WrapItem>
             </Wrap>
-            <div className="profile-border">
-              <AddFriend userID={friendid} />
-              Add {users} as a friend
-            </div>
-            <div className="profile-border">Invite {users} for a game</div>
-            <div className="profile-border">
-              <FaIcons.FaHandPaper
-                cursor="pointer"
-                style={{ marginLeft: "5px", fontSize: "30pt" }}
+            <div className="box-content overflow-hidden h-177 grid grid-row-2 grid-cols-2 gap-x-2 gap-y-2">
+              <button
+                className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
+                onClick={() => <AddFriend userID={friendid}></AddFriend>}
+              >
+                Add friend
+              </button>
+              <button
+                className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
+                onClick={() => friend && SpectateGame(friend)}
+              >
+                spectate
+              </button>
+              <button
+                className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
+                onClick={() => friend && SpectateGame(friend)} //TODO: add invite to play function
+              >
+                invite to play
+              </button>
+              <button
+                className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
                 onClick={() => handleBlockUser(friend, token)}
-              />
-              <br />
-              Block {users}
+              >
+                block {users}
+              </button>
             </div>
           </div>
           <div className="displayGrid">
@@ -191,7 +202,6 @@ const Profiles = (props: Props) => {
             </div>
           </div>
         </div>
-        <ToastContainer />
       </div>
     </ChakraProvider>
   );

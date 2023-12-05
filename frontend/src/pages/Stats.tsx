@@ -70,7 +70,7 @@ const Stats: React.FunctionComponent = () => {
     <div className="stats-container">
       <Sidebar />
       <div className="text"></div>
-      <div className="grid" style={{ paddingBottom: "10vh" }}>
+      <div className="grid-stats" style={{ paddingBottom: "10vh" }}>
         {/* <h2>Match History</h2> */}
         <div className="history_1" style={{ overflowY: "auto" }}>
           <LayoutPlayerstats data={alldata} User={content} />
