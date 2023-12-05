@@ -13,6 +13,7 @@ import * as FaIcons from 'react-icons/fa'
 import { useSelector } from 'react-redux';
 import { gsocket } from "../context/websocket.context";
 import GameInvite from "../Game/Game-Invite";
+import { TranslateChat } from "./chatNameTranslate";
 
 
 
@@ -32,6 +33,7 @@ export type chatData = {
 		email: string,
 		avatar: string
 	}
+	display_name: string;
 }
 
 const Chat: React.FC = () => {
@@ -72,15 +74,18 @@ const Chat: React.FC = () => {
 			const data = await response.json();
 			if (response.ok)
 			{
-				setFetched(true);
+				await data.forEach(async (chat: chatData)=>{
+					chat.display_name= await TranslateChat(chat, content?.user, token);
+				});
 				setData(data);
+				setFetched(true);
 				return data as chatData[];
 			}
 			else
 				console.log("error in the try");
 		}
 		catch (error) {
-			console.log("error in the catch");
+			console.log("error in the catch", error);
 		}
 	}
 
@@ -290,7 +295,7 @@ const Chat: React.FC = () => {
 		{data.map((chat: chatData) => {
 			return (
 				<button onClick={() => handleJoinRoom(chat)} key={chat.id} className="game-stats" style={{flexDirection: "column"}}>
-					<div className="box">{chat.chat.name}
+					<div className="box">{chat.display_name}
 					{chat.chat.protected ? <FaIcons.FaLock/> : <></>}
 					</div>
 				</button>

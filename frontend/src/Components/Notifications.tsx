@@ -73,7 +73,7 @@ const NotificationIcon: React.FC = () => {
 				position: toast.POSITION.TOP_CENTER
 			});
 			gsocket.emit('create-room', {
-				roomName: `1on1-${request.requester}-${request.requested}`,
+				roomName: `[1on1]-${request.requester}-${request.requested}`,
 				client: content?.user,
 				Password: null,
 			});
@@ -106,7 +106,6 @@ const NotificationIcon: React.FC = () => {
 				console.log(data2);
 	  		}
 			updateFriends();
-		return (request);
 	  };
 
 	return (
