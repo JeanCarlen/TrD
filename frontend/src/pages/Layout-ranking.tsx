@@ -45,6 +45,8 @@ const LayoutRanking: React.FC<props> = ({token}: props) => {
 
 	const calculateRanking = async () => {
 		let matchList: gameData[] = await fetchMatches();
+		if(matchList === undefined)
+			return;
 		let tempList: ranking[] = [];
 		await Promise.all(matchList.map(async (match) => {
 			if (tempList[match.user_1] === undefined)
