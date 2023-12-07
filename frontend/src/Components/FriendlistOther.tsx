@@ -16,13 +16,6 @@ import "../pages/Home.css";
 import ShowStatus from "./FriendStatus";
 import { FriendData } from "./Friends";
 
-type UserInfo = {
-  avatar: string;
-  curr_status: number;
-  login42: string;
-  username: string;
-};
-
 const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
   const { users } = useParams();
   const [friends, setFriends] = useState<FriendData[]>([]);

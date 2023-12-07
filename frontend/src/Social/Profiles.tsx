@@ -15,7 +15,6 @@ import { gameData } from "../pages/Stats";
 import LayoutGamestats from "../pages/Layout-gamestats";
 import FriendListProfile from "../Components/FriendlistOther";
 import { handleBlockUser } from "../chat/idChatUser";
-import * as FaIcons from "react-icons/fa";
 import { User } from "../chat/idChatUser";
 import ShowStatus from "../Components/FriendStatus";
 import { useNavigate } from "react-router-dom";
@@ -41,17 +40,6 @@ const Profiles = (props: Props) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token: string | undefined = Cookies.get("token");
-    let content: { username: string; user: number; avatar: string };
-    if (token !== undefined) {
-      content = decodeToken(token);
-    } else
-      content = {
-        username: "default",
-        user: 0,
-        avatar: "http://localhost:8080/images/default.png",
-      };
-
     GetUserinfo();
     // fetchMatches(content.user);
   }, []);

@@ -17,17 +17,16 @@ const RegisterButton: React.FC = () => {
   const [open, setIsOpen] = useState(false);
   const [username, setUsername] = useState("");
   const [passwordsMatch, setPasswordsMatch] = useState(true); // State to track password matching
-  const [showPassword, setShowPassword] = useState(false);
+//   const [showPassword, setShowPassword] = useState(false);
   const [valid, setValid] = useState<boolean>(false);
-  const [token, setToken] = useState("");
   const [tokenContent, setTokenContent] = useState<JWTPayload>();
+  const showPassword = false;
 
   useEffect(() => {
     // handleWelcome();
     const token: string | undefined = Cookies.get("token");
     if (token) {
       let content: JWTPayload = decodeToken(token);
-      setToken(token);
       setTokenContent(content);
     }
     if (tokenContent && !tokenContent?.twofaenabled) {
@@ -35,23 +34,6 @@ const RegisterButton: React.FC = () => {
     } else if (tokenContent && tokenContent?.twofaenabled)
       navigate("/authenticate");
   }, []);
-
-  // Create a first achievment
-  // const FirstAchievement = async () => {
-  //   const isRegisteredCheck = Cookies.get("token");
-  //   const response = await fetch("http://localhost:8080/api/auth/achievement", {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: "Bearer " + isRegisteredCheck,
-  //     },
-  //     body: JSON.stringify({
-  //       title: "You Logged IN!",
-  //       description: "You get this for logginng in for the first time!",
-  //       objective: 1,
-  //     }),
-  //   });
-  // };
 
   const handleLogin = async () => {
     if (username.trim() === "" || password.trim() === "") {
@@ -148,9 +130,9 @@ const RegisterButton: React.FC = () => {
     setPasswordsMatch(e.target.value === password); // Check if passwords match
   };
 
-  const handleTogglePassword = () => {
-    setShowPassword(!showPassword);
-  };
+//   const handleTogglePassword = () => {
+//     setShowPassword(!showPassword);
+//   };
 
   const openForm = () => {
     setIsOpen(true);
@@ -158,12 +140,12 @@ const RegisterButton: React.FC = () => {
     test.style.display = "none";
   };
 
-  const closeForm = () => {
-    setIsOpen(false);
-    RegisterButton(username, password);
-    navigate("/Home");
-    // If not empty, call the onLogin callback with the entered values
-  };
+//   const closeForm = () => {
+//     setIsOpen(false);
+//     RegisterButton(username, password);
+//     navigate("/Home");
+//     // If not empty, call the onLogin callback with the entered values
+//   };
 
   return (
     <div>
@@ -177,7 +159,7 @@ const RegisterButton: React.FC = () => {
                 href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-9ce743a9d6e296d270c36a928c02e3adc101d43c3a7905d66c9a2727b7640ad9&redirect_uri=https%3A%2F%2Ftrd.laendrun.ch%2Fapi%2Fauth%2Fcallback&response_type=code"
                 rel="noopener noreferrer"
               >
-                <img className="schoollogo" src={schoollogo} />
+                <img className="schoollogo" src={schoollogo} alt="42"/>
               </a>
             </button>
           </div>

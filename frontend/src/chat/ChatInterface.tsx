@@ -106,7 +106,6 @@ const ChatInterface: React.FC<Props> = ({
         if (data.room === currentRoom) {
           setAndScroll(latest);
         } else {
-          // alert(`You have a new message in another room: ${data.text}`);
           toast.info(latest.text + " in " + data.room, {
             position: toast.POSITION.BOTTOM_LEFT,
             className: "toast-info",
