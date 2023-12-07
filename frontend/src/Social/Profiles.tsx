@@ -120,6 +120,14 @@ const Profiles = (props: Props) => {
     }
   }
 
+  const inviteToPong = async (user: User) => {
+    if (token !== undefined) {
+      let content = await decodeToken(token);
+      gsocket.emit("invite", { inviter: content, invited: user });
+      navigate("/game");
+    }
+  };
+
   return (
     <ChakraProvider resetCSS={false}>
       <Searchbar />
@@ -150,7 +158,7 @@ const Profiles = (props: Props) => {
               </button>
               <button
                 className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
-                onClick={() => friend && SpectateGame(friend)} //TODO: add invite to play function
+                onClick={() => friend && inviteToPong(friend)} //TODO: add invite to play function
               >
                 invite to play
               </button>

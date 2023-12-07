@@ -1,0 +1,11 @@
+.inviteGrid {
+	display: flex;
+	justify-content: ceneter;
+	flex-direction: column;
+}
+
+.buttonBox {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+}

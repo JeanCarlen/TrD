@@ -42,10 +42,8 @@ const Chat: React.FC = () => {
 	const [data, setData] = useState<chatData[]>([]);
 	const [fetched, setFetched] = useState<boolean>(false);
 	const [currentRoom, setCurrentRoom] = useState<string>('default');
-	// const [roomName, setRoomName] = useState<string>('');
 	const [messages, setMessages] = useState<sentMessages[]>([]);
 	const [currentChat, setCurrentChat] = useState<chatData>();
-	// const [loggedIn, setLoggedIn] = useState<boolean>(false);
 	const userStatus = useSelector((state: any) => state.userStatus);
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
@@ -232,6 +230,7 @@ const Chat: React.FC = () => {
 						id: 0,
 						chat_id: 0,
 						user_id: 0,
+						display_name: '',
 						chat: {
 							name: roomNamePrompt,
 							owner: 0,

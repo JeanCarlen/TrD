@@ -402,7 +402,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				password: null,
 			});
 			console.log('Room created:', message.roomName);
-			await this.UserchatsService.create({user_id: message.requester, chat_id: createdRoom.id});
 			await this.UserchatsService.create({user_id: message.requested, chat_id: createdRoom.id});
             this.ChatadminsService.create({user_id: message.requester, chat_id: createdRoom.id});
             this.ChatadminsService.create({user_id: message.requested, chat_id: createdRoom.id});
