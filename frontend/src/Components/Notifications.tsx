@@ -53,7 +53,7 @@ const NotificationIcon: React.FC = () => {
 
 	const handleAcceptRequest = async(request: FriendData) => {
 		console.log(`Accepted friend request from ${request.requester_user.username}`);
-		const response = await fetch(`http://localhost:8080/api/friends/${request.requester}`, {
+		const response = await fetch(`http://localhost:8080/api/friends/${request.id}`, {
 			method: 'PATCH',
 			headers: {
 				'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ const NotificationIcon: React.FC = () => {
 		});
 		const data = await response.json()
 		console.log("accept", data)
-		if (response.status === 409) {
+		if (!response.ok) {
 			toast.error(data.message, {
 				position: toast.POSITION.TOP_CENTER
 			});
@@ -72,10 +72,10 @@ const NotificationIcon: React.FC = () => {
 			toast.success('You are now friends', {
 				position: toast.POSITION.TOP_CENTER
 			});
-			gsocket.emit('create-room', {
+			await gsocket.emit('create-1on1', {
 				roomName: `[1on1]-${request.requester}-${request.requested}`,
-				client: content?.user,
-				Password: null,
+				requester: request.requester,
+				requested: request.requested,
 			});
 		}
 		setShowFriendRequests(false);
@@ -91,7 +91,7 @@ const NotificationIcon: React.FC = () => {
 		// Implement logic to deny the friend request
 		console.log(`Denied friend request ${request.requester_user.username}`);
 		setShowFriendRequests(false);
-		const resp = await fetch(`http://localhost:8080/api/friends/reject/${request.requester}`, {
+		const resp = await fetch(`http://localhost:8080/api/friends/reject/${request.id}`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',

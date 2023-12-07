@@ -53,7 +53,7 @@ const Profiles = (props: Props) => {
       };
 
     GetUserinfo();
-    fetchMatches(content.user);
+    // fetchMatches(content.user);
   }, []);
 
   const GetUserinfo = async () => {
@@ -71,7 +71,7 @@ const Profiles = (props: Props) => {
     if (response.ok) {
       setAvatarUrl(data[0].avatar);
       await setFriendID(data[0].id);
-      console.log("friendid", data.id);
+      console.log("friendid", data[0].id);
       setFriend(data[0]);
       await fetchMatches(data[0].id);
       console.log("avatar", avatarUrl);
@@ -120,6 +120,14 @@ const Profiles = (props: Props) => {
     }
   }
 
+  const inviteToPong = async (user: User) => {
+    if (token !== undefined) {
+      let content = await decodeToken(token);
+      gsocket.emit("invite", { inviter: content, invited: user });
+      navigate("/game");
+    }
+  };
+
   return (
     <ChakraProvider resetCSS={false}>
       <Searchbar />
@@ -141,12 +149,7 @@ const Profiles = (props: Props) => {
               </WrapItem>
             </Wrap>
             <div className="box-content overflow-hidden h-177 grid grid-row-2 grid-cols-2 gap-x-2 gap-y-2">
-              <button
-                className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
-                onClick={() => <AddFriend userID={friendid}></AddFriend>}
-              >
-                Add friend
-              </button>
+			  <AddFriend userID={friendid}/>
               <button
                 className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
                 onClick={() => friend && SpectateGame(friend)}
@@ -155,7 +158,7 @@ const Profiles = (props: Props) => {
               </button>
               <button
                 className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
-                onClick={() => friend && SpectateGame(friend)} //TODO: add invite to play function
+                onClick={() => friend && inviteToPong(friend)} //TODO: add invite to play function
               >
                 invite to play
               </button>

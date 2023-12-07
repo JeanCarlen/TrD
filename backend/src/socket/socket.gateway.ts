@@ -381,6 +381,36 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		}
 	}
 
+	@SubscribeMessage('create-1on1')
+	@Inject('UserchatsService')
+	async onAddUserchat(client: Socket, message:{roomName: string, requester: number, requested: number}){
+		try {
+			console.log('add-userchat', message);
+			const chats = await this.ChatsService.findName(message.roomName);
+			if (chats !== null)
+				throw new Error('chat already exists');
+			const roomList = await this.ChatsService.findAllFromSocket();
+			roomList.map((room) => {
+				if (room.name == message.roomName) {
+					throw new Error(`Room already exists`);
+				}
+			});
+			const createdRoom = await this.ChatsService.create({
+				name: message.roomName,
+				type: ChatType.CHANNEL,
+				owner: message.requester,
+				password: null,
+			});
+			console.log('Room created:', message.roomName);
+			await this.UserchatsService.create({user_id: message.requested, chat_id: createdRoom.id});
+            this.ChatadminsService.create({user_id: message.requester, chat_id: createdRoom.id});
+            this.ChatadminsService.create({user_id: message.requested, chat_id: createdRoom.id});
+		} catch (error) {
+			console.log('ERROR IN add-userchat:', error.message);
+			this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
+		}
+		
+	}
 
     @SubscribeMessage('join-room')
 	@Inject('ChatsService')
