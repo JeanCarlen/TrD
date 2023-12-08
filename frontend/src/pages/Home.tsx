@@ -151,10 +151,8 @@ const Home = (props: Props) => {
             </div>
           </div>
         </div>
-        {/* </div> */}
       </ChakraProvider>
       <GameInvite />
-      <ToastContainer />
     </div>
   );
 };

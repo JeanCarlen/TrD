@@ -41,7 +41,6 @@ const TurnOff2fa: React.FC<{}> = () => {
 				<input onChange={updateCode} type="text" value={code}></input>
 				<button onClick={turnOff}>Désactiver</button>
 			</div>
-			<ToastContainer />
 		</>
 	)
 }

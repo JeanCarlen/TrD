@@ -311,7 +311,6 @@ const Chat: React.FC = () => {
 		</div>
 	</div>
 	<GameInvite/>
-	<ToastContainer />
 	</div>
 	);
 };
