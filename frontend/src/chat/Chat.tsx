@@ -7,7 +7,7 @@ import IdChatUser from '../chat/idChatUser';
 import ChatInterface from '../chat/ChatInterface';
 import Sidebar from '../Components/Sidebar';
 import { sentMessages } from './ChatInterface';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { Socket } from "socket.io-client";
 import * as FaIcons from 'react-icons/fa'
 import { useSelector } from 'react-redux';
