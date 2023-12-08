@@ -39,7 +39,7 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
         className: "toast-success",
       });
     else {
-      toast.error("You are already friends!", {
+      toast.error(data.error, {
         position: toast.POSITION.BOTTOM_LEFT,
         className: "toast-error",
       });

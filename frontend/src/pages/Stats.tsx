@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./Stats.css";
 import Sidebar from "../Components/Sidebar";
 import LayoutGamestats from "./Layout-gamestats";
@@ -32,12 +32,15 @@ const Stats: React.FunctionComponent = () => {
   const [alldata, setAllData] = useState<gameData[]>([]);
   const token: string | undefined = Cookies.get("token");
   let content: { username: string; user: number; avatar: string };
+  if (token !== undefined) content = decodeToken(token);
+  else
+    content = {
+      username: "default",
+      user: 0,
+      avatar: "http://localhost:8080/images/default.png",
+    };
 
-  useEffect(() => {
-    fetchMatches();
-  }, []);
-
-  const fetchMatches = async () => {
+  const fetchMatches = useCallback(async () => {
     const response = await fetch(
       `http://localhost:8080/api/matches/users/${content.user}`,
       {
@@ -56,15 +59,11 @@ const Stats: React.FunctionComponent = () => {
     } else {
       console.log("Error fetching matches");
     }
-  };
+  }, [content, token]);
 
-  if (token !== undefined) content = decodeToken(token);
-  else
-    content = {
-      username: "default",
-      user: 0,
-      avatar: "http://localhost:8080/images/default.png",
-    };
+  useEffect(() => {
+    fetchMatches();
+  }, [fetchMatches]);
 
   return (
     <div className="stats-container">

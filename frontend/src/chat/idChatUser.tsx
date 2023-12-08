@@ -62,8 +62,10 @@ export  const handleBlockUser = async (user: User|undefined, token: string|undef
 		});
 		if (response.ok)
 			toast.info(user.username + ' was successfully blocked', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
-		else 
-			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
+		else{
+			let errorDta = await response.json();
+			toast.error('Error: ' + errorDta.message, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
+		}
 };
 
 const adminUser = async (chat: chatData|undefined, user: User, token: string|undefined, mode: string) => {
@@ -284,13 +286,18 @@ const IdChatUser: React.FC<IdChatProps> = ({
     }
   }
 
-  const inviteToPong = async (user: User) => {
-    if (token !== undefined) {
-      let content = await decodeToken(token);
-      socket.emit("invite", { inviter: content, invited: user });
-      navigate("/game");
-    }
-  };
+	const inviteToPong = async (user: User) => {
+		if (token !== undefined) {
+			let content = await decodeToken(token);
+			if (content.user === user.id)
+			{
+				toast.error("You cannot invite yourself to play", { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
+				return;
+			}
+			socket.emit("invite", { inviter: content, invited: user });
+			navigate("/game");
+		}
+	};
 
   return (
     <ChakraProvider>
@@ -319,14 +326,15 @@ const IdChatUser: React.FC<IdChatProps> = ({
                   </div>
                   <br />
                   <Menu>
-                    <MenuButton
+					{user.id === currentUser?.id ? (<></>) : (<div id="actionDiv">
+					<MenuButton
                       className="sendButton"
                       as={Button}
                       rightIcon={<ChevronDownIcon />}
                     >
                       Actions
                     </MenuButton>
-                    <MenuList>
+					<MenuList>
                       <MenuItem
                         className="Addfriend"
                         onClick={() => handleAddUser(user)}
@@ -393,7 +401,8 @@ const IdChatUser: React.FC<IdChatProps> = ({
                         See Profile{" "}
                       </MenuItem>
                     </MenuList>
-                  </Menu>
+					</div>)}
+				</Menu>
                 </li>
               ))}
             <>

@@ -86,6 +86,7 @@ export class MessagesService {
 
   public async findAll(current_id: number) {
 	const blockedusers: number[] = await this.blockedusersService.getBlockedListByUser(current_id);
+	console.log('got blocked users:', blockedusers);
     return await this.messagesRepository.find({
 		where: { user_id: Not(In(blockedusers))}
 	});
