@@ -28,11 +28,7 @@ interface Props {
   chatSocket: Socket;
 }
 
-const ChatInterface: React.FC<Props> = ({
-  messagesData,
-  currentRoomProps,
-  chatSocket,
-}: Props) => {
+const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSocket }: Props) => {
   const [currentRoom, setCurrentRoom] = useState<string>(currentRoomProps);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<Message>({
