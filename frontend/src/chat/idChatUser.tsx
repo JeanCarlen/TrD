@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Menu, MenuButton, MenuList, MenuItem, Button } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
@@ -118,32 +118,6 @@ const IdChatUser: React.FC<IdChatProps> = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    if (chatData) {
-      getData(chatData);
-    }
-  }, [chatData]);
-
-  useEffect(() => {
-    socket.on("smb-moved", () => {
-      console.log(">>smb joined<<");
-      if (chatData) {
-        getData(chatData);
-      }
-    });
-
-    socket.on("refresh-id", () => {
-      getData(chatData);
-    });
-
-    return () => {
-      socket.off("smb-moved");
-      socket.off("deleted");
-      socket.off("refresh-id");
-      socket.off("back-to-home");
-    };
-  }, [socket, chatMembers]);
-
-  useEffect(() => {
     chatMembers?.forEach((user: User) => {
       if (user.id === user_id) {
         setCurrentUser(user);
@@ -239,8 +213,8 @@ const IdChatUser: React.FC<IdChatProps> = ({
     }
   }
 
-  async function getData(chatData: chatData | undefined) {
-    setFetched(false);
+  const getData = useCallback (async (chatData: chatData | undefined) => {
+	setFetched(false);
     console.log("user_id", user_id);
     console.log("chatData: ", chatData);
     if (chatData === undefined) {
@@ -269,7 +243,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
       console.log("error in the get data", data);
       setchatMembers([]);
     }
-  }
+  }, [user_id, token])
 
   function SpectateGame(user: User) {
     if (token !== undefined) {
@@ -298,6 +272,32 @@ const IdChatUser: React.FC<IdChatProps> = ({
 			navigate("/game");
 		}
 	};
+
+	useEffect(() => {
+		socket.on("smb-moved", () => {
+		  console.log(">>smb joined<<");
+		  if (chatData) {
+			getData(chatData);
+		  }
+		});
+	
+		socket.on("refresh-id", () => {
+		  getData(chatData);
+		});
+	
+		return () => {
+		  socket.off("smb-moved");
+		  socket.off("deleted");
+		  socket.off("refresh-id");
+		  socket.off("back-to-home");
+		};
+	  }, [socket, chatMembers, chatData, getData]);
+
+	useEffect(() => {
+		if (chatData) {
+		  getData(chatData);
+		}
+	  }, [chatData, getData]);
 
   return (
     <ChakraProvider>

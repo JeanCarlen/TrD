@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { ChakraProvider, WrapItem, Wrap } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/react";
 import Sidebar from "../Components/Sidebar";
@@ -26,18 +26,21 @@ type Props = {
 };
 
 const Home = (props: Props) => {
-  // const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [gameFetched, setGameFetched] = useState<boolean>(false);
   const [dataLast, setDataLast] = useState<gameData[]>([]);
-  // const [friendsFetched, setFriendsFetched] = useState<boolean>(false);
-  // const [username, setUsername] = useState<string>('');
-  // const dispatch = useDispatch();
   const mainUsername = useSelector((state: Props) => state.username);
   const userStatus = useSelector((state: Props) => state.userStatus);
   const token: string | undefined = Cookies.get("token");
   let content: { username: string; user: number; avatar: string };
+  if (token !== undefined) content = decodeToken(token);
+  else
+    content = {
+      username: "default",
+      user: 0,
+      avatar: "http://localhost:8080/images/default.png",
+    };
 
-  const fetchMatches = async () => {
+  const fetchMatches = useCallback (async () => {
     const response = await fetch(
       `http://localhost:8080/api/matches/users/${content.user}`,
       {
@@ -61,9 +64,9 @@ const Home = (props: Props) => {
     } else {
       console.log("Error fetching matches");
     }
-  };
+  }, [content, token, ]);
 
-  const updateUser = async () => {
+  const updateUser = useCallback( async () => {
     const response = await fetch(
       `http://localhost:8080/api/users/${content.user}`,
       {
@@ -78,24 +81,15 @@ const Home = (props: Props) => {
     if (response.ok) {
       console.log("does it fetch", data);
       console.log("current status", data.status);
-      // dispatch(setUserStatus(data.status));
       content.username = data.username;
-      // setUsername(data.username);
       console.log(content.username);
     }
-  };
-  if (token !== undefined) content = decodeToken(token);
-  else
-    content = {
-      username: "default",
-      user: 0,
-      avatar: "http://localhost:8080/images/default.png",
-    };
+  }, [content, token]);
 
   useEffect(() => {
     fetchMatches();
     updateUser();
-  }, []);
+  }, [fetchMatches, updateUser]);
 
   return (
     <div>
