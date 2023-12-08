@@ -1,7 +1,11 @@
 .inviteGrid {
 	display: flex;
-	justify-content: ceneter;
+	justify-content: center;
 	flex-direction: column;
+	border-width: 2px;
+	border-radius: 15px;
+	padding: 4%;
+	width: 25vw;
 }
 
 .buttonBox {

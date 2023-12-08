@@ -1,5 +1,5 @@
 import { Input, InputGroup, InputRightElement } from '@chakra-ui/react'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 import '../pages/Users.css'
 import { toast } from 'react-toastify';
@@ -11,6 +11,7 @@ function Searchbar() {
 	const [searchTerm, setSearchTerm] = useState('');
 
 	const token = Cookies.get('token');
+
 	const handleSearch = async () => {
 		const response = await fetch(`http://localhost:8080/api/users/username/${searchTerm}`, {
 			method: 'GET',
@@ -57,20 +58,26 @@ function Searchbar() {
 			}
 		}
 		console.log(`Searching for: ${searchTerm}`);
-
 	}
 
 	const handleInputChange = (value: string) => {
 		setSearchTerm(value);
-		};
+	};
 
-	const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-		if (event.key === 'Enter') {
-		// When Enter key is pressed, trigger the search action
-		handleSearch();
-		setSearchTerm('');
-		}
-	}
+	useEffect(()=>{
+		const handleKeyPress = (e: KeyboardEvent) => {
+			switch (e.key) {
+			  case "Enter":
+				if (document !== null && document.getElementById("subButton") !== null)
+				  document.getElementById("subButton")?.click();
+				break;
+			  default:
+				break;
+			}
+		  };
+		window.addEventListener("keydown", handleKeyPress);
+		return () => window.removeEventListener("keydown", handleKeyPress);
+	},[])
 
 
 
@@ -84,7 +91,7 @@ return (
 		value={searchTerm}
 		onChange={(e) => handleInputChange(e.target.value)}
       />
-	<button className='login-button2' type="submit" onClick={handleSearch}>Submit</button>
+	<button id="subButton" className='login-button2' type="submit" onClick={handleSearch}>Submit</button>
 	</InputRightElement>
 	</InputGroup>
 	</div>

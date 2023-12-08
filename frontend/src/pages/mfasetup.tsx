@@ -7,14 +7,12 @@ import TurnOn2fa from '../Components/TurnOn2fa';
 import TurnOff2fa from '../Components/TurnOff2fa';
 
 const MFASetup: React.FC<{}> = () => {
-	const [token, setToken] = useState('')
 	const [tokenContent, setTokenContent] = useState<JWTPayload>()
 
 	useEffect(() => {
 		const token: string | undefined = Cookies.get("token");
 		if (token !== undefined) {
 			let content: JWTPayload = decodeToken(token)
-			setToken(token)
 			setTokenContent(content)
 		}
 	}, [])

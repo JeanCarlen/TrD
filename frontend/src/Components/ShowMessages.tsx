@@ -19,7 +19,7 @@ const ShowMessage: React.FC<MessageProps> = ({requestList, onAccept, onDecline, 
 	return (
 		<div className="modal-content">
 		<div className="close" onClick={onClose}>
-		<h2>Friend Requests</h2>
+		<h2 style={{marginTop: "-6vh", paddingBottom: "1vh"}}>Friend Requests</h2>
 		{requestList.map((request: FriendData) => {
 			return (
 			<div className="inviteGrid">

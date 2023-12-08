@@ -1,7 +1,6 @@
 import React from "react";
 import Cookies from "js-cookie";
 import decodeToken from "../helpers/helpers";
-import { AddIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

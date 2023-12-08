@@ -95,6 +95,7 @@ const Stats: React.FunctionComponent = () => {
           <LayoutRanking token={token} />
         </div>
       </div>
+	  <GameInvite/>
     </div>
   );
 };
