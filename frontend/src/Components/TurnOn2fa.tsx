@@ -81,7 +81,6 @@ const TurnOn2fa: React.FC<{}> = () => {
 				<Button colorScheme="pink" onClick={activate}>Turn On 2FA</Button>
 			</div>
 		}
-		<ToastContainer />
 		</>
 	)
 }

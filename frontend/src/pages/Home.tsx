@@ -11,7 +11,6 @@ import Searchbar from "../Components/Searchbar";
 import FriendList from "../Components/Friends";
 import UserInformation from "../Components/UserInformation";
 import LayoutGamestats from "./Layout-gamestats";
-import { ToastContainer } from "react-toastify";
 import { gameData } from "./Stats";
 import { useSelector } from "react-redux";
 import GetUserName from "../Components/testusername";
@@ -151,10 +150,8 @@ const Home = (props: Props) => {
             </div>
           </div>
         </div>
-        {/* </div> */}
       </ChakraProvider>
       <GameInvite />
-      <ToastContainer />
     </div>
   );
 };

@@ -302,8 +302,6 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
           </ModalBody>
 		</ModalContent>
       </Modal>
-
-	  <ToastContainer/>
     </>
 )
 }

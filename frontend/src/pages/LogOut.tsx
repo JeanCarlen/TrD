@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import './Home.css'
 import Cookies from "js-cookie";
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux';
 import { gsocket } from "../context/websocket.context";
 
 type Props = {};
-  
+
 const Logout: React.FC<Props> = (props: Props) => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -18,7 +18,9 @@ const Logout: React.FC<Props> = (props: Props) => {
 	Cookies.set('token', tokenVal, { expires: -7 });
 	dispatch(setUserStatus(0));
 	gsocket.disconnect();
-	navigate("/login");
+	useEffect(()=>{
+		navigate("/login");
+	},[navigate])
 
 	return (<h1>Goodbye</h1>);
 
