@@ -33,7 +33,7 @@ const RegisterButton: React.FC = () => {
       navigate("/Home");
     } else if (tokenContent && tokenContent?.twofaenabled)
       navigate("/authenticate");
-  }, []);
+  }, [navigate, tokenContent]);
 
   const handleLogin = async () => {
     if (username.trim() === "" || password.trim() === "") {

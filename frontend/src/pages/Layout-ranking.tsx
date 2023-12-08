@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useState } from "react";
 import "./Stats.css";
 import { gameData, User } from "./Stats";
@@ -18,7 +18,7 @@ const LayoutRanking: React.FC<props> = ({ token }: props) => {
   const [ranked, setRanked] = useState(false);
   const [rankList, setRankList] = useState<ranking[]>([]);
 
-  const fetchMatches = async () => {
+  const fetchMatches = useCallback( async () => {
     const response = await fetch("http://localhost:8080/api/matches/", {
       method: "GET",
       headers: {
@@ -31,7 +31,7 @@ const LayoutRanking: React.FC<props> = ({ token }: props) => {
       console.log("Successfully fetched all matches", data);
       return data;
     } else console.log("Error fetching all matches", data);
-  };
+  }, [token]);
 
   const createUser = async (user_id: number, user_data: User) => {
     let newUser: ranking;
@@ -42,10 +42,9 @@ const LayoutRanking: React.FC<props> = ({ token }: props) => {
       ranking: 0,
     };
     return newUser;
-    // rankList[user_id] = {user_id: user_id, username: user_data.username, avatar: user_data.avatar, ranking: 0}
   };
 
-  const calculateRanking = async () => {
+  const calculateRanking = useCallback( async () => {
     let matchList: gameData[] = await fetchMatches();
     if (matchList === undefined) return;
     let tempList: ranking[] = [];
@@ -79,11 +78,11 @@ const LayoutRanking: React.FC<props> = ({ token }: props) => {
     console.log("ranklist: ", tempList);
     setRankList(tempList);
     setRanked(true);
-  };
+  }, [fetchMatches]);
 
   useEffect(() => {
     calculateRanking();
-  }, []);
+  }, [calculateRanking]);
 
   return (
     <div>

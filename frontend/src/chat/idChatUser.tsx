@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Menu, MenuButton, MenuList, MenuItem, Button } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
@@ -62,8 +62,10 @@ export  const handleBlockUser = async (user: User|undefined, token: string|undef
 		});
 		if (response.ok)
 			toast.info(user.username + ' was successfully blocked', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
-		else 
-			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
+		else{
+			let errorDta = await response.json();
+			toast.error('Error: ' + errorDta.message, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
+		}
 };
 
 const adminUser = async (chat: chatData|undefined, user: User, token: string|undefined, mode: string) => {
@@ -114,32 +116,6 @@ const IdChatUser: React.FC<IdChatProps> = ({
   const [bannedUsers, setBannedUsers] = useState<User[]>();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  useEffect(() => {
-    if (chatData) {
-      getData(chatData);
-    }
-  }, [chatData]);
-
-  useEffect(() => {
-    socket.on("smb-moved", () => {
-      console.log(">>smb joined<<");
-      if (chatData) {
-        getData(chatData);
-      }
-    });
-
-    socket.on("refresh-id", () => {
-      getData(chatData);
-    });
-
-    return () => {
-      socket.off("smb-moved");
-      socket.off("deleted");
-      socket.off("refresh-id");
-      socket.off("back-to-home");
-    };
-  }, [socket, chatMembers]);
 
   useEffect(() => {
     chatMembers?.forEach((user: User) => {
@@ -237,8 +213,8 @@ const IdChatUser: React.FC<IdChatProps> = ({
     }
   }
 
-  async function getData(chatData: chatData | undefined) {
-    setFetched(false);
+  const getData = useCallback (async (chatData: chatData | undefined) => {
+	setFetched(false);
     console.log("user_id", user_id);
     console.log("chatData: ", chatData);
     if (chatData === undefined) {
@@ -267,7 +243,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
       console.log("error in the get data", data);
       setchatMembers([]);
     }
-  }
+  }, [user_id, token])
 
   function SpectateGame(user: User) {
     if (token !== undefined) {
@@ -284,13 +260,44 @@ const IdChatUser: React.FC<IdChatProps> = ({
     }
   }
 
-  const inviteToPong = async (user: User) => {
-    if (token !== undefined) {
-      let content = await decodeToken(token);
-      socket.emit("invite", { inviter: content, invited: user });
-      navigate("/game");
-    }
-  };
+	const inviteToPong = async (user: User) => {
+		if (token !== undefined) {
+			let content = await decodeToken(token);
+			if (content.user === user.id)
+			{
+				toast.error("You cannot invite yourself to play", { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
+				return;
+			}
+			socket.emit("invite", { inviter: content, invited: user });
+			navigate("/game");
+		}
+	};
+
+	useEffect(() => {
+		socket.on("smb-moved", () => {
+		  console.log(">>smb joined<<");
+		  if (chatData) {
+			getData(chatData);
+		  }
+		});
+	
+		socket.on("refresh-id", () => {
+		  getData(chatData);
+		});
+	
+		return () => {
+		  socket.off("smb-moved");
+		  socket.off("deleted");
+		  socket.off("refresh-id");
+		  socket.off("back-to-home");
+		};
+	  }, [socket, chatMembers, chatData, getData]);
+
+	useEffect(() => {
+		if (chatData) {
+		  getData(chatData);
+		}
+	  }, [chatData, getData]);
 
   return (
     <ChakraProvider>
@@ -319,14 +326,15 @@ const IdChatUser: React.FC<IdChatProps> = ({
                   </div>
                   <br />
                   <Menu>
-                    <MenuButton
+					{user.id === currentUser?.id ? (<></>) : (<div id="actionDiv">
+					<MenuButton
                       className="sendButton"
                       as={Button}
                       rightIcon={<ChevronDownIcon />}
                     >
                       Actions
                     </MenuButton>
-                    <MenuList>
+					<MenuList>
                       <MenuItem
                         className="Addfriend"
                         onClick={() => handleAddUser(user)}
@@ -393,7 +401,8 @@ const IdChatUser: React.FC<IdChatProps> = ({
                         See Profile{" "}
                       </MenuItem>
                     </MenuList>
-                  </Menu>
+					</div>)}
+				</Menu>
                 </li>
               ))}
             <>

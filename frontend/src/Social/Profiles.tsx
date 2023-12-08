@@ -20,6 +20,7 @@ import ShowStatus from "../Components/FriendStatus";
 import { useNavigate } from "react-router-dom";
 import { gsocket } from "../context/websocket.context";
 import { FriendData } from "../Components/Friends";
+import { toast } from "react-toastify";
 
 export interface profiles {
   username: string | undefined;
@@ -33,7 +34,6 @@ const Profiles = (props: Props) => {
   const [dataMatches, setDataMatches] = useState<gameData[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [achievementName] = useState<string>("");
-  //   const [friendid, setFriendID] = useState<number>();
   const [friends] = useState<FriendData[]>([]);
   const [friendid, setFriendID] = useState<number | undefined>();
   const [friend, setFriend] = useState<User | undefined>();
@@ -41,7 +41,6 @@ const Profiles = (props: Props) => {
 
   useEffect(() => {
     GetUserinfo();
-    // fetchMatches(content.user);
   }, []);
 
   const GetUserinfo = async () => {
@@ -110,6 +109,11 @@ const Profiles = (props: Props) => {
 
   const inviteToPong = async (user: User) => {
     if (token !== undefined) {
+		if (friendid === user.id)
+		{
+			toast.error("You cannot invite yourself to play", { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
+			return;
+		}
       let content = await decodeToken(token);
       gsocket.emit("invite", { inviter: content, invited: user });
       navigate("/game");
