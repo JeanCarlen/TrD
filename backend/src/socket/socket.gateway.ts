@@ -103,7 +103,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		{
 			this.UserList.push({user_id: user_id, socket: client});
 			this.logger.log(`added user to userList ${user_id}`);
-			// this.UsersService.updateStatus(joiner.user_id , 1);
 		}
 		let user_info = this.UserList.find((one) => (one.socket.id === client.id));
 		if (user_info !== undefined)
@@ -126,7 +125,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		}
 		else
 			curr.player2 = client;
-        console.log("size is balec", room?.size);
         if (room != undefined && curr != undefined && curr.player1 != undefined && curr.player2 != undefined) {
             console.log("into if, roomName is ", message.roomName);
 
@@ -254,6 +252,16 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
 		}
     }
+
+    @SubscribeMessage('bye-bye')
+	async onByeBye(client: Socket, message:{roomName:string, user_id: number})
+	{
+		let byeRoom = await this.stock.find((one)=>(one?.roomName === message.roomName));
+		await this.stock.splice(this.stock.indexOf(byeRoom), 1);
+		console.log('stock:', this.stock.map((one) => (one.roomName)));
+		this.UsersService.updateStatus(message.user_id , 1);
+	}
+
 
     @SubscribeMessage('delete-channel')
     async onDeleteChannel(client: Socket, data: { chat_id: number, roomName: string }) {
@@ -482,7 +490,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	async onUserLeft(client: Socket, message:{roomName: string, playerNumber: number, gameID: number}): Promise<void> {
 		console.log("into user left", message.playerNumber);
 		this.server.to(message.roomName).emit('forfeit', {player: message.playerNumber, max: this.maxScore, gameID: message.gameID});
-		this.server.to(message.roomName).emit('leave-room', {roomName: message.roomName, id: client.id});
+		// this.server.to(message.roomName).emit('leave-room', {roomName: message.roomName, id: client.id});
 		let user_info = this.UserList.find((one) => (one.socket.id === client.id));
 		if (user_info !== undefined)
 			this.UsersService.updateStatus(user_info.user_id , 1);

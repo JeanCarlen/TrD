@@ -109,12 +109,12 @@ const Profiles = (props: Props) => {
 
   const inviteToPong = async (user: User) => {
     if (token !== undefined) {
-		if (friendid === user.id)
+		let content = await decodeToken(token);
+		if (content.user === user.id)
 		{
 			toast.error("You cannot invite yourself to play", { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
 			return;
 		}
-      let content = await decodeToken(token);
       gsocket.emit("invite", { inviter: content, invited: user });
       navigate("/game");
     }

@@ -89,7 +89,7 @@ const Home = (props: Props) => {
   useEffect(() => {
     fetchMatches();
     updateUser();
-  }, [fetchMatches, updateUser]);
+  }, []);
 
   return (
     <div>
