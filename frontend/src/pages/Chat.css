@@ -189,6 +189,7 @@ ul {
 	padding: 8px 16px;
 	cursor: pointer;
 	margin-top: 1vh;
+	width: fit-content;
 
 	&:hover {
 	  background-color: #310c22;

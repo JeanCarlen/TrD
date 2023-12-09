@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import GetUserName from "../Components/testusername";
 import MyStatus from "../Components/Status";
 import GameInvite from "../Game/Game-Invite";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   username: string;
@@ -32,6 +33,8 @@ const Home = (props: Props) => {
   const userStatus = useSelector((state: Props) => state.userStatus);
   const token: string | undefined = Cookies.get("token");
   let content: { username: string; user: number; avatar: string };
+  const navigate = useNavigate();
+
   if (token !== undefined) content = decodeToken(token);
   else
     content = {
@@ -40,7 +43,7 @@ const Home = (props: Props) => {
       avatar: "http://localhost:8080/images/default.png",
     };
 
-  const fetchMatches = useCallback (async () => {
+  const fetchMatches = useCallback(async () => {
     const response = await fetch(
       `http://localhost:8080/api/matches/users/${content.user}`,
       {
@@ -64,9 +67,9 @@ const Home = (props: Props) => {
     } else {
       console.log("Error fetching matches");
     }
-  }, [content, token, ]);
+  }, [content, token]);
 
-  const updateUser = useCallback( async () => {
+  const updateUser = useCallback(async () => {
     const response = await fetch(
       `http://localhost:8080/api/users/${content.user}`,
       {
@@ -89,7 +92,11 @@ const Home = (props: Props) => {
   useEffect(() => {
     fetchMatches();
     updateUser();
-  }, [fetchMatches, updateUser]);
+  }, []);
+
+  const GotoGame = () => {
+    navigate("/game");
+  };
 
   return (
     <div>
@@ -113,7 +120,12 @@ const Home = (props: Props) => {
                   <GetUserName username={content.username} />
                 </WrapItem>
               </Wrap>
-              <button className="quickGame">Take me to the game</button>
+              <button
+                className="rounded-full bg-fuchsia-900 p-1.5 shadow border-0 text-2xl text-white h-44 w-48 hover:bg-stone-700"
+                onClick={() => GotoGame()}
+              >
+                Quick Play
+              </button>
             </div>
             <div className="displayGrid">
               <div className="matchHistory">

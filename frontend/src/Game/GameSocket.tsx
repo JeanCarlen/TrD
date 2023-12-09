@@ -176,8 +176,8 @@ const GameSocket: React.FC = () => {
           console.log("bonus appear");
           gsocket.emit("bonus-pos", {
             roomName: data.current.NameOfRoom,
-            pos_x: randomNumberInRange(100, 500),
-            pos_y: randomNumberInRange(150, 650),
+            pos_x: randomNumberInRange(50, 100),
+            pos_y: randomNumberInRange(50, 100),
             playerNumber: data.current.player1.pNumber,
             speed_x: randomNumberInRange(-6, 6),
             speed_y: randomNumberInRange(1, 6),
