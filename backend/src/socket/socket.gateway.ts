@@ -1,17 +1,13 @@
-import { ConsoleLogger, Inject, Logger, OnModuleInit } from "@nestjs/common";
+import { Inject, Logger, OnModuleInit } from "@nestjs/common";
 import { MessageBody, OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { WsResponse } from '@nestjs/websockets';
 import { ChatsService } from "src/chats/chats.service";
 import { ChatType } from "src/chats/entities/chat.entity";
-import { create } from "domain";
-import { RouterModule } from "@nestjs/core";
 import { UserchatsService } from "src/userchats/userchats.service";
 import { MessagesService } from "src/messages/messages.service";
 import { ChatadminsService } from "src/chatadmins/chatadmins.service";
 import { UsersService } from "src/users/users.service";
 import { error } from "console";
-import { subscribe } from "diagnostics_channel";
 
 // Define the WebSocketGateway and its path and CORS settings
 @WebSocketGateway({ path: '/api', cors: true })
@@ -34,7 +30,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	private UserList: {user_id: number, socket: Socket}[] = [];
 	private IdWaitlist: {user_id:number, socket: Socket}[] = [];
 	private IdWaitlist_bonus: {user_id:number, socket: Socket}[] = [];
-	private stock: {roomName: string, player1: Socket, player2: Socket}[] = [];
+	private stock: {roomName: string, player1: Socket, player2: Socket, gameID: number}[] = [];
     // Define the onModuleInit method to handle connections and list rooms
     onModuleInit() {
         this.server.on('connection', async (socket: Socket) => {
@@ -77,12 +73,18 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		leaver = this.IdWaitlist_bonus.find((one) => (one.socket.id === client.id));
 		if (leaver !== undefined)
 			this.IdWaitlist_bonus.splice(this.IdWaitlist_bonus.indexOf(leaver), 1);
-		let toDelete = this.stock.find((one) => (one?.player1.id === client.id));
+		let toDelete = this.stock.find((one) => (one?.player1.id === client.id || one?.player2.id === client.id));
 		if (toDelete !== undefined)
 		{
-
+			let pnumber = 0;
+			if (toDelete.player1.id === client.id)
+				pnumber = 1;
+			else if (toDelete.player2.id === client.id)
+				pnumber = 2
+			if (pnumber !== 0)
+				this.server.to(toDelete.roomName).emit('forfeit', {player: pnumber, max: this.maxScore, gameID: toDelete.gameID});
+			this.stock.splice(this.stock.indexOf(toDelete));
 		}
-
     }
     
 	@Inject('UsersService')
@@ -119,7 +121,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		let curr = await this.stock.find((one) => (one?.roomName === message.roomName));
 		if (curr === undefined)
 		{
-			await this.stock.push({roomName: message.roomName, player1: client, player2: undefined});
+			await this.stock.push({roomName: message.roomName, player1: client, player2: undefined, gameID: 0});
 			await this.server.to(client.id).emit('pong-init-setup', 1);
 		}
 		else
@@ -137,6 +139,15 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
         }
 		return Promise.resolve();
     }
+
+	@SubscribeMessage('setGameId')
+	onSetGameId(client: Socket, message: {roomName: string, gameId: number})
+	{
+		console.log('setting game id:', message);
+		let game = this.stock.find((one) => (one?.roomName === message.roomName));
+		if (game !== undefined && game.gameID === 0)
+			game.gameID = message.gameId;
+	}
 
 	@SubscribeMessage('give-roomName')
 	async onGiveRoomName(client: Socket, data: {user_id: number})

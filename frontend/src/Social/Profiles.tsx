@@ -181,7 +181,7 @@ const Profiles = (props: Props) => {
             <div className="achievements">{achievementName}</div>
             <div className="friends">
               <div className="matchBox">
-                {friends.map((friend) => (
+                {friends.map((friend: FriendData) => (
                   <FriendListProfile
                     key={friend.id}
                     id={friend.id}

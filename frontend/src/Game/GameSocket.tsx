@@ -383,6 +383,7 @@ const GameSocket: React.FC = () => {
               data.current.player2.id
             );
             data.current.gameID = fetchback.id;
+			gsocket.emit('setGameId', {roomName: data.current.NameOfRoom, gameId: fetchback.id});
             gsocket.emit("ready", { roomName: data.current.NameOfRoom });
           }
         } else if (data.current.player1.pNumber === 2) {
@@ -416,7 +417,7 @@ const GameSocket: React.FC = () => {
               1,
               data.current.gameID
             );
-            await delay(4500);
+            await delay(500);
             try {
               clearInterval(intervalId.current);
               Sendhome();
@@ -781,7 +782,7 @@ const GameSocket: React.FC = () => {
       const navigate = useNavigate();
       navigate("/home");
     } catch (e) {
-      console.log("error sending home");
+      console.log("error sending home", e);
     }
   };
 
