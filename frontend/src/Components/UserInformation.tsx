@@ -168,7 +168,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 		{
 			toast.success(`${user.username} was successfully unblocked`, {
 				position: toast.POSITION.TOP_CENTER
-			  })
+			})
 		}
 	}
 
@@ -176,6 +176,23 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 		navigate('/mfasetup');
 	}
 
+	// async function deleteAccount(){
+	// 	const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
+	// 		method: 'DELETE',
+	// 		headers: {
+	// 			'Content-Type': 'application/json',
+	// 			'Authorization': 'Bearer ' + token,
+	// 		},
+	// 	});
+	// 	if (response.ok)
+	// 	{
+			
+	// 		toast.success('Your account got deleted', {
+	// 			position: toast.POSITION.TOP_CENTER
+	// 		})
+	// 		navigate('/login');
+	// 	}
+	// }
 
 
 	return (
@@ -193,6 +210,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			<MenuItem onClick={onOpen1}>Change my Avatar</MenuItem>
 			<MenuItem onClick={onOpen2}>Setup my 2FA </MenuItem>
 			<MenuItem onClick={getBlockList}>Unblock Users </MenuItem>
+
 			</MenuGroup>
 			<MenuDivider />
 		</MenuList>
