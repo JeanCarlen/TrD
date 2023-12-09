@@ -66,7 +66,7 @@ export class ChatsService {
 	chat.name = createChatDto.name;
 	chat.owner = createChatDto.owner;
 	if (createChatDto.password){
-		chat.password = await bcrypt.hash(createChatDto.password, 10);
+		chat.password = this.hashPassword(createChatDto.password)
 		chat.protected = true;
 	}
 	else {
@@ -240,8 +240,8 @@ export class ChatsService {
 	return true;
   }
 
-  // TODO: check if user is in chat
-  // TODO: if chat owner, transfer ownership to another user
+  //       check if user is in chat
+  //       if chat owner, transfer ownership to another user
   //       if no other user, delete chat
   //       if one other admin, transfer ownership to that user
   //       if no admin, transfer ownership to first user in chat and make him admin
@@ -414,6 +414,12 @@ export class ChatsService {
 	return users;
   }
 
+  private hashPassword(password: string): string {
+    const saltRounds = 10;
+    const hash = bcrypt.hashSync(password, saltRounds);
+    return hash;
+  }
+
   public async update(id: number, updateChatDto: UpdateChatDto) {
 	const chat: Chats = await this.chatsRepository.findOne({ where: { id: id}})
 	if (!chat)
@@ -426,7 +432,7 @@ export class ChatsService {
 	if (updateChatDto.name)
 		chat.name = updateChatDto.name;
 	if (updateChatDto.password)
-		chat.password = updateChatDto.password; // TODO: hash password
+		chat.password = this.hashPassword(updateChatDto.password);
 	if (updateChatDto.password == undefined)
 		chat.password = null;
 	console.log('updating chat to', chat);
