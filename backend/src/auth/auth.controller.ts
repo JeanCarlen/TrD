@@ -58,7 +58,7 @@ export class AuthController {
     const insertedUser = await this.authService.getToken(query.code);
     response.cookie('token', insertedUser.token);
     if (insertedUser.twofaenabled)
-      response.redirect('https://trd.laendrun.ch/authenticate'); // redirect to page asking for the code when implemented on the frontend
+      response.redirect('https://trd.laendrun.ch/authenticate');
     response.redirect('https://trd.laendrun.ch/login');
   }
 

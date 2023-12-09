@@ -426,7 +426,7 @@ export class ChatsService {
 	if (updateChatDto.name)
 		chat.name = updateChatDto.name;
 	if (updateChatDto.password)
-		chat.password = updateChatDto.password;
+		chat.password = updateChatDto.password; // TODO: hash password
 	if (updateChatDto.password == undefined)
 		chat.password = null;
 	console.log('updating chat to', chat);
