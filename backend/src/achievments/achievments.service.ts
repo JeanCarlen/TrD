@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateAchievmentDto } from './dto/create-achievment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Achievments } from './entities/achievment.entity';
@@ -19,6 +19,11 @@ export class AchievmentsService {
 //     achievment.objective = createAchievmentDto.objective;
 //     return this.achievmentsRepository.save(achievment);
 //   }
+
+	public async findAllByType(type: string): Promise<AchievmentsResponse[]> {
+		const achievments: Achievments[] = await this.achievmentsRepository.find({where: {type: type}});
+		return achievments;
+	}
 
   public async findAll(): Promise<AchievmentsResponse[]> {
 	const achievements: AchievmentsResponse[] = await this.achievmentsRepository.find();

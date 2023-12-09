@@ -113,6 +113,7 @@ CREATE TABLE achievments (
 	"title" varchar(32),
 	"description" varchar(255),
 	"objective" integer,
+	"type" varchar(32) DEFAULT 'none',
 	CONSTRAINT "achievments_pk" PRIMARY KEY ("id")
 );
 
@@ -123,12 +124,14 @@ CREATE TABLE user_achievments (
 	"current" integer,
 	"user_id" integer NOT NULL,
 	"achievment_id" integer NOT NULL,
+	"achievment_type" varchar(32) NOT NULL,
+	"completed" boolean NOT NULL DEFAULT false,
 	CONSTRAINT "achievments_id" PRIMARY KEY ("id"),
 	CONSTRAINT "user_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id"),
 	CONSTRAINT "achievment_fk" FOREIGN KEY ("achievment_id") REFERENCES "achievments"("id")
 );
 
-COPY achievments(id, title, description, objective)
+COPY achievments(id, title, description, objective, type)
 FROM '/docker-entrypoint-initdb.d/achievments.csv'
 DELIMITER ','
 CSV HEADER;

@@ -226,6 +226,7 @@ const GameSocket: React.FC = () => {
       setScore2(data.current.score2);
       data.current.converted = false;
       data.current.paused = 5;
+	  await updateAchievements(data.current.player1.id, data.current.player2.id)
       if (data.current.player1.pNumber === 1) {
         await postScore(
           dataBack.score1,
@@ -410,6 +411,7 @@ const GameSocket: React.FC = () => {
             data.current.converted = false;
             data.current.bonusActive = false;
             setCanvas(false);
+			updateAchievements(data.current.player1.id, data.current.player2.id)
             await postScore(
               data.current.score1,
               data.current.score2,
@@ -801,6 +803,10 @@ const GameSocket: React.FC = () => {
       console.log("error creating match");
     }
   };
+
+  const updateAchievements = async (player1_id: number, player2_id: number) => {
+	gsocket.emit("updateAchievements", {player1_id: player1_id, player2_id: player2_id})
+  }
 
   const postScore = async (
     score1: number,

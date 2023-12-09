@@ -14,6 +14,8 @@ import { BlockedusersService } from 'src/blockedusers/blockedusers.service';
 import { BlockedUsers } from 'src/blockedusers/entities/blockeduser.entity';
 import { UserAchievmentsService } from 'src/user_achievments/user_achievments.service';
 import { UserAchievments } from 'src/user_achievments/entities/user_achievment.entity';
+import { AchievmentsService } from 'src/achievments/achievments.service';
+import { AchievmentsResponse } from 'src/achievments/dto/achievments.response';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -30,7 +32,9 @@ export class UsersService {
 	@Inject(BlockedusersService)
 	private readonly blockedusersService: BlockedusersService,
 	@Inject(UserAchievmentsService)
-	private readonly userachievmentsService: UserAchievmentsService
+	private readonly userachievmentsService: UserAchievmentsService,
+	@Inject(AchievmentsService)
+	private readonly achievmentsService: AchievmentsService
 ) {}
 
   public getJWT(
@@ -150,7 +154,7 @@ export class UsersService {
     user.username = createUserDto.username;
     user.avatar = process.env.HOST + 'images/default.png';
     user.twofaenabled = false;
-	  user.status = 0;
+	user.status = 0;
 
     // check if username is already taken
     const found = await this.findByUsername(user.username);
@@ -168,6 +172,8 @@ export class UsersService {
 
     user.password = this.hashPassword(createUserDto.password);
     const token = this.getJWT(await this.usersRepository.save(user), false);
+	// create Smort Cooki achievment
+	await this.updateUserAchievmentById(user.id, 1, 1);
     return { message: ['Successfully registered.'], token: token };
   }
 
@@ -183,6 +189,9 @@ export class UsersService {
 	user.status = 0;
 
     const token = this.getJWT(await this.usersRepository.save(user), false);
+	// create Smort Cooki achievment
+	await this.updateUserAchievmentById(user.id, 1, 1);
+
     return { message: ['Successfully registered.'], token: token };
   }
 
@@ -418,20 +427,71 @@ export class UsersService {
 	return ret;
   }
 
-
-
-  public async updateUserAchievment(user_id: number, achievment_id: number, value: number) {
+  public async updateUserAchievmentById(user_id: number, achievment_id: number, value: number) {
 	const userachievment: UserAchievments = await this.userachievmentsService.findOneByUserAndAchievment(user_id, achievment_id);
 	if (!userachievment) {
 		// create new userachievment
+		console.log("creating new userachievment for user ", user_id, " and achievment ", achievment_id)
 		const newUserachievment: UserAchievments = new UserAchievments();
+		const achievment = await this.achievmentsService.findOne(achievment_id);
 		newUserachievment.user_id = user_id;
 		newUserachievment.achievment_id = achievment_id;
 		newUserachievment.current = value;
-		return await this.userachievmentsService.create(newUserachievment);
+		newUserachievment.type = achievment.type;
+		const response = await this.userachievmentsService.create(newUserachievment)
+		return response;
 	}
-	userachievment.current += value;
-	return await this.userachievmentsService.update(userachievment.id, userachievment);
+	if (!userachievment.completed) {
+		console.log("updating userachievment for user ", user_id, " and achievment ", achievment_id)
+		userachievment.current += value;
+		const response = await this.userachievmentsService.update(userachievment.id, userachievment);
+		return response;
+	}
+	console.log("userachievment already completed for user ", user_id, " and achievment ", achievment_id)
+	return ;
+  }
+
+  public async updateUserAchievmentByType(user_id: number, achievment_type: string, value: number) {
+	const achievements: AchievmentsResponse[] = await this.achievmentsService.findAllByType(achievment_type);
+	for (const achievment of achievements) {
+		await this.updateUserAchievmentById(user_id, achievment.id, value);
+	}
+	return ;
+  }
+
+  public async findUserAchievments(id: number) {
+	const userachievments: UserAchievments[] = await this.userachievmentsService.findAllCompletedByUser(id);
+	const ret: UserAchievmentReponse[] = [];
+	for (const userachievment of userachievments) {
+		const achievment: AchievmentsResponse = await this.achievmentsService.findOne(userachievment.achievment_id);
+		const tmp: UserAchievmentReponse = {
+			...userachievment,
+			achievment_data: achievment
+		}
+		ret.push(tmp);
+	}
+	return ret;
+  }
+
+  public async findUserAchievmentsByUsername(username: string) {
+	const user: Users = await this.usersRepository.findOne({where: {username: username}});
+	if (!user) {
+		throw new NotFoundException(['User not found.'], {
+			cause: new Error(),
+			description: 'User not found.'
+		})
+	}
+	const userachievments: UserAchievments[] = await this.userachievmentsService.findAllCompletedByUser(user.id);
+	const ret: UserAchievmentReponse[] = [];
+	for (const userachievment of userachievments) {
+		const achievment: AchievmentsResponse = await this.achievmentsService.findOne(userachievment.achievment_id);
+		const tmp: UserAchievmentReponse = {
+			...userachievment,
+			achievment_data: achievment
+		}
+		ret.push(tmp);
+	}
+	return ret;
   }
 
   public async unblockUser(blocked_id: number, blocker_id: number) {

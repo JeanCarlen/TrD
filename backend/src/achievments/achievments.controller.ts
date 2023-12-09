@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth.guard';
 import { AchievmentsService } from './achievments.service';
