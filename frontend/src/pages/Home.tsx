@@ -121,7 +121,7 @@ const Home = (props: Props) => {
     fetchMatches();
 	fetchAchievments();
     updateUser();
-  }, []);
+  }, [token]);
 
   const GotoGame = () => {
     navigate("/game");

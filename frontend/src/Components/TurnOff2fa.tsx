@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 const TurnOff2fa: React.FC<{}> = () => {
   const [token, setToken] = useState("");

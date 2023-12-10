@@ -1,16 +1,3 @@
-
-/* .hidden-name
-{
-	display: none;
-	/* &:hover{
-		color: blue;
-		display: block;
-	} */
-/* } */
-/* .only-links:hover + .hidden-name{
-	/* display: block; */
-	/* color: white;
-} */
 .logo-name {
 	display: none;
 	position: absolute;

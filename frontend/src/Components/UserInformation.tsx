@@ -13,7 +13,7 @@ import {
 	ModalCloseButton,
   } from '@chakra-ui/react'
   import { Button, FormControl, FormLabel, Input} from '@chakra-ui/react'
-  import { toast, ToastContainer } from 'react-toastify'
+  import { toast } from 'react-toastify'
   import 'react-toastify/dist/ReactToastify.css'
 import NotificationIcon from './Notifications'
 import {
@@ -25,7 +25,6 @@ import {
 	MenuDivider,
   } from '@chakra-ui/react'
   import {useNavigate} from 'react-router-dom'
-  import { useSelector } from 'react-redux';
   import { setUserName } from '../Redux-helpers/action';
   import { useDispatch } from 'react-redux';
   import { User } from '../chat/idChatUser';
@@ -46,7 +45,6 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 	const { isOpen: isOpen1 , onOpen: onOpen1, onClose: onClose1 } = useDisclosure()
 	const { isOpen: isOpen2 , onOpen: onOpen2, onClose: onClose2 } = useDisclosure()
 	const { isOpen: isOpen3 , onOpen: onOpen3, onClose: onClose3 } = useDisclosure()
-	// const [count, setCount] = useState<number>();
   	const initialRef = React.useRef(null)
   	const finalRef = React.useRef(null)
 	const initialRef1 = React.useRef(null)
@@ -57,15 +55,14 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
   	const finalRef3 = React.useRef(null)
 	const [newName, setNewName] = useState<string>('');
 	const [blockedUsers, setBlockedUsers] = useState<User[]>([]);
-	const userStatus = useSelector((state: CookieProps) => state.userStatus);
 	const token: string|undefined = Cookies.get("token");
-	let content: {username: string, user: number};
+	let content: {username: string, user: number, avatar:string};
 		if (token !== undefined)
 		{
 			content = decodeToken(token);
 		}
 		else
-			content = { username: 'default', user: 0};
+			content = { username: 'default', user: 0, avatar: "http://localhost:8080/images/default.png",};
 
 	const updateUser = async () => {
 		const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
@@ -82,7 +79,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 
 			useEffect(() =>{
 			updateUser();
-		}, []);
+		}, [token]);
 
 		const handleAvatarChange =  async (event: React.ChangeEvent<HTMLInputElement>) => {
 			const file = event.target.files?.[0];
@@ -100,18 +97,22 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 				  body: reader,
 				})
 				const data = await response.json()
-				// Cookies.set('token', data.token);
 				console.log("data", data);
 				if (response.ok)
 				{
 					toast.success('Avatar changed successfully!', {
 						position: toast.POSITION.TOP_CENTER
 					  })
+					Cookies.set('token', data.token);
+					updateUser();
 				}
-
-				//add a toast
+				else {
+					toast.error('Wrong file format!', {
+						position: toast.POSITION.TOP_CENTER
+					  })
+					return ;
+				}
 			  }
-			  updateUser();
 			};
 
 		const updateUsername = async (newName:string) => {
@@ -134,8 +135,6 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 		}
 		console.log(username);
 		Cookies.set('token', data.token);
-		// setusername
-		//setcookies to change the decode token
 	}
 
 	async function getBlockList()
@@ -176,30 +175,8 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 		navigate('/mfasetup');
 	}
 
-	// async function deleteAccount(){
-	// 	const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
-	// 		method: 'DELETE',
-	// 		headers: {
-	// 			'Content-Type': 'application/json',
-	// 			'Authorization': 'Bearer ' + token,
-	// 		},
-	// 	});
-	// 	if (response.ok)
-	// 	{
-			
-	// 		toast.success('Your account got deleted', {
-	// 			position: toast.POSITION.TOP_CENTER
-	// 		})
-	// 		navigate('/login');
-	// 	}
-	// }
-
-
 	return (
 		<>
-		<div>
-		<p>User Status in Friends Component: {userStatus}</p>
-		</div>
 		<Menu>
 		<MenuButton as={Button} className='settings' colorScheme='pink'>
 			Profile Settings

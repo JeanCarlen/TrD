@@ -36,6 +36,8 @@ const Profiles = (props: Props) => {
   const [dataMatches, setDataMatches] = useState<gameData[]>([]);
   const [achievmentFetched, setAchievmentFetched] = useState<boolean>(false);
   const [avatarUrl, setAvatarUrl] = useState<string>();
+  const [achievementName] = useState<string>("");
+  const [friends, setFriends] = useState<FriendData[]>([]);
   const [achievments, setAchievments] = useState<Achievement[]>([]);
   const [friends] = useState<FriendData[]>([]);
   const [friendid, setFriendID] = useState<number | undefined>();
@@ -91,13 +93,26 @@ const Profiles = (props: Props) => {
       }
     );
     const data = await response.json();
+    console.log(response);
     if (response.ok) {
-      setAvatarUrl(data[0].avatar);
-      await setFriendID(data[0].id);
-      console.log("friendid", data[0].id);
-      setFriend(data[0]);
-      await fetchMatches(data[0].id);
-      console.log("avatar", avatarUrl);
+      if (data.length === 0)
+      {
+        toast.error("User does not exist", {
+          position: toast.POSITION.BOTTOM_LEFT,
+          className: "toast-error",
+        });
+        navigate("/home");
+        return ;
+      }
+      else{
+        setAvatarUrl(data[0].avatar);
+        await setFriendID(data[0].id);
+        console.log("friendid", data[0].id);
+        setFriend(data[0]);
+        await fetchMatches(data[0].id);
+        console.log("avatar", avatarUrl);
+        console.log("data in profiles:", data);
+      }
     }
   };
 
@@ -145,12 +160,14 @@ const Profiles = (props: Props) => {
 
   const inviteToPong = async (user: User) => {
     if (token !== undefined) {
-		if (friendid === user.id)
+      console.log("friendid", friendid);
+      console.log("userid", user.id)
+    let content = await decodeToken(token); 
+		if (friendid === content?.user)
 		{
 			toast.error("You cannot invite yourself to play", { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
 			return;
 		}
-      let content = await decodeToken(token);
       gsocket.emit("invite", { inviter: content, invited: user });
       navigate("/game");
     }
@@ -182,25 +199,25 @@ const Profiles = (props: Props) => {
                 className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
                 onClick={() => friend && SpectateGame(friend)}
               >
-                spectate
+                Spectate
               </button>
               <button
                 className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
                 onClick={() => friend && inviteToPong(friend)} //TODO: add invite to play function
               >
-                invite to play
+                Invite to play
               </button>
               <button
                 className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
                 onClick={() => handleBlockUser(friend, token)}
               >
-                block {users}
+                Block {users}
               </button>
             </div>
           </div>
           <div className="displayGrid">
             <div className="matchHistory">
-              match history
+              Match history
               <br />
               {gameFetched ? (
                 <div className="matchBox">
@@ -234,18 +251,8 @@ const Profiles = (props: Props) => {
 			  </div>
             <div className="friends">
               <div className="matchBox">
-                {friends.map((friend) => (
                   <FriendListProfile
-                    key={friend.id}
-                    id={friend.id}
-                    requester={friend.requester}
-                    status={friend.status}
-                    requested={friend.requested}
-                    requested_user={friend.requested_user}
-                    requester_user={friend.requester_user}
-                    total_count={friend.total_count}
                   />
-                ))}
               </div>
             </div>
           </div>

@@ -85,7 +85,7 @@ const NotificationIcon: React.FC = () => {
 
 	useEffect(() =>{
 			updateFriends();
-	}, [updateFriends]);
+	}, []);
 
 	  const handleDenyRequest = async(request: FriendData) => {
 		// Implement logic to deny the friend request
