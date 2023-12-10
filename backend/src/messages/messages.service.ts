@@ -59,6 +59,7 @@ export class MessagesService {
   }
 
   public async findChatMessages(id: number, current_id: number) {
+	const blockedusers: number[] = await this.blockedusersService.getBlockedListByUser(current_id);
 	const chats = await this.userchatsService.getChatIdListByUser(current_id);
 	if (!chats.includes(id)) {
 		throw new UnauthorizedException(['You\'re not in this chat.'], {
@@ -66,21 +67,10 @@ export class MessagesService {
 			description: `You're not in this chat.`,
 		});
 	}
-  // let complete = incomplete.map(async (message)=>{
-  //   let user = await this.usersService.findOneUser(message.user_id);
-  //   return {
-  //     id: message.id,
-  //     chat_id: message.chat_id,
-  //     user_id: message.user_id,
-  //     text: message.text,
-  //     user_name: user.username,
-  //     created: message.created,
-  //   }
-  // })
-	return this.messagesRepository.find({ where: { chat_id: id } });
+	return this.messagesRepository.find({ where: { chat_id: id, user_id: Not(In(blockedusers)) } });
   }
 
-  public async findChatMessagesByChatId(id: number) {
+  public async findChatMessagesByChatId(id: number, user_id: number) {
 	return await this.messagesRepository.find({ where: { chat_id: id } });
   }
 
