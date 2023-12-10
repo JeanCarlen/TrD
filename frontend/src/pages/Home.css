@@ -25,15 +25,6 @@
     bottom: 20px;
   }
   
-  /* .status-circle {
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    border: 2px solid white;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-  } */
 
 
 .displayGrid{
@@ -49,12 +40,14 @@
 
 .schoollogo {
     align-items: center;
+    text-align: center;
     height: 50px;
     -webkit-box-pack: end;
-    justify-content: flex-end;
+    justify-content:center;
     border-radius: 35px;
     object-fit: cover;
     size: 30px;
+    display: flex;
 }
 
 .profilePic{

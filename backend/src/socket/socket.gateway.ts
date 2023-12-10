@@ -9,6 +9,9 @@ import { ChatadminsService } from "src/chatadmins/chatadmins.service";
 import { UsersService } from "src/users/users.service";
 import { error } from "console";
 
+import { subscribe } from "diagnostics_channel";
+import { Subscription } from "rxjs";
+
 // Define the WebSocketGateway and its path and CORS settings
 @WebSocketGateway({ path: '/api', cors: true })
 export class SocketGateway implements OnModuleInit, OnGatewayConnection {
@@ -145,6 +148,13 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		let game = this.stock.find((one) => (one?.roomName === message.roomName));
 		if (game !== undefined && game.gameID === 0)
 			game.gameID = message.gameId;
+  }
+
+	@SubscribeMessage('updateAchievements')
+	async onUpdateAchievements(client: Socket, message: {player1_id: number, player2_id: number}) {
+		console.log("into update achievements");
+		this.UsersService.updateUserAchievmentByType(message.player1_id, 'games_played', 1)
+		this.UsersService.updateUserAchievmentByType(message.player2_id, 'games_played', 1)
 	}
 
 	@SubscribeMessage('give-roomName')

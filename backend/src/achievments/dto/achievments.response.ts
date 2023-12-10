@@ -12,4 +12,7 @@ export class AchievmentsResponse {
 
 	@ApiProperty({example: 10, description: 'The objective of the achievment.'})
 	objective: number;
+
+	@ApiProperty({example: 'games_played', description: 'The type of the achievment.'})
+	type: string;
 }

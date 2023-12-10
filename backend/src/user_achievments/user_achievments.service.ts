@@ -19,13 +19,20 @@ export class UserAchievmentsService {
   public async create(createUserAchievmentDto: CreateUserAchievmentDto) {
     const userachievment: UserAchievments = new UserAchievments();
 	const achievment: Achievments = await this.achievmentsRepository.findOne({where: {id: createUserAchievmentDto.achievment_id}});
+
+	
     userachievment.user_id = createUserAchievmentDto.user_id;
     userachievment.achievment_id = createUserAchievmentDto.achievment_id;
     userachievment.current = createUserAchievmentDto.current;
+	userachievment.type = achievment.type;
+	let completed = userachievment.current == achievment.objective ? true : false;
+	userachievment.completed = completed;
 	const ret: UserAchievmentResponse = {
 		achievment_id: userachievment.achievment_id,
 		current: userachievment.current,
 		user_id: userachievment.user_id,
+		type: achievment.type,
+		completed: completed,
 		achievment_data: achievment
 	}
 	await this.userachievmentsRepository.save(userachievment);
@@ -80,6 +87,14 @@ export class UserAchievmentsService {
 	return await this.userachievmentsRepository.findOne({where: {user_id: user_id, achievment_id: achievment_id}});
   }
 
+  public async findAllByUserAndType(user_id: number, type: string) {
+	return await this.userachievmentsRepository.find({where: {user_id: user_id, type: type}});
+  }
+
+  public async findAllCompletedByUser(user_id: number) {
+	return await this.userachievmentsRepository.find({where: {user_id: user_id, completed: true}});
+  }
+
   public async update(id: number, updateUserAchievmentDto: UpdateUserAchievmentDto) {
 	const userachievment = await this.userachievmentsRepository.findOne({ where: { id: id } });
 	if (!userachievment) {
@@ -89,12 +104,18 @@ export class UserAchievmentsService {
 		});
 	}
 	const achi: Achievments = await this.achievmentsRepository.findOne({where: {id: userachievment.achievment_id}});
+
+	let completed: boolean = updateUserAchievmentDto.current == achi.objective ? true : false;
+
 	const ret: UserAchievmentResponse = {
 		achievment_id: userachievment.achievment_id,
 		current: userachievment.current,
 		user_id: userachievment.user_id,
+		completed: completed,
+		type: achi.type,
 		achievment_data: achi
 	}
+	updateUserAchievmentDto.completed = completed;
     await this.userachievmentsRepository.update(
       { id: id },
       updateUserAchievmentDto,

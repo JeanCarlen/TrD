@@ -18,6 +18,7 @@ import { ApiBadRequestResponse, ApiBearerAuth, ApiNotFoundResponse, ApiOperation
 import { Users } from './entities/users.entity';
 import { UsersResponse } from './dto/users.response';
 import { UpdateUserachievmentDto } from './dto/update-userachievment.dto';
+import { AchievmentsResponse } from 'src/achievments/dto/achievments.response';
 
 @ApiTags('Users')
 @Controller('users')
@@ -43,6 +44,27 @@ export class UsersController {
   findByUsername(@Param() params: paramValidator, @Req() req: any) {
     return this.usersService.findByUsername(params.username, req.user.user);
   }
+
+  @Get('/id/achievments/:id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({summary: 'Get user achievments by id.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 200, description: 'User achievments by id.', type: [AchievmentsResponse]})
+  findUserAchievments(@Param() params: paramValidator) {
+	return this.usersService.findUserAchievments(+params.id);
+  }
+
+  @Get('/username/achievments/:username')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({summary: 'Get user achievments by username.'})
+  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+  @ApiResponse({status: 200, description: 'User achievments by username.', type: [AchievmentsResponse]})
+  findUserAchievmentsByUsername(@Param() params: paramValidator) {
+	return this.usersService.findUserAchievmentsByUsername(params.username);
+  }
+
 
   @Get(':id')
   @UseGuards(AuthGuard)
@@ -105,16 +127,16 @@ export class UsersController {
     return this.usersService.update(+params.id, updateUserDto);
   }
 
-  @Patch(':id/:achievment_id')
-  @UseGuards(AuthGuard, CurrentGuard)
-  @ApiBearerAuth()
-  @ApiOperation({summary: 'Update a user acchievment.'})
-  @ApiUnauthorizedResponse({description: 'Unauthorized.'})
-  @ApiResponse({status: 200, description: 'User acchievment updated successfully.'})
-  @ApiNotFoundResponse({description: 'Achievment not found.'})
-  updateUserAchievment(@Param('id') user_id: number, @Param('achievment_id') achievment_id: number, @Body() updateUserachievmentDto: UpdateUserachievmentDto) {
-	return this.usersService.updateUserAchievment(user_id, achievment_id, updateUserachievmentDto.value);
-  }
+//   @Patch(':id/:achievment_id')
+//   @UseGuards(AuthGuard, CurrentGuard)
+//   @ApiBearerAuth()
+//   @ApiOperation({summary: 'Update a user acchievment.'})
+//   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
+//   @ApiResponse({status: 200, description: 'User acchievment updated successfully.'})
+//   @ApiNotFoundResponse({description: 'Achievment not found.'})
+//   updateUserAchievment(@Param('id') user_id: number, @Param('achievment_id') achievment_id: number, @Body() updateUserachievmentDto: UpdateUserachievmentDto) {
+// 	return this.usersService.updateUserAchievment(user_id, achievment_id, updateUserachievmentDto.value);
+//   }
 
   @Delete(':id')
   @UseGuards(AuthGuard, CurrentGuard)

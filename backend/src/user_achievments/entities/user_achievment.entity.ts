@@ -18,4 +18,12 @@ export class UserAchievments extends BaseEntity {
   @Column({ type: 'int4' })
   @ApiProperty({example: 1, description: 'The achievment id.'})
   achievment_id: number;
+
+  @Column({type: 'boolean', default: false})
+  @ApiProperty({example: false, description: 'The status of the achievment.'})
+  completed: boolean;
+
+  @Column({type: 'varchar', length: 32, nullable: false, default: 'none'})
+  @ApiProperty({example: 'none', description: 'The type of the achievment.'})
+  type: string;
 }
