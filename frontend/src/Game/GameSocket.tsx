@@ -69,9 +69,9 @@ const GameSocket: React.FC = () => {
   const dispatch = useDispatch();
   const [canvas, setCanvas] = useState(true);
   const [shouldRun, setShouldRun] = useState(true);
-  let content: { username: string; user: number; avatar: string };
   const bodyNavigate = useNavigate();
   const token: string | undefined = Cookies.get("token");
+  let content: { username: string; user: number; avatar: string };
   const [player1, setPlayer1] = useState<string>("player1");
   const [player2, setPlayer2] = useState<string>("player2");
   const [score1disp, setScore1] = useState<number>(0);
@@ -384,6 +384,7 @@ const GameSocket: React.FC = () => {
               data.current.player2.id
             );
             data.current.gameID = fetchback.id;
+			gsocket.emit('setGameId', {roomName: data.current.NameOfRoom, gameId: fetchback.id});
             gsocket.emit("ready", { roomName: data.current.NameOfRoom });
           }
         } else if (data.current.player1.pNumber === 2) {
@@ -418,10 +419,11 @@ const GameSocket: React.FC = () => {
               1,
               data.current.gameID
             );
-            await delay(4500);
+            await delay(500);
             try {
               clearInterval(intervalId.current);
-              Sendhome();
+			  gsocket.emit('bye-bye', {roomName: data.current.NameOfRoom, user_id: data.current.player1.id});
+              bodyNavigate("/Home");
             } catch (e) {
               console.log("error sending home", e);
             }
@@ -778,14 +780,6 @@ const GameSocket: React.FC = () => {
     });
   };
 */
-  const Sendhome = () => {
-    try {
-      const navigate = useNavigate();
-      navigate("/home");
-    } catch (e) {
-      console.log("error sending home");
-    }
-  };
 
   const createMatch = async (user1ID: number, user2ID: number) => {
     const response = await fetch("http://localhost:8080/api/matches", {

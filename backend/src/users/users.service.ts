@@ -145,6 +145,11 @@ export class UsersService {
         cause: new Error(),
         description: `Unknown username or password.`,
       });
+	if (user.status !== 0)
+		throw new BadRequestException(['This user is already logged in'], {
+			cause: new Error(),
+			description: 'This user is already logged in',
+		});
     if (user.twofaenabled) return await this.login2FA(loginUserDto, user);
     return await this.localLogin(loginUserDto, user);
   }
