@@ -1,11 +1,10 @@
-import React from "react";
+import React, { useState, useEffect, useCallback} from "react";
 // import styled from 'styled-components'
 import { ChakraProvider, WrapItem, Wrap } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/react";
 import Sidebar from "../Components/Sidebar";
 import "../pages/Home.css";
 import { VStack } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
 import Searchbar from "../Components/Searchbar";
 import Cookies from "js-cookie";
 import decodeToken from "../helpers/helpers";
@@ -21,6 +20,8 @@ import { useNavigate } from "react-router-dom";
 import { gsocket } from "../context/websocket.context";
 import { FriendData } from "../Components/Friends";
 import { toast } from "react-toastify";
+import { Achievement } from "../pages/Layout-Achievements"
+import LayoutAchievements from "../pages/Layout-Achievements";
 
 export interface profiles {
   username: string | undefined;
@@ -30,18 +31,55 @@ type Props = {};
 const Profiles = (props: Props) => {
   const { users } = useParams();
   const token: string | undefined = Cookies.get("token");
+  let content: { username: string; user: number; avatar: string };
   const [gameFetched, setGameFetched] = useState<boolean>(false);
   const [dataMatches, setDataMatches] = useState<gameData[]>([]);
+  const [achievmentFetched, setAchievmentFetched] = useState<boolean>(false);
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [achievementName] = useState<string>("");
   const [friends, setFriends] = useState<FriendData[]>([]);
+  const [achievments, setAchievments] = useState<Achievement[]>([]);
+  const [friends] = useState<FriendData[]>([]);
   const [friendid, setFriendID] = useState<number | undefined>();
   const [friend, setFriend] = useState<User | undefined>();
   const navigate = useNavigate();
 
+  if (token !== undefined) content = decodeToken(token);
+  else
+	content = {
+	  username: "default",
+	  user: 0,
+	  avatar: "http://localhost:8080/images/default.png",
+	};
+
   useEffect(() => {
+	fetchAchievements();
     GetUserinfo();
   }, []);
+
+  const fetchAchievements = useCallback(async () => {
+	const response = await fetch(
+		`http://localhost:8080/api/users/id/achievments/${content.user}`,
+		{
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: "Bearer " + token,
+			},
+		}
+	);
+	if (response.ok) {
+		try {
+			let data = await response.json();
+			setAchievmentFetched(true);
+			setAchievments(data);
+		} catch (e) {
+			console.log("Error in response achievments", e);
+		}
+	} else {
+		console.log("Error fetching achievments");
+	}
+  }, [content, token])
 
   const GetUserinfo = async () => {
     const response = await fetch(
@@ -193,7 +231,24 @@ const Profiles = (props: Props) => {
                 </div>
               )}
             </div>
-            <div className="achievements">{achievementName}</div>
+			<div className="achievements">
+				<p>Achievements</p>
+				<br />
+				{achievmentFetched ? (
+					<div className="matchBox">
+						{achievments.map((achievment: Achievement) => {
+							return (
+								<LayoutAchievements
+									display={achievment}
+								/>
+							)
+						})}
+					</div>) : (
+					<div className="history_1" style={{fontSize: "25px"}}>
+						Loading...
+					</div>
+					)}
+			  </div>
             <div className="friends">
               <div className="matchBox">
                   <FriendListProfile

@@ -18,4 +18,8 @@ export class Achievments extends BaseEntity {
   @Column({ type: 'int4' })
   @ApiProperty({example: 42, description: 'The objective of the Achievment.'})
   objective: number;
+
+  @Column({ type: 'varchar', length: 32 })
+  @ApiProperty({example: '42', description: 'The type of the Achievment.'})
+  type: string;
 }

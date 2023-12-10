@@ -43,7 +43,7 @@ const NotificationIcon: React.FC = () => {
 		const data = await response.json();
 		setCounter(data.length);
 		setRequestList(data);
-		console.log("data", data)
+		// console.log("data", data)
 		if (data.length <= 0)
 		{
 			setShowFriendRequests(false);
