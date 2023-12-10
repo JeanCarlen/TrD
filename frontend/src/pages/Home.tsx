@@ -89,7 +89,7 @@ const Home = (props: Props) => {
   useEffect(() => {
     fetchMatches();
     updateUser();
-  }, [fetchMatches, updateUser]);
+  }, [token]);
 
   return (
     <div>
@@ -136,7 +136,7 @@ const Home = (props: Props) => {
                   </div>
                 )}
               </div>
-              <div className="achievements">achievements</div>
+              <div className="achievements">Achievements</div>
               <div className="friends">
                 {/* <div className='matchBox'> */}
                 <FriendList />

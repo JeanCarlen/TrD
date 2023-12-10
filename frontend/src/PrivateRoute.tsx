@@ -12,7 +12,6 @@ import Cookies from "js-cookie";
 import decodeToken from "./helpers/helpers";
 import MFASetup from "./pages/mfasetup";
 import Enter2Fa from "./Components/Enter2Fa";
-import AchTest from "./pages/AchievementTest";
 import { setUserStatus } from "./Redux-helpers/action";
 import { useDispatch } from "react-redux";
 import { gsocket } from "./context/websocket.context";
@@ -62,17 +61,13 @@ const Routes: React.FC = (props: Props) => {
 					<Route path="/authenticate" element={<Enter2Fa />} />
 				<Route element={<PrivateRoutes />}>
 					<Route path="/Home" element={<Home username={''} user={0} avatar={''} status={''} userStatus={0} />} />
-					{/* <Route path="/users" element={<Users />} /> */}
 					<Route path="/game" element={<Game />} />
 					<Route path="/chats" Component={Chat} />
-					{/* element={<Chat />} /> */}
 					<Route path="/statistics" element={<Stats />} />
-					{/* <Route path="/profiles" element={<Profiles />} /> */}
 					<Route path="/profiles/:users" element={<Profiles />} />
-					{/* <Route path="/profile" element={<Profiles />} /> */}
+          <Route path="*" element={<Navigate to='/login' replace />} />
 					<Route path="/Logout" element={<Logout />} />
 					<Route path="/mfasetup" element={<MFASetup />} />
-					<Route path="/achi" element={<AchTest />} />
 					<Route path='*' element={<Navigate to='/login' replace />} />
 				</Route>
 			</Router>

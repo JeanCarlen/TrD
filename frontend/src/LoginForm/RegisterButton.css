@@ -41,3 +41,9 @@
     width: 34vw;
     padding: 30px 20px;
 }
+.title
+{
+    font-size:larger;
+    font-weight: bold;
+    padding: 15px;
+}

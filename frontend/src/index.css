@@ -21,7 +21,7 @@ code {
 }
 .loginbox
 {
-  background-color: #9a8888;
+  background-color: #be9bb0;
   border-radius: 7px;
   padding: 25px 40px;
   box-shadow: rgba(0,0,0,0.1) 0 0 10px;
@@ -55,11 +55,10 @@ code {
   color: #fff;
   border: none;
   border-radius: 12px;
-  padding: 10px;
+  padding: 7px;
   cursor: pointer;
   align-items: center;
   box-shadow: rgba(0,0,0,0.1) 0 0 10px;
-  cursor: pointer;
 }
 
 
@@ -69,10 +68,13 @@ code {
 
 .container_row{
   display: grid;
-  padding: 5px;
+  padding: 7px;
   grid-auto-columns: 200px;
   grid-auto-flow: column;
-  justify-content: center;
+  justify-content: center;  
+  background-color: #a2246e;
+  border: none;
+  border-radius: 12px;
 
 }
 
@@ -81,9 +83,10 @@ code {
   color: #fff;
   border: none;
   border-radius: 12px;
-  box-shadow: rgba(0,0,0,0.1) 0 0 10px;
-  padding: 10px;
+  padding: 7px;
   cursor: pointer;
+  align-items: center;
+  box-shadow: rgba(0,0,0,0.1) 0 0 10px;
 }
 
 .login-button2:hover {

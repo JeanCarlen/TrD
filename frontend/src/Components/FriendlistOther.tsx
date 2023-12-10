@@ -15,13 +15,22 @@ import { VStack } from "@chakra-ui/react";
 import "../pages/Home.css";
 import ShowStatus from "./FriendStatus";
 import { FriendData } from "./Friends";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
+const FriendListProfile: React.FC = () => {
   const { users } = useParams();
   const [friends, setFriends] = useState<FriendData[]>([]);
   const [isSender, setIsSender] = useState<boolean | null>(null);
   const token = Cookies.get("token");
-
+  const [myUserID, setmyUserID] = useState<number>();
+  let content: { username: string; user: number };
+  if (token !== undefined) {
+    content = decodeToken(token);
+  } else {
+    content = { username: "default", user: 0 };
+  }
+  
   const GetUserinfo = async () => {
     const response = await fetch(
       `http://localhost:8080/api/users/username/${users}`,
@@ -32,42 +41,43 @@ const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
           Authorization: "Bearer " + token,
         },
       }
-    );
-    const data = await response.json();
-    if (response.ok) {
-      console.log("friend page", data);
-      setFriends(data);
-    }
-    console.log("data", data);
-    let content: { username: string; user: number };
-    if (token !== undefined) {
-      content = decodeToken(token);
-    } else {
-      content = { username: "default", user: 0 };
-    }
-    const response1 = await fetch(
-      `http://localhost:8080/api/friends/active/list/${data[0].id}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
+      );
+      const data = await response.json();
+      console.log(response);
+      if (response.ok) {
+        console.log("friend page", data);
+        setFriends(data);
+        if (data.length === 0)
+          return ;
       }
-    );
-    const data1 = await response1.json();
-    if (response1.ok) {
-      console.log("friendlist", data1);
-      setFriends(data1);
+      const response1 = await fetch(
+        `http://localhost:8080/api/friends/active/list/${data[0].id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+        }
+        );
+        const data1 = await response1.json();
+        if (response1.ok) {
+          console.log("friendlist", data1);
+          setFriends(data1);
+        setmyUserID(data[0].id);
+      console.log("content", content.username);
+      console.log("myuserid", myUserID);
+      console.log("data10", data1[0].requested_user.username);
+
       if (data1[0] !== undefined)
-        setIsSender(content.username === data1[0].requested_user.username);
+        setIsSender(data[0].username === data1[0].requester_user.username);
     }
   };
 
   useEffect(() => {
     console.log("friends in Profile", friends);
     GetUserinfo();
-  });
+  }, []);
 
   if (isSender === null) {
     // Loading state, you might display a loading spinner or message
@@ -81,39 +91,35 @@ const FriendListProfile: React.FC<FriendData> = (friend: FriendData) => {
         {friends.map((friend: FriendData) => (
           <ListItem key={friend.requester}>
             <Flex alignItems="center">
-              {isSender ? (
                 <Wrap>
                   <WrapItem className="profile-border">
                     <VStack spacing={4} alignItems="center">
-                      <Link to={`/profiles/${friend.requested_user?.username}`}>
-                        <Avatar size="xs" src={friend.requested_user?.avatar} />
-                        <ShowStatus
-                          status={friend.requested_user?.curr_status}
-                        />
+                      {friend.requested === myUserID ? 
+                      (
+                        <>
+                          <Link to={`/profiles/${friend.requester_user?.username}`}>
+                        <Text display="flex">
+                          {friend.requester_user?.username}
+                        </Text><Avatar size="xs" src={friend.requester_user?.avatar} /><ShowStatus
+                            status={friend.requester_user?.curr_status} />
+                            </Link>
+                            </>
+                      ) :
+                      (
+                        <>
+                        <Link to={`/profiles/${friend.requested_user?.username}`}>
                         <Text display="flex">
                           {friend.requested_user?.username}
                         </Text>
-                      </Link>
-                    </VStack>
-                  </WrapItem>
-                </Wrap>
-              ) : (
-                <Wrap>
-                  <WrapItem className="profile-border">
-                    <VStack spacing={4} alignItems="center">
-                      <Link to={`/profiles/${friend.requester_user?.username}`}>
-                        <Avatar size="xs" src={friend.requester_user?.avatar} />
+                        <Avatar size="xs" src={friend.requested_user?.avatar} />
                         <ShowStatus
-                          status={friend.requester_user?.curr_status}
-                        />
-                        <Text display="flex">
-                          {friend.requester_user?.username}
-                        </Text>
-                      </Link>
+                          status={friend.requested_user?.curr_status}/>
+                        </Link>
+                        </>
+                      )} 
                     </VStack>
                   </WrapItem>
                 </Wrap>
-              )}
             </Flex>
           </ListItem>
         ))}

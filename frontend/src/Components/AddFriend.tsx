@@ -80,7 +80,7 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
 		className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
 		onClick={() => handleAddFriend(userID)}
 		>
-        Add friend
+    Add friend
 	</button>
 		{/* ADD FRIEND
       <AddIcon
