@@ -43,9 +43,7 @@ const FriendListProfile: React.FC = () => {
       }
       );
       const data = await response.json();
-      console.log(response);
       if (response.ok) {
-        console.log("friend page", data);
         setFriends(data);
         if (data.length === 0)
           return ;
@@ -62,12 +60,8 @@ const FriendListProfile: React.FC = () => {
         );
         const data1 = await response1.json();
         if (response1.ok) {
-          console.log("friendlist", data1);
           setFriends(data1);
         setmyUserID(data[0].id);
-      console.log("content", content.username);
-      console.log("myuserid", myUserID);
-      console.log("data10", data1[0].requested_user.username);
 
       if (data1[0] !== undefined)
         setIsSender(data[0].username === data1[0].requester_user.username);
@@ -75,20 +69,19 @@ const FriendListProfile: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("friends in Profile", friends);
     GetUserinfo();
   }, []);
 
-  if (isSender === null) {
-    // Loading state, you might display a loading spinner or message
-    return <p>Loading...</p>;
-  }
+//   if (isSender === null) {
+//     // Loading state, you might display a loading spinner or message
+//     return <p>Loading...</p>;
+//   }
 
   return (
     <div>
       <h2>Friends</h2>
       <List className="friends">
-        {friends.map((friend: FriendData) => (
+        {friends && friends.map((friend: FriendData) => (
           <ListItem key={friend.requester}>
             <Flex alignItems="center">
                 <Wrap>
