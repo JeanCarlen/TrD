@@ -3,7 +3,8 @@ FROM node:20-alpine
 WORKDIR /app
 
 RUN mkdir -p /uploads
-COPY ./default.png ./uploads/default.png
+COPY ./default.png /uploads/default.png
+COPY ./deleted.png /uploads/deleted.png
 
 #Entry Point
 COPY ./package.json ./

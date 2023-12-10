@@ -155,6 +155,24 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 		}
 	}
 
+	async function deleteAccount(){
+		const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			},
+		});
+		if (response.ok)
+		{
+			Cookies.remove('token')
+			toast.success('Your account got deleted', {
+				position: toast.POSITION.TOP_CENTER
+			})
+			navigate('/logout');
+		}
+	}
+
 	async function unBlockUser(user: User){
 		const response = await fetch(`http://localhost:8080/api/users/unblock/${user.id}`, {
 			method: 'DELETE',
@@ -187,7 +205,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			<MenuItem onClick={onOpen1}>Change my Avatar</MenuItem>
 			<MenuItem onClick={onOpen2}>Setup my 2FA </MenuItem>
 			<MenuItem onClick={getBlockList}>Unblock Users </MenuItem>
-
+			<MenuItem onClick={deleteAccount}>Delete my account</MenuItem>
 			</MenuGroup>
 			<MenuDivider />
 		</MenuList>

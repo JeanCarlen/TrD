@@ -350,7 +350,23 @@ export class UsersService {
 			description: 'User not found.'
 		})
 	}
-    return this.usersRepository.remove(user);
+
+	if (!user.avatar.includes('default')) {
+	  const image = user.avatar.replace(process.env.HOST + 'images/', '');
+	  fs.unlinkSync('/app/uploads/' + image);
+	}
+
+	user.avatar = process.env.HOST + 'images/deleted.png';
+	user.username = `Deleted User ${user.id}`;
+	user.password = 'Bonsoir'; // not hashing the password to be sure no one can log in with it
+	user.twofaenabled = false;
+	user.twofasecret = '';
+	user.status = 0;
+	user.login42 = null;
+	user.is42 = false;
+	await this.usersRepository.save(user);
+
+    // return this.usersRepository.remove(user);
   }
 
   public async updateUserImage(id: number, imageName: string) {
