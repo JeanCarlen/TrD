@@ -74,28 +74,28 @@ const Home = (props: Props) => {
   }, [content, token]);
 
   const fetchAchievments = useCallback(async () => {
-	const response = await fetch(
-		`http://localhost:8080/api/users/id/achievments/${content.user}`,
-		{
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: "Bearer " + token,
-			},
-		}
-	);
-	if (response.ok) {
-		try {
-			let data = await response.json();
-			setAchievmentFetched(true);
-			setAchievments(data);
-		} catch (e) {
-			console.log("Error in response achievments", e);
-		}
-	} else {
-		console.log("Error fetching achievments");
-	}
-  }, [content, token])
+    const response = await fetch(
+      `http://localhost:8080/api/users/id/achievments/${content.user}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      }
+    );
+    if (response.ok) {
+      try {
+        let data = await response.json();
+        setAchievmentFetched(true);
+        setAchievments(data);
+      } catch (e) {
+        console.log("Error in response achievments", e);
+      }
+    } else {
+      console.log("Error fetching achievments");
+    }
+  }, [content, token]);
 
   const updateUser = useCallback(async () => {
     const response = await fetch(
@@ -119,7 +119,7 @@ const Home = (props: Props) => {
 
   useEffect(() => {
     fetchMatches();
-	fetchAchievments();
+    fetchAchievments();
     updateUser();
   }, [token]);
 
@@ -150,7 +150,7 @@ const Home = (props: Props) => {
                 </WrapItem>
               </Wrap>
               <button
-                className="rounded-full bg-fuchsia-900 p-1.5 shadow border-0 text-2xl text-white h-44 w-48 hover:bg-stone-700"
+                className="rounded-full bg-fuchsia-900 p-1.5 shadow border-0 text-2xl text-white h-36 w-48 hover:bg-stone-700"
                 onClick={() => GotoGame()}
               >
                 Quick Play
@@ -178,23 +178,20 @@ const Home = (props: Props) => {
                 )}
               </div>
               <div className="achievements">
-				<p>Achievements</p>
-				<br />
-				{achievmentFetched ? (
-					<div className="matchBox">
-						{achievments.map((achievment: Achievement) => {
-							return (
-								<LayoutAchievements
-									display={achievment}
-								/>
-							)
-						})}
-					</div>) : (
-					<div className="history_1" style={{fontSize: "25px"}}>
-						Loading...
-					</div>
-					)}
-			  </div>
+                <p>Achievements</p>
+                <br />
+                {achievmentFetched ? (
+                  <div className="matchBox">
+                    {achievments.map((achievment: Achievement) => {
+                      return <LayoutAchievements display={achievment} />;
+                    })}
+                  </div>
+                ) : (
+                  <div className="history_1" style={{ fontSize: "25px" }}>
+                    Loading...
+                  </div>
+                )}
+              </div>
               <div className="friends">
                 {/* <div className='matchBox'> */}
                 <FriendList />

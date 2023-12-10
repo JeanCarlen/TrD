@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback} from "react";
+import React, { useState, useEffect, useCallback } from "react";
 // import styled from 'styled-components'
 import { ChakraProvider, WrapItem, Wrap } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/react";
@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { gsocket } from "../context/websocket.context";
 import { FriendData } from "../Components/Friends";
 import { toast } from "react-toastify";
-import { Achievement } from "../pages/Layout-Achievements"
+import { Achievement } from "../pages/Layout-Achievements";
 import LayoutAchievements from "../pages/Layout-Achievements";
 
 export interface profiles {
@@ -37,7 +37,6 @@ const Profiles = (props: Props) => {
   const [achievmentFetched, setAchievmentFetched] = useState<boolean>(false);
   const [avatarUrl, setAvatarUrl] = useState<string>();
   const [achievementName] = useState<string>("");
-  const [friends, setFriends] = useState<FriendData[]>([]);
   const [achievments, setAchievments] = useState<Achievement[]>([]);
   const [friends] = useState<FriendData[]>([]);
   const [friendid, setFriendID] = useState<number | undefined>();
@@ -46,40 +45,40 @@ const Profiles = (props: Props) => {
 
   if (token !== undefined) content = decodeToken(token);
   else
-	content = {
-	  username: "default",
-	  user: 0,
-	  avatar: "http://localhost:8080/images/default.png",
-	};
+    content = {
+      username: "default",
+      user: 0,
+      avatar: "http://localhost:8080/images/default.png",
+    };
 
   useEffect(() => {
-	fetchAchievements();
+    fetchAchievements();
     GetUserinfo();
   }, []);
 
   const fetchAchievements = useCallback(async () => {
-	const response = await fetch(
-		`http://localhost:8080/api/users/id/achievments/${content.user}`,
-		{
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: "Bearer " + token,
-			},
-		}
-	);
-	if (response.ok) {
-		try {
-			let data = await response.json();
-			setAchievmentFetched(true);
-			setAchievments(data);
-		} catch (e) {
-			console.log("Error in response achievments", e);
-		}
-	} else {
-		console.log("Error fetching achievments");
-	}
-  }, [content, token])
+    const response = await fetch(
+      `http://localhost:8080/api/users/id/achievments/${content.user}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      }
+    );
+    if (response.ok) {
+      try {
+        let data = await response.json();
+        setAchievmentFetched(true);
+        setAchievments(data);
+      } catch (e) {
+        console.log("Error in response achievments", e);
+      }
+    } else {
+      console.log("Error fetching achievments");
+    }
+  }, [content, token]);
 
   const GetUserinfo = async () => {
     const response = await fetch(
@@ -95,16 +94,14 @@ const Profiles = (props: Props) => {
     const data = await response.json();
     console.log(response);
     if (response.ok) {
-      if (data.length === 0)
-      {
+      if (data.length === 0) {
         toast.error("User does not exist", {
           position: toast.POSITION.BOTTOM_LEFT,
           className: "toast-error",
         });
         navigate("/home");
-        return ;
-      }
-      else{
+        return;
+      } else {
         setAvatarUrl(data[0].avatar);
         await setFriendID(data[0].id);
         console.log("friendid", data[0].id);
@@ -161,13 +158,15 @@ const Profiles = (props: Props) => {
   const inviteToPong = async (user: User) => {
     if (token !== undefined) {
       console.log("friendid", friendid);
-      console.log("userid", user.id)
-    let content = await decodeToken(token); 
-		if (friendid === content?.user)
-		{
-			toast.error("You cannot invite yourself to play", { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
-			return;
-		}
+      console.log("userid", user.id);
+      let content = await decodeToken(token);
+      if (friendid === content?.user) {
+        toast.error("You cannot invite yourself to play", {
+          position: toast.POSITION.BOTTOM_LEFT,
+          className: "toast-error",
+        });
+        return;
+      }
       gsocket.emit("invite", { inviter: content, invited: user });
       navigate("/game");
     }
@@ -194,7 +193,7 @@ const Profiles = (props: Props) => {
               </WrapItem>
             </Wrap>
             <div className="box-content overflow-hidden h-177 grid grid-row-2 grid-cols-2 gap-x-2 gap-y-2">
-			  <AddFriend userID={friendid}/>
+              <AddFriend userID={friendid} />
               <button
                 className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
                 onClick={() => friend && SpectateGame(friend)}
@@ -231,28 +230,24 @@ const Profiles = (props: Props) => {
                 </div>
               )}
             </div>
-			<div className="achievements">
-				<p>Achievements</p>
-				<br />
-				{achievmentFetched ? (
-					<div className="matchBox">
-						{achievments.map((achievment: Achievement) => {
-							return (
-								<LayoutAchievements
-									display={achievment}
-								/>
-							)
-						})}
-					</div>) : (
-					<div className="history_1" style={{fontSize: "25px"}}>
-						Loading...
-					</div>
-					)}
-			  </div>
+            <div className="achievements">
+              <p>Achievements</p>
+              <br />
+              {achievmentFetched ? (
+                <div className="matchBox">
+                  {achievments.map((achievment: Achievement) => {
+                    return <LayoutAchievements display={achievment} />;
+                  })}
+                </div>
+              ) : (
+                <div className="history_1" style={{ fontSize: "25px" }}>
+                  Loading...
+                </div>
+              )}
+            </div>
             <div className="friends">
               <div className="matchBox">
-                  <FriendListProfile
-                  />
+                <FriendListProfile />
               </div>
             </div>
           </div>
