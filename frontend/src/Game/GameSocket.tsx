@@ -83,8 +83,7 @@ const GameSocket: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>();
   const isVisible = usePageVisibility();
   const intervalId = useRef<number | undefined>();
-  if (token !== undefined)
-  	content = decodeToken(token);
+  if (token !== undefined) content = decodeToken(token);
 
   let data = useRef<GameData>({
     NameOfRoom: "",
@@ -227,10 +226,6 @@ const GameSocket: React.FC = () => {
       setScore2(data.current.score2);
       data.current.converted = false;
       data.current.paused = 5;
-      await updateAchievements(
-        data.current.player1.id,
-        data.current.player2.id
-      );
       if (data.current.player1.pNumber === 1) {
         await postScore(
           dataBack.score1,
@@ -413,7 +408,6 @@ const GameSocket: React.FC = () => {
               data.current.score1 = dataBack.max;
             else if (data.current.player1.pNumber === 2)
               data.current.score2 = dataBack.max;
-
             data.current.paused = 5;
             data.current.started = false;
             data.current.converted = false;
@@ -479,6 +473,10 @@ const GameSocket: React.FC = () => {
         data.current.ball = Fball;
         setScore1(dataBack.score1);
         setScore2(dataBack.score2);
+        await updateAchievements(
+          data.current.player1.id,
+          data.current.player2.id
+        );
         if (data.current.player1.pNumber === 1)
           await postScore(
             dataBack.score1,
@@ -596,10 +594,10 @@ const GameSocket: React.FC = () => {
         const newBonusX = data.current.bonus.pos_x + data.current.bonus.speed_x;
         const newBonusY = data.current.bonus.pos_y + data.current.bonus.speed_y;
         // limit max ball speed
-        if (data.current.ball.speed_x > 10 || data.current.ball.speed_x < -10) {
-          data.current.ball.speed_x = 10;
+        if (data.current.ball.speed_y > 10) {
           data.current.ball.speed_y = 10;
         }
+        if (data.current.ball.speed_y < -10) data.current.ball.speed_y = -10;
         // bounce off of left/right walls
         if (newBallX < 0 || newBallX > canvas.width) {
           data.current.ball.speed_x = -data.current.ball.speed_x;
@@ -616,36 +614,26 @@ const GameSocket: React.FC = () => {
         if (
           newBallY < 20 &&
           newBallX >= data.current.player2.pos_x &&
-          newBallX <= data.current.player2.pos_x + paddleSize
+          newBallX <= data.current.player2.pos_x + paddleSize &&
+          data.current.ball.speed_y < 0
         ) {
           if (data.current.ball.speed_y > 0) {
             data.current.ball.pos_y = data.current.ball.pos_y - 10;
             console.log("reset ball");
           } else data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
           data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
-          console.log(
-            "collision with paddle 1: ",
-            data.current.ball.speed_y,
-            " ",
-            data.current.ball.speed_x
-          );
         }
         if (
           newBallY > canvas.height - 20 &&
           newBallX >= data.current.player1.pos_x &&
-          newBallX <= data.current.player1.pos_x + paddleSize
+          newBallX <= data.current.player1.pos_x + paddleSize &&
+          data.current.ball.speed_y > 0
         ) {
           if (data.current.ball.speed_y < 0) {
             data.current.ball.pos_y = data.current.ball.pos_y + 10;
             console.log("reset ball");
           } else data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
           data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
-          console.log(
-            "collision with paddle 2: ",
-            data.current.ball.speed_y,
-            " ",
-            data.current.ball.speed_x
-          );
         }
         if (
           newBonusY < 20 &&
@@ -925,16 +913,9 @@ const GameSocket: React.FC = () => {
         <div className="border-solid border-2 border-white max-w-[454px] text-lg">
           <span>
             {player1}: {score1disp}
-          </span>
-          <p>
-            {player1} Status in Friends Component: {userStatus}
-          </p>
-          <span>
+            <br />
             {player2}: {score2disp}
           </span>
-          <p>
-            {player2} Status in Friends Component: {userStatus}
-          </p>
         </div>
       </div>
       <div className="border-solid border-2 border-white h-[604px] w-[454px] lg:w-auto ring-offset-1 flex flex-col lg:self-start justify-between text-lg p-5">
