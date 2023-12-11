@@ -170,6 +170,7 @@ const Profiles = (props: Props) => {
       gsocket.emit("invite", { inviter: content, invited: user });
       navigate("/game");
     }
+	console.log('ERROR in invite:', token);
   };
 
   return (

@@ -39,7 +39,10 @@ const Home = (props: Props) => {
   let content: { username: string; user: number; avatar: string };
   const navigate = useNavigate();
 
-  if (token !== undefined) content = decodeToken(token);
+  if (token !== undefined)
+  {
+	content = decodeToken(token);
+  }
   else
     content = {
       username: "default",
@@ -110,8 +113,6 @@ const Home = (props: Props) => {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("does it fetch", data);
-      console.log("current status", data.status);
       content.username = data.username;
       console.log(content.username);
     }

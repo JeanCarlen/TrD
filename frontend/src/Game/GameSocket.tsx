@@ -83,6 +83,8 @@ const GameSocket: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>();
   const isVisible = usePageVisibility();
   const intervalId = useRef<number | undefined>();
+  if (token !== undefined)
+  	content = decodeToken(token);
 
   let data = useRef<GameData>({
     NameOfRoom: "",
@@ -762,14 +764,8 @@ const GameSocket: React.FC = () => {
       console.log("error in updateGame: ", error);
     }
   };
+
   const SendInfo = (roomToSend: string) => {
-    console.log("game-start-> message: ", {
-      roomName: roomToSend,
-      myId: content?.user,
-      myName: content?.username,
-      myAvatar: content?.avatar,
-      playerNumber: data.current.player1.pNumber,
-    });
     data.current.player1.id = content?.user;
     data.current.player1.name = content?.username;
     data.current.player1.avatar = content?.avatar;

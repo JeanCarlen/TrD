@@ -101,6 +101,7 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 };
 
 	const leaveRoom = (chat: chatData|undefined, socket: Socket) => {
+		console.log('leaving room:', chat?.chat.name);
 		socket.emit('leave-chat', {chat_id: chat?.chat_id, roomName: chat?.chat.name, user_id: chat?.user_id});
 	}
 

@@ -73,7 +73,7 @@ const Chat: React.FC = () => {
 			if (response.ok)
 			{
 				await data.forEach(async (chat: chatData)=>{
-					chat.display_name= await TranslateChat(chat, content?.user, token);
+					chat.display_name = await TranslateChat(chat, content?.user, token);
 				});
 				setData(data);
 				setFetched(true);

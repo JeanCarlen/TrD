@@ -285,7 +285,7 @@ export class ChatsService {
 				await this.userchatsRepository.remove(userChat);
 				return ;
 			} else {
-				this.deleteChat(id, otherUser.id);
+				this.deleteChat(id, body.user_id);
 			}
 		}
 	}
