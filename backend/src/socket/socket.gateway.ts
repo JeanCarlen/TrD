@@ -513,9 +513,8 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			let target = await this.UserList.find((one)=> (one.user_id == message.invited.id));
 			if (target == undefined)
 			{
-				console.log('list: ', this.UserList, 'looking for', message.invited.id);
-				console.log('not found');
-				return ;
+				console.log('list: ', this.UserList, 'looking for', message.invited.id, 'not found');
+				throw new Error('User doesn\'t exist or is not online');
 			}
 			const blocked = await this.UsersService.blockAnyWayList(message.inviter.user);
 			await blocked.forEach((user)=>{
@@ -540,7 +539,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	{
 		let target = await this.stock.find((one)=> (one.roomName == message.roomName));
 		if (target == undefined)
+		{
+			console.log('IN REPLY -> NOT FOUND');
 			return;
+		}
 		if (message.status == 'accept')
 			await this.onPongInitSetup(client, {roomName: message.roomName});
 		else
