@@ -65,7 +65,7 @@ const Routes: React.FC = (props: Props) => {
 					<Route path="/chats" Component={Chat} />
 					<Route path="/statistics" element={<Stats />} />
 					<Route path="/profiles/:users" element={<Profiles />} />
-          <Route path="*" element={<Navigate to='/login' replace />} />
+					<Route path="*" element={<Navigate to='/login' replace />} />
 					<Route path="/Logout" element={<Logout />} />
 					<Route path="/mfasetup" element={<MFASetup />} />
 					<Route path='*' element={<Navigate to='/login' replace />} />

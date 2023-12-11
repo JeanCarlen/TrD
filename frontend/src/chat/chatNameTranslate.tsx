@@ -15,8 +15,6 @@ export async function TranslateChat(chat: chatData, user_id: number, token: stri
 		const n2 = parseInt(match[2], 10);
 		let final_user = 0;
 
-		console.log("User ID 1:", n1);
-		console.log("User ID 2:", n2);
 		if (n1 === user_id)
 			final_user = n2;
 		else if (n2 === user_id)
@@ -32,7 +30,6 @@ export async function TranslateChat(chat: chatData, user_id: number, token: stri
 			let data = await response.json();
 			if (response.ok)
 			{
-				// console.log("Successfully got username", data.username);
 				return (data.username as string);
 			}
 			else
