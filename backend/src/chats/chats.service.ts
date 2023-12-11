@@ -17,6 +17,7 @@ import { ChatsResponse } from './dto/chats.response';
 import { BannedUsers } from 'src/bannedusers/entities/banneduser.entity';
 import { MessagesService } from 'src/messages/messages.service';
 import { Messages } from 'src/messages/entities/message.entity';
+import { BlockedusersService } from 'src/blockedusers/blockedusers.service';
 const bcrypt = require('bcrypt');
 
 @Injectable()
@@ -38,6 +39,8 @@ export class ChatsService {
 		private readonly userchatsService: UserchatsService,
 		@Inject(MessagesService)
 		private readonly messagesService: MessagesService,
+		@Inject(BlockedusersService)
+		private readonly blockedUsersService: BlockedusersService,
 	) {}
 
 	private async isUserAdmin(chat_id: number, user_id: number) {
@@ -113,17 +116,14 @@ export class ChatsService {
 	}
 	if (chat.password !== null && password !== null)
 	{
-		console.log('returned here');
 		return await bcrypt.compare(password, chat.password);
 	}
 	else if (chat.password === null)
 	{
-		console.log('returned here 2');
 		return (true);
 	}
 	else
 	{
-		console.log('returned here 3');
 		return (false);
 	}
   }
@@ -150,8 +150,11 @@ export class ChatsService {
 			description: `You're not in this chat.`,
 		});
 	}
+	const blockedUsers: number[] = await this.blockedUsersService.getBlockedListByUser(current_id);
 	const userschats: UserChats[] = await this.userchatsRepository.find({where: {chat_id: id}});
 	const user_ids: number[] = userschats.map((userchat) => {
+		if (blockedUsers.includes(userchat.user_id))
+			return ;
 		return userchat.user_id;
 	})
 
@@ -236,7 +239,6 @@ export class ChatsService {
 	let foundUser = await this.bannedusersRepository.findOne({where: {user_id: user_id, chat_id: chat_id}});
 	if (foundUser === null)
 		return false;
-	console.log('foundUser', foundUser, 'user_id', user_id);
 	return true;
   }
 
@@ -246,7 +248,6 @@ export class ChatsService {
   //       if one other admin, transfer ownership to that user
   //       if no admin, transfer ownership to first user in chat and make him admin
   public async leaveChat(id: number, body) {
-	console.log('leaving chat: ', id, body);
 	const userChat = await this.userchatsRepository.findOne({where: {chat_id: id, user_id: body.user_id}})
 	if (!userChat) {
 		throw new BadRequestException(['You\'re not in this chat.'], {
@@ -265,7 +266,6 @@ export class ChatsService {
 		if (otherAdmin) {
 			// transfer ownership to this admin
 			chat.owner = otherAdmin.user_id;
-			console.log('new owner as admin: ', chat.owner);
 			await this.chatsRepository.save(chat);
 			await this.userchatsRepository.remove(userChat);
 			return ;
@@ -275,7 +275,6 @@ export class ChatsService {
 			if (otherUser) {
 				// transfer ownership to this user
 				chat.owner = otherUser.user_id;
-				console.log('new owner: ', chat.owner);
 				await this.chatsRepository.save(chat);
 				// add this user to chatadmins
 				const new_admin: ChatAdmins = new ChatAdmins();
@@ -435,7 +434,6 @@ export class ChatsService {
 		chat.password = this.hashPassword(updateChatDto.password);
 	if (updateChatDto.password == undefined)
 		chat.password = null;
-	console.log('updating chat to', chat);
 	await this.chatsRepository.save(chat);
   }
 
