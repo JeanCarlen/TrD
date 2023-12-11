@@ -339,7 +339,14 @@ export class UsersService {
     });
   }
 
-  public async remove(id: number) {
+  public async remove(id: number, current_user_id: number) {
+	if (id != current_user_id) {
+		throw new UnauthorizedException(['You cannot delete another user.'], {
+			cause: new Error(),
+			description: 'You cannot delete another user.'
+		})
+	}
+
     const user = await this.usersRepository.findOne({
       where: { id: id },
       select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],

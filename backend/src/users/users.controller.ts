@@ -127,24 +127,13 @@ export class UsersController {
     return this.usersService.update(+params.id, updateUserDto);
   }
 
-//   @Patch(':id/:achievment_id')
-//   @UseGuards(AuthGuard, CurrentGuard)
-//   @ApiBearerAuth()
-//   @ApiOperation({summary: 'Update a user acchievment.'})
-//   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
-//   @ApiResponse({status: 200, description: 'User acchievment updated successfully.'})
-//   @ApiNotFoundResponse({description: 'Achievment not found.'})
-//   updateUserAchievment(@Param('id') user_id: number, @Param('achievment_id') achievment_id: number, @Body() updateUserachievmentDto: UpdateUserachievmentDto) {
-// 	return this.usersService.updateUserAchievment(user_id, achievment_id, updateUserachievmentDto.value);
-//   }
-
   @Delete(':id')
   @UseGuards(AuthGuard, CurrentGuard)
   @ApiBearerAuth()
   @ApiOperation({summary: 'Delete a user.'})
   @ApiUnauthorizedResponse({description: 'Unauthorized.'})
   @ApiResponse({status: 200, description: 'User deleted successfully.'})
-  remove(@Param() params: paramValidator) {
-    return this.usersService.remove(+params.id);
+  remove(@Param() params: paramValidator, @Req() req: any) {
+    return this.usersService.remove(+params.id, req.user.user);
   }
 }
