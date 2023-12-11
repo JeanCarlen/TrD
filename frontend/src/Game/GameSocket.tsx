@@ -159,11 +159,9 @@ const GameSocket: React.FC = () => {
       data.current.player1.name = content?.username;
       data.current.player1.avatar = content?.avatar;
     } else {
-      content = {
-        username: "default",
-        user: 0,
-        avatar: "http://localhost:8080/images/default.png",
-      };
+      data.current.player1.id = 0;
+      data.current.player1.name = "default";
+      data.current.player1.avatar = "http://localhost:8080/images/default.png";
     }
     let intervalBonus = window.setInterval(() => {
       let rand = randomNumberInRange(1, 100);
@@ -196,6 +194,7 @@ const GameSocket: React.FC = () => {
         window.clearInterval(intervalBonus);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -226,7 +225,10 @@ const GameSocket: React.FC = () => {
       setScore2(data.current.score2);
       data.current.converted = false;
       data.current.paused = 5;
-	  await updateAchievements(data.current.player1.id, data.current.player2.id)
+      await updateAchievements(
+        data.current.player1.id,
+        data.current.player2.id
+      );
       if (data.current.player1.pNumber === 1) {
         await postScore(
           dataBack.score1,
@@ -384,7 +386,10 @@ const GameSocket: React.FC = () => {
               data.current.player2.id
             );
             data.current.gameID = fetchback.id;
-			gsocket.emit('setGameId', {roomName: data.current.NameOfRoom, gameId: fetchback.id});
+            gsocket.emit("setGameId", {
+              roomName: data.current.NameOfRoom,
+              gameId: fetchback.id,
+            });
             gsocket.emit("ready", { roomName: data.current.NameOfRoom });
           }
         } else if (data.current.player1.pNumber === 2) {
@@ -412,7 +417,10 @@ const GameSocket: React.FC = () => {
             data.current.converted = false;
             data.current.bonusActive = false;
             setCanvas(false);
-			updateAchievements(data.current.player1.id, data.current.player2.id)
+            updateAchievements(
+              data.current.player1.id,
+              data.current.player2.id
+            );
             await postScore(
               data.current.score1,
               data.current.score2,
@@ -422,7 +430,10 @@ const GameSocket: React.FC = () => {
             await delay(500);
             try {
               clearInterval(intervalId.current);
-			  gsocket.emit('bye-bye', {roomName: data.current.NameOfRoom, user_id: data.current.player1.id});
+              gsocket.emit("bye-bye", {
+                roomName: data.current.NameOfRoom,
+                user_id: data.current.player1.id,
+              });
               bodyNavigate("/Home");
             } catch (e) {
               console.log("error sending home", e);
@@ -512,6 +523,7 @@ const GameSocket: React.FC = () => {
       gsocket.off("give-roomName");
       gsocket.off("back-to-home");
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gsocket]);
 
   useEffect(() => {
@@ -526,6 +538,7 @@ const GameSocket: React.FC = () => {
     return () => {
       gsocket.off("room-join-error");
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gsocket]);
 
   function randomNumberInRange(min: number, max: number) {
@@ -599,16 +612,38 @@ const GameSocket: React.FC = () => {
         }
         // check for collision with paddle
         if (
-          (newBallY < 20 &&
-            newBallX >= data.current.player2.pos_x &&
-            newBallX <= data.current.player2.pos_x + paddleSize) ||
-          (newBallY > canvas.height - 20 &&
-            newBallX >= data.current.player1.pos_x &&
-            newBallX <= data.current.player1.pos_x + paddleSize)
+          newBallY < 20 &&
+          newBallX >= data.current.player2.pos_x &&
+          newBallX <= data.current.player2.pos_x + paddleSize
         ) {
-          data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
+          if (data.current.ball.speed_y > 0) {
+            data.current.ball.pos_y = data.current.ball.pos_y - 10;
+            console.log("reset ball");
+          } else data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
           data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
-          console.log("collision with paddle");
+          console.log(
+            "collision with paddle 1: ",
+            data.current.ball.speed_y,
+            " ",
+            data.current.ball.speed_x
+          );
+        }
+        if (
+          newBallY > canvas.height - 20 &&
+          newBallX >= data.current.player1.pos_x &&
+          newBallX <= data.current.player1.pos_x + paddleSize
+        ) {
+          if (data.current.ball.speed_y < 0) {
+            data.current.ball.pos_y = data.current.ball.pos_y + 10;
+            console.log("reset ball");
+          } else data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
+          data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
+          console.log(
+            "collision with paddle 2: ",
+            data.current.ball.speed_y,
+            " ",
+            data.current.ball.speed_x
+          );
         }
         if (
           newBonusY < 20 &&
@@ -799,8 +834,11 @@ const GameSocket: React.FC = () => {
   };
 
   const updateAchievements = async (player1_id: number, player2_id: number) => {
-	gsocket.emit("updateAchievements", {player1_id: player1_id, player2_id: player2_id})
-  }
+    gsocket.emit("updateAchievements", {
+      player1_id: player1_id,
+      player2_id: player2_id,
+    });
+  };
 
   const postScore = async (
     score1: number,
