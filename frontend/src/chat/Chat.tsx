@@ -75,6 +75,7 @@ const Chat: React.FC = () => {
 				await data.forEach(async (chat: chatData)=>{
 					chat.display_name = await TranslateChat(chat, content?.user, token);
 				});
+				await delay(200 * data.length);
 				setData(data);
 				setFetched(true);
 				return data as chatData[];
