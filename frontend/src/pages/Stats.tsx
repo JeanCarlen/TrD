@@ -70,7 +70,6 @@ const Stats: React.FunctionComponent = () => {
       <Sidebar />
       <div className="text"></div>
       <div className="grid-stats" style={{ paddingBottom: "10vh" }}>
-        {/* <h2>Match History</h2> */}
         <div className="history_1" style={{ overflowY: "auto" }}>
           <LayoutPlayerstats data={alldata} User={content} />
         </div>
@@ -82,12 +81,14 @@ const Stats: React.FunctionComponent = () => {
             })}
           </div>
         ) : (
+          // <><h2>Match History</h2>
           <div
-            className="history_1"
-            style={{ fontSize: "25px", width: "50vw" }}
-          >
-            Loading...
-          </div>
+              className="history_1"
+              style={{ fontSize: "25px", width: "50vw" }}
+            >
+              Loading...
+            </div>
+            // </>
         )}
         <div className="history_1" style={{ width: "25vw" }}>
           <h2>Leaderboard</h2>

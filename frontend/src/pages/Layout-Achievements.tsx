@@ -1,6 +1,4 @@
-import React, { useEffect, useState, useCallback} from "react";
-import Cookies from "js-cookie";
-import decodeToken from "../helpers/helpers";
+import React from "react";
 
 export type Achievement = {
 	achievment_data: {

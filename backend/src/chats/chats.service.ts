@@ -285,7 +285,7 @@ export class ChatsService {
 				await this.userchatsRepository.remove(userChat);
 				return ;
 			} else {
-				this.deleteChat(id);
+				this.deleteChat(id, otherUser.id);
 			}
 		}
 	}
@@ -293,7 +293,7 @@ export class ChatsService {
 		await this.userchatsRepository.remove(userChat);
   }
 
-  private async deleteChat(id: number): Promise<{ success: boolean, message: string}>{
+  private async deleteChat(id: number, user_id: number): Promise<{ success: boolean, message: string}>{
 	// Remove every USERCHATS corresponding to this chat from the database
 	// Remove every MUTEDUSERS corresponding to this chat from the database
 	// Remove every BANNEDUSERS corresponding to this chat from the database
@@ -328,7 +328,7 @@ export class ChatsService {
 		await this.chatadminsRepository.remove(chatadmin);
 	}))
 	// Deleting all messages
-	const messages: Messages[] = await this.messagesService.findChatMessagesByChatId(id);
+	const messages: Messages[] = await this.messagesService.findChatMessagesByChatId(id, user_id);
 	await Promise.all(messages.map(async (message: Messages) => {
 		await this.messagesService.removeChannelMessage(message.id);
 	}))
@@ -453,6 +453,6 @@ export class ChatsService {
 			description: `Chat not found.`,
 		});
 	}
-	return await this.deleteChat(id);
+	return await this.deleteChat(id, user_id);
   }
 }

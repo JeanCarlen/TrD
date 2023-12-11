@@ -15,7 +15,6 @@ import { VStack } from "@chakra-ui/react";
 import "../pages/Home.css";
 import ShowStatus from "./FriendStatus";
 import { FriendData } from "./Friends";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const FriendListProfile: React.FC = () => {
@@ -25,11 +24,11 @@ const FriendListProfile: React.FC = () => {
   const token = Cookies.get("token");
   const [myUserID, setmyUserID] = useState<number>();
   let content: { username: string; user: number };
-  if (token !== undefined) {
-    content = decodeToken(token);
-  } else {
-    content = { username: "default", user: 0 };
-  }
+  // if (token !== undefined) {
+  //   content = decodeToken(token);
+  // } else {
+  //   content = { username: "default", user: 0 };
+  // }
   
   const GetUserinfo = async () => {
     const response = await fetch(
@@ -72,10 +71,10 @@ const FriendListProfile: React.FC = () => {
     GetUserinfo();
   }, []);
 
-//   if (isSender === null) {
-//     // Loading state, you might display a loading spinner or message
-//     return <p>Loading...</p>;
-//   }
+  if (isSender === null) {
+    // Loading state, you might display a loading spinner or message
+    return <p>Loading...</p>;
+  }
 
   return (
     <div>
