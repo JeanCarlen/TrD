@@ -18,7 +18,7 @@ import { User } from "../chat/idChatUser";
 import ShowStatus from "../Components/FriendStatus";
 import { useNavigate } from "react-router-dom";
 import { gsocket } from "../context/websocket.context";
-import { FriendData } from "../Components/Friends";
+// import { FriendData } from "../Components/Friends";
 import { toast } from "react-toastify";
 import { Achievement } from "../pages/Layout-Achievements";
 import LayoutAchievements from "../pages/Layout-Achievements";
