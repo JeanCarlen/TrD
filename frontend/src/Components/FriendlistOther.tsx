@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import "../pages/Home.css";
 import { useEffect } from "react";
 import React from "react";
-import decodeToken from "../helpers/helpers";
+// import decodeToken from "../helpers/helpers";
 import { useParams } from "react-router-dom";
 import "../pages/Stats.css";
 import { WrapItem, Wrap } from "@chakra-ui/react";
@@ -23,12 +23,6 @@ const FriendListProfile: React.FC = () => {
   const [isSender, setIsSender] = useState<boolean | null>(null);
   const token = Cookies.get("token");
   const [myUserID, setmyUserID] = useState<number>();
-  let content: { username: string; user: number };
-  // if (token !== undefined) {
-  //   content = decodeToken(token);
-  // } else {
-  //   content = { username: "default", user: 0 };
-  // }
   
   const GetUserinfo = async () => {
     const response = await fetch(
