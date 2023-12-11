@@ -34,7 +34,7 @@ export interface FriendData{
 
 const FriendList: React.FC<{}> = () => {
 	const token = Cookies.get('token');
-	const [isSender, setIsSender] = useState<boolean | null>(null);
+	// const [isSender, setIsSender] = useState<boolean | null>(null);
 	const [friends, setFriends] = useState<FriendData[]>([]);
 	const [friendsinfo, setFriendsInfo] = useState<UserInfo[]>([]);
 	let content: {username: string, user: number, avatar: string};
@@ -62,7 +62,7 @@ const FriendList: React.FC<{}> = () => {
 		(friends) => friends.requester_user.username === content.username || friends.requested_user.username === content.username
 	  );
 	  
-	  const friendList = filteredFriendships.map((friends) => {
+	  filteredFriendships.map((friends) => {
 		const friendName = friends.requester_user.username === content.username ? friends.requested_user.username : friends.requester_user.username;
 		return (
 			<div key={friendName}>
@@ -138,7 +138,7 @@ const FriendList: React.FC<{}> = () => {
 };
 
 export default FriendList;
-function async(friends: FriendData[]): (value: FriendData, index: number, array: FriendData[]) => FriendData {
-	throw new Error('Function not implemented.');
-}
+// function async(friends: FriendData[]): (value: FriendData, index: number, array: FriendData[]) => FriendData {
+// 	throw new Error('Function not implemented.');
+// }
 

@@ -36,9 +36,9 @@ const Profiles = (props: Props) => {
   const [dataMatches, setDataMatches] = useState<gameData[]>([]);
   const [achievmentFetched, setAchievmentFetched] = useState<boolean>(false);
   const [avatarUrl, setAvatarUrl] = useState<string>();
-  const [achievementName] = useState<string>("");
+  // const [achievementName] = useState<string>("");
   const [achievments, setAchievments] = useState<Achievement[]>([]);
-  const [friends] = useState<FriendData[]>([]);
+  // const [friends] = useState<FriendData[]>([]);
   const [friendid, setFriendID] = useState<number | undefined>();
   const [friend, setFriend] = useState<User | undefined>();
   const navigate = useNavigate();

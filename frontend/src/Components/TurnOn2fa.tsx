@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
-import { Button } from '@chakra-ui/react'
 
 const TurnOn2fa: React.FC<{}> = () => {
   const [active, setActive] = useState(false);
