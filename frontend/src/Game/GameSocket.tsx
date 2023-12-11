@@ -413,10 +413,6 @@ const GameSocket: React.FC = () => {
             data.current.converted = false;
             data.current.bonusActive = false;
             setCanvas(false);
-            updateAchievements(
-              data.current.player1.id,
-              data.current.player2.id
-            );
             await postScore(
               data.current.score1,
               data.current.score2,
@@ -473,10 +469,6 @@ const GameSocket: React.FC = () => {
         data.current.ball = Fball;
         setScore1(dataBack.score1);
         setScore2(dataBack.score2);
-        await updateAchievements(
-          data.current.player1.id,
-          data.current.player2.id
-        );
         if (data.current.player1.pNumber === 1)
           await postScore(
             dataBack.score1,
@@ -810,6 +802,7 @@ const GameSocket: React.FC = () => {
       body: JSON.stringify({ user_1: user1ID, user_2: user2ID }),
     });
     if (response.ok) {
+      await updateAchievements(user1ID, user2ID)
       const data = await response.json();
       return data;
     } else {
