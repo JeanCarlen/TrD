@@ -46,44 +46,52 @@ const FriendList: React.FC<{}> = () => {
       avatar: "http://localhost:8080/images/default.png",
     };
 
-	const getFriends = async() => {
-		const response = await fetch(`http://localhost:8080/api/friends/active/list/${content.user}`,
-			{ method: 'GET',
-				headers: {
-				'Content-Type': 'application/json',
-				'Authorization': 'Bearer ' + token,
-				},
-				});
-			const data = await response.json()
-			if (response.ok)
-			{
-				setFriends(data);
-			}
-	}
-	const filteredFriendships = friends.filter(
-		(friends) => friends.requester_user.username === content.username || friends.requested_user.username === content.username
-	  );
-	  
-	  filteredFriendships.map((friends) => {
-		const friendName = friends.requester_user.username === content.username ? friends.requested_user.username : friends.requester_user.username;
-		return (
-			<div key={friendName}>
-         	 <ListItem>
-           	 <Flex display="flex" alignItems="center">
-					<Wrap>
-					<WrapItem className='profile-border'>
-					<VStack spacing={4} alignItems="center">
-						<Link to={`/profiles/${friendName}`}>
-						<Text display="flex">{friendName}</Text>
-						</Link>
-					</VStack>
-					</WrapItem>
-					</Wrap>
-            </Flex>
-          </ListItem>
-			</div>
-		  );
-	  });
+  const getFriends = async () => {
+    const response = await fetch(
+      `http://localhost:8080/api/friends/active/list/${content.user}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      }
+    );
+    const data = await response.json();
+    if (response.ok) {
+      console.log("friendlist", data);
+      setFriends(data);
+    }
+  };
+  const filteredFriendships = friends.filter(
+    (friends) =>
+      friends.requester_user.username === content.username ||
+      friends.requested_user.username === content.username
+  );
+
+  filteredFriendships.map((friends) => {
+    const friendName =
+      friends.requester_user.username === content.username
+        ? friends.requested_user.username
+        : friends.requester_user.username;
+    return (
+      <div key={friendName}>
+        <ListItem>
+          <Flex display="flex" alignItems="center">
+            <Wrap>
+              <WrapItem className="profile-border">
+                <VStack spacing={4} alignItems="center">
+                  <Link to={`/profiles/${friendName}`}>
+                    <Text display="flex">{friendName}</Text>
+                  </Link>
+                </VStack>
+              </WrapItem>
+            </Wrap>
+          </Flex>
+        </ListItem>
+      </div>
+    );
+  });
 
   useEffect(() => {
     getFriends();
