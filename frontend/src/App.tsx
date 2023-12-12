@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import store from "./Redux-helpers/store";
 import { WebsocketContextProvider, gsocket } from "./context/websocket.context";
 import { ToastContainer } from "react-toastify";
-
+import ForceLogout from "./Components/force_logout";
 
 function App() {
   return (
@@ -14,6 +14,7 @@ function App() {
       <Provider store={store}>
         <WebsocketContextProvider value={gsocket}>
           <BrowserRouter>
+            <ForceLogout />
             <Routes />
           </BrowserRouter>
         </WebsocketContextProvider>

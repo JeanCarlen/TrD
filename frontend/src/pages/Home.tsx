@@ -194,7 +194,6 @@ const Home = (props: Props) => {
                 )}
               </div>
               <div className="friends">
-                {/* <div className='matchBox'> */}
                 <FriendList />
               </div>
             </div>
