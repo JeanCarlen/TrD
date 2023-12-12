@@ -29,7 +29,7 @@ const GameInvite: React.FC<{}> = () => {
 	useEffect(()=> {
 		gsocket.on('invite', (dataBack:{inviter: User, roomName: string}) => {
 			console.log('INVITED');
-			toast.info(<ToastMessage inviter={dataBack.inviter} roomName={dataBack.roomName}/>,  { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
+			toast.info(<ToastMessage inviter={dataBack.inviter} roomName={dataBack.roomName}/>,  { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info'});
 		});
 
 		return () => {

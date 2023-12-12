@@ -518,7 +518,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		{
 			if (pnumber === 0)
 				pnumber = 2;
-			this.onUserLeft(client, {roomName: foundStock.roomName, playerNumber: pnumber, gameID: foundStock.gameID});
+			if (foundStock.player1 !== undefined && foundStock.player2 !== undefined)
+				this.onUserLeft(client, {roomName: foundStock.roomName, playerNumber: pnumber, gameID: foundStock.gameID});
+			else
+				this.stock.splice(this.stock.indexOf(foundStock),1);
 		}
 		let leaver = this.IdWaitlist.find((one) => (one.socket.id === client.id));
 		if (leaver !== undefined)
@@ -574,6 +577,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		if (target == undefined)
 		{
 			console.log('IN REPLY -> NOT FOUND');
+			this.server.to(client.id).emit('back_to_home', {error: 'The request expired', reset: true});
 			return;
 		}
 		if (message.status == 'accept')
