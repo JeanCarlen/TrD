@@ -19,6 +19,7 @@ import GetUserName from "../Components/testusername";
 import MyStatus from "../Components/Status";
 import GameInvite from "../Game/Game-Invite";
 import { useNavigate } from "react-router-dom";
+import { gsocket } from "../context/websocket.context"; 
 
 type Props = {
   username: string;
@@ -41,14 +42,22 @@ const Home = (props: Props) => {
 
   if (token !== undefined)
   {
-	content = decodeToken(token);
+    content = decodeToken(token);
   }
   else
+  {
     content = {
       username: "default",
       user: 0,
       avatar: "http://localhost:8080/images/default.png",
-    };
+    }
+      gsocket.disconnect();
+      useEffect(()=>{
+      navigate("/login");
+      },[navigate])
+      return ;
+  };
+
 
   const fetchMatches = useCallback(async () => {
     const response = await fetch(

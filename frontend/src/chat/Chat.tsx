@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux';
 import { gsocket } from "../context/websocket.context";
 import GameInvite from "../Game/Game-Invite";
 import { TranslateChat } from "./chatNameTranslate";
-
+import { useNavigate } from "react-router-dom";
 
 
 export type chatData = {
@@ -45,6 +45,7 @@ const Chat: React.FC = () => {
 	const [messages, setMessages] = useState<sentMessages[]>([]);
 	const [currentChat, setCurrentChat] = useState<chatData>();
 	const userStatus = useSelector((state: any) => state.userStatus);
+	const navigate = useNavigate();
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -59,7 +60,14 @@ const Chat: React.FC = () => {
 			console.log("content: ", content.user);
 		}
 		else
+		{
 			content = { username: 'default', user: 0, avatar: 'default'};
+			gsocket.disconnect();
+			useEffect(()=>{
+			navigate("/login");
+			},[navigate])
+			return ;
+		}
 
 		const response = await fetch(`http://localhost:8080/api/users/${content.user}/chats`, {
 			method: 'GET',

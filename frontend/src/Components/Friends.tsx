@@ -12,6 +12,8 @@ import { WrapItem, Wrap} from '@chakra-ui/react'
 import { Avatar} from '@chakra-ui/react'
 import ShowStatus from './FriendStatus';
 import { VStack } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import {gsocket} from "../context/websocket.context"; 
 
 type UserInfo = {
 	avatar: string;
@@ -38,10 +40,18 @@ const FriendList: React.FC<{}> = () => {
 	const [friends, setFriends] = useState<FriendData[]>([]);
 	const [friendsinfo, setFriendsInfo] = useState<UserInfo[]>([]);
 	let content: {username: string, user: number, avatar: string};
+	const navigate = useNavigate();
     if (token !== undefined)
       content = decodeToken(token);
     else
-      content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
+	{
+		content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
+		gsocket.disconnect();
+		useEffect(()=>{
+		navigate("/login");
+		},[navigate])
+		return ;
+	}
 
 	const getFriends = async() => {
 		const response = await fetch(`http://localhost:8080/api/friends/active/list/${content.user}`,
