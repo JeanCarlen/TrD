@@ -20,7 +20,6 @@ git clone -b $BRANCH $REPO --depth 1 TrD
 # Remove all docker thingys
 docker ps -aq | xargs docker stop | xargs docker rm
 docker images -aq | xargs docker image rm
-docker volume ls -q | xargs docker volume rm
 
 cd TrD/
 mkdir -p data/db
