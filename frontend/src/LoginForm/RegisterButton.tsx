@@ -22,7 +22,7 @@ const RegisterButton: React.FC = () => {
   const [tokenContent, setTokenContent] = useState<JWTPayload>();
   const showPassword = false;
 
-  const url = `https://api.intra.42.fr/oauth/authorize?client_id=${process.env.API42_CLIENT_ID}&redirect_uri=https%3A%2F%2Ftrd.laendrun.ch%2Fapi%2Fauth%2Fcallback&response_type=code`
+  const url = `https://api.intra.42.fr/oauth/authorize?client_id=${process.env.REACT_APP_API42_CLIENT_ID}&redirect_uri=https%3A%2F%2Ftrd.laendrun.ch%2Fapi%2Fauth%2Fcallback&response_type=code`
 
   useEffect(() => {
     const token: string | undefined = Cookies.get("token");

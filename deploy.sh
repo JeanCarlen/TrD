@@ -22,6 +22,7 @@ docker ps -aq | xargs docker stop | xargs docker rm
 docker images -aq | xargs docker image rm
 
 cd TrD/
+docker volume rm frontend_vol db_data images_data
 mkdir -p data/db
 mkdir -p data/frontend
 mkdir -p data/certs
