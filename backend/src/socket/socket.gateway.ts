@@ -99,7 +99,10 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		if (joiner !== undefined)
 		{
 			if(joiner.socket.id !== client.id)
+			{
+				console.log('force logout', joiner.socket.id);
 				await this.server.to(joiner.socket.id).emit('force-logout');
+			}
 			joiner.socket = client;
 			this.logger.log(`changed socket in userList for ${user_id}`);
 		}
