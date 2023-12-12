@@ -14,6 +14,7 @@ import { useSelector } from 'react-redux';
 import { gsocket } from "../context/websocket.context";
 import GameInvite from "../Game/Game-Invite";
 import { TranslateChat } from "./chatNameTranslate";
+import MoveAction from "../moveAction";
 
 
 
@@ -312,6 +313,7 @@ const Chat: React.FC = () => {
 		</div>
 	</div>
 	<GameInvite/>
+	<MoveAction/>
 	</div>
 	);
 };

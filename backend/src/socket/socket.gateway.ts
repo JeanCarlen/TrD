@@ -197,10 +197,20 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		this.server.to(message.roomName).emit('gameState', message);
 	}
 
+	IsInGame(client: Socket):boolean
+	{
+		let standard = this.stock.find((one) => (one.player1.id === client.id || one.player2.id === client.id))
+		if (standard !== undefined)
+			return (true);
+		return (false);
+	}
+
     @SubscribeMessage('waitList')
     async onWaitList(client: Socket, message: {user_id:number, bonus: number }) {
         console.log("into wait list");
 		try {
+			if (this.IsInGame(client))
+				return;
 			if(message.bonus == 0)
 			{
 				const userInWaitList = this.IdWaitlist.find((one) => (one.user_id === message.user_id));
@@ -498,12 +508,37 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		}
 	}
 
+	@SubscribeMessage('moveRoom')
+	async onMoveRoom(client: Socket)
+	{
+		let pnumber = 0;
+		let foundStock = await this.stock.find((one)=>(one.player1.id === client.id));
+		if (foundStock === undefined)
+			foundStock = await this.stock.find((one)=>(one.player2.id === client.id));
+		else 
+			pnumber = 1;
+		if (foundStock !== undefined)
+		{
+			if (pnumber === 0)
+				pnumber = 2;
+			if (foundStock.player1 !== undefined && foundStock.player2 !== undefined)
+				this.onUserLeft(client, {roomName: foundStock.roomName, playerNumber: pnumber, gameID: foundStock.gameID});
+			else
+				this.stock.splice(this.stock.indexOf(foundStock),1);
+		}
+		let leaver = this.IdWaitlist.find((one) => (one.socket.id === client.id));
+		if (leaver !== undefined)
+			this.IdWaitlist.splice(this.IdWaitlist.indexOf(leaver), 1);
+		leaver = this.IdWaitlist_bonus.find((one) => (one.socket.id === client.id));
+		if (leaver !== undefined)
+			this.IdWaitlist_bonus.splice(this.IdWaitlist_bonus.indexOf(leaver), 1);
+	}
+
 	@Inject('UsersService')
 	@SubscribeMessage('user-left')
 	async onUserLeft(client: Socket, message:{roomName: string, playerNumber: number, gameID: number}): Promise<void> {
 		console.log("into user left", message.playerNumber);
 		this.server.to(message.roomName).emit('forfeit', {player: message.playerNumber, max: this.maxScore, gameID: message.gameID});
-		// this.server.to(message.roomName).emit('leave-room', {roomName: message.roomName, id: client.id});
 		let user_info = this.UserList.find((one) => (one.socket.id === client.id));
 		if (user_info !== undefined)
 			this.UsersService.updateStatus(user_info.user_id , 1);
@@ -519,6 +554,8 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				console.log('list: ', this.UserList, 'looking for', message.invited.id, 'not found');
 				throw new Error('User doesn\'t exist or is not online');
 			}
+			if (this.IsInGame(target.socket))
+				throw new Error('User is currently in a game');
 			const blocked = await this.UsersService.blockAnyWayList(message.inviter.user);
 			await blocked.forEach((user)=>{
 				if (user.id == message.invited.id){
@@ -533,7 +570,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		} catch (error){
 			this.logger.log(`Error challenging user: ${error.message}`);
 			this.server.to(client.id).emit('back_to_home', {error: error.message, reset: true});
-
 		}
 	}
 
@@ -544,6 +580,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		if (target == undefined)
 		{
 			console.log('IN REPLY -> NOT FOUND');
+			this.server.to(client.id).emit('back_to_home', {error: 'The request expired', reset: true});
 			return;
 		}
 		if (message.status == 'accept')

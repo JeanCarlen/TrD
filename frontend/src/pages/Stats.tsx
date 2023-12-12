@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import decodeToken from "../helpers/helpers";
 import LayoutRanking from "./Layout-ranking";
 import GameInvite from "../Game/Game-Invite";
+import MoveAction from "../moveAction";
 
 export type User = {
   username: string;
@@ -96,6 +97,7 @@ const Stats: React.FunctionComponent = () => {
         </div>
       </div>
 	  <GameInvite/>
+	  <MoveAction/>
     </div>
   );
 };
