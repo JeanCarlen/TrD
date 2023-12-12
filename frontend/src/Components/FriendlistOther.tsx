@@ -16,6 +16,7 @@ import "../pages/Home.css";
 import ShowStatus from "./FriendStatus";
 import { FriendData } from "./Friends";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 const FriendListProfile: React.FC = () => {
   const { users } = useParams();
@@ -23,6 +24,7 @@ const FriendListProfile: React.FC = () => {
   const [isSender, setIsSender] = useState<boolean | null>(null);
   const token = Cookies.get("token");
   const [myUserID, setmyUserID] = useState<number>();
+  const navigate = useNavigate();
   
   const GetUserinfo = async () => {
     const response = await fetch(
@@ -63,7 +65,11 @@ const FriendListProfile: React.FC = () => {
 
   useEffect(() => {
     GetUserinfo();
-  }, []);
+  }, [users]);
+
+  const navigation = (user: string) => {
+    navigate(`/profile/${user}`);
+  };
 
   if (isSender === null) {
     // Loading state, you might display a loading spinner or message
@@ -83,7 +89,7 @@ const FriendListProfile: React.FC = () => {
                       {friend.requested === myUserID ? 
                       (
                         <>
-                          <Link to={`/profiles/${friend.requester_user?.username}`}>
+                          <Link onClick={() => navigation(friend.requester_user?.username)} to={`/profiles/${friend.requester_user?.username}`}>
                         <Text display="flex">
                           {friend.requester_user?.username}
                         </Text><Avatar size="xs" src={friend.requester_user?.avatar} /><ShowStatus
@@ -93,7 +99,7 @@ const FriendListProfile: React.FC = () => {
                       ) :
                       (
                         <>
-                        <Link to={`/profiles/${friend.requested_user?.username}`}>
+                        <Link onClick={() => navigation(friend.requested_user?.username)}to={`/profiles/${friend.requested_user?.username}`}>
                         <Text display="flex">
                           {friend.requested_user?.username}
                         </Text>

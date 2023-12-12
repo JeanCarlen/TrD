@@ -45,11 +45,18 @@ const Profiles = (props: Props) => {
 
   if (token !== undefined) content = decodeToken(token);
   else
+  {
     content = {
       username: "default",
       user: 0,
       avatar: "http://localhost:8080/images/default.png",
-    };
+    }
+      gsocket.disconnect();
+      useEffect(()=>{
+      navigate("/login");
+      },[navigate])
+      return ;
+  };
 
   useEffect(() => {
     fetchAchievements();
