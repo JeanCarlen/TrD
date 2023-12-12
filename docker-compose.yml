@@ -28,6 +28,8 @@ services:
       tr:
         aliases:
           - frontend
+    env_file:
+      - ./backend/.env
     volumes:
       - frontend_vol:/app/build
     # ports:
