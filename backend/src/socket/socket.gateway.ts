@@ -95,10 +95,14 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	async onConnectId(client: Socket, user_id: number) {
 		// add user to User list if he doesn't exist
 		// replace the socket if the user exists
-		
 		let joiner = await this.UserList.find((one) => (one.user_id === user_id));
 		if (joiner !== undefined)
 		{
+			if(joiner.socket.id !== client.id)
+			{
+				console.log('force logout', joiner.socket.id);
+				await this.server.to(joiner.socket.id).emit('force-logout');
+			}
 			joiner.socket = client;
 			this.logger.log(`changed socket in userList for ${user_id}`);
 		}
@@ -110,7 +114,6 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		let user_info = this.UserList.find((one) => (one.socket.id === client.id));
 		if (user_info !== undefined)
 			this.UsersService.updateStatus(user_info.user_id , 1);
-
 		// set the user as online
 	};
     // Define the onPongInitSetup method to handle joining a game

@@ -888,7 +888,7 @@ const GameSocket: React.FC = () => {
           Paddles(data.current.NameOfRoom, -1);
         break;
       case "ArrowRight":
-        if (data.current.player1.pos_x <= 425 && data.current.spectator === 0)
+        if (data.current.player1.pos_x <= 325 && data.current.spectator === 0)
           Paddles(data.current.NameOfRoom, 1);
         break;
       default:

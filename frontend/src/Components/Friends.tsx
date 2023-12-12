@@ -16,22 +16,22 @@ import { useNavigate } from 'react-router-dom';
 import {gsocket} from "../context/websocket.context"; 
 
 type UserInfo = {
-	avatar: string;
-	status: number;
-	curr_status:number;
-	login42: string;
-	username: string;
-}
+  avatar: string;
+  status: number;
+  curr_status: number;
+  login42: string;
+  username: string;
+};
 
-export interface FriendData{
-	friends: number;
-	id: number;
-	requested: number;
-	requested_user: UserInfo;
-	requester: number;
-	requester_user: UserInfo;
-	status: number;
-	total_count: number;
+export interface FriendData {
+  friends: number;
+  id: number;
+  requested: number;
+  requested_user: UserInfo;
+  requester: number;
+  requester_user: UserInfo;
+  status: number;
+  total_count: number;
 }
 
 const FriendList: React.FC<{}> = () => {
@@ -92,62 +92,66 @@ const FriendList: React.FC<{}> = () => {
 		  );
 	  });
 
-	useEffect(() =>{
-		getFriends();
-	}, []);
+  useEffect(() => {
+    getFriends();
+  }, []);
 
-	useEffect(() => {
-		const fetchFriendsDetails = async () => {
-		  const friendsData: UserInfo[] = await Promise.all(
-			friends.map(async (friends) => {
-			  const friendId = friends.requester === content.user ? friends.requested : friends.requester;
-				const friendDetails = await fetch(`http://localhost:8080/api/users/${friendId}`,
-				{ method: 'GET',
-					headers: {
-					'Content-Type': 'application/json',
-					'Authorization': 'Bearer ' + token,
-					},
-				});
-			  return friendDetails.json();
-			})
-		  );
-		  setFriendsInfo(friendsData);
-		  console.log("friendsData", friendsData);
-		};
-		if (content.user !== null)
-			fetchFriendsDetails();
-	  }, [content.user, friends]);
-	
-	return (
-		<div>
-		<h2>Friends</h2>
-		<List className='friends-list'>
-			<div>
-			{friendsinfo.map((friend) => (
-			<ListItem key={friend.username}>
-			<Flex display="flex" alignItems="center">
-			<Wrap>
-					<WrapItem className='profile-border'>
-					<VStack spacing={4} alignItems="center">
-						<Link to={`/profiles/${friend.username}`}>
-						<Avatar size="xs" src={friend.avatar}/>
-						<ShowStatus status={friend.status}/>
-						<Text display="flex">{friend.username}</Text>
-						</Link>
-					</VStack>
-					</WrapItem>
-					</Wrap>
-			</Flex>
-			</ListItem>
-      	))}
-		</div>
-		</List>
-		</div>
-	)
+  useEffect(() => {
+    const fetchFriendsDetails = async () => {
+      const friendsData: UserInfo[] = await Promise.all(
+        friends.map(async (friends) => {
+          const friendId =
+            friends.requester === content.user
+              ? friends.requested
+              : friends.requester;
+          const friendDetails = await fetch(
+            `http://localhost:8080/api/users/${friendId}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+          return friendDetails.json();
+        })
+      );
+      setFriendsInfo(friendsData);
+      console.log("friendsData", friendsData);
+    };
+    if (content.user !== null) fetchFriendsDetails();
+  }, [content.user, friends]);
+
+  return (
+    <div className="justify-center">
+      <h2 className="text-2xl font-bold mb-4">Friends</h2>
+      <div className="flex inline-grid grid-cols-4 gap-2 justify-center">
+        {friendsinfo.map((friend) => (
+          <li key={friend.username} className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Link
+                to={`/profiles/${friend.username}`}
+                className="flex items-center space-x-2"
+              >
+                <WrapItem className="p-4 border-2 border-gray-200 rounded-lg">
+                  <Avatar
+                    className="w-20 h-20 rounded-full"
+                    src={friend.avatar}
+                  />
+                  <span className="text-lg ">{friend.username}</span>
+                  <ShowStatus status={friend.status} />
+                </WrapItem>
+              </Link>
+            </div>
+          </li>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default FriendList;
 // function async(friends: FriendData[]): (value: FriendData, index: number, array: FriendData[]) => FriendData {
 // 	throw new Error('Function not implemented.');
 // }
-
