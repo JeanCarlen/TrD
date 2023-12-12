@@ -12,11 +12,9 @@ services:
           - nginx
     volumes:
       - images_data:/var/www/data/images/
-      - frontend_vol:/var/www/frontend/
-      - certs:/etc/letsencrypt
     ports:
       - "8080:80"
-      - "443:443"
+#       - "443:443"
 
   frontend:
     build:
@@ -28,10 +26,8 @@ services:
       tr:
         aliases:
           - frontend
-    volumes:
-      - frontend_vol:/app/build
-    # ports:
-    #   - "8000:3000"
+    ports:
+      - "8000:3000"
 
   backend:
     build:
@@ -58,8 +54,8 @@ services:
           - database
     env_file:
       - ./backend/.env
-    # ports:
-    #   - "5432:5432"
+    ports:
+      - "5432:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./nginx/achievments.csv:/docker-entrypoint-initdb.d/achievments.csv
@@ -81,19 +77,5 @@ volumes:
     driver: local
     driver_opts:
       device: ./data/images
-      type: none
-      o: bind
-  frontend_vol:
-    name: frontend_vol
-    driver: local
-    driver_opts:
-      device: ./data/frontend
-      type: none
-      o: bind
-  certs:
-    name: certs
-    driver: local
-    driver_opts:
-      device: ./data/certs
       type: none
       o: bind
