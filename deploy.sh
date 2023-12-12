@@ -23,6 +23,10 @@ docker images -aq | xargs docker image rm
 docker volume ls -q | xargs docker volume rm
 
 cd TrD/
+mkdir -p data/db
+mkdir -p data/frontend
+mkdir -p data/certs
+mkdir -p data/images
 cp /env/back.env backend/.env
 find ./ -type f -exec sed -i -e 's|http://localhost:8080|https://trd.laendrun.ch|g' {} \;
 find ./ -type f -exec sed -i -e 's|http://localhost:3001|https://trd.laendrun.ch:3001|g' {} \;
