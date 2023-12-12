@@ -1,17 +1,19 @@
-import { Text, List, ListItem, Flex } from "@chakra-ui/react";
-import { useState } from "react";
-import Cookies from "js-cookie";
-import { Link } from "react-router-dom";
-import "../pages/Users.css";
-import "../pages/Home.css";
-import "../pages/Stats.css";
-import { useEffect } from "react";
-import React from "react";
-import decodeToken from "../helpers/helpers";
-import { WrapItem, Wrap } from "@chakra-ui/react";
-import { Avatar } from "@chakra-ui/react";
-import ShowStatus from "./FriendStatus";
-import { VStack } from "@chakra-ui/react";
+import { Text, List, ListItem, Flex} from '@chakra-ui/react'
+import { useState} from 'react';
+import Cookies from 'js-cookie';
+import { Link } from 'react-router-dom';
+import '../pages/Users.css'
+import '../pages/Home.css'
+import '../pages/Stats.css'
+import { useEffect } from 'react';
+import React from 'react';
+import decodeToken from '../helpers/helpers';
+import { WrapItem, Wrap} from '@chakra-ui/react'
+import { Avatar} from '@chakra-ui/react'
+import ShowStatus from './FriendStatus';
+import { VStack } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import {gsocket} from "../context/websocket.context"; 
 
 type UserInfo = {
   avatar: string;
@@ -33,18 +35,23 @@ export interface FriendData {
 }
 
 const FriendList: React.FC<{}> = () => {
-  const token = Cookies.get("token");
-  // const [isSender, setIsSender] = useState<boolean | null>(null);
-  const [friends, setFriends] = useState<FriendData[]>([]);
-  const [friendsinfo, setFriendsInfo] = useState<UserInfo[]>([]);
-  let content: { username: string; user: number; avatar: string };
-  if (token !== undefined) content = decodeToken(token);
-  else
-    content = {
-      username: "default",
-      user: 0,
-      avatar: "http://localhost:8080/images/default.png",
-    };
+	const token = Cookies.get('token');
+	// const [isSender, setIsSender] = useState<boolean | null>(null);
+	const [friends, setFriends] = useState<FriendData[]>([]);
+	const [friendsinfo, setFriendsInfo] = useState<UserInfo[]>([]);
+	let content: {username: string, user: number, avatar: string};
+	const navigate = useNavigate();
+    if (token !== undefined)
+      content = decodeToken(token);
+    else
+	{
+		content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
+		gsocket.disconnect();
+		useEffect(()=>{
+		navigate("/login");
+		},[navigate])
+		return ;
+	}
 
   const getFriends = async () => {
     const response = await fetch(

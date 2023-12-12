@@ -9,8 +9,10 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { gsocket } from '../context/websocket.context';
 import { FriendData } from './Friends';
+import { useNavigate } from "react-router-dom";
 
 const NotificationIcon: React.FC = () => {
+	const navigate = useNavigate();
 	const [showFriendRequests, setShowFriendRequests] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [requestList, setRequestList] = useState<FriendData[]>([]);
@@ -20,9 +22,16 @@ const NotificationIcon: React.FC = () => {
 		if (token !== undefined)
 			content = decodeToken(token);
 		else
+		{
 			content = { username: 'default', user: 0};
-
-	const handleFriendRequest = () => {
+			gsocket.disconnect();
+			useEffect(()=>{
+			navigate("/login");
+			},[navigate])
+			return ;
+		}
+		
+		const handleFriendRequest = () => {
 		setShowFriendRequests(!showFriendRequests);
 		setIsModalOpen(true);
 		updateFriends();
