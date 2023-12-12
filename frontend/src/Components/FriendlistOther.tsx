@@ -16,11 +16,9 @@ import "../pages/Home.css";
 import ShowStatus from "./FriendStatus";
 import { FriendData } from "./Friends";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from 'react-router-dom';
 
 const FriendListProfile: React.FC = () => {
   const { users } = useParams();
-	const navigate = useNavigate();
   const [friends, setFriends] = useState<FriendData[]>([]);
   const [isSender, setIsSender] = useState<boolean | null>(null);
   const token = Cookies.get("token");
@@ -65,12 +63,7 @@ const FriendListProfile: React.FC = () => {
 
   useEffect(() => {
     GetUserinfo();
-  }, [users]);
-
-  const navigation = (user: string) => {
-    navigate(`/profile/${user}`);
-  };
-  
+  }, []);
 
   if (isSender === null) {
     // Loading state, you might display a loading spinner or message
@@ -90,19 +83,17 @@ const FriendListProfile: React.FC = () => {
                       {friend.requested === myUserID ? 
                       (
                         <>
-                          <Link onClick={() => navigation(friend.requester_user?.username)} to={`/profiles/${friend.requester_user?.username}`}>
+                          <Link to={`/profiles/${friend.requester_user?.username}`}>
                         <Text display="flex">
                           {friend.requester_user?.username}
-
-                        </Text>
-                        <Avatar size="xs" src={friend.requester_user?.avatar} /><ShowStatus
+                        </Text><Avatar size="xs" src={friend.requester_user?.avatar} /><ShowStatus
                             status={friend.requester_user?.curr_status} />
                             </Link>
                             </>
                       ) :
                       (
                         <>
-                        <Link onClick={() => navigation(friend.requested_user?.username)}to={`/profiles/${friend.requested_user?.username}`}>
+                        <Link to={`/profiles/${friend.requested_user?.username}`}>
                         <Text display="flex">
                           {friend.requested_user?.username}
                         </Text>

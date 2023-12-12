@@ -12,9 +12,9 @@ import {
 	ModalBody,
 	ModalCloseButton,
   } from '@chakra-ui/react'
-import { Button, FormControl, FormLabel, Input} from '@chakra-ui/react'
-import { toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+  import { Button, FormControl, FormLabel, Input} from '@chakra-ui/react'
+  import { toast } from 'react-toastify'
+  import 'react-toastify/dist/ReactToastify.css'
 import NotificationIcon from './Notifications'
 import {
 	Menu,
@@ -24,14 +24,12 @@ import {
 	MenuGroup,
 	MenuDivider,
   } from '@chakra-ui/react'
-import {useNavigate} from 'react-router-dom'
-import { setUserName } from '../Redux-helpers/action';
-import { useDispatch } from 'react-redux';
-import { User } from '../chat/idChatUser';
-import '../pages/Chat.css'
-import {Avatar} from '@chakra-ui/react'
-import { gsocket } from "../context/websocket.context"; 
-
+  import {useNavigate} from 'react-router-dom'
+  import { setUserName } from '../Redux-helpers/action';
+  import { useDispatch } from 'react-redux';
+  import { User } from '../chat/idChatUser';
+  import '../pages/Chat.css'
+  import {Avatar} from '@chakra-ui/react'
 
 type CookieProps = {
 	username: string;
@@ -64,14 +62,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			content = decodeToken(token);
 		}
 		else
-		{
 			content = { username: 'default', user: 0, avatar: "http://localhost:8080/images/default.png",};
-			gsocket.disconnect();
-			useEffect(()=>{
-			navigate("/login");
-			},[navigate])
-			return ;
-		}
 
 	const updateUser = async () => {
 		const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
@@ -88,7 +79,6 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 
 			useEffect(() =>{
 			updateUser();
-			navigate("/home");
 		}, [token]);
 
 		const handleAvatarChange =  async (event: React.ChangeEvent<HTMLInputElement>) => {

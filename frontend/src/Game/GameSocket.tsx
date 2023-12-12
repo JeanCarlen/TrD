@@ -413,7 +413,6 @@ const GameSocket: React.FC = () => {
             data.current.converted = false;
             data.current.bonusActive = false;
             setCanvas(false);
-            dispatch(setUserStatus(0));
             await postScore(
               data.current.score1,
               data.current.score2,
