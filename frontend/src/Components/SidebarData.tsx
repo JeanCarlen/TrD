@@ -12,6 +12,11 @@ export const SidebarData = [
         path: '/Home',
         icon: <FaIcons.FaHome />
     },
+    // {
+    //     title: 'Users',
+    //     path: '/users',
+    //     icon: <FaIcons.FaUsers />
+    // },
     {
         title: 'Lets Play!',
         path: '/game',
@@ -27,6 +32,11 @@ export const SidebarData = [
         path: '/statistics',
         icon: <FaIcons.FaRegChartBar />
     },
+	// {
+	// 	title: 'setupmfa',
+	// 	path: '/mfasetup',
+	// 	icon: <FaIcons.FaLock />
+	// },
     {
         title: 'Log Out',
         path: '/logout',
