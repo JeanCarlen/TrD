@@ -22,6 +22,8 @@ const RegisterButton: React.FC = () => {
   const [tokenContent, setTokenContent] = useState<JWTPayload>();
   const showPassword = false;
 
+  const url = `https://api.intra.42.fr/oauth/authorize?client_id=${process.env.API42_CLIENT_ID}&redirect_uri=https%3A%2F%2Ftrd.laendrun.ch%2Fapi%2Fauth%2Fcallback&response_type=code`
+
   useEffect(() => {
     const token: string | undefined = Cookies.get("token");
     if (token) {
@@ -155,7 +157,7 @@ const RegisterButton: React.FC = () => {
           <div className="container_row">
             <button className="login-button">
               <a className="schoollogo"
-                href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-9ce743a9d6e296d270c36a928c02e3adc101d43c3a7905d66c9a2727b7640ad9&redirect_uri=https%3A%2F%2Ftrd.laendrun.ch%2Fapi%2Fauth%2Fcallback&response_type=code"
+                href={url}
                 rel="noopener noreferrer"
               >
                 <img className="schoollogo" src={schoollogo} alt="42"/>
