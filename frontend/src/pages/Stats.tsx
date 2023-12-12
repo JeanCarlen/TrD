@@ -8,6 +8,8 @@ import decodeToken from "../helpers/helpers";
 import LayoutRanking from "./Layout-ranking";
 import GameInvite from "../Game/Game-Invite";
 import MoveAction from "../moveAction";
+import { useNavigate } from "react-router-dom";
+import { gsocket } from "../context/websocket.context"; 
 
 export type User = {
   username: string;
@@ -31,14 +33,22 @@ export type gameData = {
 const Stats: React.FunctionComponent = () => {
   const [gameFetched, setGameFetched] = useState<boolean>(false);
   const [alldata, setAllData] = useState<gameData[]>([]);
+  const navigate = useNavigate();
   const token: string | undefined = Cookies.get("token");
   let content: { username: string; user: number; avatar: string };
   if (token !== undefined) content = decodeToken(token);
   else
+  {
     content = {
       username: "default",
       user: 0,
       avatar: "http://localhost:8080/images/default.png",
+  }
+    gsocket.disconnect();
+    useEffect(()=>{
+    navigate("/login");
+    },[navigate])
+  return ;
     };
 
   const fetchMatches = useCallback(async () => {

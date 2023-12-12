@@ -9,19 +9,32 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { gsocket } from '../context/websocket.context';
 import { FriendData } from './Friends';
+import { useNavigate } from "react-router-dom";
 
 const NotificationIcon: React.FC = () => {
 	const [showFriendRequests, setShowFriendRequests] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [requestList, setRequestList] = useState<FriendData[]>([]);
 	const [counter, setCounter] = useState(0);
+	const navigate = useNavigate();
 	const token: string|undefined = Cookies.get("token");
-	let content: {username: string, user: number};
+	let content: {username: string, user: number, avatar:string};
 		if (token !== undefined)
 			content = decodeToken(token);
 		else
-			content = { username: 'default', user: 0};
-
+		{
+			content = {
+			  username: "default",
+			  user: 0,
+			  avatar: "http://localhost:8080/images/default.png",
+			}
+			  gsocket.disconnect();
+			  useEffect(()=>{
+			  navigate("/login");
+			  },[navigate])
+			  return ;
+		  };
+		
 	const handleFriendRequest = () => {
 		setShowFriendRequests(!showFriendRequests);
 		setIsModalOpen(true);
