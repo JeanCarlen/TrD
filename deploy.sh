@@ -30,3 +30,6 @@ cp /env/back.env backend/.env
 find ./ -type f -exec sed -i -e 's|http://localhost:8080|https://trd.laendrun.ch|g' {} \;
 find ./ -type f -exec sed -i -e 's|http://localhost:3001|https://trd.laendrun.ch:3001|g' {} \;
 docker compose up -d --build
+
+# Laucnh script to add certificates inside nginx container
+docker exec trd-nginx-1 /etc/cert.sh
