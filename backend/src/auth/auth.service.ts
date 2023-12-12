@@ -56,6 +56,8 @@ export class AuthService {
     });
     const user42 = await response2.json();
 
+	console.log(user42)
+
     const user = {
       login42: user42.login,
       username: user42.login,
