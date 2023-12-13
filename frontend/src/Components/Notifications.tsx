@@ -2,7 +2,7 @@ import React from 'react';
 import { BellIcon} from '@chakra-ui/icons'
 import './Notifications.css';
 import ShowMessage from './ShowMessages';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import decodeToken from '../helpers/helpers';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify'
@@ -40,7 +40,7 @@ const NotificationIcon: React.FC = () => {
 		setIsModalOpen(false);
 	};
 
-	const updateFriends = useCallback(async () => {
+	const updateFriends = (async () => {
 		const response = await fetch(`http://localhost:8080/api/friends/pending/list/${content.user}`, {
 			method: 'GET',
 			headers: {
@@ -57,7 +57,7 @@ const NotificationIcon: React.FC = () => {
 			setShowFriendRequests(false);
 			setIsModalOpen(false);
 		}
-	},[content, token]);
+	});
 
 	const handleAcceptRequest = async(request: FriendData) => {
 		console.log(`Accepted friend request from ${request.requester_user.username}`);

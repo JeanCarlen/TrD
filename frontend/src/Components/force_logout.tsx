@@ -24,7 +24,7 @@ const ForceLogout: React.FC<{}> = () => {
 
   useEffect(() => {
     gsocket.on("force-logout", () => {
-      toast.error("You got logged somewhere else");
+      toast.error("Another instance of this user has logged");
 
       Cookies.remove("token");
       gsocket.disconnect();

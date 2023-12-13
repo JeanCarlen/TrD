@@ -9,6 +9,7 @@ interface Message {
   id: number;
   text: string;
   sender: string;
+  user_id: number;
   sender_Name: string;
   date: string;
 }
@@ -68,6 +69,7 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
         id: message.id,
         text: message.text,
         sender: message.user_id.toString(),
+		user_id: message.user_id,
         sender_Name: message.user_name,
         date: message.date,
       }))
@@ -88,6 +90,7 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
         text: string;
         sender: string;
         sender_Name: string;
+		user_id: number;
         date: string;
         room: string;
       }) => {
@@ -96,6 +99,7 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
           id: messages.length + 3,
           text: data.text,
           sender: data.sender,
+		  user_id: data.user_id,
           sender_Name: data.sender_Name,
           date: data.date,
         };
@@ -155,7 +159,7 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
             <div
               key={message.id}
               className={`message-bubble ${
-                message.sender_Name === content?.username
+                message.user_id === content?.user
                   ? "user-message"
                   : "other-message"
               }`}

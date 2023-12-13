@@ -472,6 +472,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
                 throw new Error(`Wrong password.`);
             }
             client.join(message.roomName);
+			this.server.to(client.id).emit('login-ok', message.roomName);
 			const list = await this.UserchatsService.findByChatId(chats.id);
 			list.map((userchat) => {
                 if (userchat.user_id == message.client) {
