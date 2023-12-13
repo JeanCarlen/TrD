@@ -36,7 +36,7 @@ services:
     env_file:
       - ./backend/.env
     volumes:
-      - images_data:/app/uploads
+      - images_data:/uploads
     depends_on:
       - database
     networks:

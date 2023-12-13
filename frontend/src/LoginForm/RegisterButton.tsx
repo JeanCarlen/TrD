@@ -134,17 +134,11 @@ const RegisterButton: React.FC = () => {
 //   };
 
   const openForm = () => {
+	setPassword('');
     setIsOpen(true);
     const test = document.getElementById("id1") as HTMLInputElement;
     test.style.display = "none";
   };
-
-//   const closeForm = () => {
-//     setIsOpen(false);
-//     RegisterButton(username, password);
-//     navigate("/Home");
-//     // If not empty, call the onLogin callback with the entered values
-//   };
 
   return (
     <div>
