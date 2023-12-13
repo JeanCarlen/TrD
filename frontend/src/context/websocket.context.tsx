@@ -1,7 +1,8 @@
 import { createContext } from "react";
 import { io } from 'socket.io-client'
 
-export const gsocket = io('https://trd.laendrun.ch', { path: '/api' });
+// export const gsocket = io('https://trd.laendrun.ch', { path: '/api' });
+export const gsocket = io.connect()
 
 export const WebsocketContext = createContext(gsocket);
 
