@@ -3,9 +3,6 @@ import Cookies from "js-cookie";
 import decodeToken from "../helpers/helpers";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
-import { gsocket } from "../context/websocket.context"; 
-import { useEffect } from "react";
 
 type UserProps = {
   userID: number | undefined;
@@ -16,7 +13,6 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
 
   const handleAddFriend = async (userID: number | undefined) => {
     const token = Cookies.get("token");
-    const navigate = useNavigate();
     let content: { username: string; user: number, avatar:string };
     if (token !== undefined) content = decodeToken(token);
     else 

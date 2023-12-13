@@ -17,7 +17,6 @@ const RegisterButton: React.FC = () => {
   const [open, setIsOpen] = useState(false);
   const [username, setUsername] = useState("");
   const [passwordsMatch, setPasswordsMatch] = useState(true); // State to track password matching
-//   const [showPassword, setShowPassword] = useState(false);
   const [valid, setValid] = useState<boolean>(false);
   const [tokenContent, setTokenContent] = useState<JWTPayload>();
   const showPassword = false;

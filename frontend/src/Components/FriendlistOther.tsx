@@ -1,4 +1,3 @@
-import { Text, List, ListItem, Flex } from "@chakra-ui/react";
 import { useState } from "react";
 import Cookies from "js-cookie";
 import "../pages/Users.css";
@@ -11,7 +10,6 @@ import { useParams } from "react-router-dom";
 import "../pages/Stats.css";
 import { WrapItem, Wrap } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/react";
-import { VStack } from "@chakra-ui/react";
 import "../pages/Home.css";
 import ShowStatus from "./FriendStatus";
 import { FriendData } from "./Friends";
@@ -77,22 +75,19 @@ const FriendListProfile: React.FC = () => {
   }
 
   return (
-    <div>
-      <h2>Friends</h2>
-      <List className="friends">
+    <div className="justify-center">
+    <h2 className="text-2xl font-bold mb-4">Friends</h2>
+    <div className="flex inline-grid grid-cols-4 gap-2 justify-center">
         {friends && friends.map((friend: FriendData) => (
-          <ListItem key={friend.requester}>
-            <Flex alignItems="center">
-                <Wrap>
-                  <WrapItem className="profile-border">
-                    <VStack spacing={4} alignItems="center">
+          <li key={friend.requester} className="flex items-center space-x-4">
+                  <WrapItem className="p-4 border-2 border-gray-200 rounded-lg">
                       {friend.requested === myUserID ? 
                       (
                         <>
                           <Link onClick={() => navigation(friend.requester_user?.username)} to={`/profiles/${friend.requester_user?.username}`}>
-                        <Text display="flex">
-                          {friend.requester_user?.username}
-                        </Text><Avatar size="xs" src={friend.requester_user?.avatar} /><ShowStatus
+                          <span className="text-lg ">{friend.requester_user?.username}</span>
+                        <Avatar size="xs" src={friend.requester_user?.avatar} />
+                        <ShowStatus
                             status={friend.requester_user?.curr_status} />
                             </Link>
                             </>
@@ -100,22 +95,17 @@ const FriendListProfile: React.FC = () => {
                       (
                         <>
                         <Link onClick={() => navigation(friend.requested_user?.username)}to={`/profiles/${friend.requested_user?.username}`}>
-                        <Text display="flex">
-                          {friend.requested_user?.username}
-                        </Text>
+                          <span className="text-lg ">{friend.requested_user?.username}</span>
                         <Avatar size="xs" src={friend.requested_user?.avatar} />
                         <ShowStatus
                           status={friend.requested_user?.curr_status}/>
                         </Link>
                         </>
                       )} 
-                    </VStack>
                   </WrapItem>
-                </Wrap>
-            </Flex>
-          </ListItem>
+                  </li>
         ))}
-      </List>
+    </div>
     </div>
   );
 };
