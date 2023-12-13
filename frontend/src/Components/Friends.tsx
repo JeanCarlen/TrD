@@ -1,4 +1,4 @@
-import { Text, List, ListItem, Flex } from "@chakra-ui/react";
+import { Text, ListItem, Flex } from "@chakra-ui/react";
 import { useState } from "react";
 import Cookies from "js-cookie";
 import { Link } from "react-router-dom";
@@ -12,8 +12,7 @@ import { WrapItem, Wrap } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/react";
 import ShowStatus from "./FriendStatus";
 import { VStack } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
-import { gsocket } from "../context/websocket.context"; 
+import { useNavigate } from "react-router-dom"; 
 
 type UserInfo = {
   avatar: string;
@@ -36,10 +35,10 @@ export interface FriendData {
 
 const FriendList: React.FC<{}> = () => {
   const token = Cookies.get("token");
+  const navigate = useNavigate();
   // const [isSender, setIsSender] = useState<boolean | null>(null);
   const [friends, setFriends] = useState<FriendData[]>([]);
   const [friendsinfo, setFriendsInfo] = useState<UserInfo[]>([]);
-  const navigate = useNavigate();
   let content: { username: string; user: number; avatar: string };
   if (token !== undefined) content = decodeToken(token);
   else
@@ -128,6 +127,10 @@ const FriendList: React.FC<{}> = () => {
     if (content.user !== null) fetchFriendsDetails();
   }, [content.user, friends]);
 
+  const navigation = (user: string) => {
+    navigate(`/profile/${user}`);
+  };
+
   return (
     <div className="justify-center">
       <h2 className="text-2xl font-bold mb-4">Friends</h2>
@@ -135,7 +138,7 @@ const FriendList: React.FC<{}> = () => {
         {friendsinfo.map((friend) => (
           <li key={friend.username} className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <Link
+              <Link onClick={() => navigation(friend.username)}
                 to={`/profiles/${friend.username}`}
                 className="flex items-center space-x-2"
               >

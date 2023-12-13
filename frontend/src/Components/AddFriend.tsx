@@ -3,9 +3,6 @@ import Cookies from "js-cookie";
 import decodeToken from "../helpers/helpers";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
-import { gsocket } from "../context/websocket.context"; 
-import { useEffect } from "react";
 
 type UserProps = {
   userID: number | undefined;

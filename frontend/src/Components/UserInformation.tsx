@@ -30,7 +30,6 @@ import { useDispatch } from 'react-redux';
 import { User } from '../chat/idChatUser';
 import '../pages/Chat.css'
 import {Avatar} from '@chakra-ui/react'
-import { gsocket } from "../context/websocket.context"; 
 
 
 type CookieProps = {
@@ -87,6 +86,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 
 			useEffect(() =>{
 			updateUser();
+			navigate('/home');
 		}, [token]);
 
 		const handleAvatarChange =  async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -242,7 +242,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
             <Button onClick={() => updateUsername(newName)} colorScheme='blue' mr={3}>
               Modify
             </Button>
-            <Button onClick={onClose}>Save & Close</Button>
+            <Button onClick={onClose}>Close</Button>
           </ModalFooter>
 		</ModalContent>
 		</Modal>

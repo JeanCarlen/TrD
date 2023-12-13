@@ -20,7 +20,6 @@ import MyStatus from "../Components/Status";
 import GameInvite from "../Game/Game-Invite";
 import { useNavigate } from "react-router-dom";
 import MoveAction from "../moveAction";
-import { gsocket } from "../context/websocket.context"; 
 
 type Props = {
   username: string;
