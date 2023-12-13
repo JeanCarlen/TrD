@@ -19,7 +19,7 @@ const LayoutRanking: React.FC<props> = ({ token }: props) => {
   const [rankList, setRankList] = useState<ranking[]>([]);
 
   const fetchMatches = useCallback( async () => {
-    const response = await fetch("http://localhost:8080/api/matches/", {
+    const response = await fetch("http://10.12.2.5:8080/api/matches/", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

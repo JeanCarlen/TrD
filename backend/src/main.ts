@@ -24,7 +24,7 @@ async function bootstrap() {
   .addBearerAuth()
   .setTitle('Transcendence Backend')
   .setDescription('Transcendence backend API documentation')
-  .addServer('http://localhost:8080/api/', 'Local environment')
+  .addServer('http://10.12.2.5:8080/api/', 'Local environment')
   .addServer('https://trd.laendrun.ch/api/', 'Production environment')
   .setVersion('1.0')
   .addTag('transcendence')

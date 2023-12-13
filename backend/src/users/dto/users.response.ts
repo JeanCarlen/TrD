@@ -10,7 +10,7 @@ export class UsersResponse {
 	@ApiProperty({example: 'saeby', description: 'The login42 of the user.'})
 	login42: string;
 
-	@ApiProperty({example: 'http://localhost:8080/images/default.png', description: 'The avatar of the user.'})
+	@ApiProperty({example: 'http://10.12.2.5:8080/images/default.png', description: 'The avatar of the user.'})
 	avatar: string;
 
 	@ApiProperty({example: 1, description: 'The status of the user. (0=> off, 1=> on, 2=> ingame)'})

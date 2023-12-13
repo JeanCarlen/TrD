@@ -22,7 +22,9 @@ const RegisterButton: React.FC = () => {
   const [tokenContent, setTokenContent] = useState<JWTPayload>();
   const showPassword = false;
 
-  const url = `https://api.intra.42.fr/oauth/authorize?client_id=${process.env.REACT_APP_API42_CLIENT_ID}&redirect_uri=https%3A%2F%2Ftrd.laendrun.ch%2Fapi%2Fauth%2Fcallback&response_type=code`
+  const callbackUrl: string = encodeURIComponent(process.env.REACT_APP_API42_REDIRECT_URI || '')
+  const clientId: string = process.env.REACT_APP_API42_CLIENT_ID || ''
+  const url = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${callbackUrl}&response_type=code`
 
   useEffect(() => {
     const token: string | undefined = Cookies.get("token");
@@ -44,7 +46,7 @@ const RegisterButton: React.FC = () => {
       });
       return;
     }
-    const response = await fetch("http://localhost:8080/api/auth/login", {
+    const response = await fetch("http://10.12.2.5:8080/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -85,7 +87,7 @@ const RegisterButton: React.FC = () => {
       });
       return;
     }
-    const response = await fetch("http://localhost:8080/api/auth/register", {
+    const response = await fetch("http://10.12.2.5:8080/api/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

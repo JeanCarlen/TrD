@@ -61,7 +61,7 @@ const Chat: React.FC = () => {
 		else
 			content = { username: 'default', user: 0, avatar: 'default'};
 
-		const response = await fetch(`http://localhost:8080/api/users/${content.user}/chats`, {
+		const response = await fetch(`http://10.12.2.5:8080/api/users/${content.user}/chats`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ const Chat: React.FC = () => {
 	const getMessages = async(chat: chatData | undefined) => {
 		if(chat === undefined)
 			return;
-		const response = await fetch(`http://localhost:8080/api/chats/${chat.chat_id}/messages`, {
+		const response = await fetch(`http://10.12.2.5:8080/api/chats/${chat.chat_id}/messages`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',

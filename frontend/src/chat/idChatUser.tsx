@@ -52,7 +52,7 @@ export  const handleBlockUser = async (user: User|undefined, token: string|undef
 	if (user === undefined)
 		return ;
 	console.log(`Blocking user: ${user.username}`);
-	const response = await fetch(`http://localhost:8080/api/users/block/${user.id}`, {
+	const response = await fetch(`http://10.12.2.5:8080/api/users/block/${user.id}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 	}
 	else
 		return;
-	const response = await fetch(`http://localhost:8080/api/chats/${chat.chat_id}/users/${way}`, {
+	const response = await fetch(`http://10.12.2.5:8080/api/chats/${chat.chat_id}/users/${way}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -149,7 +149,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
     console.log("new password:", newPassword);
     if (chatData === undefined) return;
     const response = await fetch(
-      `http://localhost:8080/api/chats/${chatData.chat_id}`,
+      `http://10.12.2.5:8080/api/chats/${chatData.chat_id}`,
       {
         method: "PATCH",
         headers: {
@@ -179,7 +179,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
 
   async function unbanUsers() {
     const response = await fetch(
-      `http://localhost:8080/api/chats/${chatData?.chat_id}/users/banned`,
+      `http://10.12.2.5:8080/api/chats/${chatData?.chat_id}/users/banned`,
       {
         method: "GET",
         headers: {
@@ -198,7 +198,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
 
   async function doDeleteChannel() {
     const response = await fetch(
-      `http://localhost:8080/api/chats/${chatData?.chat_id}`,
+      `http://10.12.2.5:8080/api/chats/${chatData?.chat_id}`,
       {
         method: "DELETE",
         headers: {
@@ -223,7 +223,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
       return;
     }
     const response = await fetch(
-      `http://localhost:8080/api/chats/${chatData.chat_id}/users`,
+      `http://10.12.2.5:8080/api/chats/${chatData.chat_id}/users`,
       {
         method: "GET",
         headers: {

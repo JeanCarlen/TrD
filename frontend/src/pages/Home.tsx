@@ -47,12 +47,12 @@ const Home = (props: Props) => {
     content = {
       username: "default",
       user: 0,
-      avatar: "http://localhost:8080/images/default.png",
+      avatar: "http://10.12.2.5:8080/images/default.png",
     };
 
   const fetchMatches = useCallback(async () => {
     const response = await fetch(
-      `http://localhost:8080/api/matches/users/${content.user}`,
+      `http://10.12.2.5:8080/api/matches/users/${content.user}`,
       {
         method: "GET",
         headers: {
@@ -78,7 +78,7 @@ const Home = (props: Props) => {
 
   const fetchAchievments = useCallback(async () => {
     const response = await fetch(
-      `http://localhost:8080/api/users/id/achievments/${content.user}`,
+      `http://10.12.2.5:8080/api/users/id/achievments/${content.user}`,
       {
         method: "GET",
         headers: {
@@ -102,7 +102,7 @@ const Home = (props: Props) => {
 
   const updateUser = useCallback(async () => {
     const response = await fetch(
-      `http://localhost:8080/api/users/${content.user}`,
+      `http://10.12.2.5:8080/api/users/${content.user}`,
       {
         method: "GET",
         headers: {

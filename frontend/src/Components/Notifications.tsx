@@ -33,7 +33,7 @@ const NotificationIcon: React.FC = () => {
 	};
 
 	const updateFriends = useCallback(async () => {
-		const response = await fetch(`http://localhost:8080/api/friends/pending/list/${content.user}`, {
+		const response = await fetch(`http://10.12.2.5:8080/api/friends/pending/list/${content.user}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ const NotificationIcon: React.FC = () => {
 
 	const handleAcceptRequest = async(request: FriendData) => {
 		console.log(`Accepted friend request from ${request.requester_user.username}`);
-		const response = await fetch(`http://localhost:8080/api/friends/${request.id}`, {
+		const response = await fetch(`http://10.12.2.5:8080/api/friends/${request.id}`, {
 			method: 'PATCH',
 			headers: {
 				'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ const NotificationIcon: React.FC = () => {
 		// Implement logic to deny the friend request
 		console.log(`Denied friend request ${request.requester_user.username}`);
 		setShowFriendRequests(false);
-		const resp = await fetch(`http://localhost:8080/api/friends/reject/${request.id}`, {
+		const resp = await fetch(`http://10.12.2.5:8080/api/friends/reject/${request.id}`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',

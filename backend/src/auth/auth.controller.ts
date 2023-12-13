@@ -58,8 +58,8 @@ export class AuthController {
     const insertedUser = await this.authService.getToken(query.code);
     response.cookie('token', insertedUser.token);
     if (insertedUser.twofaenabled)
-      response.redirect('https://trd.laendrun.ch/authenticate');
-    response.redirect('https://trd.laendrun.ch/login');
+      response.redirect('http://10.12.2.5:8080/authenticate');
+    response.redirect('http://10.12.2.5:8080/login');
   }
 
   @Delete('2fa')

@@ -20,7 +20,7 @@ export async function TranslateChat(chat: chatData, user_id: number, token: stri
 		else if (n2 === user_id)
 			final_user = n1;
 
-		const response = await fetch(`http://localhost:8080/api/users/${final_user}`, {
+		const response = await fetch(`http://10.12.2.5:8080/api/users/${final_user}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',

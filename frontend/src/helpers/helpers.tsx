@@ -14,7 +14,7 @@ export function AutoGetFetch(path: string): any {
   const GetAchieve = async (fetchPath: string) => {
     const token = Cookies.get("token");
 
-    const response = await fetch(`http://localhost:8080/api/${fetchPath}`, {
+    const response = await fetch(`http://10.12.2.5:8080/api/${fetchPath}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

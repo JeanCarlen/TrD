@@ -13,7 +13,7 @@ export class FriendsResponse {
 	@ApiProperty({example: 0, description: 'The status of the friend (request).'})
 	status: number;
 
-	@ApiProperty({example: {username: 'laendrun', login42: 'saeby', avatar: 'http://localhost:8080/images/default.png', curr_status: 0}})
+	@ApiProperty({example: {username: 'laendrun', login42: 'saeby', avatar: 'http://10.12.2.5:8080/images/default.png', curr_status: 0}})
 	requester_user: {
 		username: string,
 		avatar: string,
@@ -21,7 +21,7 @@ export class FriendsResponse {
 		curr_status: number,
 	};
 
-	@ApiProperty({example: {username: 'laendrun', login42: 'saeby', avatar: 'http://localhost:8080/images/default.png', curr_status: 0}})
+	@ApiProperty({example: {username: 'laendrun', login42: 'saeby', avatar: 'http://10.12.2.5:8080/images/default.png', curr_status: 0}})
 	requested_user: {
 		username: string,
 		avatar: string,

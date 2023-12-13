@@ -162,7 +162,7 @@ const GameSocket: React.FC = () => {
     } else {
       data.current.player1.id = 0;
       data.current.player1.name = "default";
-      data.current.player1.avatar = "http://localhost:8080/images/default.png";
+      data.current.player1.avatar = "http://10.12.2.5:8080/images/default.png";
     }
     let intervalBonus = window.setInterval(() => {
       let rand = randomNumberInRange(1, 100);
@@ -793,7 +793,7 @@ const GameSocket: React.FC = () => {
 */
 
   const createMatch = async (user1ID: number, user2ID: number) => {
-    const response = await fetch("http://localhost:8080/api/matches", {
+    const response = await fetch("http://10.12.2.5:8080/api/matches", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -825,7 +825,7 @@ const GameSocket: React.FC = () => {
   ) => {
     if (data.current.spectator === 0) {
       const response = await fetch(
-        `http://localhost:8080/api/matches/${gameID}`,
+        `http://10.12.2.5:8080/api/matches/${gameID}`,
         {
           method: "PATCH",
           headers: {

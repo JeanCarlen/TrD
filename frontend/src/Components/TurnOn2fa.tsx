@@ -22,7 +22,7 @@ const TurnOn2fa: React.FC<{}> = () => {
   const activate = async (e: React.FormEvent) => {
     setActive(true);
     const response = await fetch(
-      "http://localhost:8080/api/auth/2fa/generate",
+      "http://10.12.2.5:8080/api/auth/2fa/generate",
       {
         method: "POST",
         headers: {
@@ -44,7 +44,7 @@ const TurnOn2fa: React.FC<{}> = () => {
       return;
     }
 
-    const response = await fetch("http://localhost:8080/api/auth/2fa/turn-on", {
+    const response = await fetch("http://10.12.2.5:8080/api/auth/2fa/turn-on", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

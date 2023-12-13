@@ -10,7 +10,7 @@ export class UserChatsResponse {
 	@ApiProperty({example: 1, description: 'The ID of the chat.'})
 	chat_id: number;
 
-	@ApiProperty({example: {username: 'laendrun', login42: 'saeby', avatar: 'http://localhost:8080/images/default.png'}})
+	@ApiProperty({example: {username: 'laendrun', login42: 'saeby', avatar: 'http://10.12.2.5:8080/images/default.png'}})
 	user: {
 		username: string,
 		avatar: string,

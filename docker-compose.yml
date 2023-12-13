@@ -15,9 +15,8 @@ services:
       - frontend_vol:/var/www/frontend/
       - certs:/etc/letsencrypt
     ports:
-      - "80:80"
+      - "8080:80"
       - "443:443"
-      - "3000:3000"
 
   frontend:
     build:

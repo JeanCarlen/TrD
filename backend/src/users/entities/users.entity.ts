@@ -28,7 +28,7 @@ export class Users extends BaseEntity {
   twofasecret: string;
 
   @Column({ type: 'varchar', length: 256, nullable: true })
-  @ApiProperty({example: 'http://localhost:8080/images/default.png', description: 'Path to the user\'s avatar.'})
+  @ApiProperty({example: 'http://10.12.2.5:8080/images/default.png', description: 'Path to the user\'s avatar.'})
   avatar: string;
 
   @Column({ type: 'boolean', nullable: true })

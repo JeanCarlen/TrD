@@ -17,7 +17,7 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
     if (token !== undefined) content = decodeToken(token);
     else content = { username: "default", user: 0 };
     const response = await fetch(
-      `http://localhost:8080/api/friends/add/id/${userID}`,
+      `http://10.12.2.5:8080/api/friends/add/id/${userID}`,
       {
         method: "POST",
         headers: {
@@ -48,7 +48,7 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
 
 //   const handleRemoveFriend = async (userID: number | undefined) => {
 //     const response = await fetch(
-//       `http://localhost:8080/api/friends/active/list/${userID}`,
+//       `http://10.12.2.5:8080/api/friends/active/list/${userID}`,
 //       {
 //         method: "GET",
 //         headers: {
@@ -62,7 +62,7 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
 //       console.log("friendlist", data);
 //     }
 
-    // const response1 = await fetch(`http://localhost:8080/api/friends/${}`, {
+    // const response1 = await fetch(`http://10.12.2.5:8080/api/friends/${}`, {
     // 	method: 'DELETE',
     // 	headers: {
     // 		'Content-Type': 'application/json',

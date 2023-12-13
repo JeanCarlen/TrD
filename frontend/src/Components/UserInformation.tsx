@@ -62,10 +62,10 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			content = decodeToken(token);
 		}
 		else
-			content = { username: 'default', user: 0, avatar: "http://localhost:8080/images/default.png",};
+			content = { username: 'default', user: 0, avatar: "http://10.12.2.5:8080/images/default.png",};
 
 	const updateUser = async () => {
-		const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
+		const response = await fetch(`http://10.12.2.5:8080/api/users/${content.user}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 				const reader = new FormData();
 				reader.append('file', file);
 			  console.log("FILE BEFORE FETCH ", reader.get('file'));
-			  const response = await fetch('http://localhost:8080/api/file', {
+			  const response = await fetch('http://10.12.2.5:8080/api/file', {
 				  method: 'POST',
 				  headers: {
 					'Authorization': 'Bearer ' + token,
@@ -116,7 +116,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			};
 
 		const updateUsername = async (newName:string) => {
-			const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
+			const response = await fetch(`http://10.12.2.5:8080/api/users/${content.user}`, {
 			method: 'PATCH',
 			headers: {
 				'Content-Type': 'application/json',
@@ -139,7 +139,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 
 	async function getBlockList()
 	{
-		const response = await fetch(`http://localhost:8080/api/users/${content?.user}/blocked`, {
+		const response = await fetch(`http://10.12.2.5:8080/api/users/${content?.user}/blocked`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -156,7 +156,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 	}
 
 	async function deleteAccount(){
-		const response = await fetch(`http://localhost:8080/api/users/${content.user}`, {
+		const response = await fetch(`http://10.12.2.5:8080/api/users/${content.user}`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',
@@ -174,7 +174,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 	}
 
 	async function unBlockUser(user: User){
-		const response = await fetch(`http://localhost:8080/api/users/unblock/${user.id}`, {
+		const response = await fetch(`http://10.12.2.5:8080/api/users/unblock/${user.id}`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',
