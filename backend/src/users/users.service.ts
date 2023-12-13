@@ -321,14 +321,10 @@ export class UsersService {
 
   public async updateStatus(user_id: number, newStatus){
     let user = await this.usersRepository.findOne({where: {id: user_id}});
-    if (!user) {
-      throw new NotFoundException(['User not found.'], {
-        cause: new Error(),
-        description: 'User not found.'
-      })
+    if (user) {
+		user.status = newStatus;
+		await this.usersRepository.save(user);
     }
-    user.status = newStatus;
-    await this.usersRepository.save(user);
   }
 
   public find42User(username: string) {
