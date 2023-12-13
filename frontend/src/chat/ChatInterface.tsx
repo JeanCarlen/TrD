@@ -63,7 +63,7 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
   }, []);
 
   useEffect(() => {
-    
+    console.log("messagesData: ", messagesData);
     setMessages(
       messagesData.map((message) => ({
         id: message.id,
@@ -94,7 +94,7 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
         date: string;
         room: string;
       }) => {
-        
+        console.log(`srv-message ${data}`);
         const latest: Message = {
           id: messages.length + 3,
           text: data.text,
@@ -115,7 +115,7 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
     );
 
     return () => {
-      
+      console.log("Unregistering events...");
       socket.off("connect");
       socket.off("srv-message");
     };
@@ -133,7 +133,7 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
       date: new Date().toLocaleTimeString(),
       room: currentRoom,
     });
-    
+    console.log("Message sent:", newMessage.text);
     setNewMessage({ id: 0, text: "", sender: "", sender_Name: "", date: "" });
   }
 

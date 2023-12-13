@@ -80,8 +80,8 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			}
 		});
 		const data = await response.json()
-		
-		
+		console.log("data should have status", data);
+		console.log("status", data.status);
 	}
 
 			useEffect(() =>{
@@ -96,7 +96,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			  if (file) {
 				const reader = new FormData();
 				reader.append('file', file);
-			  
+			  console.log("FILE BEFORE FETCH ", reader.get('file'));
 			  const response = await fetch('http://localhost:8080/api/file', {
 				  method: 'POST',
 				  headers: {
@@ -105,7 +105,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 				  body: reader,
 				})
 				const data = await response.json()
-				
+				console.log("data", data);
 				if (response.ok)
 				{
 					toast.success('Avatar changed successfully!', {
@@ -141,7 +141,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			  updateUser();
 			  dispatch(setUserName(newName));
 		}
-		
+		console.log(username);
 		Cookies.set('token', data.token);
 	}
 
@@ -157,7 +157,7 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 		if (response.ok)
 		{
 			let bList = await response.json();
-			
+			console.log('banned list: ', bList);
 			await setBlockedUsers(bList);
 			onOpen3();
 		}

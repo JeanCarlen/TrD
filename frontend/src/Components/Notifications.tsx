@@ -51,7 +51,7 @@ const NotificationIcon: React.FC = () => {
 		const data = await response.json();
 		setCounter(data.length);
 		setRequestList(data);
-		// 
+		// console.log("data", data)
 		if (data.length <= 0)
 		{
 			setShowFriendRequests(false);
@@ -60,7 +60,7 @@ const NotificationIcon: React.FC = () => {
 	});
 
 	const handleAcceptRequest = async(request: FriendData) => {
-		
+		console.log(`Accepted friend request from ${request.requester_user.username}`);
 		const response = await fetch(`http://localhost:8080/api/friends/${request.id}`, {
 			method: 'PATCH',
 			headers: {
@@ -70,7 +70,7 @@ const NotificationIcon: React.FC = () => {
 			body: JSON.stringify({status: 1})
 		});
 		const data = await response.json()
-		
+		console.log("accept", data)
 		if (!response.ok) {
 			toast.error(data.message, {
 				position: toast.POSITION.TOP_CENTER
@@ -97,7 +97,7 @@ const NotificationIcon: React.FC = () => {
 
 	  const handleDenyRequest = async(request: FriendData) => {
 		// Implement logic to deny the friend request
-		
+		console.log(`Denied friend request ${request.requester_user.username}`);
 		setShowFriendRequests(false);
 		const resp = await fetch(`http://localhost:8080/api/friends/reject/${request.id}`, {
 			method: 'DELETE',
@@ -107,11 +107,11 @@ const NotificationIcon: React.FC = () => {
 		}
 		});
 		const data2 = await resp.json()
-		
+		console.log("reject", data2);
 		if (resp.ok )
 			{
 				setCounter(data2.length);
-				
+				console.log(data2);
 	  		}
 			updateFriends();
 	  };

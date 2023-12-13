@@ -69,13 +69,13 @@ const Home = (props: Props) => {
         let data = await response.json();
         data.sort((a: gameData, b: gameData) => (a.id > b.id ? 1 : -1));
         setGameFetched(true);
-        
+        console.log("Data fetched", data);
         setDataLast(data.slice(-3).reverse());
       } catch (e) {
-        
+        console.log("Error in response", e);
       }
     } else {
-      
+      console.log("Error fetching matches");
     }
   });
 
@@ -96,10 +96,10 @@ const Home = (props: Props) => {
         setAchievmentFetched(true);
         setAchievments(data);
       } catch (e) {
-        
+        console.log("Error in response achievments", e);
       }
     } else {
-      
+      console.log("Error fetching achievments");
     }
   });
 
@@ -117,7 +117,7 @@ const Home = (props: Props) => {
     const data = await response.json();
     if (response.ok) {
       content.username = data.username;
-      
+      console.log(content.username);
     }
   });
 

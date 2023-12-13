@@ -329,7 +329,7 @@ export class UsersService {
     }
     user.status = newStatus;
     await this.usersRepository.save(user);
-    
+    console.log("user status updated", user.status);
   }
 
   public find42User(username: string) {
@@ -399,7 +399,7 @@ export class UsersService {
   }
 
   public async blockUser(blocked_id: number, blocker_id: number) {
-	
+	console.log("info:", blocked_id, blocker_id);
 	if (blocker_id == blocked_id) {
 		throw new BadRequestException(['You cannot block yourself.'], {
 			cause: new Error(),
@@ -417,7 +417,7 @@ export class UsersService {
 	if (fb)
 		await this.friendsService.delete(fid);
 	// const [cb, cid] = await this.userchatsService.areInOneToOneChat(blocker_id, blocked_id);
-	// 
+	// console.log("cb:", cb);
 	// if (cb)
 		// await this.userchatsService.remove(cid);
 
@@ -459,7 +459,7 @@ export class UsersService {
 	const userachievment: UserAchievments = await this.userachievmentsService.findOneByUserAndAchievment(user_id, achievment_id);
 	if (!userachievment) {
 		// create new userachievment
-		
+		console.log("creating new userachievment for user ", user_id, " and achievment ", achievment_id)
 		const newUserachievment: UserAchievments = new UserAchievments();
 		const achievment = await this.achievmentsService.findOne(achievment_id);
 		newUserachievment.user_id = user_id;
@@ -470,12 +470,12 @@ export class UsersService {
 		return response;
 	}
 	if (!userachievment.completed) {
-		
+		console.log("updating userachievment for user ", user_id, " and achievment ", achievment_id)
 		userachievment.current += value;
 		const response = await this.userachievmentsService.update(userachievment.id, userachievment);
 		return response;
 	}
-	
+	console.log("userachievment already completed for user ", user_id, " and achievment ", achievment_id)
 	return ;
   }
 

@@ -100,7 +100,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		{
 			if(joiner.socket.id !== client.id)
 			{
-				
+				console.log('force logout', joiner.socket.id);
 				await this.server.to(joiner.socket.id).emit('force-logout');
 			}
 			joiner.socket = client;
@@ -120,7 +120,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@Inject('UsersService')
     @SubscribeMessage('join-game')
     async onPongInitSetup(client: Socket, message: { roomName: string }) {
-        
+        console.log("into pong init setup, message is ", message);
         client.join(message.roomName);
         const room = await this.server.sockets.adapter.rooms.get(message.roomName);
 		let curr = await this.stock.find((one) => (one?.roomName === message.roomName));
@@ -132,7 +132,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		else
 			curr.player2 = client;
         if (room != undefined && curr != undefined && curr.player1 != undefined && curr.player2 != undefined) {
-            
+            console.log("into if, roomName is ", message.roomName);
 
 			await this.server.to(curr.player2.id).emit('pong-init-setup', 2);
             this.server.to(message.roomName).emit('game-start', message.roomName);
@@ -147,7 +147,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@SubscribeMessage('setGameId')
 	onSetGameId(client: Socket, message: {roomName: string, gameId: number})
 	{
-		
+		console.log('setting game id:', message);
 		let game = this.stock.find((one) => (one?.roomName === message.roomName));
 		if (game !== undefined && game.gameID === 0)
 			game.gameID = message.gameId;
@@ -155,7 +155,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 
 	@SubscribeMessage('updateAchievements')
 	async onUpdateAchievements(client: Socket, message: {player1_id: number, player2_id: number}) {
-		
+		console.log("into update achievements");
 		this.UsersService.updateUserAchievmentByType(message.player1_id, 'games_played', 1)
 		this.UsersService.updateUserAchievmentByType(message.player2_id, 'games_played', 1)
 	}
@@ -163,7 +163,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@SubscribeMessage('give-roomName')
 	async onGiveRoomName(client: Socket, data: {user_id: number})
 	{
-		
+		console.log("into give room name");
 		try
 		{
 			let friend = await this.UserList.find((one) => (one.user_id === data.user_id));
@@ -185,7 +185,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@SubscribeMessage('spectate')
 	async onSpectate(client: Socket, message: { roomName: string})
 	{
-		
+		console.log("into spectate", message);
 		client.join(message.roomName);
 		this.server.to(message.roomName).emit('spectate', message);
 	}
@@ -193,7 +193,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@SubscribeMessage('gameState')
 	async onGamestate(client: Socket, message: { data : any, roomName: string})
 	{
-		
+		console.log("into gamestate");
 		this.server.to(message.roomName).emit('gameState', message);
 	}
 
@@ -207,7 +207,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 
     @SubscribeMessage('waitList')
     async onWaitList(client: Socket, message: {user_id:number, bonus: number }) {
-        
+        console.log("into wait list");
 		try {
 			if (this.IsInGame(client))
 				return;
@@ -218,7 +218,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				if (userOtherList !== undefined)
 				{
 					this.IdWaitlist_bonus.splice(this.IdWaitlist_bonus.indexOf(userOtherList), 1);
-					
+					console.log('Removed from bonus_list:', userOtherList.user_id);
 				}
 				if (userInWaitList === undefined)
 				{
@@ -226,7 +226,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				}
 				else
 				{
-					
+					console.log('Found:', userInWaitList.user_id)
 					if (userInWaitList.socket.id !== client.id)
 						userInWaitList.socket = client;
 					else
@@ -247,7 +247,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				if (userOtherList !== undefined)
 				{
 					this.IdWaitlist.splice(this.IdWaitlist.indexOf(userOtherList), 1);
-					
+					console.log('Removed from normal_list:', userOtherList.user_id);
 				}
 				if (userInWaitList === undefined)
 				{
@@ -255,7 +255,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				}
 				else
 				{
-					
+					console.log('Found:', userInWaitList.user_id)
 					if (userInWaitList.socket.id !== client.id)
 						userInWaitList.socket = client;
 					else
@@ -270,8 +270,8 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				}
 			}
 		} catch (error) {
-			
-			this.IdWaitlist.map((client) => {
+			console.log('Error joining wait list:', error.message);
+			this.IdWaitlist.map((client) => {console.log(client.user_id)});
 			this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
 		}
     }
@@ -281,14 +281,14 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	{
 		let byeRoom = await this.stock.find((one)=>(one?.roomName === message.roomName));
 		await this.stock.splice(this.stock.indexOf(byeRoom), 1);
-		
+		console.log('stock:', this.stock.map((one) => (one.roomName)));
 		this.UsersService.updateStatus(message.user_id , 1);
 	}
 
 
     @SubscribeMessage('delete-channel')
     async onDeleteChannel(client: Socket, data: { chat_id: number, roomName: string }) {
-        
+        console.log("into delete channel ->", data.roomName);
 		await this.server.to(data.roomName).emit('smb-movede', data);
 		this.server.to(data.roomName).emit('refresh-id');
     }
@@ -296,7 +296,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@SubscribeMessage('ready')
 	async onReady(@MessageBody() data: {roomName:string, sbx: number, sby: number})
 	{
-		
+		console.log('ready for room:', data.roomName);
 		data.sbx = this.randomNumberInRange(-6, 6);
 		data.sby = this.randomNumberInRange(-6, 6);
 		this.server.to(data.roomName).emit('ready', data);
@@ -304,7 +304,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 
     @SubscribeMessage('exchange-info')
     onExchangeInfo(client: Socket, data: { myId : number, myName : string, myAvatar : string, roomName: string, playerNumber: number}) {
-        
+        console.log("into exchange info ->", data);
         this.server.to(data.roomName).emit('exchange-info', data);
     }
 
@@ -312,7 +312,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@Inject('UsersService')
     @SubscribeMessage('game-over')
     onGameOver(client: Socket, message: { roomName: string }) {
-        
+        console.log("into game over");
         this.server.to(message.roomName).emit('leave-game', message);
 		let user_info = this.UserList.find((one) => (one.socket.id === client.id));
 		this.UsersService.updateStatus(user_info.user_id , 1);
@@ -330,7 +330,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @SubscribeMessage('goal')
     onGoal(client: Socket, data: { score1: number, score2: number, roomName: string }) {
         if(data.score1 < this.maxScore && data.score2 < this.maxScore) {
-			
+			console.log('goal scored');
             this.server.to(data.roomName).emit('goal', {score1: data.score1, score2: data.score2});
         };
         if(data.score1 == this.maxScore || data.score2 == this.maxScore) {
@@ -345,14 +345,14 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @SubscribeMessage('bonus')
     onBonus(client: Socket, data: { roomName: string, playerNumber: number })
 	{
-        
+        console.log("into bonus :", data);
         this.server.to(data.roomName).emit('bonus-player', data);
     }
 
 	@SubscribeMessage('bonus-pos')
 	onBonusPos(client: Socket, data: {roomName:string, pos_x: number, pos_y: number, playerNumber: number, speed_y: number, speed_x: number})
 	{
-		
+		console.log('bonus recieved', data);
 		this.server.to(data.roomName).emit('bonus-send', data);
 	}
 
@@ -362,7 +362,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     async onCreateRoom(client: Socket, message: { roomName: string, client: string, Password: string | null }) {
 		try {
 			const roomList = await this.ChatsService.findAllFromSocket();
-			
+			console.log('create room:',roomList);
 			roomList.map((room) => {
 				if (room.name == message.roomName) {
 					throw new Error(`Room already exists`);
@@ -375,7 +375,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
                 owner: parseInt(message.client),
                 password: message.Password,
             });
-            
+            console.log('Room created:', message.roomName);
 			await this.onJoinRoom(client, { roomName: message.roomName, socketID: client.id, client: parseInt(message.client), password: message.Password });
             this.ChatadminsService.create({user_id: parseInt(message.client), chat_id: createdRoom.id});
         } catch (error) {
@@ -387,15 +387,15 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@SubscribeMessage('leave-chat')
 	@Inject('UserchatsService')
 	async onLeaveRoom(client: Socket, message:{ chat_id : number, roomName : string, user_id: number}): Promise<void> {
-		
+		console.log("into leave room", message);
 		//change it to leave-room
-		//
+		//console.log ("logging the service " , await this.UserchatsService.remove(message.id));
 		await this.ChatsService.leaveChat(message.chat_id, {user_id: message.user_id})
 		this.server.to(message.roomName).emit('smb-moved');
 		this.server.to(message.roomName).emit('refresh-chat');
 		client.leave(message.roomName);
 		this.server.to(client.id).emit('smb-movede');
-		
+		console.log( message.user_id , ` left room ${message.roomName}`);
 	}
 
     // Define the onJoinRoom method to handle joining a chat room
@@ -427,7 +427,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@Inject('UserchatsService')
 	async onAddUserchat(client: Socket, message:{roomName: string, requester: number, requested: number}){
 		try {
-			
+			console.log('add-userchat', message);
 			const chats = await this.ChatsService.findName(message.roomName);
 			if (chats !== null)
 				throw new Error('chat already exists');
@@ -443,12 +443,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				owner: message.requester,
 				password: null,
 			});
-			
+			console.log('Room created:', message.roomName);
 			await this.UserchatsService.create({user_id: message.requested, chat_id: createdRoom.id});
             this.ChatadminsService.create({user_id: message.requester, chat_id: createdRoom.id});
             this.ChatadminsService.create({user_id: message.requested, chat_id: createdRoom.id});
 		} catch (error) {
-			
+			console.log('ERROR IN add-userchat:', error.message);
 			this.server.to(client.id).emit('room-join-error', {error: error.message, reset: true});
 		}
 		
@@ -476,12 +476,12 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			const list = await this.UserchatsService.findByChatId(chats.id);
 			list.map((userchat) => {
                 if (userchat.user_id == message.client) {
-                    
+                    console.log(`User ${message.client} already in room ${message.roomName}.`);
                     throw new Error(`Already in room`);
                 }});
 			await this.UserchatsService.create({user_id: message.client, chat_id: chats.id});
             this.server.to(message.roomName).emit('smb-moved');
-            
+            console.log("sent smb joined");
         } catch (error) {
             console.error('Error joining room:', error.message);
             if (error.message !== 'Already in room') {
@@ -493,7 +493,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 
 	@SubscribeMessage('refresh')
 	onRefresh(client: Socket, message:{ roomName: string, type: string}): void {
-		
+		console.log("into refresh");
 		this.server.to(message.roomName).emit(`refresh-${message.type}`);
 	}
 
@@ -538,7 +538,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 	@Inject('UsersService')
 	@SubscribeMessage('user-left')
 	async onUserLeft(client: Socket, message:{roomName: string, playerNumber: number, gameID: number}): Promise<void> {
-		
+		console.log("into user left", message.playerNumber);
 		this.server.to(message.roomName).emit('forfeit', {player: message.playerNumber, max: this.maxScore, gameID: message.gameID});
 		let user_info = this.UserList.find((one) => (one.socket.id === client.id));
 		if (user_info !== undefined)
@@ -552,7 +552,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			let target = await this.UserList.find((one)=> (one.user_id == message.invited.id));
 			if (target == undefined)
 			{
-				
+				console.log('list: ', this.UserList, 'looking for', message.invited.id, 'not found');
 				throw new Error('User doesn\'t exist or is not online');
 			}
 			if (this.IsInGame(target.socket))
@@ -560,7 +560,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 			const blocked = await this.UsersService.blockAnyWayList(message.inviter.user);
 			await blocked.forEach((user)=>{
 				if (user.id == message.invited.id){
-					
+					console.log('found: ', user);
 					throw new Error('User is blocked or blocked you');
 				}
 			});
@@ -580,7 +580,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		let target = await this.stock.find((one)=> (one.roomName == message.roomName));
 		if (target == undefined)
 		{
-			
+			console.log('IN REPLY -> NOT FOUND');
 			this.server.to(client.id).emit('back_to_home', {error: 'The request expired', reset: true});
 			return;
 		}
@@ -597,7 +597,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @SubscribeMessage('create-something')
 	@Inject('UsersService')
     async onCreateSomething(client: Socket, data: {room: string, user_id: number, text: string, sender_Name: string}) {
-        // 
+        // console.log('Create something:', data);
         const chats = await this.ChatsService.findName(data.room);
 		if (await this.ChatsService.isUserInChat(chats.id, data.user_id) === true)
 		{
@@ -608,7 +608,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 				users.forEach((user)=>{
 					blocked.forEach((blocked_user)=>{
 						if (user.id == blocked_user.id){
-							
+							console.log('found: ', blocked_user);
 							(this.UserList.find((one)=>one.user_id == user.id))?.socket.join(`banRoom-${data.user_id}`);
 						}
 				});

@@ -57,7 +57,7 @@ const Chat: React.FC = () => {
 		{
 			content = decodeToken(token);
 			setContent(content);
-			
+			console.log("content: ", content.user);
 		}
 		else
 			content = { username: 'default', user: 0, avatar: 'default'};
@@ -82,10 +82,10 @@ const Chat: React.FC = () => {
 				return data as chatData[];
 			}
 			else
-				
+				console.log("error in the try");
 		}
 		catch (error) {
-			
+			console.log("error in the catch", error);
 		}
 	}
 
@@ -110,7 +110,7 @@ const Chat: React.FC = () => {
 			display_name: '',
 		};
 		setCurrentRoom(await TranslateChat(roomFake, content?.user, token));
-		
+		console.log("Joined room: ", room);
 	};
 
 	const handleJoinRoom = async (chat: chatData | undefined) => {
@@ -156,7 +156,7 @@ const Chat: React.FC = () => {
 			setMessages(messages);
 		}
 		else
-			
+			console.log("error in the getMessages");
 	}
 
 	const joinChatRooms = async (client: Socket) => {
@@ -177,13 +177,13 @@ const Chat: React.FC = () => {
 	
 	useEffect(() => {
 		joinChatRooms(gsocket);
-		
+		console.log("status", userStatus)
 	}, []);
 
 	useEffect(() => {
 
 		gsocket.on('room-join-error', (message:{error: string, reset: boolean}) => {
-			
+			console.log("error in joining room: ", message.error);
 			toast.error(message.error, {
 				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-error'});
@@ -196,12 +196,12 @@ const Chat: React.FC = () => {
 		});
 
 		gsocket.on('login-ok', (nor: string)=>{
-			
+			console.log('ok for:', nor);
 			getAndSet(nor);
 		})
 
 		gsocket.on("smb-movede", () => {
-			
+			console.log("refreshing chats");
 			getChats();
 			setCurrentRoom('');
 			setCurrentChat(undefined);
@@ -209,15 +209,15 @@ const Chat: React.FC = () => {
 			});
 
 		gsocket.on('refresh-chat', () => {
-			
+			console.log("refreshing chats");
 			getChats();
 		})
 
 		gsocket.on('kick', (dataBack:{roomToLeave:string, UserToKick: number}) => {
-			
+			console.log("kicked: ", dataBack.UserToKick, "content: ", content?.user);
 			if (dataBack.UserToKick !== content?.user)
 				return ;
-			
+			console.log("you have been kicked")
 			toast.error("You have been kicked", {
 				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-error'
@@ -260,7 +260,7 @@ const Chat: React.FC = () => {
 			getMessages(newR);
 		}
 		else
-			
+			console.log('EVERYTHING IS ON FIRE');
 	}
 
 	const handleJoinRoomClick = async (dataPass: chatData[]) => {
@@ -271,7 +271,7 @@ const Chat: React.FC = () => {
 			{
 				if(!fetched)
 				{
-					
+					console.log("not fetched");
 					return;
 				}
 				let newRoom: chatData | undefined = dataPass.find((chat: chatData) => chat.chat.name === roomNamePrompt);
