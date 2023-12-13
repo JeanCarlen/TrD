@@ -89,10 +89,27 @@ const Chat: React.FC = () => {
 		}
 	}
 
-	const handleRoomChange = (room: string, password: string | null) => {
+	const handleRoomChange = async (room: string, password: string | null) => {
 		gsocket.emit('join-room', { roomName: room, socketID: gsocket.id, client: content?.user, password: password });
 		//check if the password was right -- otherwise set room to default
-		setCurrentRoom(room);
+		const roomFake: chatData = {
+			id: 0,
+			chat_id : 0,
+			user_id: 0,
+			chat: {
+				name: room,
+				owner: 0,
+				type: 0,
+				protected: false,
+			},
+			user: {
+				username: '',
+				email: '',
+				avatar: ''
+			},
+			display_name: '',
+		};
+		setCurrentRoom(await TranslateChat(roomFake, content?.user, token));
 		console.log("Joined room: ", room);
 	};
 
@@ -172,7 +189,7 @@ const Chat: React.FC = () => {
 				className: 'toast-error'});
 		if (message.reset === true)
 		{
-			setCurrentRoom('default');
+			setCurrentRoom('');
 			setCurrentChat(undefined);
 			setMessages([]);
 		}
@@ -186,7 +203,7 @@ const Chat: React.FC = () => {
 		gsocket.on("smb-movede", () => {
 			console.log("refreshing chats");
 			getChats();
-			setCurrentRoom('default');
+			setCurrentRoom('');
 			setCurrentChat(undefined);
 			setMessages([]);
 			});
@@ -205,7 +222,7 @@ const Chat: React.FC = () => {
 				position: toast.POSITION.BOTTOM_LEFT,
 				className: 'toast-error'
 			});
-			setCurrentRoom('default');
+			setCurrentRoom('');
 			setCurrentChat(undefined);
 			setMessages([]);
 			getChats();
@@ -286,9 +303,6 @@ const Chat: React.FC = () => {
 				if (newFetch !== undefined)
 					newRoom = newFetch.find((chat: chatData) => chat.chat.name === roomNamePrompt);
 				delay(1000);
-				// getMessages(newRoom);
-				// if (newRoom !== undefined)
-				// 	setCurrentChat(newRoom);
 			}
 		}
 		};
@@ -306,8 +320,6 @@ const Chat: React.FC = () => {
 			Password: passWordPrompt,
 		});
 		}
-		if (roomNamePrompt)
-			setCurrentRoom(roomNamePrompt);
 		await delay(1000);
 		await getChats();
 	};

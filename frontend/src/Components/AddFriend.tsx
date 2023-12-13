@@ -16,7 +16,6 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
 
   const handleAddFriend = async (userID: number | undefined) => {
     const token = Cookies.get("token");
-    const navigate = useNavigate();
     let content: { username: string; user: number, avatar:string };
     if (token !== undefined) content = decodeToken(token);
     else 
@@ -57,34 +56,6 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
     }
   };
 
-//   const handleRemoveFriend = async (userID: number | undefined) => {
-//     const response = await fetch(
-//       `http://localhost:8080/api/friends/active/list/${userID}`,
-//       {
-//         method: "GET",
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: "Bearer " + token,
-//         },
-//       }
-//     );
-//     const data = await response.json();
-//     if (response.ok) {
-//       console.log("friendlist", data);
-//     }
-
-    // const response1 = await fetch(`http://localhost:8080/api/friends/${}`, {
-    // 	method: 'DELETE',
-    // 	headers: {
-    // 		'Content-Type': 'application/json',
-    // 		'Authorization': 'Bearer ' + token
-    // 	},
-    // 	body: JSON.stringify({requester: content.user, requested: userID, status: "pending"}),
-    // });
-    // const data1 = await response1.json()
-    // console.log("data1", data1);
-//   };
-
   return (
     <div>
 	<button
@@ -93,20 +64,6 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
 		>
     Add friend
 	</button>
-		{/* ADD FRIEND
-      <AddIcon
-        cursor="pointer"
-        boxSize={5}
-        onClick={() => handleAddFriend(userID)}
-      /> */}
-      {/* <DeleteIcon cursor='pointer' boxSize={5} onClick={() => handleRemoveFriend(userID)}/> */}
-      {/* <AddIcon boxSize={5} onClick={() => handleAddFriend()}/> */}
-      {/* {friends.map((friend) => (
-			<div key={friend.id}>
-			<h2>{friend.requested}</h2>
-			{/* <button onClick={() => handleAddFriend(friend.id)} /> */}
-      {/* </div>
-		))} } */}
     </div>
   );
 };

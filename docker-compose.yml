@@ -36,7 +36,7 @@ services:
     env_file:
       - ./backend/.env
     volumes:
-      - images_data:/app/uploads
+      - images_data:/uploads
     depends_on:
       - database
     networks:
@@ -67,15 +67,6 @@ networks:
 volumes:
   db_data:
     name: db_data
-    driver: local
-    driver_opts:
-      device: ./data/db
-      type: none
-      o: bind
   images_data:
     name: images_data
-    driver: local
-    driver_opts:
-      device: ./data/images
-      type: none
-      o: bind
+
