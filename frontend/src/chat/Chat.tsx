@@ -44,6 +44,7 @@ const Chat: React.FC = () => {
   const [data, setData] = useState<chatData[]>([]);
   const [fetched, setFetched] = useState<boolean>(false);
   const [currentRoom, setCurrentRoom] = useState<string>("default");
+  const [displayRoom, setDisplayRoom] = useState<string>("");
   const [messages, setMessages] = useState<sentMessages[]>([]);
   const [currentChat, setCurrentChat] = useState<chatData>();
 
@@ -109,7 +110,8 @@ const Chat: React.FC = () => {
       },
       display_name: "",
     };
-    setCurrentRoom(await TranslateChat(roomFake, content?.user, token));
+    setCurrentRoom(room);
+	setDisplayRoom(await TranslateChat(roomFake, content?.user, token))
   };
 
   const handleJoinRoom = async (chat: chatData | undefined) => {
@@ -179,6 +181,7 @@ const Chat: React.FC = () => {
         });
         if (message.reset === true) {
           setCurrentRoom("");
+		  setDisplayRoom("")
           setCurrentChat(undefined);
           setMessages([]);
         }
@@ -192,6 +195,7 @@ const Chat: React.FC = () => {
     gsocket.on("smb-movede", () => {
       getChats();
       setCurrentRoom("");
+	  setDisplayRoom("")
       setCurrentChat(undefined);
       setMessages([]);
     });
@@ -209,6 +213,7 @@ const Chat: React.FC = () => {
           className: "toast-error",
         });
         setCurrentRoom("");
+		setDisplayRoom("")
         setCurrentChat(undefined);
         setMessages([]);
         getChats();
@@ -325,7 +330,7 @@ const Chat: React.FC = () => {
             Join Room
           </button>
           <div className="chatList">
-            <p>currentRoom: {currentRoom}</p>
+            <p>currentRoom: {displayRoom}</p>
             {fetched ? (
               <div
                 className="history-1"

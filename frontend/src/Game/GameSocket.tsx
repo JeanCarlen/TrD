@@ -142,9 +142,12 @@ const GameSocket: React.FC = () => {
   }, [canvas]);
 
   useEffect(() => {
+	console.log("Before should run")
     // once at the start of the component
-    if (shouldRun)
-      intervalId.current = window.setInterval(updateGame, 1000 / 30, data);
+    if (shouldRun) {
+		console.log("Inside should run")
+		intervalId.current = window.setInterval(updateGame, 1000 / 30, data);
+	}
     window.addEventListener("keydown", (e: KeyboardEvent) => handleKeyPress(e));
     cowLogoImage.src = cowLogo;
     supervanImage.src = supervan;
@@ -580,8 +583,8 @@ const GameSocket: React.FC = () => {
         ) {
           if (data.current.ball.speed_y > 0) {
             data.current.ball.pos_y = data.current.ball.pos_y - 10;
-          } else data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
-          data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
+          } else data.current.ball.speed_y = -data.current.ball.speed_y * 1.25;
+          data.current.ball.speed_x = data.current.ball.speed_x * 1.25;
         }
         if (
           newBallY > canvas.height - 20 &&
@@ -591,8 +594,8 @@ const GameSocket: React.FC = () => {
         ) {
           if (data.current.ball.speed_y < 0) {
             data.current.ball.pos_y = data.current.ball.pos_y + 10;
-          } else data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
-          data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
+          } else data.current.ball.speed_y = -data.current.ball.speed_y * 1.25;
+          data.current.ball.speed_x = data.current.ball.speed_x * 1.25;
         }
         if (
           newBonusY < 20 &&

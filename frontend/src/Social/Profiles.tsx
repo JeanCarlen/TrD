@@ -56,7 +56,7 @@ const Profiles = (props: Props) => {
   useEffect(() => {
     fetchAchievements();
     GetUserinfo();
-  }, []);
+  }, [users]);
 
   const fetchAchievements = async () => {
     const response = await fetch(
@@ -100,7 +100,7 @@ const Profiles = (props: Props) => {
           position: toast.POSITION.BOTTOM_LEFT,
           className: "toast-error",
         });
-        navigate("/home");
+        navigate("/Home");
         return;
       } else {
         setAvatarUrl(data[0].avatar);

@@ -366,7 +366,8 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 		this.server.to(message.roomName).emit('smb-moved');
 		this.server.to(message.roomName).emit('refresh-chat');
 		client.leave(message.roomName);
-		this.server.to(client.id).emit('smb-movede');
+		// this.server.to(client.id).emit('smb-movede');
+		this.server.to(client.id).emit('smb-movede', {roomName: message?.roomName, chat_id: message?.chat_id});
 	}
 
     // Define the onJoinRoom method to handle joining a chat room
@@ -558,7 +559,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
     @SubscribeMessage('create-something')
 	@Inject('UsersService')
     async onCreateSomething(client: Socket, data: {room: string, user_id: number, text: string, sender_Name: string}) {
-        const chats = await this.ChatsService.findName(data.room);
+		const chats = await this.ChatsService.findName(data.room);
 		if (await this.ChatsService.isUserInChat(chats.id, data.user_id) === true)
 		{
 			if (await this.ChatsService.isUserMuted(chats.id, data.user_id) === false)

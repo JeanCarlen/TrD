@@ -36,7 +36,7 @@ const FriendListProfile: React.FC = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        setFriends(data);
+        // setFriends(data);
         if (data.length === 0)
           return ;
       }
@@ -65,7 +65,7 @@ const FriendListProfile: React.FC = () => {
   }, [users]);
 
   const navigation = (user: string) => {
-    navigate(`/profile/${user}`);
+    navigate(`/profiles/${user}`);
   };
 
   if (isSender === null) {

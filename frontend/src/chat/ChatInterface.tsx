@@ -127,6 +127,7 @@ const ChatInterface: React.FC<Props> = ({
     if (!newMessage.text.trim() || !socket.connected) {
       return;
     }
+	console.log("currentRoom:",currentRoom)
     socket.emit("create-something", {
       text: newMessage.text,
       sender: socket.id,

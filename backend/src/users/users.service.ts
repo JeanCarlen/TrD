@@ -348,7 +348,7 @@ export class UsersService {
 
     const user = await this.usersRepository.findOne({
       where: { id: id },
-      select: ['id', 'username', 'login42', 'avatar', 'twofaenabled'],
+      select: ['id', 'username', 'login42', 'avatar', 'twofaenabled', 'is42'],
     });
 	if (!user) {
 		throw new NotFoundException(['User not found.'], {
@@ -357,7 +357,7 @@ export class UsersService {
 		})
 	}
 
-	if (!user.avatar.includes('default')) {
+	if (!user.avatar.includes('default') && !user.is42) {
 	  const image = user.avatar.replace(process.env.REACT_APP_HOST + 'images/', '');
 	  fs.unlinkSync('/app/uploads/' + image);
 	}
