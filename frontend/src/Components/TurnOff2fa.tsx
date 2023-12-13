@@ -24,7 +24,7 @@ const TurnOff2fa: React.FC<{}> = () => {
       body: JSON.stringify({ code: code }),
     });
     const data = await response.json();
-    console.log(data);
+    
     Cookies.set("token", data.token);
     toast.success(data.message[0], {
       position: toast.POSITION.BOTTOM_LEFT,

@@ -76,10 +76,10 @@ const Profiles = (props: Props) => {
         setAchievmentFetched(true);
         setAchievments(data);
       } catch (e) {
-        console.log("Error in response achievments", e);
+        
       }
     } else {
-      console.log("Error fetching achievments");
+      
     }
   });
 
@@ -95,7 +95,7 @@ const Profiles = (props: Props) => {
       }
     );
     const data = await response.json();
-    console.log(response);
+    
     if (response.ok) {
       if (data.length === 0) {
         toast.error("User does not exist", {
@@ -107,17 +107,17 @@ const Profiles = (props: Props) => {
       } else {
         setAvatarUrl(data[0].avatar);
         await setFriendID(data[0].id);
-        console.log("friendid", data[0].id);
+        
         setFriend(data[0]);
         await fetchMatches(data[0].id);
-        console.log("avatar", avatarUrl);
-        console.log("data in profiles:", data);
+        
+        
       }
     }
   };
 
   const fetchMatches = async (theID: number) => {
-    console.log("Fetching matches for user", theID);
+    
     const response = await fetch(
       `http://localhost:8080/api/matches/users/${theID}`,
       {
@@ -133,13 +133,13 @@ const Profiles = (props: Props) => {
         let data = await response.json();
         data.sort((a: gameData, b: gameData) => (a.id > b.id ? 1 : -1));
         setGameFetched(true);
-        console.log("Data fetched", data);
+        
         setDataMatches(data.slice(-3).reverse());
       } catch (e) {
-        console.log("Error in response", e);
+        
       }
     } else {
-      console.log("Error fetching matches");
+      
     }
   };
 
@@ -150,18 +150,18 @@ const Profiles = (props: Props) => {
     try {
       if (content.user !== user.id) {
         gsocket.emit("give-roomName", { user_id: user.id });
-        console.log("spectate game :", user.id);
+        
         navigate("/game");
       }
     } catch (error) {
-      console.log(error);
+      
     }
   }
 
   const inviteToPong = async (user: User) => {
     if (token !== undefined) {
-      console.log("friendid", friendid);
-      console.log("userid", user.id);
+      
+      
       let content = await decodeToken(token);
       if (friendid === content?.user) {
         toast.error("You cannot invite yourself to play", {
@@ -173,7 +173,7 @@ const Profiles = (props: Props) => {
       gsocket.emit("invite", { inviter: content, invited: user });
       navigate("/game");
     }
-	console.log('ERROR in invite:', token);
+	
   };
 
   return (

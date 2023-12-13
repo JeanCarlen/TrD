@@ -139,14 +139,14 @@ const GameSocket: React.FC = () => {
   useEffect(() => {
     const canvas = canvasRef.current!;
     if (!canvas) {
-      console.log("canvas is null");
+      
       setShouldRun(false);
     }
   }, [canvas]);
 
   useEffect(() => {
     // once at the start of the component
-    console.log("in the use effect");
+    
     if (shouldRun)
       intervalId.current = window.setInterval(updateGame, 1000 / 30, data);
     window.addEventListener("keydown", (e: KeyboardEvent) => handleKeyPress(e));
@@ -155,7 +155,7 @@ const GameSocket: React.FC = () => {
     collectableImage.src = collectable;
     if (token !== undefined) {
       let content = decodeToken(token);
-      console.log("registering token", content);
+      
       data.current.player1.id = content?.user;
       data.current.player1.name = content?.username;
       data.current.player1.avatar = content?.avatar;
@@ -172,7 +172,7 @@ const GameSocket: React.FC = () => {
         data.current.bonusActive === false
       ) {
         if (rand >= 50) {
-          console.log("bonus appear");
+          
           gsocket.emit("bonus-pos", {
             roomName: data.current.NameOfRoom,
             pos_x: randomNumberInRange(50, 100),
@@ -200,26 +200,26 @@ const GameSocket: React.FC = () => {
 
   useEffect(() => {
     gsocket.on("connect", () => {
-      console.log(gsocket.id);
-      console.log("Connected");
+      
+      
       dispatch(setUserStatus(1));
-      console.log("status", userStatus);
+      
     });
 
     gsocket.on("game-start", (dataBack: string) => {
-      console.log("sending info", dataBack);
+      
       data.current.NameOfRoom = dataBack;
       SendInfo(dataBack);
       dispatch(setUserStatus(2));
     });
 
     gsocket.on("pong-init-setup", (playerNumber: number) => {
-      console.log("recieved player number: " + playerNumber);
+      
       data.current.player1.pNumber = playerNumber;
     });
 
     gsocket.on("goal", async (dataBack: { score1: number; score2: number }) => {
-      console.log(`goal --> new score ${dataBack.score1} - ${dataBack.score2}`);
+      
       data.current.score1 = dataBack.score1;
       data.current.score2 = dataBack.score2;
       setScore1(data.current.score1);
@@ -249,14 +249,14 @@ const GameSocket: React.FC = () => {
         let intervalPause = setInterval(() => {
           if (data.current.paused > 0) {
             data.current.paused -= 1;
-            console.log("paused: ", data.current.paused);
+            
           }
         }, 1000);
         if (data.current.paused === 0) {
           clearInterval(intervalPause);
         }
         if (data.current.player1.pNumber === 1 && data.current.paused === 0) {
-          console.log("gameState sent");
+          
           gsocket.emit("gameState", {
             data: data.current,
             roomName: data.current.NameOfRoom,
@@ -266,7 +266,7 @@ const GameSocket: React.FC = () => {
     });
 
     gsocket.on("leave-game", (roomName: string) => {
-      console.log(gsocket.id, " left : ", roomName);
+      
       dispatch(setUserStatus(1));
     });
 
@@ -290,7 +290,7 @@ const GameSocket: React.FC = () => {
         speed_y: number;
         speed_x: number;
       }) => {
-        console.log("bonus recieved");
+        
         data.current.bonusActive = true;
         if (dataBack.playerNumber === data.current.player1.pNumber) {
           data.current.bonus.pos_x = dataBack.pos_x;
@@ -308,7 +308,7 @@ const GameSocket: React.FC = () => {
     );
 
     gsocket.on("bonus-player", (dataBack: { playerNumber: number }) => {
-      console.log("bonus player = ", dataBack.playerNumber);
+      
       if (dataBack.playerNumber === data.current.player1.pNumber) {
         data.current.ball.speed_y = -6;
         data.current.bonusActive = false;
@@ -325,7 +325,7 @@ const GameSocket: React.FC = () => {
         data.current.player1.pNumber === 1 &&
         data.current.spectator === 0
       ) {
-        console.log("spectator joined");
+        
         gsocket.emit("gameState", {
           data: data.current,
           roomName: data.current.NameOfRoom,
@@ -336,14 +336,14 @@ const GameSocket: React.FC = () => {
     gsocket.on(
       "gameState",
       (dataBack: { data: GameData; roomName: string }) => {
-        console.log("gameState received");
+        
         if (data.current.spectator === 1) {
           data.current = dataBack.data;
           data.current.started = true;
           data.current.spectator = 1;
           setPlayer1(data.current.player1.name);
           setPlayer2(data.current.player2.name);
-          console.log("gameState updated ", data.current);
+          
         }
       }
     );
@@ -357,7 +357,7 @@ const GameSocket: React.FC = () => {
         roomName: string;
         playerNumber: number;
       }) => {
-        console.log("EXCHANGE: ", dataBack.myName);
+        
         if (
           data.current.player2.id === 0 &&
           data.current.player1.id !== dataBack.myId
@@ -400,7 +400,7 @@ const GameSocket: React.FC = () => {
     gsocket.on(
       "forfeit",
       async (dataBack: { player: number; max: number; gameID: number }) => {
-        console.log("user ", dataBack.player, "forfeited");
+        
         if (data.current.spectator === 0) {
           if (dataBack.player !== data.current.player1.pNumber) {
             if (dataBack.gameID !== 0) data.current.gameID = dataBack.gameID;
@@ -428,7 +428,7 @@ const GameSocket: React.FC = () => {
               });
               bodyNavigate("/Home");
             } catch (e) {
-              console.log("error sending home", e);
+              
             }
           } else {
             data.current.started = false;
@@ -439,7 +439,7 @@ const GameSocket: React.FC = () => {
               clearInterval(intervalId.current);
               bodyNavigate("/Home");
             } catch (e) {
-              console.log("error sending home", e);
+              
             }
           }
         }
@@ -447,7 +447,7 @@ const GameSocket: React.FC = () => {
     );
 
     gsocket.on("back_to_home", (message: { error: string; reset: boolean }) => {
-      console.log("back-to-home: ", message.error);
+      
       toast.error(message.error, {
         position: toast.POSITION.BOTTOM_LEFT,
         className: "toast-error",
@@ -459,7 +459,7 @@ const GameSocket: React.FC = () => {
       "game-over",
       async (dataBack: { score1: number; score2: number }) => {
         data.current.paused = 5;
-        console.log("game over");
+        
         let Fball: Ball = {
           pos_y: 40,
           pos_x: 300,
@@ -479,9 +479,9 @@ const GameSocket: React.FC = () => {
         await delay(4500);
         try {
           bodyNavigate("/Home");
-          console.log("cleared: ", clearInterval(intervalId.current));
+          
         } catch (e) {
-          console.log("error sending home", e);
+          
         }
         data.current.started = false;
         data.current.converted = false;
@@ -492,7 +492,7 @@ const GameSocket: React.FC = () => {
     );
 
     gsocket.on("give-roomName", (dataBack: { roomName: string }) => {
-      console.log("give-roomName: ", dataBack.roomName);
+      
       data.current.spectator = 1;
       gsocket.emit("spectate", { roomName: dataBack.roomName });
     });
@@ -520,7 +520,7 @@ const GameSocket: React.FC = () => {
 
   useEffect(() => {
     gsocket.on("room-join-error", (back: { error: string }) => {
-      console.log("error in joining room: ", back.error);
+      
       toast.error(back.error, {
         position: toast.POSITION.BOTTOM_LEFT,
         className: "toast-error",
@@ -550,10 +550,10 @@ const GameSocket: React.FC = () => {
 
   useEffect(() => {
     if (isVisible) {
-      console.log("User came back to the page");
+      
       //   gsocket.emit('user-left', {way: 0,roomName: data.current.NameOfRoom, playerNumber: data.current.player1.pNumber, time: Date.now()});
     } else {
-      console.log("User left the page");
+      
       gsocket.emit("user-left", {
         roomName: data.current.NameOfRoom,
         playerNumber: data.current.player1.pNumber,
@@ -565,12 +565,12 @@ const GameSocket: React.FC = () => {
   const updateGame = async () => {
     try {
       if (!data.current.started) {
-        console.log("game not started");
+        
         return;
       }
       const canvas = canvasRef.current!;
       if (!canvas) {
-        console.log("canvas is null");
+        
         return;
       }
       let ctx = null;
@@ -611,7 +611,7 @@ const GameSocket: React.FC = () => {
         ) {
           if (data.current.ball.speed_y > 0) {
             data.current.ball.pos_y = data.current.ball.pos_y - 10;
-            console.log("reset ball");
+            
           } else data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
           data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
         }
@@ -623,7 +623,7 @@ const GameSocket: React.FC = () => {
         ) {
           if (data.current.ball.speed_y < 0) {
             data.current.ball.pos_y = data.current.ball.pos_y + 10;
-            console.log("reset ball");
+            
           } else data.current.ball.speed_y = -data.current.ball.speed_y * 1.05;
           data.current.ball.speed_x = data.current.ball.speed_x * 1.05;
         }
@@ -633,8 +633,8 @@ const GameSocket: React.FC = () => {
           newBonusX <= data.current.player2.pos_x + paddleSize
         ) {
           if ((data.current.bonusActive = true)) {
-            console.log("bonus collected p2");
-            console.log("pnunber player2: ", data.current.player2.pNumber);
+            
+            
             data.current.bonusActive = false;
             data.current.bonus.pos_x = 100;
             data.current.bonus.pos_y = 100;
@@ -647,8 +647,8 @@ const GameSocket: React.FC = () => {
           newBonusX <= data.current.player1.pos_x + paddleSize
         ) {
           if ((data.current.bonusActive = true)) {
-            console.log("bonus collected");
-            console.log("pnunber: ", data.current.player1.pNumber);
+            
+            
             data.current.bonusActive = false;
             data.current.bonus.pos_x = 100;
             data.current.bonus.pos_y = 100;
@@ -662,7 +662,7 @@ const GameSocket: React.FC = () => {
         // check for goal on player 1 side - change into gsocket goal
         // add a paused effect
         if (newBallY > canvas.height && data.current.paused === 0) {
-          console.log("goal scored");
+          
           if (data.current.player1.pNumber === 1)
             gsocket.emit("goal", {
               score1: data.current.score1,
@@ -741,7 +741,7 @@ const GameSocket: React.FC = () => {
         ctx.fill();
       }
     } catch (error) {
-      console.log("error in updateGame: ", error);
+      
     }
   };
 
@@ -783,7 +783,7 @@ const GameSocket: React.FC = () => {
 
   const CreatePongRoom = () => {
     const roomNamePrompt = prompt("Enter a name for the new Game:");
-    console.log("creating room:", roomNamePrompt, content?.user);
+    
 
     gsocket.emit("create-room", {
       roomName: roomNamePrompt,
@@ -806,7 +806,7 @@ const GameSocket: React.FC = () => {
       const data = await response.json();
       return data;
     } else {
-      console.log("error creating match");
+      
     }
   };
 
@@ -840,7 +840,7 @@ const GameSocket: React.FC = () => {
         }
       );
       if (!response.ok) {
-        console.log("error posting score");
+        
       }
     }
   };
@@ -856,16 +856,16 @@ const GameSocket: React.FC = () => {
   const giveRoom = () => {
     if (token !== undefined) {
       content = decodeToken(token);
-      console.log(content);
+      
       gsocket.emit("give-roomName", { user_id: content.user });
-      console.log(content.user);
+      
     }
   };
 */
   const WaitingRoom = () => {
     if (token !== undefined) {
       content = decodeToken(token);
-      console.log(content);
+      
       gsocket.emit("waitList", { user_id: content.user, bonus: 0 });
       data.current.gameType = 0;
     }
@@ -874,7 +874,7 @@ const GameSocket: React.FC = () => {
   const WaitingRoom_bonus = () => {
     if (token !== undefined) {
       content = decodeToken(token);
-      console.log(content);
+      
       gsocket.emit("waitList", { user_id: content.user, bonus: 1 });
       data.current.gameType = 1;
     }

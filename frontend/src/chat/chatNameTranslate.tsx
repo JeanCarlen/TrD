@@ -34,7 +34,7 @@ export async function TranslateChat(chat: chatData, user_id: number, token: stri
 			}
 			else
 			{
-				console.log("Error fetching all matches", data);
+				
 				return ("Error");
 			}
 		
