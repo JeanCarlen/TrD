@@ -26,13 +26,7 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
         user: 0,
         avatar: "http://localhost:8080/images/default.png",
       }
-        gsocket.disconnect();
-        useEffect(()=>{
-        navigate("/login");
-        },[navigate])
-        return ;
     };
-    content = { username: "default", user: 0 };
     const response = await fetch(
       `http://localhost:8080/api/friends/add/id/${userID}`,
       {

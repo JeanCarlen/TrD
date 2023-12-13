@@ -15,7 +15,7 @@ COPY . .
 
 # Build the React app
 RUN npm install -g npm@9.8.1
-RUN npm run build
+# RUN npm run build
 
 EXPOSE 80
 

@@ -44,11 +44,6 @@ const Stats: React.FunctionComponent = () => {
       user: 0,
       avatar: "http://localhost:8080/images/default.png",
   }
-    gsocket.disconnect();
-    useEffect(()=>{
-    navigate("/login");
-    },[navigate])
-  return ;
     };
 
   const fetchMatches = useCallback(async () => {
