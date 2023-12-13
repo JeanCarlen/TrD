@@ -1,7 +1,10 @@
 import { createContext } from "react";
-import { io } from 'socket.io-client'
+import { io } from "socket.io-client";
 
-export const gsocket = io('http://localhost:3001', { path: '/api', autoConnect: false });
+export const gsocket = io("http://localhost:3001", {
+  path: "/api",
+  autoConnect: false,
+});
 
 export const WebsocketContext = createContext(gsocket);
 

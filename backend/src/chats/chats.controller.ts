@@ -184,7 +184,6 @@ export class ChatsController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   update(@Param('id') id: string, @Body() updateChatDto: UpdateChatDto) {
-	console.log('changing chat', updateChatDto);
     return this.chatsService.update(+id, updateChatDto);
   }
 

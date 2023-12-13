@@ -36,7 +36,6 @@ export interface FriendData {
 const FriendList: React.FC<{}> = () => {
   const token = Cookies.get("token");
   const navigate = useNavigate();
-  // const [isSender, setIsSender] = useState<boolean | null>(null);
   const [friends, setFriends] = useState<FriendData[]>([]);
   const [friendsinfo, setFriendsInfo] = useState<UserInfo[]>([]);
   let content: { username: string; user: number; avatar: string };
@@ -62,7 +61,6 @@ const FriendList: React.FC<{}> = () => {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("friendlist", data);
       setFriends(data);
     }
   };
@@ -122,7 +120,6 @@ const FriendList: React.FC<{}> = () => {
         })
       );
       setFriendsInfo(friendsData);
-      console.log("friendsData", friendsData);
     };
     if (content.user !== null) fetchFriendsDetails();
   }, [content.user, friends]);

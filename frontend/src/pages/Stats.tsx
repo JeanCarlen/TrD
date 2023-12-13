@@ -59,8 +59,6 @@ const Stats: React.FunctionComponent = () => {
       data.sort((a: gameData, b: gameData) => (a.id > b.id ? 1 : -1));
       setGameFetched(true);
       setAllData(data.reverse());
-    } else {
-      console.log("Error fetching matches");
     }
   });
 

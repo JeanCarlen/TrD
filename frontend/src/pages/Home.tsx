@@ -40,20 +40,17 @@ const Home = (props: Props) => {
   let content: { username: string; user: number; avatar: string };
   const navigate = useNavigate();
 
-  if (token !== undefined)
-  {
+  if (token !== undefined) {
     content = decodeToken(token);
-  }
-  else
-  {
+  } else {
     content = {
       username: "default",
       user: 0,
       avatar: "http://localhost:8080/images/default.png",
-    }
-  };
+    };
+  }
 
-  const fetchMatches = (async () => {
+  const fetchMatches = async () => {
     const response = await fetch(
       `http://localhost:8080/api/matches/users/${content.user}`,
       {
@@ -69,17 +66,14 @@ const Home = (props: Props) => {
         let data = await response.json();
         data.sort((a: gameData, b: gameData) => (a.id > b.id ? 1 : -1));
         setGameFetched(true);
-        console.log("Data fetched", data);
         setDataLast(data.slice(-3).reverse());
       } catch (e) {
-        console.log("Error in response", e);
+        console.log("error");
       }
-    } else {
-      console.log("Error fetching matches");
     }
-  });
+  };
 
-  const fetchAchievments = (async () => {
+  const fetchAchievments = async () => {
     const response = await fetch(
       `http://localhost:8080/api/users/id/achievments/${content.user}`,
       {
@@ -96,14 +90,12 @@ const Home = (props: Props) => {
         setAchievmentFetched(true);
         setAchievments(data);
       } catch (e) {
-        console.log("Error in response achievments", e);
+        console.log("error");
       }
-    } else {
-      console.log("Error fetching achievments");
     }
-  });
+  };
 
-  const updateUser = (async () => {
+  const updateUser = async () => {
     const response = await fetch(
       `http://localhost:8080/api/users/${content.user}`,
       {
@@ -117,9 +109,8 @@ const Home = (props: Props) => {
     const data = await response.json();
     if (response.ok) {
       content.username = data.username;
-      console.log(content.username);
     }
-  });
+  };
 
   useEffect(() => {
     fetchMatches();
@@ -204,7 +195,7 @@ const Home = (props: Props) => {
         </div>
       </ChakraProvider>
       <GameInvite />
-	  <MoveAction/>
+      <MoveAction />
     </div>
   );
 };

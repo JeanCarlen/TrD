@@ -1,4 +1,3 @@
-// AvatarUpload.tsx
 import React, { useState } from 'react';
 
 interface AvatarUploadProps {
@@ -6,8 +5,6 @@ interface AvatarUploadProps {
 }
 
 const AvatarUpload: React.FC<AvatarUploadProps> = ({ onAvatarChange }: AvatarUploadProps) => {
-//   const [avatar, setAvatar] = useState<string | null>(null);
-//   const [showAvatarUpload, setShowAvatarUpload] = useState(false);
 
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files && event.target.files[0];
@@ -16,8 +13,6 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({ onAvatarChange }: AvatarUpl
       const reader = new FileReader();
       reader.onload = (e) => {
         const dataUrl = e.target?.result as string;
-        // setAvatar(dataUrl);
-		// setShowAvatarUpload(false);
         onAvatarChange(dataUrl);
       };
       reader.readAsDataURL(file);

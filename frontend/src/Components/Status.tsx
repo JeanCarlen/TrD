@@ -1,6 +1,5 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-// import { setUserStatus } from '../Redux-helpers/action';
 
 interface RootState {
   userStatus: number;
