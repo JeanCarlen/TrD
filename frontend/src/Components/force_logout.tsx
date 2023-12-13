@@ -17,7 +17,7 @@ const ForceLogout: React.FC<{}> = () => {
       content = {
         username: "default",
         user: 0,
-        avatar: "http://localhost:8080/images/default.png",
+        avatar: `${process.env.REACT_APP_HOST}images/default.png`,
       };
     if (content.username === "default") navigate("/login");
   }, []);

@@ -22,7 +22,7 @@ const NotificationIcon: React.FC = () => {
     content = {
       username: "default",
       user: 0,
-      avatar: "http://localhost:8080/images/default.png",
+      avatar: `${process.env.REACT_APP_HOST}images/default.png`,
     };
   }
 
@@ -38,7 +38,7 @@ const NotificationIcon: React.FC = () => {
 
   const updateFriends = async () => {
     const response = await fetch(
-      `http://localhost:8080/api/friends/pending/list/${content.user}`,
+      `${process.env.REACT_APP_HOST}api/friends/pending/list/${content.user}`,
       {
         method: "GET",
         headers: {
@@ -58,7 +58,7 @@ const NotificationIcon: React.FC = () => {
 
   const handleAcceptRequest = async (request: FriendData) => {
     const response = await fetch(
-      `http://localhost:8080/api/friends/${request.id}`,
+      `${process.env.REACT_APP_HOST}api/friends/${request.id}`,
       {
         method: "PATCH",
         headers: {
@@ -96,7 +96,7 @@ const NotificationIcon: React.FC = () => {
     // Implement logic to deny the friend request
     setShowFriendRequests(false);
     const resp = await fetch(
-      `http://localhost:8080/api/friends/reject/${request.id}`,
+      `${process.env.REACT_APP_HOST}api/friends/reject/${request.id}`,
       {
         method: "DELETE",
         headers: {

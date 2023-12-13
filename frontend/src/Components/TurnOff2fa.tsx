@@ -15,7 +15,7 @@ const TurnOff2fa: React.FC<{}> = () => {
   }, []);
 
   const turnOff = async (e: React.FormEvent) => {
-    const response = await fetch("http://localhost:8080/api/auth/2fa", {
+    const response = await fetch(`${process.env.REACT_APP_HOST}api/auth/2fa`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

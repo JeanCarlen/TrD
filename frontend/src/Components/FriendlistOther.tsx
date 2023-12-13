@@ -25,7 +25,7 @@ const FriendListProfile: React.FC = () => {
   
   const GetUserinfo = async () => {
     const response = await fetch(
-      `http://localhost:8080/api/users/username/${users}`,
+      `${process.env.REACT_APP_HOST}api/users/username/${users}`,
       {
         method: "GET",
         headers: {
@@ -41,7 +41,7 @@ const FriendListProfile: React.FC = () => {
           return ;
       }
       const response1 = await fetch(
-        `http://localhost:8080/api/friends/active/list/${data[0].id}`,
+        `${process.env.REACT_APP_HOST}api/friends/active/list/${data[0].id}`,
         {
           method: "GET",
           headers: {

@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 services:
   nginx:
     build:
@@ -12,9 +12,11 @@ services:
           - nginx
     volumes:
       - images_data:/var/www/data/images/
+      - frontend_vol:/var/www/frontend/
+      - certs:/etc/letsencrypt
     ports:
       - "8080:80"
-#       - "443:443"
+      - "443:443"
 
   frontend:
     build:
@@ -26,8 +28,12 @@ services:
       tr:
         aliases:
           - frontend
-    ports:
-      - "8000:3000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - frontend_vol:/app/build
+    # ports:
+    #   - "8000:3000"
 
   backend:
     build:
@@ -69,4 +75,7 @@ volumes:
     name: db_data
   images_data:
     name: images_data
-
+  frontend_vol:
+    name: frontend_vol
+  certs:
+    name: certs

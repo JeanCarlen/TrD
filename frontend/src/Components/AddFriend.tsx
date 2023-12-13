@@ -19,11 +19,11 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
       content = {
         username: "default",
         user: 0,
-        avatar: "http://localhost:8080/images/default.png",
+        avatar: `${process.env.REACT_APP_HOST}images/default.png`,
       }
     };
     const response = await fetch(
-      `http://localhost:8080/api/friends/add/id/${userID}`,
+      `${process.env.REACT_APP_HOST}api/friends/add/id/${userID}`,
       {
         method: "POST",
         headers: {
