@@ -21,12 +21,10 @@ function Searchbar() {
 			},
 		});
 		const data = await response.json()
-		console.log(data);
 		if (response.ok && searchTerm)
 		{
 			if (!data[0])
 			{
-				console.log('error');
 				toast.error("User not found", {
 					position: toast.POSITION.BOTTOM_RIGHT,
 					className: 'toast-error'
@@ -34,12 +32,10 @@ function Searchbar() {
 			}
 			else if (searchTerm === data[0].username)
 			{
-				console.log(data);
 				navigate(`/profiles/${searchTerm}`); //add the right url with the username of the person found
 			}
 			else
 			{
-				console.log('error');
 				toast.error("User not found", {
 					position: toast.POSITION.BOTTOM_RIGHT,
 					className: 'toast-error'
@@ -48,7 +44,6 @@ function Searchbar() {
 		}
 		else
 		{
-			console.log('error');
 			for (let i = 0; i < data.message.length; i++)
 			{
 				toast.error(data.message[i], {
@@ -57,7 +52,6 @@ function Searchbar() {
 				})
 			}
 		}
-		console.log(`Searching for: ${searchTerm}`);
 	}
 
 	const handleInputChange = (value: string) => {

@@ -29,7 +29,11 @@ interface Props {
   chatSocket: Socket;
 }
 
-const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSocket }: Props) => {
+const ChatInterface: React.FC<Props> = ({
+  messagesData,
+  currentRoomProps,
+  chatSocket,
+}: Props) => {
   const [currentRoom, setCurrentRoom] = useState<string>(currentRoomProps);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<Message>({
@@ -38,6 +42,7 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
     sender: "",
     sender_Name: "",
     date: "",
+    user_id: 0,
   });
   const socket = chatSocket;
   const token: string | undefined = Cookies.get("token");
@@ -63,13 +68,12 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
   }, []);
 
   useEffect(() => {
-    console.log("messagesData: ", messagesData);
     setMessages(
       messagesData.map((message) => ({
         id: message.id,
         text: message.text,
         sender: message.user_id.toString(),
-		user_id: message.user_id,
+        user_id: message.user_id,
         sender_Name: message.user_name,
         date: message.date,
       }))
@@ -90,16 +94,15 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
         text: string;
         sender: string;
         sender_Name: string;
-		user_id: number;
+        user_id: number;
         date: string;
         room: string;
       }) => {
-        console.log(`srv-message ${data}`);
         const latest: Message = {
           id: messages.length + 3,
           text: data.text,
           sender: data.sender,
-		  user_id: data.user_id,
+          user_id: data.user_id,
           sender_Name: data.sender_Name,
           date: data.date,
         };
@@ -115,7 +118,6 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
     );
 
     return () => {
-      console.log("Unregistering events...");
       socket.off("connect");
       socket.off("srv-message");
     };
@@ -133,8 +135,14 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
       date: new Date().toLocaleTimeString(),
       room: currentRoom,
     });
-    console.log("Message sent:", newMessage.text);
-    setNewMessage({ id: 0, text: "", sender: "", sender_Name: "", date: "" });
+    setNewMessage({
+      id: 0,
+      text: "",
+      sender: "",
+      sender_Name: "",
+      date: "",
+      user_id: 0,
+    });
   }
 
   const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
@@ -186,6 +194,7 @@ const ChatInterface: React.FC<Props> = ({ messagesData, currentRoomProps, chatSo
                 sender: "",
                 sender_Name: username,
                 date: Date.now().toString(),
+                user_id: 0,
               });
             }}
           />

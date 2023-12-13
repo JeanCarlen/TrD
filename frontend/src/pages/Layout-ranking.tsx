@@ -28,9 +28,8 @@ const LayoutRanking: React.FC<props> = ({ token }: props) => {
     });
     let data = await response.json();
     if (response.ok) {
-      console.log("Successfully fetched all matches", data);
       return data;
-    } else console.log("Error fetching all matches", data);
+    }
   });
 
   const createUser = async (user_id: number, user_data: User) => {
@@ -61,9 +60,6 @@ const LayoutRanking: React.FC<props> = ({ token }: props) => {
             match.user_2_data
           );
         if (match.score_1 > match.score_2) {
-          console.log("ranklist: ", tempList);
-          console.log("user1: ", tempList[match.user_1], match.user_1);
-          console.log("user2: ", tempList[match.user_2], match.user_2);
           tempList[match.user_1].ranking += 2;
           tempList[match.user_2].ranking -= 1;
         } else if (match.score_1 < match.score_2) {
@@ -75,7 +71,6 @@ const LayoutRanking: React.FC<props> = ({ token }: props) => {
     await tempList.sort((a: ranking, b: ranking) =>
       a.ranking > b.ranking ? -1 : 1
     );
-    console.log("ranklist: ", tempList);
     setRankList(tempList);
     setRanked(true);
   });

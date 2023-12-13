@@ -1,34 +1,32 @@
-import React from 'react';
+import React from "react";
 
 interface statusProps {
   status: number | undefined;
 }
 
-const ShowStatus: React.FC<statusProps> = ({status}: statusProps) => {
+const ShowStatus: React.FC<statusProps> = ({ status }: statusProps) => {
   let color;
 
   switch (status) {
     case 2:
-      color = 'orange';
+      color = "orange";
       break;
     case 1:
-      color = 'green';
+      color = "green";
       break;
     case 0:
-      color = 'gray';
+      color = "gray";
       break;
     default:
-      color = 'black';
-    console.log("friends' status", status);
+      color = "black";
   }
-
 
   return (
     <div
       style={{
-        width: '15px',
-        height: '15px',
-        borderRadius: '50%',
+        width: "15px",
+        height: "15px",
+        borderRadius: "50%",
         backgroundColor: color,
       }}
     ></div>

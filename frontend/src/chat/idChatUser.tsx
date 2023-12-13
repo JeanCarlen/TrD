@@ -43,67 +43,85 @@ interface IdChatProps {
 }
 
 const handleAddUser = (user: User) => {
-	// Implement logic to add the user to your contact list or perform the desired action.
-	// This could involve making an API request to your server.
-	console.log(`Adding user: ${user.username}`);
-  };
-
-export  const handleBlockUser = async (user: User|undefined, token: string|undefined) => {
-	if (user === undefined)
-		return ;
-	console.log(`Blocking user: ${user.username}`);
-	const response = await fetch(`http://localhost:8080/api/users/block/${user.id}`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': 'Bearer ' + token
-			},
-			body: JSON.stringify({user_id: user.id})
-		});
-		if (response.ok)
-			toast.info(user.username + ' was successfully blocked', { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
-		else{
-			let errorDta = await response.json();
-			toast.error('Error: ' + errorDta.message, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
-		}
+  // Implement logic to add the user to your contact list or perform the desired action.
+  // This could involve making an API request to your server.
 };
 
-const adminUser = async (chat: chatData|undefined, user: User, token: string|undefined, mode: string) => {
-	let way: string = user.isAdmin === true ? 'unadmin' : 'admin';
-	if (mode === 'admin')
-		way = user.isAdmin === true ? 'unadmin' : 'admin';
-	else if (mode === 'mute')
-		way = user.isMuted === true ? 'unmute' : 'mute';
-	else
-		way = mode;
-	console.log(`setting user ${user.username} as ${way} `);
-	if (chat === undefined)
-		return;
-	let content: {username: string, user: number, avatar: string};
-	if (token !== undefined)
-	{
-		content = decodeToken(token);
-	}
-	else
-		return;
-	const response = await fetch(`http://localhost:8080/api/chats/${chat.chat_id}/users/${way}`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': 'Bearer ' + token
-			},
-			body: JSON.stringify({user_id: user.id, requester: content?.user, })
-		});
-		if (response.ok)
-			toast.info(user.username + ' was successfully ' + way, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info' });
-		else 
-			toast.error('Error: ' + response.status, { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
+export const handleBlockUser = async (
+  user: User | undefined,
+  token: string | undefined
+) => {
+  if (user === undefined) return;
+  const response = await fetch(
+    `http://localhost:8080/api/users/block/${user.id}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({ user_id: user.id }),
+    }
+  );
+  if (response.ok)
+    toast.info(user.username + " was successfully blocked", {
+      position: toast.POSITION.BOTTOM_LEFT,
+      className: "toast-info",
+    });
+  else {
+    let errorDta = await response.json();
+    toast.error("Error: " + errorDta.message, {
+      position: toast.POSITION.BOTTOM_LEFT,
+      className: "toast-error",
+    });
+  }
 };
 
-	const leaveRoom = (chat: chatData|undefined, socket: Socket) => {
-		console.log('leaving room:', chat?.chat.name);
-		socket.emit('leave-chat', {chat_id: chat?.chat_id, roomName: chat?.chat.name, user_id: chat?.user_id});
-	}
+const adminUser = async (
+  chat: chatData | undefined,
+  user: User,
+  token: string | undefined,
+  mode: string
+) => {
+  let way: string = user.isAdmin === true ? "unadmin" : "admin";
+  if (mode === "admin") way = user.isAdmin === true ? "unadmin" : "admin";
+  else if (mode === "mute") way = user.isMuted === true ? "unmute" : "mute";
+  else way = mode;
+  if (chat === undefined) return;
+  let content: { username: string; user: number; avatar: string };
+  if (token !== undefined) {
+    content = decodeToken(token);
+  } else return;
+  const response = await fetch(
+    `http://localhost:8080/api/chats/${chat.chat_id}/users/${way}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({ user_id: user.id, requester: content?.user }),
+    }
+  );
+  if (response.ok)
+    toast.info(user.username + " was successfully " + way, {
+      position: toast.POSITION.BOTTOM_LEFT,
+      className: "toast-info",
+    });
+  else
+    toast.error("Error: " + response.status, {
+      position: toast.POSITION.BOTTOM_LEFT,
+      className: "toast-error",
+    });
+};
+
+const leaveRoom = (chat: chatData | undefined, socket: Socket) => {
+  socket.emit("leave-chat", {
+    chat_id: chat?.chat_id,
+    roomName: chat?.chat.name,
+    user_id: chat?.user_id,
+  });
+};
 
 const IdChatUser: React.FC<IdChatProps> = ({
   chatData,
@@ -141,12 +159,10 @@ const IdChatUser: React.FC<IdChatProps> = ({
   };
 
   const changePassword = async () => {
-    console.log("change password");
     let newPassword: string | undefined | null;
     newPassword = prompt("Enter new password, leave empty to remove password");
     if (newPassword === null || newPassword === undefined) return;
     if (newPassword.trim() === "") newPassword = undefined;
-    console.log("new password:", newPassword);
     if (chatData === undefined) return;
     const response = await fetch(
       `http://localhost:8080/api/chats/${chatData.chat_id}`,
@@ -168,12 +184,11 @@ const IdChatUser: React.FC<IdChatProps> = ({
       });
       socket.emit("refresh", { roomName: chatData.chat.name, type: "chat" });
     } else {
-      const error_data = await response.json();
+      await response.json();
       toast.error("Error: " + response.status, {
         position: toast.POSITION.BOTTOM_LEFT,
         className: "toast-error",
       });
-      console.log("error in the change password", error_data);
     }
   };
 
@@ -190,7 +205,6 @@ const IdChatUser: React.FC<IdChatProps> = ({
     );
     if (response.ok) {
       let bannedList = await response.json();
-      console.log("banned list: ", bannedList);
       await setBannedUsers(bannedList);
       onOpen();
     }
@@ -207,17 +221,14 @@ const IdChatUser: React.FC<IdChatProps> = ({
         },
       }
     );
-    let data = await response.json();
+    await response.json();
     if (response.ok) {
-      console.log("deleted channel", data);
       socket.emit("delete-channel", { roomName: chatData?.chat.name });
     }
   }
 
-  const getData = (async (chatData: chatData | undefined) => {
-	setFetched(false);
-    console.log("user_id", user_id);
-    console.log("chatData: ", chatData);
+  const getData = async (chatData: chatData | undefined) => {
+    setFetched(false);
     if (chatData === undefined) {
       setchatMembers([]);
       return;
@@ -238,13 +249,11 @@ const IdChatUser: React.FC<IdChatProps> = ({
         data.sort((a: User, b: User) => a.username.localeCompare(b.username))
       );
       setFetched(true);
-      console.log("members: ", data);
     } else {
-      const data = await response.json();
-      console.log("error in the get data", data);
+      await response.json();
       setchatMembers([]);
     }
-  })
+  };
 
   function SpectateGame(user: User) {
     if (token !== undefined) {
@@ -252,53 +261,53 @@ const IdChatUser: React.FC<IdChatProps> = ({
       try {
         if (content.user !== user.id) {
           gsocket.emit("give-roomName", { user_id: user.id });
-          console.log("spectate game :", user.id);
           navigate("/game");
         }
       } catch (error) {
-        console.log(error);
+        console.log("error");
       }
     }
   }
 
-	const inviteToPong = async (user: User) => {
-		if (token !== undefined) {
-			let content = await decodeToken(token);
-			if (content.user === user.id)
-			{
-				toast.error("You cannot invite yourself to play", { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-error' });
-				return;
-			}
-			socket.emit("invite", { inviter: content, invited: user });
-			navigate("/game");
-		}
-	};
+  const inviteToPong = async (user: User) => {
+    if (token !== undefined) {
+      let content = await decodeToken(token);
+      if (content.user === user.id) {
+        toast.error("You cannot invite yourself to play", {
+          position: toast.POSITION.BOTTOM_LEFT,
+          className: "toast-error",
+        });
+        return;
+      }
+      socket.emit("invite", { inviter: content, invited: user });
+      navigate("/game");
+    }
+  };
 
-	useEffect(() => {
-		socket.on("smb-moved", () => {
-		  console.log(">>smb joined<<");
-		  if (chatData) {
-			getData(chatData);
-		  }
-		});
-	
-		socket.on("refresh-id", () => {
-		  getData(chatData);
-		});
-	
-		return () => {
-		  socket.off("smb-moved");
-		  socket.off("deleted");
-		  socket.off("refresh-id");
-		  socket.off("back-to-home");
-		};
-	  }, [socket, chatMembers, chatData, getData]);
+  useEffect(() => {
+    socket.on("smb-moved", () => {
+      if (chatData) {
+        getData(chatData);
+      }
+    });
 
-	useEffect(() => {
-		if (chatData) {
-		  getData(chatData);
-		}
-	  }, [chatData]);
+    socket.on("refresh-id", () => {
+      getData(chatData);
+    });
+
+    return () => {
+      socket.off("smb-moved");
+      socket.off("deleted");
+      socket.off("refresh-id");
+      socket.off("back-to-home");
+    };
+  }, [socket, chatMembers, chatData, getData]);
+
+  useEffect(() => {
+    if (chatData) {
+      getData(chatData);
+    }
+  }, [chatData]);
 
   return (
     <ChakraProvider>
@@ -327,83 +336,87 @@ const IdChatUser: React.FC<IdChatProps> = ({
                   </div>
                   <br />
                   <Menu>
-					{user.id === currentUser?.id ? (<></>) : (<div id="actionDiv">
-					<MenuButton
-                      className="sendButton"
-                      as={Button}
-                      rightIcon={<ChevronDownIcon />}
-                    >
-                      Actions
-                    </MenuButton>
-					<MenuList>
-                      <MenuItem
-                        className="Addfriend"
-                        onClick={() => handleAddUser(user)}
-                      >
-                        Add as a friend
-                      </MenuItem>
-                      <MenuItem
-                        className="Addfriend"
-                        onClick={() => handleBlockUser(user, token)}
-                      >
-                        {" "}
-                        Block User{" "}
-                      </MenuItem>
-                      <MenuItem
-                        className="Addfriend"
-                        onClick={() => SpectateGame(user)}
-                      >
-                        {" "}
-                        Spectate Game{" "}
-                      </MenuItem>
-                      <MenuItem
-                        className="Addfriend"
-                        onClick={() => inviteToPong(user)}
-                      >
-                        {" "}
-                        Invite for a pong{" "}
-                      </MenuItem>
-                      {currentUser?.isAdmin === true ? (
-                        <>
+                    {user.id === currentUser?.id ? (
+                      <></>
+                    ) : (
+                      <div id="actionDiv">
+                        <MenuButton
+                          className="sendButton"
+                          as={Button}
+                          rightIcon={<ChevronDownIcon />}
+                        >
+                          Actions
+                        </MenuButton>
+                        <MenuList>
                           <MenuItem
                             className="Addfriend"
-                            onClick={() => setNewMode(user, "admin")}
+                            onClick={() => handleAddUser(user)}
                           >
-                            {" "}
-                            {user.isAdmin === true
-                              ? "Remove user as Admin"
-                              : "Set user as Admin"}{" "}
+                            Add as a friend
                           </MenuItem>
                           <MenuItem
                             className="Addfriend"
-                            onClick={() => setNewMode(user, "mute")}
+                            onClick={() => handleBlockUser(user, token)}
                           >
                             {" "}
-                            {user.isMuted === true
-                              ? "Unmute user"
-                              : "Mute user"}{" "}
+                            Block User{" "}
                           </MenuItem>
                           <MenuItem
                             className="Addfriend"
-                            onClick={() => setNewMode(user, "ban")}
+                            onClick={() => SpectateGame(user)}
                           >
                             {" "}
-                            Ban user{" "}
+                            Spectate Game{" "}
                           </MenuItem>
-                        </>
-                      ) : (
-                        <div></div>
-                      )}
-                      <MenuItem
-                        className="Addfriend"
-                        onClick={() => goToProfile(user)}
-                      >
-                        {" "}
-                        See Profile{" "}
-                      </MenuItem>
-                    </MenuList>
-					</div>)}
-				</Menu>
+                          <MenuItem
+                            className="Addfriend"
+                            onClick={() => inviteToPong(user)}
+                          >
+                            {" "}
+                            Invite for a pong{" "}
+                          </MenuItem>
+                          {currentUser?.isAdmin === true ? (
+                            <>
+                              <MenuItem
+                                className="Addfriend"
+                                onClick={() => setNewMode(user, "admin")}
+                              >
+                                {" "}
+                                {user.isAdmin === true
+                                  ? "Remove user as Admin"
+                                  : "Set user as Admin"}{" "}
+                              </MenuItem>
+                              <MenuItem
+                                className="Addfriend"
+                                onClick={() => setNewMode(user, "mute")}
+                              >
+                                {" "}
+                                {user.isMuted === true
+                                  ? "Unmute user"
+                                  : "Mute user"}{" "}
+                              </MenuItem>
+                              <MenuItem
+                                className="Addfriend"
+                                onClick={() => setNewMode(user, "ban")}
+                              >
+                                {" "}
+                                Ban user{" "}
+                              </MenuItem>
+                            </>
+                          ) : (
+                            <div></div>
+                          )}
+                          <MenuItem
+                            className="Addfriend"
+                            onClick={() => goToProfile(user)}
+                          >
+                            {" "}
+                            See Profile{" "}
+                          </MenuItem>
+                        </MenuList>
+                      </div>
+                    )}
+                  </Menu>
                 </li>
               ))}
             <>

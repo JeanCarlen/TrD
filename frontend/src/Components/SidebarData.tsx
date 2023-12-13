@@ -2,21 +2,11 @@ import React from 'react'
 import * as FaIcons from 'react-icons/fa'
 
 export const SidebarData = [
-    // {
-    //     title: 'SignIn',
-    //     path: '/login' ,
-    //     icon: <FaIcons.FaCrow />
-    // },
     {
         title: 'Home',
         path: '/Home',
         icon: <FaIcons.FaHome />
     },
-    // {
-    //     title: 'Users',
-    //     path: '/users',
-    //     icon: <FaIcons.FaUsers />
-    // },
     {
         title: 'Lets Play!',
         path: '/game',
@@ -32,11 +22,6 @@ export const SidebarData = [
         path: '/statistics',
         icon: <FaIcons.FaRegChartBar />
     },
-	// {
-	// 	title: 'setupmfa',
-	// 	path: '/mfasetup',
-	// 	icon: <FaIcons.FaLock />
-	// },
     {
         title: 'Log Out',
         path: '/logout',

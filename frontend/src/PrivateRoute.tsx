@@ -29,7 +29,6 @@ const PrivateRoutes = () => {
   if (token) {
     tokenContent = decodeToken(token);
   } else {
-    // content = decodeToken(isToken);
     return <Outlet />;
   }
 
@@ -39,14 +38,7 @@ const PrivateRoutes = () => {
   else {
     gsocket.connect();
     gsocket.emit("connect_id", tokenContent.user);
-    console.log(
-      "WebSocket initialised: ",
-      gsocket.id,
-      "token content",
-      tokenContent.user
-    );
     dispatch(setUserStatus(1));
-    // globalSocket.emit('userSend', tokenContent.user);
     return <Outlet />;
   }
 };

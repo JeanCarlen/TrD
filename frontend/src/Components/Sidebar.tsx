@@ -5,23 +5,6 @@ import styled from 'styled-components'
 import '../App.css';
 import './Sidebar.css'
 
-// const MenuIconClose = styled(Link)`
-//     display: flex;
-//     justify-content: start;
-//     font-size: 1.5rem;
-//     margin-top: 2rem;
-//     padding-left: 20px;
-//     color: #ffffff;
-// `
-
-// const MenuIconOpen = styled(Link)`
-//     display: flex;
-//     justify-content: start;
-//     font-size: 1.5rem;
-//     margin-top: -2rem;
-//     margin-left: 15rem;
-//     color: #ffffff;
-// `
 const SidebarMenu = styled.div`
     width: 100px;
     height: 100%;
@@ -50,8 +33,6 @@ const MenuItems = styled.li`
     const MenuItemLinks = styled(Link)`
 `
 const Sidebar: React.FunctionComponent = () => {
-    // const [close, setClose] = useState(false)
-    // const showSidebar = () => setClose(!close)
 
     return (
          <>

@@ -9,7 +9,6 @@ type UserProps = {
 };
 
 const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
-  console.log('got here:', userID);
 
   const handleAddFriend = async (userID: number | undefined) => {
     const token = Cookies.get("token");
@@ -39,7 +38,6 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
       }
     );
     const data = await response.json();
-    console.log('Friend add:', data);
     if (response.ok)
       toast.success("Friend request sent!", {
         position: toast.POSITION.BOTTOM_LEFT,
@@ -57,8 +55,7 @@ const AddFriend: React.FC<UserProps> = ({ userID }:UserProps) => {
     <div>
 	<button
 		className="bg-stone-50 hover:bg-stone-500 text-black font-bold py-2 px-4 rounded mb-4"
-		onClick={() => handleAddFriend(userID)}
-		>
+		onClick={() => handleAddFriend(userID)}>
     Add friend
 	</button>
     </div>

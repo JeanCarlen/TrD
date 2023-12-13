@@ -23,7 +23,6 @@ export class ChatadminsService {
   }
 
   public async create(createChatadminDto: CreateChatadminDto) {
-	// console.log('creating chat admin');
 	const chatadmin = new ChatAdmins();
 	chatadmin.user_id = createChatadminDto.user_id;
 	chatadmin.chat_id = createChatadminDto.chat_id;
