@@ -163,8 +163,8 @@ export class UsersService {
 
     // check if username is already taken
     const found = await this.findByUsername(user.username);
-    if (found.length > 0)
-      throw new BadRequestException(['Username already taken.'], {
+    if (found.length > 0 || user.username == 'default')
+        throw new BadRequestException(['Username already taken.'], {
         cause: new Error(),
         description: `Username ${user.username} already taken.`,
       });
