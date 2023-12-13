@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 services:
   nginx:
     build:
@@ -15,7 +15,7 @@ services:
       - frontend_vol:/var/www/frontend/
       - certs:/etc/letsencrypt
     ports:
-      - "80:80"
+      - "8080:80"
       - "443:443"
 
   frontend:
@@ -42,7 +42,7 @@ services:
     env_file:
       - ./backend/.env
     volumes:
-      - images_data:/app/uploads
+      - images_data:/uploads
     depends_on:
       - database
     networks:
@@ -73,29 +73,29 @@ networks:
 volumes:
   db_data:
     name: db_data
-    driver: local
-    driver_opts:
-      device: ./data/db
-      type: none
-      o: bind
+    #driver: local
+    #    driver_opts:
+    #  device: ./data/db
+    #  type: none
+    #  o: bind
   images_data:
     name: images_data
-    driver: local
-    driver_opts:
-      device: ./data/images
-      type: none
-      o: bind
+    #driver: local
+    #driver_opts:
+    #  device: ./data/images
+    #  type: none
+    #  o: bind
   frontend_vol:
     name: frontend_vol
-    driver: local
-    driver_opts:
-      device: ./data/frontend
-      type: none
-      o: bind
+    #driver: local
+    #driver_opts:
+    #  device: ./data/frontend
+    #  type: none
+    #  o: bind
   certs:
     name: certs
-    driver: local
-    driver_opts:
-      device: ./data/certs
-      type: none
-      o: bind
+    #driver: local
+    #driver_opts:
+    #  device: ./data/certs
+    #  type: none
+    #  o: bind
