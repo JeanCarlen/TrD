@@ -60,7 +60,7 @@ export class MatchesController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized.'})
   @ApiNotFoundResponse({ description: 'Match not found.'})
   findAllMatches(@Req() req: any) {
-	
+	console.log('we got here');
 	return this.matchesService.findAllMatches();
   }
 

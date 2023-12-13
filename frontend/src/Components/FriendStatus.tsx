@@ -19,7 +19,7 @@ const ShowStatus: React.FC<statusProps> = ({status}: statusProps) => {
       break;
     default:
       color = 'black';
-    
+    console.log("friends' status", status);
   }
 
 

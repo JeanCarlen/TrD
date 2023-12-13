@@ -18,7 +18,7 @@ const GameInvite: React.FC<{}> = () => {
 	)
 
 	function replyMatch(roomName: string, status: string) {
-		
+		console.log('REPLIED: ', roomName, status);
 		gsocket.emit('replyInvite', {roomName: roomName, status: status});
 		if (status === 'accept')
 		{
@@ -28,7 +28,7 @@ const GameInvite: React.FC<{}> = () => {
 
 	useEffect(()=> {
 		gsocket.on('invite', (dataBack:{inviter: User, roomName: string}) => {
-			
+			console.log('INVITED');
 			toast.info(<ToastMessage inviter={dataBack.inviter} roomName={dataBack.roomName}/>,  { position: toast.POSITION.BOTTOM_LEFT, className: 'toast-info'});
 		});
 
