@@ -89,7 +89,7 @@ const LayoutRanking: React.FC<props> = ({ token }: props) => {
                 <div className="box" style={{ width: "15vh" }}>
                   {line.username}
                 </div>
-                <div className="box">#{index + 1}</div>
+                <div className="box">#{index + 1} - ({ line.ranking })</div>
               </div>
             );
           })}
