@@ -14,11 +14,12 @@ RUN npm install
 COPY . .
 
 # Build the React app
-RUN npm install -g npm@9.8.1
+# RUN npm install -g npm@9.8.1
 # RUN npm run build
 
-EXPOSE 80
+# EXPOSE 80
 
 # Set the command to start the React app
-CMD ["npm", "start"]
+# CMD ["npm", "start"]
 # CMD [ "npm", "run", "dev" ]
+CMD ["npm", "run", "build"]

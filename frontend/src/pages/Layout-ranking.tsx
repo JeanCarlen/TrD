@@ -19,7 +19,7 @@ const LayoutRanking: React.FC<props> = ({ token }: props) => {
   const [rankList, setRankList] = useState<ranking[]>([]);
 
   const fetchMatches = ( async () => {
-    const response = await fetch("http://localhost:8080/api/matches/", {
+    const response = await fetch(`${process.env.REACT_APP_HOST}api/matches/`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

@@ -59,7 +59,7 @@ const Chat: React.FC = () => {
     } else content = { username: "default", user: 0, avatar: "default" };
 
     const response = await fetch(
-      `http://localhost:8080/api/users/${content.user}/chats`,
+      `${process.env.REACT_APP_HOST}api/users/${content.user}/chats`,
       {
         method: "GET",
         headers: {
@@ -133,7 +133,7 @@ const Chat: React.FC = () => {
   const getMessages = async (chat: chatData | undefined) => {
     if (chat === undefined) return;
     const response = await fetch(
-      `http://localhost:8080/api/chats/${chat.chat_id}/messages`,
+      `${process.env.REACT_APP_HOST}api/chats/${chat.chat_id}/messages`,
       {
         method: "GET",
         headers: {
@@ -226,7 +226,7 @@ const Chat: React.FC = () => {
   const getAndSet = async (nor: string) => {
     let roomList;
     const response = await fetch(
-      `http://localhost:8080/api/users/${content?.user}/chats`,
+      `${process.env.REACT_APP_HOST}api/users/${content?.user}/chats`,
       {
         method: "GET",
         headers: {

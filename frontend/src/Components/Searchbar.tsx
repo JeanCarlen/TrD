@@ -13,7 +13,7 @@ function Searchbar() {
 	const token = Cookies.get('token');
 
 	const handleSearch = async () => {
-		const response = await fetch(`http://localhost:8080/api/users/username/${searchTerm}`, {
+		const response = await fetch(`${process.env.REACT_APP_HOST}api/users/username/${searchTerm}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',

@@ -46,13 +46,13 @@ const Home = (props: Props) => {
     content = {
       username: "default",
       user: 0,
-      avatar: "http://localhost:8080/images/default.png",
+      avatar: `${process.env.REACT_APP_HOST}images/default.png`,
     };
   }
 
   const fetchMatches = async () => {
     const response = await fetch(
-      `http://localhost:8080/api/matches/users/${content.user}`,
+      `${process.env.REACT_APP_HOST}api/matches/users/${content.user}`,
       {
         method: "GET",
         headers: {
@@ -75,7 +75,7 @@ const Home = (props: Props) => {
 
   const fetchAchievments = async () => {
     const response = await fetch(
-      `http://localhost:8080/api/users/id/achievments/${content.user}`,
+      `${process.env.REACT_APP_HOST}api/users/id/achievments/${content.user}`,
       {
         method: "GET",
         headers: {
@@ -97,7 +97,7 @@ const Home = (props: Props) => {
 
   const updateUser = async () => {
     const response = await fetch(
-      `http://localhost:8080/api/users/${content.user}`,
+      `${process.env.REACT_APP_HOST}api/users/${content.user}`,
       {
         method: "GET",
         headers: {

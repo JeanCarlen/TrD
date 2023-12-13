@@ -17,7 +17,7 @@ const Auth2F: React.FC = () => {
 
   const onSuccess = async (rep: any) => {
     const response = await fetch(
-      "http://localhost:8080/api/auth/otp/generate",
+      `${process.env.REACT_APP_HOST}api/auth/otp/generate`,
       {
         method: "POST",
         headers: {

@@ -21,6 +21,11 @@ const RegisterButton: React.FC = () => {
   const [tokenContent, setTokenContent] = useState<JWTPayload>();
   const showPassword = false;
 
+//   href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-9ce743a9d6e296d270c36a928c02e3adc101d43c3a7905d66c9a2727b7640ad9&redirect_uri=https%3A%2F%2Ftrd.laendrun.ch%2Fapi%2Fauth%2Fcallback&response_type=code"
+  const callbackUrl: string = encodeURIComponent(process.env.REACT_APP_API42_REDIRECT_URI || '')
+  const clientId: string = process.env.REACT_APP_API42_CLIENT_ID || ''
+  const api42Url = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${callbackUrl}&response_type=code`	
+
   useEffect(() => {
     const token: string | undefined = Cookies.get("token");
     if (token) {
@@ -41,7 +46,7 @@ const RegisterButton: React.FC = () => {
       });
       return;
     }
-    const response = await fetch("http://localhost:8080/api/auth/login", {
+    const response = await fetch(`${process.env.REACT_APP_HOST}api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -82,7 +87,7 @@ const RegisterButton: React.FC = () => {
       });
       return;
     }
-    const response = await fetch("http://localhost:8080/api/auth/register", {
+    const response = await fetch(`${process.env.REACT_APP_HOST}api/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -148,7 +153,7 @@ const RegisterButton: React.FC = () => {
           <div className="container_row">
             <button className="login-button">
               <a className="schoollogo"
-                href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-9ce743a9d6e296d270c36a928c02e3adc101d43c3a7905d66c9a2727b7640ad9&redirect_uri=https%3A%2F%2Ftrd.laendrun.ch%2Fapi%2Fauth%2Fcallback&response_type=code"
+			    href={api42Url}
                 rel="noopener noreferrer"
               >
                 <img className="schoollogo" src={schoollogo} alt="42"/>

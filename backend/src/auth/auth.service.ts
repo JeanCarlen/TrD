@@ -38,10 +38,10 @@ export class AuthService {
       });
     const formData = new FormData();
     formData.append('grant_type', 'authorization_code');
-    formData.append('client_id', process.env.API42_CLIENT_ID);
+    formData.append('client_id', process.env.REACT_APP_API42_CLIENT_ID);
     formData.append('client_secret', process.env.API42_CLIENT_SECRET);
     formData.append('code', code);
-    formData.append('redirect_uri', process.env.API42_REDIRECT_URI);
+    formData.append('redirect_uri', process.env.REACT_APP_API42_REDIRECT_URI);
     let response = await fetch('https://api.intra.42.fr/oauth/token', {
       method: 'POST',
       body: formData,

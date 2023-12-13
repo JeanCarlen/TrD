@@ -53,7 +53,7 @@ export const handleBlockUser = async (
 ) => {
   if (user === undefined) return;
   const response = await fetch(
-    `http://localhost:8080/api/users/block/${user.id}`,
+    `${process.env.REACT_APP_HOST}api/users/block/${user.id}`,
     {
       method: "POST",
       headers: {
@@ -93,7 +93,7 @@ const adminUser = async (
     content = decodeToken(token);
   } else return;
   const response = await fetch(
-    `http://localhost:8080/api/chats/${chat.chat_id}/users/${way}`,
+    `${process.env.REACT_APP_HOST}api/chats/${chat.chat_id}/users/${way}`,
     {
       method: "POST",
       headers: {
@@ -165,7 +165,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
     if (newPassword.trim() === "") newPassword = undefined;
     if (chatData === undefined) return;
     const response = await fetch(
-      `http://localhost:8080/api/chats/${chatData.chat_id}`,
+      `${process.env.REACT_APP_HOST}api/chats/${chatData.chat_id}`,
       {
         method: "PATCH",
         headers: {
@@ -194,7 +194,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
 
   async function unbanUsers() {
     const response = await fetch(
-      `http://localhost:8080/api/chats/${chatData?.chat_id}/users/banned`,
+      `${process.env.REACT_APP_HOST}api/chats/${chatData?.chat_id}/users/banned`,
       {
         method: "GET",
         headers: {
@@ -212,7 +212,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
 
   async function doDeleteChannel() {
     const response = await fetch(
-      `http://localhost:8080/api/chats/${chatData?.chat_id}`,
+      `${process.env.REACT_APP_HOST}api/chats/${chatData?.chat_id}`,
       {
         method: "DELETE",
         headers: {
@@ -234,7 +234,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
       return;
     }
     const response = await fetch(
-      `http://localhost:8080/api/chats/${chatData.chat_id}/users`,
+      `${process.env.REACT_APP_HOST}api/chats/${chatData.chat_id}/users`,
       {
         method: "GET",
         headers: {

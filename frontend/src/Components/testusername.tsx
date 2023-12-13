@@ -12,7 +12,7 @@ const GetUserName: React.FunctionComponent<usernameProps> = ({ username }: usern
     if (token !== undefined)
       content = decodeToken(token);
     else
-      content = { username: 'default', user: 0, avatar: 'http://localhost:8080/images/default.png'}
+      content = { username: 'default', user: 0, avatar: `${process.env.REACT_APP_HOST}images/default.png`}
     
     return (
         <div>

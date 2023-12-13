@@ -45,12 +45,12 @@ const FriendList: React.FC<{}> = () => {
     content = {
       username: "default",
       user: 0,
-      avatar: "http://localhost:8080/images/default.png",
+      avatar: `${process.env.REACT_APP_HOST}images/default.png`,
     }
   };
   const getFriends = async () => {
     const response = await fetch(
-      `http://localhost:8080/api/friends/active/list/${content.user}`,
+      `${process.env.REACT_APP_HOST}api/friends/active/list/${content.user}`,
       {
         method: "GET",
         headers: {
@@ -107,7 +107,7 @@ const FriendList: React.FC<{}> = () => {
               ? friends.requested
               : friends.requester;
           const friendDetails = await fetch(
-            `http://localhost:8080/api/users/${friendId}`,
+            `${process.env.REACT_APP_HOST}api/users/${friendId}`,
             {
               method: "GET",
               headers: {

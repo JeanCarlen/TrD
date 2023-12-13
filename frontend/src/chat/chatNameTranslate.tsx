@@ -21,7 +21,7 @@ export async function TranslateChat(
     else if (n2 === user_id) final_user = n1;
 
     const response = await fetch(
-      `http://localhost:8080/api/users/${final_user}`,
+      `${process.env.REACT_APP_HOST}api/users/${final_user}`,
       {
         method: "GET",
         headers: {

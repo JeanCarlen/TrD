@@ -157,7 +157,7 @@ export class UsersService {
   public async create(createUserDto: CreateUserDto) {
     const user: Users = new Users();
     user.username = createUserDto.username;
-    user.avatar = process.env.HOST + 'images/default.png';
+    user.avatar = process.env.REACT_APP_HOST + 'images/default.png';
     user.twofaenabled = false;
 	user.status = 0;
 
@@ -358,11 +358,11 @@ export class UsersService {
 	}
 
 	if (!user.avatar.includes('default')) {
-	  const image = user.avatar.replace(process.env.HOST + 'images/', '');
+	  const image = user.avatar.replace(process.env.REACT_APP_HOST + 'images/', '');
 	  fs.unlinkSync('/app/uploads/' + image);
 	}
 
-	user.avatar = process.env.HOST + 'images/deleted.png';
+	user.avatar = process.env.REACT_APP_HOST + 'images/deleted.png';
 	user.username = `Deleted User ${user.id}`;
 	user.password = 'Bonsoir'; // not hashing the password to be sure no one can log in with it
 	user.twofaenabled = false;
@@ -387,11 +387,11 @@ export class UsersService {
 		})
 	}
     if (!user.avatar.includes('default')) {
-      const image = user.avatar.replace(process.env.HOST + 'images/', '');
+      const image = user.avatar.replace(process.env.REACT_APP_HOST + 'images/', '');
       fs.unlinkSync('/app/uploads/' + image);
     }
 
-    user.avatar = process.env.HOST + 'images/' + imageName;
+    user.avatar = process.env.REACT_APP_HOST + 'images/' + imageName;
     const inserted = await this.usersRepository.save(user);
     const token = this.getJWT(inserted, false);
     return { message: ['Avatar successfully saved.'], token: token };

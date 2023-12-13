@@ -28,7 +28,7 @@ const Enter2Fa: React.FC<{}> = () => {
   const authenticate = async (e: React.FormEvent) => {
     setLoading(true);
     const response = await fetch(
-      "http://localhost:8080/api/auth/2fa/authenticate",
+      `${process.env.REACT_APP_HOST}api/auth/2fa/authenticate`,
       {
         method: "POST",
         headers: {

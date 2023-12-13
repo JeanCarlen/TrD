@@ -49,7 +49,7 @@ const Profiles = (props: Props) => {
     content = {
       username: "default",
       user: 0,
-      avatar: "http://localhost:8080/images/default.png",
+      avatar: `${process.env.REACT_APP_HOST}images/default.png`,
     };
   }
 
@@ -60,7 +60,7 @@ const Profiles = (props: Props) => {
 
   const fetchAchievements = async () => {
     const response = await fetch(
-      `http://localhost:8080/api/users/id/achievments/${content.user}`,
+      `${process.env.REACT_APP_HOST}api/users/id/achievments/${content.user}`,
       {
         method: "GET",
         headers: {
@@ -84,7 +84,7 @@ const Profiles = (props: Props) => {
 
   const GetUserinfo = async () => {
     const response = await fetch(
-      `http://localhost:8080/api/users/username/${users}`,
+      `${process.env.REACT_APP_HOST}api/users/username/${users}`,
       {
         method: "GET",
         headers: {
@@ -114,7 +114,7 @@ const Profiles = (props: Props) => {
   const fetchMatches = async (theID: number) => {
     console.log("Fetching matches for user", theID);
     const response = await fetch(
-      `http://localhost:8080/api/matches/users/${theID}`,
+      `${process.env.REACT_APP_HOST}api/matches/users/${theID}`,
       {
         method: "GET",
         headers: {
