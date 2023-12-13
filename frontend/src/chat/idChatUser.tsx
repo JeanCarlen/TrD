@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { Menu, MenuButton, MenuList, MenuItem, Button } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
@@ -214,7 +214,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
     }
   }
 
-  const getData = useCallback (async (chatData: chatData | undefined) => {
+  const getData = (async (chatData: chatData | undefined) => {
 	setFetched(false);
     console.log("user_id", user_id);
     console.log("chatData: ", chatData);
@@ -244,7 +244,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
       console.log("error in the get data", data);
       setchatMembers([]);
     }
-  }, [user_id, token])
+  })
 
   function SpectateGame(user: User) {
     if (token !== undefined) {
@@ -298,7 +298,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
 		if (chatData) {
 		  getData(chatData);
 		}
-	  }, [chatData, getData]);
+	  }, [chatData]);
 
   return (
     <ChakraProvider>

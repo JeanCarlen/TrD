@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 // import styled from 'styled-components'
 import { ChakraProvider, WrapItem, Wrap } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/react";
@@ -22,6 +22,7 @@ import { gsocket } from "../context/websocket.context";
 import { toast } from "react-toastify";
 import { Achievement } from "../pages/Layout-Achievements";
 import LayoutAchievements from "../pages/Layout-Achievements";
+import MoveAction from "../moveAction";
 
 export interface profiles {
   username: string | undefined;
@@ -58,7 +59,7 @@ const Profiles = (props: Props) => {
     GetUserinfo();
   }, []);
 
-  const fetchAchievements = useCallback(async () => {
+  const fetchAchievements = (async () => {
     const response = await fetch(
       `http://localhost:8080/api/users/id/achievments/${content.user}`,
       {
@@ -80,7 +81,7 @@ const Profiles = (props: Props) => {
     } else {
       console.log("Error fetching achievments");
     }
-  }, [content, token]);
+  });
 
   const GetUserinfo = async () => {
     const response = await fetch(
@@ -256,6 +257,7 @@ const Profiles = (props: Props) => {
           </div>
         </div>
       </div>
+	  <MoveAction/>
     </ChakraProvider>
   );
 };
