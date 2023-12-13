@@ -48,8 +48,6 @@ export class AuthService {
     });
     const data = await response.json();
 
-	console.log(data)
-
     let response2 = await fetch('https://api.intra.42.fr/v2/me', {
       method: 'GET',
       headers: {
@@ -57,8 +55,6 @@ export class AuthService {
       },
     });
     const user42 = await response2.json();
-
-	console.log(user42)
 
     const user = {
       login42: user42.login,
