@@ -147,8 +147,13 @@ const UserInformation: React.FC<CookieProps> = ({ username }: CookieProps) => {
       });
       updateUser();
       dispatch(setUserName(newName));
+	  Cookies.set("token", data.token);
     }
-    Cookies.set("token", data.token);
+	else {
+		toast.error("Unable to change username!", {
+			position: toast.POSITION.TOP_CENTER,
+		});
+	}
   };
 
   async function getBlockList() {
