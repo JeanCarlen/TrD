@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import "./Stats.css";
 import Sidebar from "../Components/Sidebar";
 import LayoutGamestats from "./Layout-gamestats";
@@ -46,7 +46,7 @@ const Stats: React.FunctionComponent = () => {
   }
     };
 
-  const fetchMatches = useCallback(async () => {
+  const fetchMatches = (async () => {
     const response = await fetch(
       `http://localhost:8080/api/matches/users/${content.user}`,
       {
@@ -65,11 +65,11 @@ const Stats: React.FunctionComponent = () => {
     } else {
       console.log("Error fetching matches");
     }
-  }, [content, token]);
+  });
 
   useEffect(() => {
     fetchMatches();
-  }, [fetchMatches]);
+  },[]);
 
   return (
     <div className="stats-container">

@@ -119,8 +119,8 @@ const Chat: React.FC = () => {
 				return;
 		}
 		handleRoomChange(chat.chat.name, passwordPrompt);
-		setCurrentChat(chat);
-		getMessages(chat);
+		// setCurrentChat(chat);
+		// getMessages(chat);
 	};
 
 	const getMessages = async(chat: chatData | undefined) => {
@@ -178,6 +178,11 @@ const Chat: React.FC = () => {
 		}
 		});
 
+		gsocket.on('login-ok', (nor: string)=>{
+			console.log('ok for:', nor);
+			getAndSet(nor);
+		})
+
 		gsocket.on("smb-movede", () => {
 			console.log("refreshing chats");
 			getChats();
@@ -210,9 +215,36 @@ const Chat: React.FC = () => {
 			gsocket.off('room-join-error');
 			gsocket.off("smb-movede");
 			gsocket.off('kick');
+			gsocket.off('login-ok');
 		}
 	}, [content]);
 
+
+	const getAndSet = async (nor: string) =>
+	{
+		let roomList;
+		const response = await fetch(`http://localhost:8080/api/users/${content.user}/chats`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + token,
+			},
+		});
+		if (response.ok)
+		{
+			roomList = await response.json();
+		
+			if (roomList === undefined)
+				return;
+			let newR = roomList.find((one: chatData)=>(one.chat.name === nor))
+			if (newR === undefined)
+				return;
+			setCurrentChat(newR);
+			getMessages(newR);
+		}
+		else
+			console.log('EVERYTHING IS ON FIRE');
+	}
 
 	const handleJoinRoomClick = async (dataPass: chatData[]) => {
 		const roomNamePrompt = prompt("Enter the name of the room you want to join:");
@@ -254,9 +286,9 @@ const Chat: React.FC = () => {
 				if (newFetch !== undefined)
 					newRoom = newFetch.find((chat: chatData) => chat.chat.name === roomNamePrompt);
 				delay(1000);
-				getMessages(newRoom);
-				if (newRoom !== undefined)
-					setCurrentChat(newRoom);
+				// getMessages(newRoom);
+				// if (newRoom !== undefined)
+				// 	setCurrentChat(newRoom);
 			}
 		}
 		};

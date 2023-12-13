@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import { ChakraProvider, WrapItem, Wrap } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/react";
 import Sidebar from "../Components/Sidebar";
@@ -54,7 +54,7 @@ const Home = (props: Props) => {
     }
   };
 
-  const fetchMatches = useCallback(async () => {
+  const fetchMatches = (async () => {
     const response = await fetch(
       `http://localhost:8080/api/matches/users/${content.user}`,
       {
@@ -78,9 +78,9 @@ const Home = (props: Props) => {
     } else {
       console.log("Error fetching matches");
     }
-  }, [content, token]);
+  });
 
-  const fetchAchievments = useCallback(async () => {
+  const fetchAchievments = (async () => {
     const response = await fetch(
       `http://localhost:8080/api/users/id/achievments/${content.user}`,
       {
@@ -102,9 +102,9 @@ const Home = (props: Props) => {
     } else {
       console.log("Error fetching achievments");
     }
-  }, [content, token]);
+  });
 
-  const updateUser = useCallback(async () => {
+  const updateUser = (async () => {
     const response = await fetch(
       `http://localhost:8080/api/users/${content.user}`,
       {
@@ -120,7 +120,7 @@ const Home = (props: Props) => {
       content.username = data.username;
       console.log(content.username);
     }
-  }, [content, token]);
+  });
 
   useEffect(() => {
     fetchMatches();
