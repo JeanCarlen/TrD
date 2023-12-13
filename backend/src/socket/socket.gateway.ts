@@ -1,6 +1,6 @@
 import { Inject, Logger, OnModuleInit } from "@nestjs/common";
 import { MessageBody, OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { Server, Socket } from "socket.io";
+import { Socket } from "socket.io";
 import { ChatsService } from "src/chats/chats.service";
 import { ChatType } from "src/chats/entities/chat.entity";
 import { UserchatsService } from "src/userchats/userchats.service";
@@ -29,7 +29,7 @@ export class SocketGateway implements OnModuleInit, OnGatewayConnection {
 
     // Define the WebSocketServer and an array of clients
     @WebSocketServer()
-    private server: Server;
+    private server: Socket;
 	private UserList: {user_id: number, socket: Socket}[] = [];
 	private IdWaitlist: {user_id:number, socket: Socket}[] = [];
 	private IdWaitlist_bonus: {user_id:number, socket: Socket}[] = [];
