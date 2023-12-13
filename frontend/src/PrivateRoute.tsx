@@ -39,21 +39,12 @@ const PrivateRoutes = () => {
   else {
     gsocket.connect();
     gsocket.emit("connect_id", tokenContent.user);
-    
-      "WebSocket initialised: ",
-      gsocket.id,
-      "token content",
-      tokenContent.user
-    );
     dispatch(setUserStatus(1));
-    // globalSocket.emit('userSend', tokenContent.user);
     return <Outlet />;
   }
 };
 
 const Routes: React.FC = (props: Props) => {
-
-
 	return (
 		<div className="loginTest">
 			<Router>

@@ -168,7 +168,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
       });
       socket.emit("refresh", { roomName: chatData.chat.name, type: "chat" });
     } else {
-      const error_data = await response.json();
+      await response.json();
       toast.error("Error: " + response.status, {
         position: toast.POSITION.BOTTOM_LEFT,
         className: "toast-error",
@@ -207,7 +207,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
         },
       }
     );
-    let data = await response.json();
+    await response.json();
     if (response.ok) {
       
       socket.emit("delete-channel", { roomName: chatData?.chat.name });
@@ -240,7 +240,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
       setFetched(true);
       
     } else {
-      const data = await response.json();
+      await response.json();
       
       setchatMembers([]);
     }

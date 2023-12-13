@@ -31,6 +31,7 @@ const LayoutRanking: React.FC<props> = ({ token }: props) => {
       
       return data;
     } else 
+        console.log("Error fetching all matches", data);
   });
 
   const createUser = async (user_id: number, user_data: User) => {

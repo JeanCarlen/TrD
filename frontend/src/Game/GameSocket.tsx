@@ -131,7 +131,7 @@ const GameSocket: React.FC = () => {
     legacy: 1,
   });
 
-  const userStatus = useSelector((state: any) => state.userStatus);
+  // const userStatus = useSelector((state: any) => state.userStatus);
   // const socket = useContext(WebsocketContext);
 
   const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
@@ -402,6 +402,7 @@ const GameSocket: React.FC = () => {
       async (dataBack: { player: number; max: number; gameID: number }) => {
         
         if (data.current.spectator === 0) {
+          dispatch(setUserStatus(1));
           if (dataBack.player !== data.current.player1.pNumber) {
             if (dataBack.gameID !== 0) data.current.gameID = dataBack.gameID;
             if (data.current.player1.pNumber === 1)

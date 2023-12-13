@@ -80,13 +80,15 @@ const UserInformation: React.FC<CookieProps> = ({username}: CookieProps) => {
 			}
 		});
 		const data = await response.json()
-		
-		
+		if (response.ok)
+		{
+			Cookies.set('token', data.token);
+			dispatch(setUserName(data.username));
+		}
 	}
-
-			useEffect(() =>{
-			updateUser();
-			navigate('/home');
+		useEffect(() =>{
+		updateUser();
+		navigate('/home');
 		}, [token]);
 
 		const handleAvatarChange =  async (event: React.ChangeEvent<HTMLInputElement>) => {

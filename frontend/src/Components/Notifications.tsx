@@ -16,7 +16,6 @@ const NotificationIcon: React.FC = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [requestList, setRequestList] = useState<FriendData[]>([]);
 	const [counter, setCounter] = useState(0);
-	const navigate = useNavigate();
 	const token: string|undefined = Cookies.get("token");
 	let content: {username: string, user: number, avatar:string};
 		if (token !== undefined)

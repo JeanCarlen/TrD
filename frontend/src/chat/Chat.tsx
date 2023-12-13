@@ -45,7 +45,7 @@ const Chat: React.FC = () => {
 	const [currentRoom, setCurrentRoom] = useState<string>('default');
 	const [messages, setMessages] = useState<sentMessages[]>([]);
 	const [currentChat, setCurrentChat] = useState<chatData>();
-	const userStatus = useSelector((state: any) => state.userStatus);
+	// const userStatus = useSelector((state: any) => state.userStatus);
 
 	const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -82,10 +82,11 @@ const Chat: React.FC = () => {
 				return data as chatData[];
 			}
 			else
-				
+				console.log("error in the try");
+
 		}
 		catch (error) {
-			
+			console.log("error in the catch", error);
 		}
 	}
 
@@ -155,8 +156,6 @@ const Chat: React.FC = () => {
 			const messages: sentMessages[] = await response.json();
 			setMessages(messages);
 		}
-		else
-			
 	}
 
 	const joinChatRooms = async (client: Socket) => {
@@ -258,9 +257,7 @@ const Chat: React.FC = () => {
 				return;
 			setCurrentChat(newR);
 			getMessages(newR);
-		}
-		else
-			
+		}	
 	}
 
 	const handleJoinRoomClick = async (dataPass: chatData[]) => {
