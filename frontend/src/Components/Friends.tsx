@@ -49,11 +49,6 @@ const FriendList: React.FC<{}> = () => {
       user: 0,
       avatar: "http://localhost:8080/images/default.png",
     }
-      gsocket.disconnect();
-      useEffect(()=>{
-      navigate("/login");
-      },[navigate])
-      return ;
   };
   const getFriends = async () => {
     const response = await fetch(
