@@ -45,13 +45,13 @@ interface IdChatProps {
 const handleAddUser = (user: User) => {
 	// Implement logic to add the user to your contact list or perform the desired action.
 	// This could involve making an API request to your server.
-	console.log(`Adding user: ${user.username}`);
+	
   };
 
 export  const handleBlockUser = async (user: User|undefined, token: string|undefined) => {
 	if (user === undefined)
 		return ;
-	console.log(`Blocking user: ${user.username}`);
+	
 	const response = await fetch(`http://localhost:8080/api/users/block/${user.id}`, {
 			method: 'POST',
 			headers: {
@@ -76,7 +76,7 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 		way = user.isMuted === true ? 'unmute' : 'mute';
 	else
 		way = mode;
-	console.log(`setting user ${user.username} as ${way} `);
+	
 	if (chat === undefined)
 		return;
 	let content: {username: string, user: number, avatar: string};
@@ -101,7 +101,7 @@ const adminUser = async (chat: chatData|undefined, user: User, token: string|und
 };
 
 	const leaveRoom = (chat: chatData|undefined, socket: Socket) => {
-		console.log('leaving room:', chat?.chat.name);
+		
 		socket.emit('leave-chat', {chat_id: chat?.chat_id, roomName: chat?.chat.name, user_id: chat?.user_id});
 	}
 
@@ -141,12 +141,12 @@ const IdChatUser: React.FC<IdChatProps> = ({
   };
 
   const changePassword = async () => {
-    console.log("change password");
+    
     let newPassword: string | undefined | null;
     newPassword = prompt("Enter new password, leave empty to remove password");
     if (newPassword === null || newPassword === undefined) return;
     if (newPassword.trim() === "") newPassword = undefined;
-    console.log("new password:", newPassword);
+    
     if (chatData === undefined) return;
     const response = await fetch(
       `http://localhost:8080/api/chats/${chatData.chat_id}`,
@@ -173,7 +173,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
         position: toast.POSITION.BOTTOM_LEFT,
         className: "toast-error",
       });
-      console.log("error in the change password", error_data);
+      
     }
   };
 
@@ -190,7 +190,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
     );
     if (response.ok) {
       let bannedList = await response.json();
-      console.log("banned list: ", bannedList);
+      
       await setBannedUsers(bannedList);
       onOpen();
     }
@@ -209,15 +209,15 @@ const IdChatUser: React.FC<IdChatProps> = ({
     );
     let data = await response.json();
     if (response.ok) {
-      console.log("deleted channel", data);
+      
       socket.emit("delete-channel", { roomName: chatData?.chat.name });
     }
   }
 
   const getData = (async (chatData: chatData | undefined) => {
 	setFetched(false);
-    console.log("user_id", user_id);
-    console.log("chatData: ", chatData);
+    
+    
     if (chatData === undefined) {
       setchatMembers([]);
       return;
@@ -238,10 +238,10 @@ const IdChatUser: React.FC<IdChatProps> = ({
         data.sort((a: User, b: User) => a.username.localeCompare(b.username))
       );
       setFetched(true);
-      console.log("members: ", data);
+      
     } else {
       const data = await response.json();
-      console.log("error in the get data", data);
+      
       setchatMembers([]);
     }
   })
@@ -252,11 +252,11 @@ const IdChatUser: React.FC<IdChatProps> = ({
       try {
         if (content.user !== user.id) {
           gsocket.emit("give-roomName", { user_id: user.id });
-          console.log("spectate game :", user.id);
+          
           navigate("/game");
         }
       } catch (error) {
-        console.log(error);
+        
       }
     }
   }
@@ -276,7 +276,7 @@ const IdChatUser: React.FC<IdChatProps> = ({
 
 	useEffect(() => {
 		socket.on("smb-moved", () => {
-		  console.log(">>smb joined<<");
+		  
 		  if (chatData) {
 			getData(chatData);
 		  }

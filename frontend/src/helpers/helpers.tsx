@@ -30,7 +30,7 @@ export function AutoGetFetch(path: string): any {
 
   GetAchieve(path);
   while (!fetched) {
-    console.log("waiting...");
+    
   }
   return achieve;
 }

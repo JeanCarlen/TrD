@@ -39,7 +39,7 @@ const PrivateRoutes = () => {
   else {
     gsocket.connect();
     gsocket.emit("connect_id", tokenContent.user);
-    console.log(
+    
       "WebSocket initialised: ",
       gsocket.id,
       "token content",

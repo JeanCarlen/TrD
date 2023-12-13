@@ -30,7 +30,7 @@ const Auth2F: React.FC = () => {
 			const result: Authresponse = await response.json();
 			setUser(user);
 		  } else {
-			console.log("Error:", response.status, response.statusText);
+			
 		  }
 		}
 	return (

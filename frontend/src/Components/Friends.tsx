@@ -62,7 +62,7 @@ const FriendList: React.FC<{}> = () => {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("friendlist", data);
+      
       setFriends(data);
     }
   };
@@ -122,7 +122,7 @@ const FriendList: React.FC<{}> = () => {
         })
       );
       setFriendsInfo(friendsData);
-      console.log("friendsData", friendsData);
+      
     };
     if (content.user !== null) fetchFriendsDetails();
   }, [content.user, friends]);

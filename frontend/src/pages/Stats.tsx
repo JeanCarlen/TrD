@@ -60,7 +60,7 @@ const Stats: React.FunctionComponent = () => {
       setGameFetched(true);
       setAllData(data.reverse());
     } else {
-      console.log("Error fetching matches");
+      
     }
   });
 

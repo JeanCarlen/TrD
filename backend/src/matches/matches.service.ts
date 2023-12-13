@@ -131,7 +131,7 @@ export class MatchesService {
   }
 
   public async findAllMatches() {
-	await console.log('we got here 2');
+	await 
 	return await this.matchesRepository.find({ where: { status: 1 } });
   }
 
